@@ -102,18 +102,18 @@ img, video {
 
 .uppercase-gold {
     text-transform: uppercase;
-    letter-spacing: 2px;
-    /* Glow pulsante intenso em torno das palavras */
-    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.6)) drop-shadow(0 0 25px rgba(197, 160, 89, 0.4));
-    animation: goldGlowPulse 2.5s ease-in-out infinite alternate, goldShimmerLeftToRight 3.5s linear infinite;
+    letter-spacing: 1.5px;
+    /* Glow sutil e sofisticado */
+    filter: drop-shadow(0 0 6px rgba(197, 160, 89, 0.4));
+    animation: goldGlowPulse 3s ease-in-out infinite alternate, goldShimmerLeftToRight 4s linear infinite;
 }
 
 @keyframes goldGlowPulse {
     0% {
-        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5)) drop-shadow(0 0 18px rgba(197, 160, 89, 0.3));
+        filter: drop-shadow(0 0 4px rgba(197, 160, 89, 0.3));
     }
     100% {
-        filter: drop-shadow(0 0 20px rgba(255, 225, 120, 0.95)) drop-shadow(0 0 35px rgba(197, 160, 89, 0.7));
+        filter: drop-shadow(0 0 10px rgba(229, 195, 120, 0.5));
     }
 }
 
@@ -249,10 +249,12 @@ img, video {
     font-size: 0.9rem;
     font-weight: 400;
     transition: var(--transition-fast);
+    position: relative;
 }
 
 .nav-links a:hover {
-    color: var(--text-primary);
+    color: var(--brand-gold);
+    text-shadow: 0 0 10px rgba(197, 160, 89, 0.4);
 }
 
 /* Dobra 1: Hero Section */
@@ -338,11 +340,20 @@ img, video {
 }
 
 .hero-title {
-    font-size: 3.5rem;
+    font-size: clamp(1.4rem, 2.6vw, 2.5rem);
     font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -1.5px;
+    line-height: 1.35;
+    letter-spacing: -0.5px;
     margin-bottom: 24px;
+    text-align: center;
+    width: 100%;
+}
+
+.hero-title .title-line-1 {
+    display: block;
+    white-space: nowrap;
+    text-align: center;
+    width: 100%;
 }
 
 .hero-subtitle {
