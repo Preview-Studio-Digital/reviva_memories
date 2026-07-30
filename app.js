@@ -19,17 +19,77 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Smooth scroll para links internos
+    // Detectar dinamicamente a lista de slides de acordo com o dispositivo (Desktop vs Mobile)
+    let sections;
+    let currentIdx = 0;
+    let observer;
+
+    function updateSectionsList() {
+        if (observer) {
+            observer.disconnect();
+        }
+
+        if (window.innerWidth <= 768) {
+            // Mobile: Dividido por cabeçalhos e rows de 2 em 2
+            sections = document.querySelectorAll('.hero-section, .how-it-works .section-header, .steps-row, .use-cases .section-header, .cases-row, .testimonials .section-header, .testimonials-row, .contrate-section');
+        } else {
+            // Desktop: Seções inteiras tradicionais
+            sections = document.querySelectorAll('.hero-section, .how-it-works, .use-cases, .testimonials, .contrate-section');
+        }
+
+        // Re-sincronizar o IntersectionObserver
+        const observerOptions = {
+            root: null,
+            rootMargin: '-10% 0px -10% 0px',
+            threshold: 0.4
+        };
+
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = Array.from(sections).indexOf(entry.target);
+                    if (index !== -1) {
+                        currentIdx = index;
+                    }
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(sec => observer.observe(sec));
+    }
+
+    updateSectionsList();
+    window.addEventListener('resize', updateSectionsList);
+
+    function goToSlide(index) {
+        if (!sections || index < 0 || index >= sections.length) return;
+        currentIdx = index;
+        sections[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Smooth scroll para links internos e sincronização do slide ativo
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const targetId = this.getAttribute('href');
             if (targetId === '#') return;
+            
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: 'smooth'
-                });
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // Sincroniza o índice do slide ativo logo após o início do scroll
+                setTimeout(() => {
+                    let targetIdx = -1;
+                    sections.forEach((sec, idx) => {
+                        if (sec === targetElement || targetElement.contains(sec)) {
+                            if (targetIdx === -1) targetIdx = idx;
+                        }
+                    });
+                    if (targetIdx !== -1) {
+                        currentIdx = targetIdx;
+                    }
+                }, 600);
             }
         });
     });
@@ -86,5 +146,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         animateWaves();
+    }
+
+    // Modal de Vídeo Global Logic
+    const videoModal = document.getElementById('videoModal');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    if (videoModal && videoPlayer) {
+        // Abrir Modal
+        document.querySelectorAll('.watch-video-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const videoUrl = button.getAttribute('data-video-url');
+                if (videoUrl) {
+                    videoPlayer.src = videoUrl;
+                    videoModal.classList.add('active');
+                }
+            });
+        });
+
+        // Fechar Modal pelo Botão Close
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', () => {
+                videoModal.classList.remove('active');
+                videoPlayer.src = '';
+            });
+        }
+
+        // Fechar ao clicar fora do conteúdo do Modal
+        videoModal.addEventListener('click', (e) => {
+            if (e.target === videoModal) {
+                videoModal.classList.remove('active');
+                videoPlayer.src = '';
+            }
+        });
     }
 });

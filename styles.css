@@ -51,10 +51,36 @@ html {
     background-color: var(--bg-main);
     color: var(--text-primary);
     line-height: 1.6;
+    scroll-snap-type: y mandatory;
+    overflow-y: scroll;
+    height: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand-gold) var(--bg-main);
+}
+
+/* Estilização Personalizada da Barra de Rolagem (Webkit) */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--brand-gold) 0%, #9e7b36 100%);
+    border-radius: 5px;
+    border: 2px solid var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #e5c378 0%, var(--brand-gold) 100%);
 }
 
 body {
     overflow-x: hidden;
+    height: 100%;
 }
 
 a {
@@ -72,10 +98,27 @@ img, video {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-.section {
-    padding: 100px 0;
+.section, 
+.hero-section,
+.how-it-works, 
+.use-cases, 
+.testimonials,
+.contrate-section {
+    min-height: 100vh;
+    padding: 60px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+    box-sizing: border-box;
 }
 
 /* Typography Helpers */
@@ -101,10 +144,17 @@ img, video {
 }
 
 .uppercase-gold {
+    display: block;
+    font-size: 1.25em;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 3px;
+    margin-top: 6px;
+    text-align: center !important;
+    text-align-last: center !important;
+    width: 100%;
     /* Glow sutil e sofisticado */
-    filter: drop-shadow(0 0 6px rgba(197, 160, 89, 0.4));
+    filter: drop-shadow(0 0 8px rgba(197, 160, 89, 0.45));
     animation: goldGlowPulse 3s ease-in-out infinite alternate, goldShimmerLeftToRight 4s linear infinite;
 }
 
@@ -119,8 +169,11 @@ img, video {
 
 .section-header {
     text-align: center;
-    max-width: 700px;
-    margin: 0 auto 60px auto;
+    width: 100%;
+    margin: 0 auto 36px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .section-tag {
@@ -134,17 +187,26 @@ img, video {
 }
 
 .section-header h2 {
-    font-size: 2.5rem;
+    font-size: clamp(1.3rem, 2.7vw, 2.3rem);
     font-weight: 600;
     letter-spacing: -0.5px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     color: var(--text-primary);
+    white-space: nowrap;
+    text-align: center;
+    width: 100%;
 }
 
 .section-header p {
     color: var(--text-secondary);
-    font-size: 1.1rem;
+    font-size: 1.08rem;
     font-weight: 300;
+    text-align: justify;
+    text-align-last: center;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    line-height: 1.6;
 }
 
 /* Logo Branding Specifics */
@@ -165,6 +227,29 @@ img, video {
     height: 38px;
     width: auto;
     object-fit: contain;
+}
+
+.mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 6px;
+    transition: var(--transition-fast);
+}
+
+.mobile-menu-btn:hover {
+    color: var(--brand-gold);
+}
+
+.mobile-only-contact-btn {
+    display: none;
+}
+
+.desktop-only-btn {
+    display: inline-flex;
 }
 
 /* Buttons */
@@ -224,24 +309,41 @@ img, video {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    right: 10px;
+    width: auto;
     z-index: 100;
-    padding: 20px 0;
+    padding: 16px 0;
     transition: var(--transition-fast);
-    background: rgba(11, 11, 12, 0.6);
+    background: rgba(11, 11, 12, 0.7);
     backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border-subtle);
+    will-change: transform;
 }
 
 .nav-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 24px !important;
+}
+
+.brand-logo {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
 }
 
 .nav-links {
-    display: flex;
-    gap: 32px;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 36px !important;
+    margin: 0 !important;
 }
 
 .nav-links a {
@@ -260,39 +362,13 @@ img, video {
 /* Dobra 1: Hero Section */
 .hero-section {
     position: relative;
-    min-height: 85vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 60px;
+    padding: 0;
     overflow: hidden;
-}
-
-/* Esferas de iluminação dourada desfocada (Glow Premium) */
-.hero-section::before {
-    content: '';
-    position: absolute;
-    top: 20%;
-    left: 50%;
-    width: 600px;
-    height: 600px;
-    transform: translate(-50%, -30%);
-    background: radial-gradient(circle, rgba(197, 160, 89, 0.22) 0%, rgba(197, 160, 89, 0.08) 45%, rgba(11, 11, 12, 0) 70%);
-    filter: blur(80px);
-    z-index: 2;
-    pointer-events: none;
-    animation: floatGlow 10s ease-in-out infinite alternate;
-}
-
-@keyframes floatGlow {
-    0% {
-        transform: translate(-50%, -30%) scale(1);
-        opacity: 0.8;
-    }
-    100% {
-        transform: translate(-50%, -20%) scale(1.15);
-        opacity: 1;
-    }
+    background: transparent;
 }
 
 .global-waves-canvas {
@@ -301,67 +377,73 @@ img, video {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 0;
-    filter: blur(50px);
-    opacity: 0.55;
+    z-index: -10;
+    filter: blur(25px);
+    opacity: 0.85;
     pointer-events: none;
-}
-
-.hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 50% 30%, rgba(20, 17, 12, 0.6) 0%, rgba(11, 11, 12, 0.95) 75%);
-    z-index: 2;
 }
 
 .hero-content {
     position: relative;
     z-index: 3;
     text-align: center;
-    max-width: 900px;
-    padding-top: 20px;
+    width: 100%;
+    max-width: 950px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 0;
+}
+
+.hero-content .section-tag {
+    margin-top: 20px;
+    margin-bottom: 12px;
 }
 
 .hero-badge {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 20px;
+    padding: 8px 22px;
     background: rgba(197, 160, 89, 0.1);
     border: 1px solid var(--border-gold);
     border-radius: var(--radius-full);
     color: var(--brand-gold);
     font-size: 0.85rem;
     font-weight: 500;
-    margin-bottom: 16px;
+    margin-top: 18px;
+    margin-bottom: 12px;
+    white-space: nowrap;
 }
 
 .hero-title {
-    font-size: clamp(1.4rem, 2.6vw, 2.5rem);
+    font-size: clamp(1.6rem, 3.5vw, 3rem);
     font-weight: 700;
     line-height: 1.35;
     letter-spacing: -0.5px;
     margin-bottom: 24px;
     text-align: center;
     width: 100%;
+    max-width: 950px;
 }
 
 .hero-title .title-line-1 {
     display: block;
-    white-space: nowrap;
-    text-align: center;
     width: 100%;
+    text-align: center;
+    white-space: normal;
 }
 
 .hero-subtitle {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     color: var(--text-secondary);
     font-weight: 300;
     max-width: 750px;
     margin: 0 auto 40px auto;
+    text-align: center;
+    line-height: 1.6;
 }
 
 .hero-actions {
@@ -379,20 +461,29 @@ img, video {
     z-index: 2;
 }
 
+.steps-row,
+.cases-row,
+.testimonials-row {
+    display: contents;
+}
+
 .steps-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    width: 100%;
 }
 
 .step-card {
-    background: rgba(20, 20, 22, 0.75);
+    background: rgba(20, 20, 22, 0.85);
     backdrop-filter: blur(16px);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    padding: 40px 30px;
+    padding: 30px 22px;
     position: relative;
     transition: var(--transition-smooth);
+    min-height: auto;
+    margin: 0;
 }
 
 .step-card:hover {
@@ -430,31 +521,44 @@ img, video {
 
 .step-card p {
     color: var(--text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     line-height: 1.6;
 }
 
-/* Dobra 3: Casos de Uso */
+/* Dobra 3: OCASIÕES ESPECIAIS (Todos os 4 Cards na Mesma Tela no Desktop) */
 .use-cases {
     background: transparent;
     position: relative;
     z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
 }
 
 .cases-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
+    gap: 20px;
+    width: 100%;
 }
 
 .case-card {
-    background: var(--bg-card);
+    background: rgba(20, 20, 22, 0.85);
     border-radius: var(--radius-lg);
     overflow: hidden;
     border: 1px solid var(--border-subtle);
     transition: var(--transition-smooth);
     display: flex;
     flex-direction: column;
+    min-height: auto;
+    width: 100%;
+    margin: 0;
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
 }
 
 .case-card:hover {
@@ -463,7 +567,7 @@ img, video {
 }
 
 .case-image {
-    height: 200px;
+    height: 190px;
     background-size: cover;
     background-position: center;
     position: relative;
@@ -471,66 +575,97 @@ img, video {
 
 .case-badge {
     position: absolute;
-    top: 20px;
-    left: 20px;
-    background: rgba(11, 11, 12, 0.8);
+    top: 14px;
+    left: 14px;
+    background: rgba(11, 11, 12, 0.85);
     backdrop-filter: blur(10px);
     color: var(--brand-gold);
     border: 1px solid var(--border-gold);
-    padding: 6px 14px;
+    padding: 5px 12px;
     border-radius: var(--radius-full);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
 .case-content {
-    padding: 30px;
+    padding: 24px 20px;
+    text-align: left;
 }
 
 .case-content h3 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    color: var(--text-primary);
 }
 
 .case-content p {
     color: var(--text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin: 0;
 }
 
-/* Dobra 4: Depoimentos */
+/* Dobra 4: DEPOIMENTOS (Todos os 4 Cards na Mesma Tela no Desktop) */
+.testimonials {
+    background: transparent;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+}
+
 .testimonials-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-    margin-bottom: 80px;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 0;
 }
 
 .testimonial-card {
-    background: var(--bg-glass);
+    background: rgba(20, 20, 22, 0.85);
     backdrop-filter: blur(20px);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    padding: 36px;
+    padding: 28px 22px;
     position: relative;
+    min-height: auto;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    text-align: left;
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
+}
+
+.testimonial-card:hover {
+    border-color: var(--border-gold);
 }
 
 .quote-icon {
     font-family: Georgia, serif;
-    font-size: 4rem;
+    font-size: 3.5rem;
     color: var(--brand-gold);
     opacity: 0.3;
     line-height: 1;
-    margin-bottom: -20px;
+    margin-bottom: -15px;
 }
 
 .testimonial-text {
-    font-size: 1.05rem;
+    font-size: 0.92rem;
     color: var(--text-primary);
     font-style: italic;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     position: relative;
     z-index: 2;
+    line-height: 1.5;
 }
 
 .testimonial-user {
@@ -542,6 +677,8 @@ img, video {
 .user-avatar {
     width: 50px;
     height: 50px;
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
     border-radius: 50%;
     background-size: cover;
     background-position: center;
@@ -575,36 +712,9 @@ img, video {
     margin-bottom: 16px;
 }
 
-.cta-box p {
-    color: var(--text-secondary);
-    font-size: 1.1rem;
-    margin-bottom: 32px;
-    max-width: 650px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Dobra 5: Footer & Disclaimer */
-.footer {
-    background: #070708;
-    border-top: 1px solid var(--border-subtle);
-    padding: 80px 0 40px 0;
-}
-
-.disclaimer-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: var(--radius-md);
-    padding: 24px 30px;
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    margin-bottom: 60px;
-}
-
-.disclaimer-icon {
-    color: var(--brand-gold);
-    flex-shrink: 0;
+.cta-actions {
+    text-align: center;
+    margin-top: 24px;
     margin-top: 2px;
 }
 
@@ -636,7 +746,7 @@ img, video {
     color: var(--text-secondary);
 }
 
-/* Responsividade */
+/* Responsividade & Ajuste Mobile Perfeito (100% Fullscreen por Dobra) */
 @media (max-width: 1024px) {
     .cases-grid,
     .testimonials-grid {
@@ -645,37 +755,729 @@ img, video {
 }
 
 @media (max-width: 768px) {
+    .container {
+        padding: 0 16px;
+    }
+
     .nav-links {
         display: none;
     }
 
+    /* Cada Dobra Ocupa 100% da Tela no Mobile */
+    .hero-section,
+    .how-it-works,
+    .use-cases,
+    .testimonials,
+    .footer {
+        min-height: 100dvh !important;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 40px 0;
+        box-sizing: border-box;
+    }
+
+    .section-header {
+        margin-bottom: 24px;
+    }
+
+    .section-header h2 {
+        font-size: 1.45rem !important;
+        line-height: 1.25;
+        margin-bottom: 8px;
+    }
+
+    .section-header p {
+        font-size: 0.85rem;
+    }
+
+    /* Grids Mobile Enxutas */
+    .steps-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .step-card {
+        padding: 16px;
+        display: flex;
+        gap: 14px;
+        align-items: center;
+    }
+
+    .step-icon {
+        width: 42px;
+        height: 42px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+
+    .step-number {
+        display: none;
+    }
+
+    .step-card h3 {
+        font-size: 1.05rem;
+        margin-bottom: 4px;
+    }
+
+    .step-card p {
+        font-size: 0.82rem;
+        line-height: 1.4;
+    }
+
+    /* Casos de Uso Mobile (Grid 2x2 para caber em 1 tela) */
+    .cases-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .case-card {
+        border-radius: var(--radius-md);
+    }
+
+    .case-image {
+        height: 90px;
+    }
+
+    .case-badge {
+        font-size: 0.65rem;
+        padding: 4px 8px;
+        top: 8px;
+        left: 8px;
+    }
+
+    .case-content {
+        padding: 12px 10px;
+    }
+
+    .case-content h3 {
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+
+    .case-content p {
+        font-size: 0.75rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Depoimentos Mobile (Grid 2x2 ou Carrossel Enxuto) */
+    .testimonials-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .testimonial-card {
+        padding: 14px 12px;
+        border-radius: var(--radius-md);
+    }
+
+    .quote-icon {
+        font-size: 2rem;
+        margin-bottom: -10px;
+    }
+
+    .testimonial-text {
+        font-size: 0.78rem;
+        line-height: 1.3;
+        margin-bottom: 12px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    .testimonial-user h4 {
+        font-size: 0.8rem;
+    }
+    padding: 24px 30px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 60px;
+}
+
+.disclaimer-icon {
+    color: var(--brand-gold);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* Dobra 5: CONTRATE e Rodapé Integrado */
+.contrate-section {
+    min-height: 100vh !important;
+    max-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    padding: 4vh 0 2vh 0 !important;
+    box-sizing: border-box;
+    overflow: hidden !important;
+}
+
+.contrate-section .container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+}
+
+.contrate-section .section-header {
+    margin-bottom: 2vh !important;
+}
+
+.disclaimer-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin: 2vh auto;
+    max-width: 780px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.disclaimer-icon {
+    color: var(--brand-gold);
+    flex-shrink: 0;
+}
+
+.disclaimer-content h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: var(--text-primary);
+}
+
+.disclaimer-content p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+    width: 100%;
+    margin-top: auto;
+}
+
+.footer-copy {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: center;
+    white-space: nowrap;
+    width: 100%;
+}
+
+/* Responsividade & Ajuste Mobile Perfeito (100% Fullscreen por Dobra) */
+@media (max-width: 1024px) {
     .cases-grid,
     .testimonials-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
-    
-    .hero-title {
-        font-size: 2.4rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 16px;
     }
-    
-    .hero-subtitle {
-        font-size: 1rem;
+
+    /* Navbar Mobile Alinhada na Mesma Linha */
+    .navbar {
+        padding: 12px 0 !important;
     }
-    
-    .section-header h2 {
-        font-size: 1.8rem;
+
+    .nav-container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
     }
-    
-    .cta-box {
-        padding: 40px 20px;
+
+    .brand-logo {
+        display: flex !important;
+        align-items: center !important;
     }
-    
-    .cta-box h2 {
-        font-size: 1.6rem;
+
+    .logo-img {
+        height: 32px !important;
+        width: auto !important;
     }
-    
-    .footer-bottom {
+
+    .desktop-only-btn {
+        display: none !important;
+    }
+
+    .mobile-menu-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        margin: 0 !important;
+        padding: 4px !important;
+    }
+
+    /* Esconder o menu de links no cabeçalho mobile por padrão */
+    .nav-links {
+        display: none !important;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: rgba(15, 15, 17, 0.98);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border-gold);
         flex-direction: column;
-        text-align: center;
+        padding: 20px;
+        gap: 16px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        z-index: 999;
+    }
+
+    .nav-links.active {
+        display: flex !important;
+    }
+
+    /* As seções principais do corpo continuam 100% visíveis */
+    .hero-section,
+    .how-it-works,
+    .use-cases,
+    .testimonials,
+    .contrate-section {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .nav-links a {
+        font-size: 1.1rem !important;
+        padding: 14px 20px !important;
+        text-align: center !important;
+        color: var(--text-primary) !important;
+        border-bottom: 1px solid rgba(197, 160, 89, 0.15) !important;
+        display: block !important;
+        font-weight: 500 !important;
+        transition: var(--transition-fast) !important;
+    }
+
+    .nav-links a:active,
+    .nav-links a:hover {
+        color: var(--brand-gold) !important;
+        background: rgba(197, 160, 89, 0.08) !important;
+        border-radius: var(--radius-sm) !important;
+    }
+
+    .mobile-only-contact-btn {
+        display: inline-flex !important;
+        margin-top: 8px;
+        justify-content: center;
+        width: 100%;
+    }
+
+    /* Cada Dobra Ocupa 100% da Tela e Para no Snap no Mobile */
+    .hero-section {
+        min-height: 100dvh !important;
+        scroll-snap-align: center !important;
+        scroll-snap-stop: always !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 20px 0;
+        box-sizing: border-box;
+    }
+
+    .contrate-section {
+        min-height: 100dvh !important;
+        max-height: 100dvh !important;
+        scroll-snap-align: center !important;
+        scroll-snap-stop: always !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        padding: 3vh 0 1.5vh 0 !important;
+        box-sizing: border-box;
+        overflow: hidden !important;
+    }
+
+    .contrate-section .section-header {
+        margin-bottom: 1.5vh !important;
+    }
+
+    .contrate-section .disclaimer-card {
+        padding: 10px 14px !important;
+        margin: 1.5vh auto !important;
+        gap: 8px !important;
+        max-width: 95% !important;
+    }
+
+    .contrate-section .disclaimer-content h4 {
+        font-size: 0.78rem !important;
+        margin-bottom: 2px !important;
+    }
+
+    .contrate-section .disclaimer-content p {
+        font-size: 0.68rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .contrate-section .footer-bottom {
+        padding-top: 8px !important;
+    }
+
+    .contrate-section .footer-copy {
+        font-size: 0.65rem !important;
+    }
+
+    .section-header {
+        margin-bottom: 24px;
+    }
+
+    .section-header h2 {
+        font-size: 1.45rem !important;
+        line-height: 1.25;
+        margin-bottom: 8px;
+        white-space: normal !important;
+        text-align: center !important;
+        text-align-last: center !important;
+    }
+
+    .section-header p {
+        font-size: 0.85rem;
+        text-align: center !important;
+        text-align-last: center !important;
+        width: 100% !important;
+    }
+
+    /* Desativar snap nas seções mãe no mobile e aplicar nos filhos (headers e rows) */
+    .how-it-works,
+    .use-cases,
+    .testimonials {
+        min-height: auto !important;
+        scroll-snap-align: none !important;
+        padding: 0 !important;
+    }
+
+    .how-it-works .container,
+    .use-cases .container,
+    .testimonials .container {
+        padding: 0 16px !important;
+    }
+
+    /* Cabeçalhos de Seções como Slides de 100dvh isolados */
+    .how-it-works .section-header,
+    .use-cases .section-header,
+    .testimonials .section-header {
+        min-height: 100dvh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        scroll-snap-align: center !important;
+        scroll-snap-stop: always !important;
+        margin: 0 !important;
+        padding: 24px 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Rows como Slides de 100dvh */
+    .steps-row,
+    .cases-row,
+    .testimonials-row {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 16px !important;
+        min-height: 100dvh !important;
+        width: 100% !important;
+        scroll-snap-align: center !important;
+        scroll-snap-stop: always !important;
+        box-sizing: border-box !important;
+        padding: 20px 0 !important;
+    }
+
+    .steps-grid,
+    .cases-grid,
+    .testimonials-grid {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Cards Individuais Limitados a 42dvh para caberem 2 na tela */
+    .step-card,
+    .case-card,
+    .testimonial-card {
+        width: 100% !important;
+        height: calc(43dvh - 16px) !important;
+        min-height: auto !important;
+        max-height: 43dvh !important;
+        margin: 0 !important;
+        padding: 16px 14px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        border-radius: var(--radius-md) !important;
+    }
+
+    .step-icon {
+        width: 44px !important;
+        height: 44px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .step-number {
+        font-size: 1.8rem !important;
+        top: 10px !important;
+        right: 10px !important;
+    }
+
+    .step-card h3 {
+        font-size: 1.05rem !important;
+        margin-bottom: 4px !important;
+    }
+
+    .step-card p {
+        font-size: 0.8rem !important;
+        line-height: 1.35 !important;
+    }
+
+    .case-image {
+        height: 110px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .case-badge {
+        font-size: 0.65rem !important;
+        padding: 3px 8px !important;
+        top: 6px !important;
+        left: 6px !important;
+    }
+
+    .case-content {
+        padding: 10px 8px !important;
+        text-align: left !important;
+        overflow: hidden !important;
+    }
+
+    .case-content h3 {
+        font-size: 0.95rem !important;
+        margin-bottom: 2px !important;
+    }
+
+    .case-content p {
+        font-size: 0.78rem !important;
+        line-height: 1.3 !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+
+    .quote-icon {
+        font-size: 1.8rem !important;
+        margin-bottom: -6px !important;
+    }
+
+    .testimonial-text {
+        font-size: 0.78rem !important;
+        line-height: 1.35 !important;
+        margin-bottom: 8px !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 3 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+
+    .user-avatar {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .testimonial-user h4 {
+        font-size: 0.85rem !important;
+    }
+
+    .testimonial-user span {
+        font-size: 0.68rem !important;
+    }
+
+    .user-avatar {
+        width: 44px !important;
+        height: 44px !important;
+        aspect-ratio: 1 / 1 !important;
+        flex-shrink: 0 !important;
+        border-radius: 50% !important;
+    }
+
+    .testimonial-user h4 {
+        font-size: 0.85rem !important;
+    }
+
+    .testimonial-user span {
+        font-size: 0.68rem !important;
+    }
+}
+
+/* ==========================================================================
+   Estilização do Modal de Vídeo Global e Botões das Seções
+   ========================================================================== */
+
+.section-actions {
+    margin-top: 18px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-sm {
+    padding: 8px 20px !important;
+    font-size: 0.88rem !important;
+}
+
+.video-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(11, 11, 12, 0.95);
+    backdrop-filter: blur(15px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.video-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.video-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 850px;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border: 1px solid var(--border-gold);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(197, 160, 89, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.4s ease;
+}
+
+.video-modal.active .video-modal-content {
+    transform: scale(1);
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 2.2rem;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    transition: var(--transition-fast);
+}
+
+.close-modal-btn:hover {
+    color: var(--brand-gold);
+    transform: scale(1.1);
+}
+
+.video-container {
+    width: 100%;
+    height: 100%;
+}
+
+.video-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+    /* Hero Specifics Mobile */
+    .hero-section {
+        padding-top: 0 !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    .hero-badge {
+        font-size: 0.72rem !important;
+        padding: 6px 14px !important;
+        white-space: nowrap !important;
+        margin-top: 24px !important;
+        margin-bottom: 14px !important;
+    }
+
+    .hero-title {
+        font-size: clamp(0.75rem, 3.8vw, 1.15rem) !important;
+        letter-spacing: -0.2px !important;
+        line-height: 1.35 !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
+    
+    .hero-title .title-line-1 {
+        white-space: nowrap !important;
+        display: block !important;
+        width: 100%;
+        text-align: center !important;
+    }
+
+    .uppercase-gold {
+        font-size: 1.15em !important;
+        letter-spacing: 1px !important;
+        margin-top: 6px;
+        display: block !important;
+    }
+
+    .hero-subtitle {
+        font-size: 0.88rem !important;
+        line-height: 1.45;
+        margin-bottom: 20px;
+        text-align: center !important;
+        text-align-last: center !important;
+        width: 100% !important;
+    }
+
+    /* Footer Mobile */
+    .disclaimer-card {
+        padding: 16px;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .disclaimer-content p {
+        font-size: 0.8rem;
     }
 }

@@ -27,26 +27,26 @@
             <a href="#topo" class="brand-logo" title="Voltar ao início">
                 <img src="logo.png" alt="re.viva memories logo" class="logo-img">
             </a>
-            <nav class="nav-links">
-                <a href="#como-funciona">Como Funciona</a>
-                <a href="#casos-de-uso">Ocasiões Especiais</a>
-                <a href="#depoimentos">Depoimentos</a>
+            <nav class="nav-links" id="navLinks">
+                <a href="#topo">INÍCIO</a>
+                <a href="#como-funciona">EXPERIÊNCIA</a>
+                <a href="#casos-de-uso">OCASIÕES ESPECIAIS</a>
+                <a href="#depoimentos">DEPOIMENTOS</a>
+                <a href="#contrate">CONTRATE</a>
             </nav>
-            <a href="https://wa.me/5500000000000?text=Olá!%20Gostaria%20de%20saber%20mais%20sobre%20como%20eternizar%20uma%20memória%20com%20a%20re.viva%20memories." target="_blank" class="btn btn-secondary nav-cta">
-                <i data-lucide="message-circle"></i> Falar Conosco
-            </a>
+
+            <!-- Botão Hambúrguer Mobile -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir Menu">
+                <i data-lucide="menu"></i>
+            </button>
         </div>
     </header>
 
     <!-- Dobra 1: Hero Section -->
     <section class="hero-section" id="topo">
-        <div class="hero-overlay"></div>
 
         <div class="container hero-content">
-            <div class="hero-badge">
-                <i data-lucide="sparkles"></i>
-                <span>Tecnologia & Emoção em Homenagens Inesquecíveis</span>
-            </div>
+            <span class="section-tag">Homenagens Inesquecíveis</span>
             
             <h1 class="hero-title">
                 <span class="title-line-1">O abraço que ficou no tempo, agora ganha</span>
@@ -54,13 +54,13 @@
             </h1>
             
             <p class="hero-subtitle">
-                Recriamos com delicadeza, respeito e realismo de Inteligência Artificial a presença de quem marcou sua vida, trazendo mensagens emocionantes para casamentos, formaturas e momentos únicos.
+                Recriamos com delicadeza, respeito e realismo, a presença de quem marcou sua vida unindo a sensibilidade humana com a capacidade da Inteligência Artificial, trazendo mensagens emocionantes para momentos únicos e especiais.
             </p>
             
             <div class="hero-actions">
-                <a href="https://wa.me/5500000000000?text=Olá!%20Quero%20eternizar%20uma%20memória%20especial." target="_blank" class="btn btn-primary btn-large">
-                    <i data-lucide="heart"></i> Quero eternizar uma memória
-                </a>
+                <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/dQw4w9WgXcQ">
+                    <i data-lucide="play-circle"></i> Assista
+                </button>
             </div>
         </div>
     </section>
@@ -69,37 +69,54 @@
     <section class="section how-it-works" id="como-funciona">
         <div class="container">
             <div class="section-header">
-                <span class="section-tag">A Experiência</span>
-                <h2>Como trazemos de volta esta emoção em 3 passos</h2>
+                <span class="section-tag">EXPERIÊNCIA</span>
+                <h2>Como produzimos essa emoção em 4 passos</h2>
                 <p>Um processo simples, cuidadoso e focado no respeito à memória do seu ente querido.</p>
+                <div class="section-actions">
+                    <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4">
+                        <i data-lucide="play-circle"></i> Assista
+                    </button>
+                </div>
             </div>
-
             <div class="steps-grid">
-                <div class="step-card">
-                    <div class="step-number">01</div>
-                    <div class="step-icon">
-                        <i data-lucide="image"></i>
+                <!-- Slide 1: Passos 1 e 2 -->
+                <div class="steps-row">
+                    <div class="step-card">
+                        <div class="step-number">01</div>
+                        <div class="step-icon">
+                            <i data-lucide="image"></i>
+                        </div>
+                        <h3>O Resgate</h3>
+                        <p>Você nos envia as fotografias mais marcantes, registros em áudio e nos conta sobre a história e personalidade da pessoa.</p>
                     </div>
-                    <h3>O Resgate</h3>
-                    <p>Você nos envia as melhores fotografias, áudios antigos e nos conta detalhes marcantes sobre a personalidade e história da pessoa.</p>
+                    <div class="step-card">
+                        <div class="step-number">02</div>
+                        <div class="step-icon">
+                            <i data-lucide="pen-tool"></i>
+                        </div>
+                        <h3>A Essência</h3>
+                        <p>Elaboramos com sensibilidade o roteiro humanizado, capturando os detalhes afetivos e o carinho da mensagem.</p>
+                    </div>
                 </div>
 
-                <div class="step-card">
-                    <div class="step-number">02</div>
-                    <div class="step-icon">
-                        <i data-lucide="wand-2"></i>
+                <!-- Slide 2: Passos 3 e 4 -->
+                <div class="steps-row">
+                    <div class="step-card">
+                        <div class="step-number">03</div>
+                        <div class="step-icon">
+                            <i data-lucide="wand-2"></i>
+                        </div>
+                        <h3>A Lapidação</h3>
+                        <p>Aplicamos nossa tecnologia avançada de estúdio para recriar com realismo a voz, respiração e microexpressões.</p>
                     </div>
-                    <h3>A Essência</h3>
-                    <p>Elaboramos um roteiro sensível e usamos nossa tecnologia para reconstituir a voz, respiração e microexpressões com máximo realismo.</p>
-                </div>
-
-                <div class="step-card">
-                    <div class="step-number">03</div>
-                    <div class="step-icon">
-                        <i data-lucide="gift"></i>
+                    <div class="step-card">
+                        <div class="step-number">04</div>
+                        <div class="step-icon">
+                            <i data-lucide="gift"></i>
+                        </div>
+                        <h3>O Reencontro</h3>
+                        <p>Você recebe um vídeo de altíssima definição visual e sonora, pronto para emocionar e surpreender a todos no grande dia.</p>
                     </div>
-                    <h3>O Reencontro</h3>
-                    <p>Você recebe um vídeo de altíssima definição visual e sonora, pronto para emocionar e surpreender a todos no grande dia.</p>
                 </div>
             </div>
         </div>
@@ -109,53 +126,62 @@
     <section class="section use-cases" id="casos-de-uso">
         <div class="container">
             <div class="section-header">
-                <span class="section-tag">Ocasiões Inesquecíveis</span>
+                <span class="section-tag">OCASIÕES ESPECIAIS</span>
                 <h2>Onde o presente ganha o maior significado</h2>
                 <p>Surpreenda pessoas queridas nos momentos mais marcantes da vida com uma homenagem eterna.</p>
+                <div class="section-actions">
+                    <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/9XAS9qB62Cg">
+                        <i data-lucide="play-circle"></i> Assista
+                    </button>
+                </div>
             </div>
 
             <div class="cases-grid">
-                <!-- 1. Nascimentos & Batizados -->
-                <div class="case-card">
-                    <div class="case-image" style="background-image: url('birth_baptism.jpg');">
-                        <div class="case-badge">Nascimentos & Batizados</div>
+                <!-- Slide 1: Nascimento e Aniversário -->
+                <div class="cases-row">
+                    <!-- 1. Nascimentos & Batizados -->
+                    <div class="case-card">
+                        <div class="case-image" style="background-image: url('birth_baptism.jpg');">
+                            <div class="case-badge">Nascimentos & Batizados</div>
+                        </div>
+                        <div class="case-content">
+                            <h3>Boas-Vindas Eternas</h3>
+                            <p>A bênção e o carinho dos bisavós ou entes queridos que já partiram para marcar o nascimento e os primeiros momentos do bebê.</p>
+                        </div>
                     </div>
-                    <div class="case-content">
-                        <h3>Boas-Vindas Eternas</h3>
-                        <p>A bênção e o carinho dos bisavós ou entes queridos que já partiram para marcar o nascimento e os primeiros momentos do bebê.</p>
-                    </div>
-                </div>
-
-                <!-- 2. Aniversários & 15 Anos -->
-                <div class="case-card">
-                    <div class="case-image" style="background-image: url('birthday_15.jpg');">
-                        <div class="case-badge">Aniversários & 15 Anos</div>
-                    </div>
-                    <div class="case-content">
-                        <h3>Conselhos do Coração</h3>
-                        <p>Uma mensagem inesquecível de sabedoria e carinho na festa de debutante ou datas comemorativas em família.</p>
-                    </div>
-                </div>
-
-                <!-- 3. Formaturas -->
-                <div class="case-card">
-                    <div class="case-image" style="background-image: url('graduation.jpg');">
-                        <div class="case-badge">Formaturas</div>
-                    </div>
-                    <div class="case-content">
-                        <h3>Orgulho que Transcende</h3>
-                        <p>O orgulho materializado dos avós ou pais no dia da colação de grau, celebrando a conquista acadêmica tão sonhada.</p>
+                    <!-- 2. Aniversários & 15 Anos -->
+                    <div class="case-card">
+                        <div class="case-image" style="background-image: url('birthday_15.jpg');">
+                            <div class="case-badge">Aniversários & 15 Anos</div>
+                        </div>
+                        <div class="case-content">
+                            <h3>Conselhos do Coração</h3>
+                            <p>Uma mensagem inesquecível de sabedoria e carinho na festa de debutante ou datas comemorativas em família.</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 4. Casamentos -->
-                <div class="case-card">
-                    <div class="case-image" style="background-image: url('wedding.jpg');">
-                        <div class="case-badge">Casamentos</div>
+                <!-- Slide 2: Formatura e Casamento -->
+                <div class="cases-row">
+                    <!-- 3. Formaturas -->
+                    <div class="case-card">
+                        <div class="case-image" style="background-image: url('graduation.jpg');">
+                            <div class="case-badge">Formaturas</div>
+                        </div>
+                        <div class="case-content">
+                            <h3>Orgulho que Transcende</h3>
+                            <p>O orgulho materializado dos avós ou pais no dia da colação de grau, celebrando a conquista acadêmica tão sonhada.</p>
+                        </div>
                     </div>
-                    <div class="case-content">
-                        <h3>O Abraço no Altar</h3>
-                        <p>A noiva ou noivo recebendo uma mensagem carinhosa e abençoada de um pai, mãe ou avós antes de entrar na celebração.</p>
+                    <!-- 4. Casamentos -->
+                    <div class="case-card">
+                        <div class="case-image" style="background-image: url('wedding.jpg');">
+                            <div class="case-badge">Casamentos</div>
+                        </div>
+                        <div class="case-content">
+                            <h3>O Abraço no Altar</h3>
+                            <p>A noiva ou noivo recebendo uma mensagem carinhosa e abençoada de um pai, mãe ou avós antes de entrar na celebração.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -166,86 +192,98 @@
     <section class="section testimonials" id="depoimentos">
         <div class="container">
             <div class="section-header">
-                <span class="section-tag">Depoimentos & Reações</span>
+                <span class="section-tag">DEPOIMENTOS</span>
                 <h2>A emoção de quem já viveu essa experiência</h2>
                 <p>Veja o impacto transformador que um abraço em forma de vídeo causa nas celebrações.</p>
+                <div class="section-actions">
+                    <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4">
+                        <i data-lucide="play-circle"></i> Assista
+                    </button>
+                </div>
             </div>
 
             <div class="testimonials-grid">
-                <!-- 1. Depoimento Nascimento / Batizado -->
-                <div class="testimonial-card">
-                    <div class="quote-icon">“</div>
-                    <p class="testimonial-text">
-                        "Ouvir a voz da minha avó abençoando o nascimento do meu filho no batizado fez toda a família se emocionar. Foi o momento mais inesquecível da nossa vida."
-                    </p>
-                    <div class="testimonial-user">
-                        <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80');"></div>
-                        <div>
-                            <h4>Camila M.</h4>
-                            <span>Mãe - Batizado em Campinas, SP</span>
+                <!-- Slide 1: Depoimentos 1 e 2 -->
+                <div class="testimonials-row">
+                    <!-- 1. Depoimento Nascimento / Batizado -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon">“</div>
+                        <p class="testimonial-text">
+                            "Ouvir a voz da minha avó abençoando o nascimento do meu filho no batizado fez toda a família se emocionar. Foi o momento mais inesquecível da nossa vida."
+                        </p>
+                        <div class="testimonial-user">
+                            <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80');"></div>
+                            <div>
+                                <h4>Camila M.</h4>
+                                <span>Mãe - Batizado em Campinas, SP</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 2. Depoimento Aniversário / 15 Anos -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon">“</div>
+                        <p class="testimonial-text">
+                            "No meu aniversário de 15 anos, ver a mensagem do meu avô me desejando felicidades foi algo mágico. Todo mundo na festa sentiu a presença dele."
+                        </p>
+                        <div class="testimonial-user">
+                            <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80');"></div>
+                            <div>
+                                <h4>Beatriz R.</h4>
+                                <span>Debutante - Rio de Janeiro, RJ</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 2. Depoimento Aniversário / 15 Anos -->
-                <div class="testimonial-card">
-                    <div class="quote-icon">“</div>
-                    <p class="testimonial-text">
-                        "No meu aniversário de 15 anos, ver a mensagem do meu avô me desejando felicidades foi algo mágico. Todo mundo na festa sentiu a presença dele."
-                    </p>
-                    <div class="testimonial-user">
-                        <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80');"></div>
-                        <div>
-                            <h4>Beatriz R.</h4>
-                            <span>Debutante - Rio de Janeiro, RJ</span>
+                <!-- Slide 2: Depoimentos 3 e 4 -->
+                <div class="testimonials-row">
+                    <!-- 3. Depoimento Formatura -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon">“</div>
+                        <p class="testimonial-text">
+                            "Entregar esse vídeo de formatura para minha mãe com a voz da minha avó foi o presente mais lindo da minha vida. O realismo dos trejeitos é inacreditável."
+                        </p>
+                        <div class="testimonial-user">
+                            <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80');"></div>
+                            <div>
+                                <h4>Lucas C.</h4>
+                                <span>Formando de Medicina - Curitiba, PR</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 4. Depoimento Casamento -->
+                    <div class="testimonial-card">
+                        <div class="quote-icon">“</div>
+                        <p class="testimonial-text">
+                            "Quando a mensagem do meu pai passou no telão antes de eu entrar na igreja, não teve uma pessoa que não chorou. Parecia que ele estava ali segurando minha mão."
+                        </p>
+                        <div class="testimonial-user">
+                            <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80');"></div>
+                            <div>
+                                <h4>Mariana S.</h4>
+                                <span>Noiva - São Paulo, SP</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- 3. Depoimento Formatura -->
-                <div class="testimonial-card">
-                    <div class="quote-icon">“</div>
-                    <p class="testimonial-text">
-                        "Entregar esse vídeo de formatura para minha mãe com a voz da minha avó foi o presente mais lindo da minha vida. O realismo dos trejeitos é inacreditável."
-                    </p>
-                    <div class="testimonial-user">
-                        <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80');"></div>
-                        <div>
-                            <h4>Lucas C.</h4>
-                            <span>Formando de Medicina - Curitiba, PR</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 4. Depoimento Casamento -->
-                <div class="testimonial-card">
-                    <div class="quote-icon">“</div>
-                    <p class="testimonial-text">
-                        "Quando a mensagem do meu pai passou no telão antes de eu entrar na igreja, não teve uma pessoa que não chorou. Parecia que ele estava ali segurando minha mão."
-                    </p>
-                    <div class="testimonial-user">
-                        <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80');"></div>
-                        <div>
-                            <h4>Mariana S.</h4>
-                            <span>Noiva - São Paulo, SP</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cta-box">
-                <h2>Quer criar um momento inesquecível para alguém especial?</h2>
-                <p>Nossa equipe está pronta para te atender com toda a sensibilidade e atenção que a sua história merece.</p>
-                <a href="https://wa.me/5500000000000?text=Olá!%20Quero%20eternizar%20uma%20memória" target="_blank" class="btn btn-primary btn-large">
-                    <i data-lucide="message-circle"></i> Falar com um Especialista no WhatsApp
-                </a>
             </div>
         </div>
     </section>
 
-    <!-- Dobra 5: Ética, Segurança e Rodapé -->
-    <footer class="footer">
+    <!-- Dobra 5: CONTRATE (Seção Dedicada Exclusiva) -->
+    <section class="section contrate-section" id="contrate">
         <div class="container">
+            <div class="section-header">
+                <span class="section-tag">CONTRATE</span>
+                <h2>Quer criar um momento inesquecível para alguém especial?</h2>
+                <p>Nossa equipe está pronta para te atender com toda a sensibilidade e atenção que a sua história merece.</p>
+                <div class="section-actions">
+                    <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/3JZ_D3KntM8">
+                        <i data-lucide="play-circle"></i> Assista
+                    </button>
+                </div>
+            </div>
+
             <div class="disclaimer-card">
                 <div class="disclaimer-icon">
                     <i data-lucide="shield-check"></i>
@@ -259,15 +297,21 @@
             </div>
 
             <div class="footer-bottom">
-                <a href="#topo" class="footer-brand" title="Voltar ao início">
-                    <img src="logo.png" alt="re.viva memories logo" class="logo-img-footer">
-                </a>
                 <p class="footer-copy">
-                    Um projeto <strong>Preview Studio Digital</strong> &copy; 2026. Todos os direitos reservados.
+                    Um projeto <a href="https://previewstudio.com.br/" target="_blank" rel="noopener noreferrer" style="color: var(--brand-gold); text-decoration: underline;"><strong>Preview Studio Digital</strong></a> &copy; 2026. Todos os direitos reservados.
                 </p>
             </div>
         </div>
-    </footer>
+    </section>
+    <!-- Modal de Vídeo Global -->
+    <div class="video-modal" id="videoModal">
+        <div class="video-modal-content">
+            <button class="close-modal-btn" id="closeModalBtn">&times;</button>
+            <div class="video-container">
+                <iframe id="videoPlayer" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>
