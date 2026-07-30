@@ -116,7 +116,7 @@ img, video {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    scroll-snap-align: center;
+    scroll-snap-align: start;
     scroll-snap-stop: always;
     box-sizing: border-box;
 }
@@ -541,7 +541,7 @@ img, video {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    scroll-snap-align: center;
+    scroll-snap-align: start;
     scroll-snap-stop: always;
 }
 
@@ -628,7 +628,7 @@ img, video {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    scroll-snap-align: center;
+    scroll-snap-align: start;
     scroll-snap-stop: always;
 }
 
