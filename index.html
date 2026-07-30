@@ -9,7 +9,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Caveat:wght@400;600;700&family=Allura&display=swap" rel="stylesheet">
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -30,7 +30,7 @@
             <nav class="nav-links" id="navLinks">
                 <a href="#topo">INÍCIO</a>
                 <a href="#como-funciona">EXPERIÊNCIA</a>
-                <a href="#casos-de-uso">OCASIÕES ESPECIAIS</a>
+                <a href="#casos-de-uso">OCASIÕES</a>
                 <a href="#depoimentos">DEPOIMENTOS</a>
                 <a href="#contrate">CONTRATE</a>
             </nav>
@@ -42,6 +42,9 @@
         </div>
     </header>
 
+    <!-- Overlay de desfoque para fundo do menu mobile -->
+    <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
+
     <!-- Dobra 1: Hero Section -->
     <section class="hero-section" id="topo">
 
@@ -50,11 +53,11 @@
             
             <h1 class="hero-title">
                 <span class="title-line-1">O abraço que ficou no tempo, agora ganha</span>
-                <span class="text-gold uppercase-gold">VOZ, MOVIMENTO E SENTIMENTO.</span>
+                <span class="text-gold uppercase-gold">VOZ, EMOÇÃO, MOVIMENTO E SENTIMENTO.</span>
             </h1>
             
             <p class="hero-subtitle">
-                Recriamos com delicadeza, respeito e realismo, a presença de quem marcou sua vida unindo a sensibilidade humana com a capacidade da Inteligência Artificial, trazendo mensagens emocionantes para momentos únicos e especiais.
+                Recriamos com delicadeza, respeito e realismo, a presença de quem marcou sua vida unindo a sensibilidade humana com a capacidade da Inteligência Artificial, trazendo mensagens emocionantes para momentos únicos, especiais e inesquecíveis.
             </p>
             
             <div class="hero-actions">
@@ -69,9 +72,9 @@
     <section class="section how-it-works" id="como-funciona">
         <div class="container">
             <div class="section-header">
-                <span class="section-tag">EXPERIÊNCIA</span>
+                <span class="section-tag">Experiência Singela</span>
                 <h2>Como produzimos essa emoção em 4 passos</h2>
-                <p>Um processo simples, cuidadoso e focado no respeito à memória do seu ente querido.</p>
+                <p>Um processo simples, cuidadoso e profundamente humanizado, focado no respeito absoluto à memória de quem você ama, combinando tecnologia de ponta com a máxima sensibilidade afetiva.</p>
                 <div class="section-actions">
                     <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4">
                         <i data-lucide="play-circle"></i> Assista
@@ -79,43 +82,46 @@
                 </div>
             </div>
             <div class="steps-grid">
-                <!-- Slide 1: Passos 1 e 2 -->
                 <div class="steps-row">
                     <div class="step-card">
                         <div class="step-number">01</div>
                         <div class="step-icon">
                             <i data-lucide="image"></i>
                         </div>
-                        <h3>O Resgate</h3>
-                        <p>Você nos envia as fotografias mais marcantes, registros em áudio e nos conta sobre a história e personalidade da pessoa.</p>
+                        <div class="step-text-wrap">
+                            <h3>O Resgate</h3>
+                            <p>Você nos envia as fotografias mais marcantes, registros em áudio e nos conta sobre a história e personalidade da pessoa para que imagem em alta resolução seja produzida e o áudio capturado.</p>
+                        </div>
                     </div>
                     <div class="step-card">
                         <div class="step-number">02</div>
                         <div class="step-icon">
                             <i data-lucide="pen-tool"></i>
                         </div>
-                        <h3>A Essência</h3>
-                        <p>Elaboramos com sensibilidade o roteiro humanizado, capturando os detalhes afetivos e o carinho da mensagem.</p>
+                        <div class="step-text-wrap">
+                            <h3>A Essência</h3>
+                            <p>Você envia o texto com os dizeres especiais e aprimoraremos juntos o roteiro com sensibilidade e emoção, capturando os detalhes afetivos e o carinho da mensagem.</p>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Slide 2: Passos 3 e 4 -->
-                <div class="steps-row">
                     <div class="step-card">
                         <div class="step-number">03</div>
                         <div class="step-icon">
                             <i data-lucide="wand-2"></i>
                         </div>
-                        <h3>A Lapidação</h3>
-                        <p>Aplicamos nossa tecnologia avançada de estúdio para recriar com realismo a voz, respiração e microexpressões.</p>
+                        <div class="step-text-wrap">
+                            <h3>A Lapidação</h3>
+                            <p>Aplicamos nossa tecnologia avançada com inteligência artificial para recriar com realismo a voz, respiração e microexpressões com interpretação e máxima fidelidade.</p>
+                        </div>
                     </div>
                     <div class="step-card">
                         <div class="step-number">04</div>
                         <div class="step-icon">
                             <i data-lucide="gift"></i>
                         </div>
-                        <h3>O Reencontro</h3>
-                        <p>Você recebe um vídeo de altíssima definição visual e sonora, pronto para emocionar e surpreender a todos no grande dia.</p>
+                        <div class="step-text-wrap">
+                            <h3>O Reencontro</h3>
+                            <p>Você recebe um vídeo de altíssima definição visual e sonora, pronto para emocionar e surpreender a todos no grande dia, como um presente respeitoso e inesquecível.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -126,9 +132,9 @@
     <section class="section use-cases" id="casos-de-uso">
         <div class="container">
             <div class="section-header">
-                <span class="section-tag">OCASIÕES ESPECIAIS</span>
+                <span class="section-tag">Ocasiões Especiais</span>
                 <h2>Onde o presente ganha o maior significado</h2>
-                <p>Surpreenda pessoas queridas nos momentos mais marcantes da vida com uma homenagem eterna.</p>
+                <p>Surpreenda pessoas queridas em aniversários, casamentos, homenagens e datas especiais com uma recordação inesquecível, transformando memórias valiosas em presenças emocionantes e eternas.</p>
                 <div class="section-actions">
                     <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/9XAS9qB62Cg">
                         <i data-lucide="play-circle"></i> Assista
@@ -137,48 +143,39 @@
             </div>
 
             <div class="cases-grid">
-                <!-- Slide 1: Nascimento e Aniversário -->
                 <div class="cases-row">
                     <!-- 1. Nascimentos & Batizados -->
                     <div class="case-card">
-                        <div class="case-image" style="background-image: url('birth_baptism.jpg');">
-                            <div class="case-badge">Nascimentos & Batizados</div>
-                        </div>
+                        <div class="case-image" style="background-image: url('birth_baptism.jpg');"></div>
                         <div class="case-content">
+                            <div class="case-badge">Nascimentos & Batizados</div>
                             <h3>Boas-Vindas Eternas</h3>
                             <p>A bênção e o carinho dos bisavós ou entes queridos que já partiram para marcar o nascimento e os primeiros momentos do bebê.</p>
                         </div>
                     </div>
                     <!-- 2. Aniversários & 15 Anos -->
                     <div class="case-card">
-                        <div class="case-image" style="background-image: url('birthday_15.jpg');">
-                            <div class="case-badge">Aniversários & 15 Anos</div>
-                        </div>
+                        <div class="case-image" style="background-image: url('birthday_15.jpg');"></div>
                         <div class="case-content">
+                            <div class="case-badge">Aniversários & 15 Anos</div>
                             <h3>Conselhos do Coração</h3>
                             <p>Uma mensagem inesquecível de sabedoria e carinho na festa de debutante ou datas comemorativas em família.</p>
                         </div>
                     </div>
-                </div>
-
-                <!-- Slide 2: Formatura e Casamento -->
-                <div class="cases-row">
                     <!-- 3. Formaturas -->
                     <div class="case-card">
-                        <div class="case-image" style="background-image: url('graduation.jpg');">
-                            <div class="case-badge">Formaturas</div>
-                        </div>
+                        <div class="case-image" style="background-image: url('graduation.jpg');"></div>
                         <div class="case-content">
+                            <div class="case-badge">Formaturas</div>
                             <h3>Orgulho que Transcende</h3>
                             <p>O orgulho materializado dos avós ou pais no dia da colação de grau, celebrando a conquista acadêmica tão sonhada.</p>
                         </div>
                     </div>
                     <!-- 4. Casamentos -->
                     <div class="case-card">
-                        <div class="case-image" style="background-image: url('wedding.jpg');">
-                            <div class="case-badge">Casamentos</div>
-                        </div>
+                        <div class="case-image" style="background-image: url('wedding.jpg');"></div>
                         <div class="case-content">
+                            <div class="case-badge">Casamentos</div>
                             <h3>O Abraço no Altar</h3>
                             <p>A noiva ou noivo recebendo uma mensagem carinhosa e abençoada de um pai, mãe ou avós antes de entrar na celebração.</p>
                         </div>
@@ -192,9 +189,9 @@
     <section class="section testimonials" id="depoimentos">
         <div class="container">
             <div class="section-header">
-                <span class="section-tag">DEPOIMENTOS</span>
+                <span class="section-tag">Depoimentos Marcantes</span>
                 <h2>A emoção de quem já viveu essa experiência</h2>
-                <p>Veja o impacto transformador que um abraço em forma de vídeo causa nas celebrações.</p>
+                <p>Veja o impacto transformador que uma homenagem em vídeo causa no coração de famílias inteiras, trazendo alento, sorrisos e lembranças inestimáveis para todos os momentos festivos.</p>
                 <div class="section-actions">
                     <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4">
                         <i data-lucide="play-circle"></i> Assista
@@ -203,7 +200,6 @@
             </div>
 
             <div class="testimonials-grid">
-                <!-- Slide 1: Depoimentos 1 e 2 -->
                 <div class="testimonials-row">
                     <!-- 1. Depoimento Nascimento / Batizado -->
                     <div class="testimonial-card">
@@ -233,10 +229,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Slide 2: Depoimentos 3 e 4 -->
-                <div class="testimonials-row">
                     <!-- 3. Depoimento Formatura -->
                     <div class="testimonial-card">
                         <div class="quote-icon">“</div>
@@ -274,9 +266,9 @@
     <section class="section contrate-section" id="contrate">
         <div class="container">
             <div class="section-header">
-                <span class="section-tag">CONTRATE</span>
+                <span class="section-tag">Contrate</span>
                 <h2>Quer criar um momento inesquecível para alguém especial?</h2>
-                <p>Nossa equipe está pronta para te atender com toda a sensibilidade e atenção que a sua história merece.</p>
+                <p>Nossa equipe especializada está pronta para te atender com acolhimento, total sensibilidade e a dedicação exclusiva que a história e a memória do seu ente querido realmente merecem.</p>
                 <div class="section-actions">
                     <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/3JZ_D3KntM8">
                         <i data-lucide="play-circle"></i> Assista
@@ -291,14 +283,14 @@
                 <div class="disclaimer-content">
                     <h4>Compromisso com Ética e Respeito</h4>
                     <p>
-                        O serviço <strong>re.viva memories</strong> prioriza a integridade moral das famílias. Todas as produções requerem obrigatoriamente a assinatura prévia de um Termo de Consentimento e Responsabilidade, restrito a familiares diretos e contratantes autorizados, garantindo total privacidade e legalidade.
+                        O serviço <strong>re.viva memories</strong> prioriza a integridade moral das famílias. Todas as produções requerem obrigatoriamente a assinatura prévia de um Termo de Consentimento e Responsabilidade, restrito a familiares diretos e contratantes autorizados, garantindo total privacidade, legalidade e segurança jurídica para que a homenagem ao seu ente querido seja um momento de amor, recordação e paz.
                     </p>
                 </div>
             </div>
 
             <div class="footer-bottom">
                 <p class="footer-copy">
-                    Um projeto <a href="https://previewstudio.com.br/" target="_blank" rel="noopener noreferrer" style="color: var(--brand-gold); text-decoration: underline;"><strong>Preview Studio Digital</strong></a> &copy; 2026. Todos os direitos reservados.
+                    <a href="https://previewstudio.com.br/" target="_blank" rel="noopener noreferrer" style="color: var(--brand-gold); text-decoration: underline;"><strong>Preview Studio Digital</strong></a>&copy; 2026. Todos os direitos reservados.
                 </p>
             </div>
         </div>

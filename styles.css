@@ -80,7 +80,7 @@ html {
 
 body {
     overflow-x: hidden;
-    height: 100%;
+    min-height: 100vh;
 }
 
 a {
@@ -110,7 +110,7 @@ img, video {
 .use-cases, 
 .testimonials,
 .contrate-section {
-    min-height: 100vh;
+    height: 100vh;
     padding: 60px 0;
     display: flex;
     flex-direction: column;
@@ -145,7 +145,6 @@ img, video {
 
 .uppercase-gold {
     display: block;
-    font-size: 1.25em;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 3px;
@@ -178,34 +177,34 @@ img, video {
 
 .section-tag {
     display: inline-block;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    font-family: 'Allura', cursive;
+    font-size: clamp(1.5rem, 2.8vw, 2.5rem);
     color: var(--brand-gold);
-    margin-bottom: 12px;
-    font-weight: 600;
+    margin-bottom: 8px;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 1px;
 }
 
 .section-header h2 {
-    font-size: clamp(1.3rem, 2.7vw, 2.3rem);
-    font-weight: 600;
-    letter-spacing: -0.5px;
+    font-size: clamp(1.8rem, 2.5vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: 0.5px;
     margin-bottom: 14px;
     color: var(--text-primary);
-    white-space: nowrap;
+    white-space: normal;
     text-align: center;
     width: 100%;
+    text-transform: uppercase;
 }
 
 .section-header p {
     color: var(--text-secondary);
     font-size: 1.08rem;
     font-weight: 300;
-    text-align: justify;
-    text-align-last: center;
+    text-align: center;
     width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
+    margin: 0 auto 16px auto;
     line-height: 1.6;
 }
 
@@ -362,7 +361,7 @@ img, video {
 /* Dobra 1: Hero Section */
 .hero-section {
     position: relative;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -388,7 +387,6 @@ img, video {
     z-index: 3;
     text-align: center;
     width: 100%;
-    max-width: 950px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -419,17 +417,19 @@ img, video {
 }
 
 .hero-title {
-    font-size: clamp(1.6rem, 3.5vw, 3rem);
+    font-size: clamp(1.8rem, 2.5vw, 2.5rem);
     font-weight: 700;
     line-height: 1.35;
     letter-spacing: -0.5px;
     margin-bottom: 24px;
     text-align: center;
     width: 100%;
-    max-width: 950px;
+    max-width: 100%;
+    text-transform: uppercase;
 }
 
-.hero-title .title-line-1 {
+.hero-title .title-line-1,
+.hero-title .uppercase-gold {
     display: block;
     width: 100%;
     text-align: center;
@@ -437,10 +437,10 @@ img, video {
 }
 
 .hero-subtitle {
-    font-size: 1.15rem;
+    font-size: 1.08rem;
     color: var(--text-secondary);
     font-weight: 300;
-    max-width: 750px;
+    width: 100%;
     margin: 0 auto 40px auto;
     text-align: center;
     line-height: 1.6;
@@ -460,6 +460,11 @@ img, video {
     position: relative;
     z-index: 2;
 }
+
+/* Label exclusivo do slide mobile de cards — oculto no desktop */
+/* Alterna texto da section-tag entre desktop e mobile */
+.tag-mobile  { display: none !important; }
+.tag-desktop { display: inline !important; }
 
 .steps-row,
 .cases-row,
@@ -523,6 +528,7 @@ img, video {
     color: var(--text-secondary);
     font-size: 0.92rem;
     line-height: 1.6;
+    text-align: justify;
 }
 
 /* Dobra 3: OCASIÕES ESPECIAIS (Todos os 4 Cards na Mesma Tela no Desktop) */
@@ -530,7 +536,7 @@ img, video {
     background: transparent;
     position: relative;
     z-index: 2;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -574,9 +580,8 @@ img, video {
 }
 
 .case-badge {
-    position: absolute;
-    top: 14px;
-    left: 14px;
+    position: static;
+    display: inline-block;
     background: rgba(11, 11, 12, 0.85);
     backdrop-filter: blur(10px);
     color: var(--brand-gold);
@@ -585,18 +590,26 @@ img, video {
     border-radius: var(--radius-full);
     font-size: 0.78rem;
     font-weight: 600;
+    margin-bottom: 10px;
+    align-self: center;
 }
 
 .case-content {
     padding: 24px 20px;
-    text-align: left;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .case-content h3 {
-    font-size: 1.2rem;
+    font-size: 0.95rem;
     font-weight: 600;
     margin-bottom: 8px;
     color: var(--text-primary);
+    text-align: center;
+    white-space: nowrap;
 }
 
 .case-content p {
@@ -604,12 +617,13 @@ img, video {
     font-size: 0.88rem;
     line-height: 1.5;
     margin: 0;
+    text-align: justify;
 }
 
 /* Dobra 4: DEPOIMENTOS (Todos os 4 Cards na Mesma Tela no Desktop) */
 .testimonials {
     background: transparent;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -666,6 +680,7 @@ img, video {
     position: relative;
     z-index: 2;
     line-height: 1.5;
+    text-align: justify;
 }
 
 .testimonial-user {
@@ -756,7 +771,7 @@ img, video {
 
 @media (max-width: 768px) {
     .container {
-        padding: 0 16px;
+        padding: 0 24px !important;
     }
 
     .nav-links {
@@ -783,31 +798,36 @@ img, video {
     }
 
     .section-header h2 {
-        font-size: 1.45rem !important;
+        font-size: 1.6rem !important;
         line-height: 1.25;
         margin-bottom: 8px;
+        text-transform: uppercase;
+        text-align: center !important;
     }
 
     .section-header p {
         font-size: 0.85rem;
+        text-align: center !important;
     }
 
     /* Grids Mobile Enxutas */
+    /* Grids Mobile Enxutas (2x2 para caber os 4 cards em 1 tela) */
     .steps-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
 
     .step-card {
-        padding: 16px;
+        padding: 12px 10px;
         display: flex;
-        gap: 14px;
-        align-items: center;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
     }
 
     .step-icon {
-        width: 42px;
-        height: 42px;
+        width: 36px;
+        height: 36px;
         margin-bottom: 0;
         flex-shrink: 0;
     }
@@ -817,16 +837,16 @@ img, video {
     }
 
     .step-card h3 {
-        font-size: 1.05rem;
+        font-size: 0.95rem;
         margin-bottom: 4px;
     }
 
     .step-card p {
-        font-size: 0.82rem;
-        line-height: 1.4;
+        font-size: 0.78rem;
+        line-height: 1.35;
     }
 
-    /* Casos de Uso Mobile (Grid 2x2 para caber em 1 tela) */
+    /* Casos de Uso Mobile (Grid 2x2 sem cortes no texto) */
     .cases-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
@@ -837,7 +857,7 @@ img, video {
     }
 
     .case-image {
-        height: 90px;
+        height: 85px;
     }
 
     .case-badge {
@@ -848,7 +868,7 @@ img, video {
     }
 
     .case-content {
-        padding: 12px 10px;
+        padding: 10px 8px;
     }
 
     .case-content h3 {
@@ -859,37 +879,33 @@ img, video {
     .case-content p {
         font-size: 0.75rem;
         line-height: 1.3;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        display: block;
+        overflow: visible;
     }
 
-    /* Depoimentos Mobile (Grid 2x2 ou Carrossel Enxuto) */
+    /* Depoimentos Mobile (Grid 2x2 sem cortes no texto) */
     .testimonials-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
     }
 
     .testimonial-card {
-        padding: 14px 12px;
+        padding: 12px 10px;
         border-radius: var(--radius-md);
     }
 
     .quote-icon {
-        font-size: 2rem;
-        margin-bottom: -10px;
+        font-size: 1.6rem;
+        margin-bottom: -6px;
     }
 
     .testimonial-text {
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         line-height: 1.3;
-        margin-bottom: 12px;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        margin-bottom: 8px;
+        display: block;
+        overflow: visible;
     }
 
     .user-avatar {
@@ -915,39 +931,37 @@ img, video {
 
 /* Dobra 5: CONTRATE e Rodapé Integrado */
 .contrate-section {
-    min-height: 100vh !important;
-    max-height: 100vh !important;
+    height: 100vh !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: space-between !important;
-    padding: 4vh 0 2vh 0 !important;
+    justify-content: center !important;
+    padding: 30px 0 !important;
     box-sizing: border-box;
-    overflow: hidden !important;
 }
 
 .contrate-section .container {
-    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
+    justify-content: center;
+    align-items: center;
     width: 100%;
+    gap: 20px;
 }
 
 .contrate-section .section-header {
-    margin-bottom: 2vh !important;
+    margin-bottom: 0 !important;
 }
 
 .disclaimer-card {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: var(--radius-md);
-    padding: 12px 20px;
+    padding: 10px 18px;
     display: flex;
     gap: 14px;
     align-items: center;
-    margin: 2vh auto;
-    max-width: 780px;
+    margin: 1.5vh auto;
+    max-width: 100%;
     width: 100%;
     box-sizing: border-box;
 }
@@ -968,6 +982,7 @@ img, video {
     font-size: 0.8rem;
     color: var(--text-secondary);
     line-height: 1.4;
+    text-align: justify;
 }
 
 .footer-bottom {
@@ -998,12 +1013,13 @@ img, video {
 
 @media (max-width: 768px) {
     .container {
-        padding: 0 16px;
+        padding: 0 24px !important;
     }
 
     /* Navbar Mobile Alinhada na Mesma Linha */
     .navbar {
         padding: 12px 0 !important;
+        z-index: 2000 !important;
     }
 
     .nav-container {
@@ -1036,21 +1052,50 @@ img, video {
         padding: 4px !important;
     }
 
-    /* Esconder o menu de links no cabeçalho mobile por padrão */
+    /* Overlay de desfoque para o fundo do site quando o menu mobile está aberto */
+    .mobile-menu-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: 1500;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .mobile-menu-backdrop.active {
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    /* Esconder o menu de links no cabeçalho mobile por padrão (dropdown no máx 50vw) */
     .nav-links {
         display: none !important;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        background: rgba(15, 15, 17, 0.98);
-        backdrop-filter: blur(20px);
-        border-bottom: 1px solid var(--border-gold);
-        flex-direction: column;
-        padding: 20px;
-        gap: 16px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-        z-index: 999;
+        position: fixed !important;
+        top: 60px !important;
+        right: 0 !important;
+        left: auto !important;
+        width: 50vw !important;
+        max-width: 260px !important;
+        max-height: 50vh !important;
+        overflow-y: auto !important;
+        background: rgba(11, 11, 12, 0.98) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border-left: 1px solid var(--border-gold) !important;
+        border-bottom: 1px solid var(--border-gold) !important;
+        flex-direction: column !important;
+        padding: 20px 24px !important;
+        gap: 14px !important;
+        box-shadow: -8px 20px 40px rgba(0, 0, 0, 0.9) !important;
+        z-index: 2000 !important;
+        box-sizing: border-box !important;
+        border-radius: 0 0 0 var(--radius-md) !important;
     }
 
     .nav-links.active {
@@ -1107,26 +1152,25 @@ img, video {
 
     .contrate-section {
         min-height: 100dvh !important;
-        max-height: 100dvh !important;
         scroll-snap-align: center !important;
         scroll-snap-stop: always !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: space-between !important;
-        padding: 3vh 0 1.5vh 0 !important;
+        justify-content: center !important;
+        padding: 68px 0 0 0 !important;  /* footer na base extrema */
         box-sizing: border-box;
-        overflow: hidden !important;
+        gap: 12px;
     }
 
     .contrate-section .section-header {
-        margin-bottom: 1.5vh !important;
+        margin-bottom: 0 !important;
     }
 
     .contrate-section .disclaimer-card {
         padding: 10px 14px !important;
-        margin: 1.5vh auto !important;
+        margin: 0 auto !important;
         gap: 8px !important;
-        max-width: 95% !important;
+        max-width: 100% !important;
     }
 
     .contrate-section .disclaimer-content h4 {
@@ -1140,11 +1184,16 @@ img, video {
     }
 
     .contrate-section .footer-bottom {
-        padding-top: 8px !important;
+        padding-top: 6px !important;
+        margin-top: auto !important;
     }
 
     .contrate-section .footer-copy {
         font-size: 0.65rem !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 
     .section-header {
@@ -1152,7 +1201,7 @@ img, video {
     }
 
     .section-header h2 {
-        font-size: 1.45rem !important;
+        font-size: 1.6rem !important;
         line-height: 1.25;
         margin-bottom: 8px;
         white-space: normal !important;
@@ -1198,143 +1247,293 @@ img, video {
         box-sizing: border-box !important;
     }
 
-    /* Rows como Slides de 100dvh */
-    .steps-row,
+    /* -------------------------------------------------------
+       ROW WRAPPER — ocupa 100dvh como slide único
+    ------------------------------------------------------- */
+    /* Alterna section-tag: mobile mostra texto alternativo */
+    .tag-desktop { display: none !important; }
+    .tag-mobile  { display: inline !important; }
+
+    /* Steps: cards com altura natural, centrados com espaço entre eles */
+    .steps-row {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: stretch !important;
+        min-height: 100dvh !important;
+        height: 100dvh !important;
+        width: 100% !important;
+        scroll-snap-align: center !important;
+        scroll-snap-stop: always !important;
+        box-sizing: border-box !important;
+        padding: 28px 0 !important;
+        gap: 12px !important;
+    }
+
+    /* Cases e Testimonials: cards se expandem para preencher a tela */
     .cases-row,
     .testimonials-row {
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
-        align-items: center !important;
-        gap: 16px !important;
+        align-items: stretch !important;
         min-height: 100dvh !important;
+        height: 100dvh !important;
         width: 100% !important;
         scroll-snap-align: center !important;
         scroll-snap-stop: always !important;
         box-sizing: border-box !important;
-        padding: 20px 0 !important;
+        padding: 8px 0 !important;
+        gap: 6px !important;
     }
 
+    .testimonials-row {
+        padding-top: 68px !important;    /* offset navbar fixa de 60px + margem */
+        padding-bottom: clamp(8px, 2dvh, 20px) !important;
+        gap: clamp(5px, 1.2dvh, 14px) !important;
+    }
+
+    /* -------------------------------------------------------
+       GRID — coluna única, 4 linhas
+    ------------------------------------------------------- */
     .steps-grid,
     .cases-grid,
     .testimonials-grid {
-        display: block !important;
-        width: 100% !important;
+        display: contents !important;
     }
 
-    /* Cards Individuais Limitados a 42dvh para caberem 2 na tela */
-    .step-card,
+    /* -------------------------------------------------------
+       CARDS GENÉRICOS — 4 empilhados verticalmente em 100dvh
+    ------------------------------------------------------- */
+    /* Step-cards: altura automática (conteúdo define), sem esticar */
+    .step-card {
+        width: 100% !important;
+        flex: 0 0 auto !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        border-radius: var(--radius-md) !important;
+        overflow: hidden !important;
+    }
+
+    /* Case/Testimonial cards: esticam para preencher o espaço igual */
     .case-card,
     .testimonial-card {
         width: 100% !important;
-        height: calc(43dvh - 16px) !important;
-        min-height: auto !important;
-        max-height: 43dvh !important;
+        flex: 1 1 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: none !important;
         margin: 0 !important;
-        padding: 16px 14px !important;
         box-sizing: border-box !important;
+        border-radius: var(--radius-md) !important;
+        overflow: hidden !important;
+    }
+
+    /* -------------------------------------------------------
+       STEP CARDS — ícone + título + texto lado a lado compacto
+    ------------------------------------------------------- */
+    .step-card {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 10px 14px !important;
+        background: rgba(20, 20, 22, 0.45) !important;
+        border: 1px solid var(--border-subtle) !important;
+    }
+
+    .step-card .step-number {
+        position: static !important;
+        font-size: 2rem !important;
+        font-weight: 800 !important;
+        color: rgba(197, 160, 89, 0.2) !important;
+        min-width: 36px !important;
+        line-height: 1 !important;
+    }
+
+    .step-card .step-icon {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        border-radius: var(--radius-sm) !important;
+        background: rgba(197, 160, 89, 0.12) !important;
+        color: var(--brand-gold) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin-bottom: 0 !important;
+        flex-shrink: 0 !important;
+    }
+
+    .step-card .step-icon svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    .step-card .step-text-wrap {
         display: flex !important;
         flex-direction: column !important;
-        justify-content: center !important;
-        border-radius: var(--radius-md) !important;
-    }
-
-    .step-icon {
-        width: 44px !important;
-        height: 44px !important;
-        margin-bottom: 10px !important;
-    }
-
-    .step-number {
-        font-size: 1.8rem !important;
-        top: 10px !important;
-        right: 10px !important;
+        gap: 2px !important;
+        flex: 1 !important;
+        min-width: 0 !important;
     }
 
     .step-card h3 {
-        font-size: 1.05rem !important;
-        margin-bottom: 4px !important;
+        font-size: 0.92rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 2px !important;
+        color: var(--text-primary) !important;
+        white-space: nowrap !important;
     }
 
     .step-card p {
-        font-size: 0.8rem !important;
-        line-height: 1.35 !important;
+        font-size: 0.85rem !important;
+        line-height: 1.6 !important;
+        color: var(--text-secondary) !important;
+        text-align: justify !important;
+        overflow: visible !important;
+        display: block !important;
+        margin: 0 !important;
+        font-weight: 300 !important;
+    }
+
+    /* -------------------------------------------------------
+       CASE CARDS — imagem visível + título + texto
+    ------------------------------------------------------- */
+    .case-card {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: stretch !important;
+        background: rgba(20, 20, 22, 0.45) !important;
+        border: 1px solid var(--border-subtle) !important;
     }
 
     .case-image {
-        height: 110px !important;
+        width: 110px !important;
+        min-width: 110px !important;
+        height: 100% !important;
+        background-size: cover !important;
+        background-position: center !important;
+        position: relative !important;
         flex-shrink: 0 !important;
     }
 
     .case-badge {
-        font-size: 0.65rem !important;
-        padding: 3px 8px !important;
-        top: 6px !important;
-        left: 6px !important;
+        position: static !important;
+        display: inline-block !important;
+        font-size: 0.6rem !important;
+        padding: 2px 8px !important;
+        background: rgba(11, 11, 12, 0.75) !important;
+        backdrop-filter: blur(8px) !important;
+        color: var(--brand-gold) !important;
+        border: 1px solid var(--border-gold) !important;
+        border-radius: var(--radius-full) !important;
+        font-weight: 600 !important;
+        white-space: nowrap !important;
+        margin-bottom: 5px !important;
+        align-self: center !important;
     }
 
     .case-content {
-        padding: 10px 8px !important;
-        text-align: left !important;
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 10px 12px !important;
+        text-align: center !important;
         overflow: hidden !important;
+        min-width: 0 !important;
+        gap: 2px !important;
     }
 
     .case-content h3 {
-        font-size: 0.95rem !important;
-        margin-bottom: 2px !important;
+        font-size: 0.88rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 3px !important;
+        color: var(--text-primary) !important;
+        text-align: center !important;
+        white-space: nowrap !important;
     }
 
     .case-content p {
-        font-size: 0.78rem !important;
-        line-height: 1.3 !important;
-        display: -webkit-box !important;
-        -webkit-line-clamp: 2 !important;
-        -webkit-box-orient: vertical !important;
+        font-size: 0.85rem !important;
+        line-height: 1.6 !important;
+        color: var(--text-secondary) !important;
+        text-align: justify !important;
+        display: block !important;
+        overflow: visible !important;
+        margin: 0 !important;
+        font-weight: 300 !important;
+    }
+
+    /* -------------------------------------------------------
+       TESTIMONIAL CARDS — aspas + texto itálico + avatar
+    ------------------------------------------------------- */
+    .testimonial-card {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        height: 0 !important;
+        padding: clamp(6px, 1.5dvh, 16px) clamp(10px, 3vw, 16px) !important;
+        background: rgba(20, 20, 22, 0.45) !important;
+        border: 1px solid var(--border-subtle) !important;
+        gap: clamp(3px, 0.6dvh, 8px) !important;
         overflow: hidden !important;
     }
 
     .quote-icon {
-        font-size: 1.8rem !important;
-        margin-bottom: -6px !important;
+        display: none !important;
     }
 
     .testimonial-text {
-        font-size: 0.78rem !important;
-        line-height: 1.35 !important;
-        margin-bottom: 8px !important;
+        font-size: clamp(0.64rem, 1.6dvh, 0.82rem) !important;
+        line-height: 1.45 !important;
+        margin-bottom: 0 !important;
         display: -webkit-box !important;
-        -webkit-line-clamp: 3 !important;
         -webkit-box-orient: vertical !important;
+        -webkit-line-clamp: 5 !important;
         overflow: hidden !important;
+        text-align: justify !important;
+        color: var(--text-secondary) !important;
+        font-style: italic !important;
+        font-weight: 300 !important;
+        flex: 1 !important;
+    }
+
+    .testimonial-user {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        flex-shrink: 0 !important;
     }
 
     .user-avatar {
-        width: 36px !important;
-        height: 36px !important;
-    }
-
-    .testimonial-user h4 {
-        font-size: 0.85rem !important;
-    }
-
-    .testimonial-user span {
-        font-size: 0.68rem !important;
-    }
-
-    .user-avatar {
-        width: 44px !important;
-        height: 44px !important;
+        width: clamp(24px, 3.5dvh, 36px) !important;
+        height: clamp(24px, 3.5dvh, 36px) !important;
+        min-width: clamp(24px, 3.5dvh, 36px) !important;
         aspect-ratio: 1 / 1 !important;
         flex-shrink: 0 !important;
         border-radius: 50% !important;
+        background-size: cover !important;
+        background-position: center !important;
+        border: 1.5px solid var(--brand-gold) !important;
     }
 
     .testimonial-user h4 {
-        font-size: 0.85rem !important;
+        font-size: clamp(0.68rem, 1.5dvh, 0.82rem) !important;
+        font-weight: 600 !important;
+        margin: 0 !important;
     }
 
     .testimonial-user span {
-        font-size: 0.68rem !important;
+        font-size: clamp(0.55rem, 1.2dvh, 0.68rem) !important;
+        color: var(--text-secondary) !important;
     }
 }
 
@@ -1423,6 +1622,7 @@ img, video {
     border: none;
 }
 
+@media (max-width: 768px) {
     /* Hero Specifics Mobile */
     .hero-section {
         padding-top: 0 !important;
@@ -1439,7 +1639,7 @@ img, video {
     }
 
     .hero-title {
-        font-size: clamp(0.75rem, 3.8vw, 1.15rem) !important;
+        font-size: 1.6rem !important;
         letter-spacing: -0.2px !important;
         line-height: 1.35 !important;
         margin-bottom: 14px !important;
@@ -1447,22 +1647,17 @@ img, video {
         text-align: center !important;
     }
     
-    .hero-title .title-line-1 {
-        white-space: nowrap !important;
+    .hero-title .title-line-1,
+    .hero-title .uppercase-gold {
+        white-space: normal !important;
         display: block !important;
-        width: 100%;
+        width: 100% !important;
         text-align: center !important;
-    }
-
-    .uppercase-gold {
-        font-size: 1.15em !important;
         letter-spacing: 1px !important;
-        margin-top: 6px;
-        display: block !important;
     }
 
     .hero-subtitle {
-        font-size: 0.88rem !important;
+        font-size: 0.85rem !important;
         line-height: 1.45;
         margin-bottom: 20px;
         text-align: center !important;

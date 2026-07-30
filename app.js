@@ -183,4 +183,45 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Toggle do Menu Hambúrguer Mobile com Overlay de Desfoque
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navLinks = document.getElementById('navLinks');
+    const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
+
+    function closeMobileMenu() {
+        if (navLinks) navLinks.classList.remove('active');
+        if (mobileMenuBackdrop) mobileMenuBackdrop.classList.remove('active');
+    }
+
+    if (mobileMenuBtn && navLinks) {
+        mobileMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isActive = navLinks.classList.toggle('active');
+            if (mobileMenuBackdrop) {
+                if (isActive) {
+                    mobileMenuBackdrop.classList.add('active');
+                } else {
+                    mobileMenuBackdrop.classList.remove('active');
+                }
+            }
+        });
+
+        // Fechar o menu ao clicar em qualquer opção de seção
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+
+        // Fechar o menu ao clicar no backdrop desfocado
+        if (mobileMenuBackdrop) {
+            mobileMenuBackdrop.addEventListener('click', closeMobileMenu);
+        }
+
+        // Fechar o menu ao clicar fora dele
+        document.addEventListener('click', (e) => {
+            if (!navLinks.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                closeMobileMenu();
+            }
+        });
+    }
 });
