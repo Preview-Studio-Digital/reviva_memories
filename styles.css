@@ -1930,6 +1930,9 @@ span.section-tag.handwritten-title {
     .handwritten-title {
         font-size: clamp(2rem, 8vw, 3.2rem) !important;
         line-height: 1.2 !important;
+        clip-path: none !important;
+        animation: none !important;
+        opacity: 1 !important;
     }
 }
 

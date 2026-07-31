@@ -52,9 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         currentIdx = index;
                     }
 
-                    // Reiniciar a revelação suave da esquerda para a direita mantendo o texto 100% estático
+                    // Reiniciar a revelação suave da esquerda para a direita mantendo o texto 100% estático (Apenas no Desktop)
                     const title = entry.target.querySelector('.handwritten-title');
-                    if (title) {
+                    if (title && window.innerWidth > 768) {
                         title.style.animation = 'none';
                         title.offsetHeight; // Reflow
                         title.style.animation = 'revealStaticText 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards';
