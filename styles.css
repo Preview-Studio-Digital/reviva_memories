@@ -391,13 +391,16 @@ img, video {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding-top: 0;
+    justify-content: space-between;
+    height: 100vh;
+    padding-top: 110px; /* Margem para a logo do topo */
+    padding-bottom: 70px;  /* Margem para o player flutuante da base */
+    box-sizing: border-box;
 }
 
 .hero-content .section-tag {
-    margin-top: 20px;
-    margin-bottom: 12px;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .hero-badge {
@@ -441,7 +444,7 @@ img, video {
     color: var(--text-secondary);
     font-weight: 300;
     width: 100%;
-    margin: 0 auto 40px auto;
+    margin: 0 auto;
     text-align: center;
     line-height: 1.6;
 }
@@ -452,6 +455,7 @@ img, video {
     justify-content: center;
     gap: 20px;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 /* Dobra 2: Como Funciona */
@@ -1557,69 +1561,117 @@ img, video {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(11, 11, 12, 0.95);
-    backdrop-filter: blur(15px);
-    z-index: 2000;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(11, 11, 12, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 100000;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.4s ease;
+    transition: opacity 3s cubic-bezier(0.16, 1, 0.3, 1), visibility 3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .video-modal.active {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
 }
 
 .video-modal-content {
     position: relative;
-    width: 90%;
-    max-width: 850px;
-    aspect-ratio: 16 / 9;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
     background: #000;
-    border: 1px solid var(--border-gold);
-    border-radius: var(--radius-lg);
+    border: none;
+    border-radius: 0;
     overflow: hidden;
-    box-shadow: 0 20px 50px rgba(197, 160, 89, 0.3);
-    transform: scale(0.9);
-    transition: transform 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: scale(0.95);
+    transition: transform 3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .video-modal.active .video-modal-content {
     transform: scale(1);
 }
 
-.close-modal-btn {
+/* Botão de Fechar na Base do Vídeo (Idêntico aos botões "Assista") */
+.close-video-bottom-btn {
     position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 2.2rem;
-    color: var(--text-secondary);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    z-index: 10;
-    transition: var(--transition-fast);
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100010;
+    box-shadow: 0 10px 30px rgba(197, 160, 89, 0.4);
 }
 
-.close-modal-btn:hover {
-    color: var(--brand-gold);
-    transform: scale(1.1);
+.close-video-bottom-btn:hover {
+    transform: translateX(-50%) translateY(-2px) scale(1.04);
+}
+
+.close-video-bottom-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Bloquear rolagem do site e ocultar áudio fixo quando o vídeo estiver ativo */
+body.video-active {
+    overflow: hidden !important;
+    height: 100vh !important;
+    touch-action: none !important;
+}
+
+body.video-active .audio-player-widget {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateX(-50%) translateY(20px) !important;
+    transition: opacity 0.4s ease, transform 0.4s ease !important;
 }
 
 .video-container {
+    position: relative;
     width: 100%;
     height: 100%;
 }
 
+/* Efeito Vinheta Cinematográfica (Sombreamento radial escuro suave nas bordas) */
+.video-vignette-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    background: radial-gradient(circle at center, transparent 45%, rgba(0, 0, 0, 0.4) 75%, rgba(0, 0, 0, 0.85) 100%);
+    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
+}
+
+.video-container video,
 .video-container iframe {
     width: 100%;
     height: 100%;
     border: none;
+    opacity: 0;
+    transition: opacity 3s ease-in-out;
+}
+
+.video-modal.active .video-container video,
+.video-modal.active .video-container iframe {
+    opacity: 1;
+}
+
+.video-container video.video-fading-out {
+    opacity: 0 !important;
+    transition: opacity 3s ease-in-out !important;
 }
 
 @media (max-width: 768px) {
@@ -1676,3 +1728,210 @@ img, video {
         font-size: 0.8rem;
     }
 }
+
+/* ==========================================================================
+   Widget de Áudio Ultra-Minimalista Fixado na Base
+   ========================================================================== */
+.audio-player-widget {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 6px 12px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    transition: all 0.3s ease;
+}
+
+/* Botão Play/Pause Sem Círculo (Ícone solto sincronizado na cor das ondas sonoras) */
+.audio-toggle-btn {
+    background: transparent !important;
+    border: none !important;
+    width: auto !important;
+    height: auto !important;
+    border-radius: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary) !important;
+    cursor: pointer;
+    box-shadow: none !important;
+    transition: all 0.3s ease;
+    padding: 2px 4px;
+    opacity: 0.7;
+}
+
+.audio-toggle-btn.is-playing {
+    color: var(--brand-gold) !important;
+    opacity: 1;
+}
+
+.audio-toggle-btn:hover {
+    transform: scale(1.18);
+    opacity: 1;
+    color: #ffffff !important;
+}
+
+.audio-toggle-btn.is-playing:hover {
+    color: #f7e7ce !important;
+}
+
+.audio-toggle-btn:active {
+    transform: scale(0.92);
+}
+
+.audio-toggle-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.2;
+}
+
+/* Ajuste fino do ícone de Play centralizado */
+.audio-toggle-btn #audioIconPlay {
+    margin-left: 1.5px;
+}
+
+/* Desenhos das Ondas Sonoras (Cinza quando inativo, Dourado pulsante quando tocando) */
+.sound-waves {
+    display: flex;
+    align-items: center;
+    gap: 2.5px;
+    height: 16px;
+}
+
+.sound-waves .bar {
+    width: 2.5px;
+    background: var(--text-secondary);
+    border-radius: 2px;
+    opacity: 0.5;
+    height: 3px;
+    transition: height 0.3s ease, opacity 0.3s ease, background 0.3s ease;
+}
+
+.sound-waves.playing .bar {
+    background: var(--brand-gold);
+    opacity: 0.95;
+    animation: soundWaveAnim 1.2s ease-in-out infinite alternate;
+}
+
+.sound-waves.playing .bar-1 { animation-delay: 0.1s; }
+.sound-waves.playing .bar-2 { animation-delay: 0.3s; }
+.sound-waves.playing .bar-3 { animation-delay: 0.5s; }
+.sound-waves.playing .bar-4 { animation-delay: 0.2s; }
+
+@keyframes soundWaveAnim {
+    0% {
+        height: 3px;
+    }
+    100% {
+        height: 14px;
+    }
+}
+
+/* Responsividade Mobile do Player */
+@media (max-width: 768px) {
+    .audio-player-widget {
+        bottom: 16px;
+        gap: 8px;
+        padding: 4px 8px;
+    }
+
+    .audio-toggle-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    .audio-toggle-btn svg {
+        width: 12px;
+        height: 12px;
+    }
+
+/* ==========================================================================
+   Efeito Manuscrito "Allura" Animado na Posição Final Exata
+   ========================================================================== */
+.handwritten-title {
+    font-family: 'Allura', cursive !important;
+    font-weight: 400 !important;
+    color: var(--brand-gold) !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px !important;
+    display: inline-block !important;
+    text-align: center !important;
+    background: linear-gradient(135deg, #f7e7ce 0%, #c5a059 50%, #8c6827 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    /* Posição estática 100% fixa: a frase inteira é revelada da esquerda para a direita sem mover nenhuma letra */
+    clip-path: inset(0 100% 0 0);
+    animation: revealStaticText 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes revealStaticText {
+    0% {
+        clip-path: inset(0 100% 0 0);
+    }
+    100% {
+        clip-path: inset(0 0% 0 0);
+    }
+}
+
+
+
+
+span.section-tag.handwritten-title {
+    font-size: 1.8rem !important;
+    font-family: 'Allura', cursive !important;
+    text-transform: none !important;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    -webkit-text-fill-color: var(--brand-gold) !important;
+}
+
+.title-line-1.handwritten-title {
+    font-size: clamp(1.8rem, 4vw, 3.2rem) !important;
+    font-family: 'Allura', cursive !important;
+    line-height: 1.2;
+}
+
+
+
+
+
+/* Ajustes de layout para posicionar título no Topo e Botão Assista na Base do Slide */
+.section-header,
+.hero-content {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    box-sizing: border-box !important;
+}
+
+.section-actions,
+.hero-actions {
+    margin-top: auto !important;
+    padding-bottom: 10px !important;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .handwritten-title {
+        font-size: clamp(2rem, 8vw, 3.2rem) !important;
+        line-height: 1.2 !important;
+    }
+}
+
+
+

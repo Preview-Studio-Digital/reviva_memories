@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Re-sincronizar o IntersectionObserver
         const observerOptions = {
             root: null,
-            rootMargin: '-10% 0px -10% 0px',
-            threshold: 0.4
+            rootMargin: '-5% 0px -5% 0px',
+            threshold: 0.2
         };
 
         observer = new IntersectionObserver((entries) => {
@@ -50,6 +50,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const index = Array.from(sections).indexOf(entry.target);
                     if (index !== -1) {
                         currentIdx = index;
+                    }
+
+                    // Reiniciar a revelação suave da esquerda para a direita mantendo o texto 100% estático
+                    const title = entry.target.querySelector('.handwritten-title');
+                    if (title) {
+                        title.style.animation = 'none';
+                        title.offsetHeight; // Reflow
+                        title.style.animation = 'revealStaticText 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards';
                     }
                 }
             });
@@ -148,12 +156,128 @@ document.addEventListener('DOMContentLoaded', () => {
         animateWaves();
     }
 
-    // Modal de Vídeo Global Logic
+    // Modal de Vídeo Global Logic (Suporta iframe YouTube e arquivo local WebM/MP4)
     const videoModal = document.getElementById('videoModal');
     const videoPlayer = document.getElementById('videoPlayer');
+    const localVideoPlayer = document.getElementById('localVideoPlayer');
     const closeModalBtn = document.getElementById('closeModalBtn');
+    const closeModalBottomBtn = document.getElementById('closeModalBottomBtn');
+    let originalVolume = 1;
+    let fadeInterval = null;
 
-    if (videoModal && videoPlayer) {
+    function fadeAudioVolume(targetVolume, duration = 400) {
+        const bgAudio = document.getElementById('bgAudio');
+        if (!bgAudio) return;
+
+        if (fadeInterval) clearInterval(fadeInterval);
+        
+        const startVolume = bgAudio.volume;
+        const steps = 20;
+        const stepTime = duration / steps;
+        const volumeDiff = targetVolume - startVolume;
+        let currentStep = 0;
+
+        fadeInterval = setInterval(() => {
+            currentStep++;
+            bgAudio.volume = Math.max(0, Math.min(1, startVolume + (volumeDiff * (currentStep / steps))));
+            if (currentStep >= steps) {
+                clearInterval(fadeInterval);
+                fadeInterval = null;
+            }
+        }, stepTime);
+    }
+
+    function startVideoFadeOut() {
+        if (!localVideoPlayer) return;
+        
+        // Pausar o áudio do vídeo imediatamente ao fechar, sem delay
+        localVideoPlayer.pause();
+
+        // Desvanecer o modal visualmente (mantendo o fade out de 3s no CSS)
+        videoModal.classList.remove('active');
+        document.body.classList.remove('video-active');
+        
+        // Restaurar volume da música de fundo imediatamente
+        const bgAudio = document.getElementById('bgAudio');
+        if (bgAudio) {
+            bgAudio.volume = originalVolume;
+        }
+
+        // Aguardar o término do fade visual (3s) para remover e resetar o src do vídeo
+        setTimeout(() => {
+            stopVideos();
+        }, 3000);
+    }
+
+    function openVideoModal(videoUrl) {
+        const bgAudio = document.getElementById('bgAudio');
+        if (bgAudio && !bgAudio.paused) {
+            originalVolume = bgAudio.volume || 1;
+            // Abaixar volume da música de fundo imediatamente para 0.25
+            bgAudio.volume = 0.25;
+        }
+
+        stopVideos();
+        document.body.classList.add('video-active');
+
+        if (videoUrl.endsWith('.webm') || videoUrl.endsWith('.mp4') || videoUrl.endsWith('.ogg')) {
+            if (localVideoPlayer) {
+                localVideoPlayer.src = videoUrl;
+                localVideoPlayer.style.display = 'block';
+                localVideoPlayer.play().catch(err => console.log("Autoplay bloqueado:", err));
+
+                // Permitir alternar Play/Pause clicando no vídeo
+                localVideoPlayer.onclick = () => {
+                    if (localVideoPlayer.paused) {
+                        localVideoPlayer.play();
+                    } else {
+                        localVideoPlayer.pause();
+                    }
+                };
+                
+                // Monitorar o fim real do vídeo para acionar o fechamento
+                let autoFadeTriggered = false;
+
+                const handleEnded = () => {
+                    if (!autoFadeTriggered) {
+                        autoFadeTriggered = true;
+                        startVideoFadeOut();
+                    }
+                    localVideoPlayer.removeEventListener('ended', handleEnded);
+                };
+
+                localVideoPlayer.addEventListener('ended', handleEnded);
+            }
+        } else {
+            if (videoPlayer) {
+                videoPlayer.src = videoUrl;
+                videoPlayer.style.display = 'block';
+            }
+        }
+        
+        requestAnimationFrame(() => {
+            videoModal.classList.add('active');
+        });
+    }
+
+    function closeVideoModal() {
+        if (!videoModal.classList.contains('active')) return;
+        startVideoFadeOut();
+    }
+
+    function stopVideos() {
+        if (videoPlayer) {
+            videoPlayer.src = '';
+            videoPlayer.style.display = 'none';
+        }
+        if (localVideoPlayer) {
+            localVideoPlayer.pause();
+            localVideoPlayer.src = '';
+            localVideoPlayer.style.display = 'none';
+        }
+    }
+
+    if (videoModal) {
         // Abrir Modal
         document.querySelectorAll('.watch-video-btn').forEach(button => {
             button.addEventListener('click', (e) => {
@@ -161,25 +285,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.stopPropagation();
                 const videoUrl = button.getAttribute('data-video-url');
                 if (videoUrl) {
-                    videoPlayer.src = videoUrl;
-                    videoModal.classList.add('active');
+                    openVideoModal(videoUrl);
                 }
             });
         });
 
-        // Fechar Modal pelo Botão Close
+        // Fechar Modal pelo Botão Superior X
         if (closeModalBtn) {
-            closeModalBtn.addEventListener('click', () => {
-                videoModal.classList.remove('active');
-                videoPlayer.src = '';
-            });
+            closeModalBtn.addEventListener('click', closeVideoModal);
         }
 
-        // Fechar ao clicar fora do conteúdo do Modal
+        // Fechar Modal pelo Botão Inferior "Fechar Vídeo"
+        if (closeModalBottomBtn) {
+            closeModalBottomBtn.addEventListener('click', closeVideoModal);
+        }
+
+        // Fechar ao clicar no fundo escuro do Modal
         videoModal.addEventListener('click', (e) => {
             if (e.target === videoModal) {
-                videoModal.classList.remove('active');
-                videoPlayer.src = '';
+                closeVideoModal();
+            }
+        });
+
+        // Fechar com a Tecla ESC (Escape)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                closeVideoModal();
             }
         });
     }
@@ -224,4 +355,44 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Lógica do Player de Áudio Fixo Minimalista
+    const bgAudio = document.getElementById('bgAudio');
+    const audioToggleBtn = document.getElementById('audioToggleBtn');
+    const audioIconPlay = document.getElementById('audioIconPlay');
+    const audioIconPause = document.getElementById('audioIconPause');
+    const soundWaves = document.querySelectorAll('.sound-waves');
+
+    if (bgAudio && audioToggleBtn) {
+        audioToggleBtn.addEventListener('click', () => {
+            if (bgAudio.paused) {
+                bgAudio.play().then(() => {
+                    updateAudioUI(true);
+                }).catch(err => {
+                    console.log("Erro ao reproduzir áudio:", err);
+                });
+            } else {
+                bgAudio.pause();
+                updateAudioUI(false);
+            }
+        });
+
+        bgAudio.addEventListener('play', () => updateAudioUI(true));
+        bgAudio.addEventListener('pause', () => updateAudioUI(false));
+
+        function updateAudioUI(isPlaying) {
+            if (isPlaying) {
+                audioIconPlay.style.display = 'none';
+                audioIconPause.style.display = 'inline-block';
+                audioToggleBtn.classList.add('is-playing');
+                soundWaves.forEach(wave => wave.classList.add('playing'));
+            } else {
+                audioIconPlay.style.display = 'inline-block';
+                audioIconPause.style.display = 'none';
+                audioToggleBtn.classList.remove('is-playing');
+                soundWaves.forEach(wave => wave.classList.remove('playing'));
+            }
+        }
+    }
 });
+

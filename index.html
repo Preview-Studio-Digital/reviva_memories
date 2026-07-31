@@ -51,17 +51,19 @@
         <div class="container hero-content">
             <span class="section-tag">Homenagens Inesquecíveis</span>
             
-            <h1 class="hero-title">
-                <span class="title-line-1">O abraço que ficou no tempo, agora ganha</span>
-                <span class="text-gold uppercase-gold">VOZ, EMOÇÃO, MOVIMENTO E SENTIMENTO.</span>
-            </h1>
-            
-            <p class="hero-subtitle">
-                Recriamos com delicadeza, respeito e realismo, a presença de quem marcou sua vida unindo a sensibilidade humana com a capacidade da Inteligência Artificial, trazendo mensagens emocionantes para momentos únicos, especiais e inesquecíveis.
-            </p>
+            <div class="hero-main-title-wrap">
+                <h1 class="hero-title">
+                    <span class="title-line-1 handwritten-title">O abraço que ficou no tempo, agora ganha</span>
+                    <span class="text-gold uppercase-gold">VOZ - EMOÇÃO - MOVIMENTO - SENTIMENTO</span>
+                </h1>
+                
+                <p class="hero-subtitle">
+                    Recriamos com delicadeza, respeito e realismo, a presença de quem marcou sua vida unindo a sensibilidade humana com a capacidade da Inteligência Artificial, trazendo mensagens emocionantes para momentos únicos, especiais e inesquecíveis.
+                </p>
+            </div>
             
             <div class="hero-actions">
-                <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/dQw4w9WgXcQ">
+                <button class="btn btn-primary watch-video-btn" data-video-url="video_01.webm">
                     <i data-lucide="play-circle"></i> Assista
                 </button>
             </div>
@@ -73,7 +75,7 @@
         <div class="container">
             <div class="section-header">
                 <span class="section-tag">Experiência Singela</span>
-                <h2>Como produzimos essa emoção em 4 passos</h2>
+                <h2 class="handwritten-title">Como produzimos essa emoção em 4 passos</h2>
                 <p>Um processo simples, cuidadoso e profundamente humanizado, focado no respeito absoluto à memória de quem você ama, combinando tecnologia de ponta com a máxima sensibilidade afetiva.</p>
                 <div class="section-actions">
                     <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4">
@@ -133,7 +135,7 @@
         <div class="container">
             <div class="section-header">
                 <span class="section-tag">Ocasiões Especiais</span>
-                <h2>Onde o presente ganha o maior significado</h2>
+                <h2 class="handwritten-title">Onde o presente ganha o maior significado</h2>
                 <p>Surpreenda pessoas queridas em aniversários, casamentos, homenagens e datas especiais com uma recordação inesquecível, transformando memórias valiosas em presenças emocionantes e eternas.</p>
                 <div class="section-actions">
                     <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/9XAS9qB62Cg">
@@ -190,7 +192,7 @@
         <div class="container">
             <div class="section-header">
                 <span class="section-tag">Depoimentos Marcantes</span>
-                <h2>A emoção de quem já viveu essa experiência</h2>
+                <h2 class="handwritten-title">A emoção de quem já viveu essa experiência</h2>
                 <p>Veja o impacto transformador que uma homenagem em vídeo causa no coração de famílias inteiras, trazendo alento, sorrisos e lembranças inestimáveis para todos os momentos festivos.</p>
                 <div class="section-actions">
                     <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4">
@@ -267,7 +269,7 @@
         <div class="container">
             <div class="section-header">
                 <span class="section-tag">Contrate</span>
-                <h2>Quer criar um momento inesquecível para alguém especial?</h2>
+                <h2 class="handwritten-title">Quer criar um momento inesquecível para alguém especial?</h2>
                 <p>Nossa equipe especializada está pronta para te atender com acolhimento, total sensibilidade e a dedicação exclusiva que a história e a memória do seu ente querido realmente merecem.</p>
                 <div class="section-actions">
                     <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/3JZ_D3KntM8">
@@ -298,10 +300,42 @@
     <!-- Modal de Vídeo Global -->
     <div class="video-modal" id="videoModal">
         <div class="video-modal-content">
-            <button class="close-modal-btn" id="closeModalBtn">&times;</button>
             <div class="video-container">
-                <iframe id="videoPlayer" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                <div class="video-vignette-overlay"></div>
+                <iframe id="videoPlayer" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="display: none;"></iframe>
+                <video id="localVideoPlayer" playsinline style="display: none; width: 100%; height: 100%; object-fit: contain; cursor: pointer;"></video>
             </div>
+            <!-- Botão de Fechar na Base do Vídeo (Apenas Texto Fechar) -->
+            <button class="btn btn-primary close-video-bottom-btn" id="closeModalBottomBtn">
+                Fechar
+            </button>
+        </div>
+    </div>
+
+    <!-- Player de Áudio Fixo Minimalista na Base do Slide -->
+    <div class="audio-player-widget" id="audioPlayerWidget">
+        <audio id="bgAudio" loop src="bg_music.mp3" preload="metadata"></audio>
+        
+        <!-- Ondas Sonoras Esquerda -->
+        <div class="sound-waves left-waves">
+            <span class="bar bar-1"></span>
+            <span class="bar bar-2"></span>
+            <span class="bar bar-3"></span>
+            <span class="bar bar-4"></span>
+        </div>
+
+        <!-- Botão Principal Play/Pause -->
+        <button class="audio-toggle-btn" id="audioToggleBtn" aria-label="Tocar ou pausar música de fundo">
+            <i data-lucide="play" id="audioIconPlay"></i>
+            <i data-lucide="pause" id="audioIconPause" style="display: none;"></i>
+        </button>
+
+        <!-- Ondas Sonoras Direita -->
+        <div class="sound-waves right-waves">
+            <span class="bar bar-4"></span>
+            <span class="bar bar-3"></span>
+            <span class="bar bar-2"></span>
+            <span class="bar bar-1"></span>
         </div>
     </div>
 
