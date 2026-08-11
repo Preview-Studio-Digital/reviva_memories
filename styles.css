@@ -23,7 +23,7 @@
     
     /* Typography */
     --font-primary: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-handwriting: 'Caveat', cursive;
+    --font-handwriting: 'Allura', cursive;
     
     /* Spacing & Borders */
     --border-subtle: rgba(255, 255, 255, 0.08);
@@ -52,10 +52,12 @@ html {
     color: var(--text-primary);
     line-height: 1.6;
     scroll-snap-type: y mandatory;
-    overflow-y: scroll;
-    height: 100%;
     scrollbar-width: thin;
     scrollbar-color: var(--brand-gold) var(--bg-main);
+}
+
+html.disable-snap {
+    scroll-snap-type: none !important;
 }
 
 /* Estilização Personalizada da Barra de Rolagem (Webkit) */
@@ -95,7 +97,7 @@ img, video {
 
 .container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 24px;
     display: flex;
@@ -108,16 +110,21 @@ img, video {
 .hero-section,
 .how-it-works, 
 .use-cases, 
-.testimonials,
-.contrate-section {
+.testimonials {
     height: 100vh;
-    padding: 60px 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     scroll-snap-align: start;
     scroll-snap-stop: always;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.contrate-section {
+    height: 100vh;
     box-sizing: border-box;
 }
 
@@ -326,7 +333,7 @@ img, video {
     align-items: center !important;
     justify-content: space-between !important;
     width: 100% !important;
-    max-width: 1200px !important;
+    max-width: 1400px !important;
     margin: 0 auto !important;
     padding: 0 24px !important;
 }
@@ -367,7 +374,48 @@ img, video {
     justify-content: center;
     padding: 0;
     overflow: hidden;
-    background: transparent;
+    background: #0b0b0c;
+}
+
+/* Fundo Visual (Imagem / Vídeo) */
+.hero-bg-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.hero-bg-media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    filter: brightness(0.7) contrast(1.05);
+    transform: scale(1.03);
+    animation: heroBgZoom 25s ease-in-out infinite alternate;
+}
+
+@keyframes heroBgZoom {
+    0% {
+        transform: scale(1.03);
+    }
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+.hero-bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(11, 11, 12, 0.45) 0%, rgba(11, 11, 12, 0.85) 75%, rgba(11, 11, 12, 0.98) 100%),
+                linear-gradient(to bottom, rgba(11, 11, 12, 0.7) 0%, transparent 35%, transparent 65%, rgba(11, 11, 12, 0.95) 100%);
+    pointer-events: none;
 }
 
 .global-waves-canvas {
@@ -391,24 +439,17 @@ img, video {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    height: 100vh;
-    padding-top: 110px; /* Margem para a logo do topo */
-    padding-bottom: 70px;  /* Margem para o player flutuante da base */
     box-sizing: border-box;
 }
 
-.hero-content .section-tag {
-    margin-top: 0;
-    margin-bottom: 0;
-}
 
 .hero-badge {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 8px 22px;
-    background: rgba(197, 160, 89, 0.1);
+    background: rgba(197, 160, 89, 0.15);
+    backdrop-filter: blur(8px);
     border: 1px solid var(--border-gold);
     border-radius: var(--radius-full);
     color: var(--brand-gold);
@@ -429,6 +470,11 @@ img, video {
     width: 100%;
     max-width: 100%;
     text-transform: uppercase;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+}
+
+.hero-title .title-line-1 {
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
 }
 
 .hero-title .title-line-1,
@@ -441,12 +487,14 @@ img, video {
 
 .hero-subtitle {
     font-size: 1.08rem;
-    color: var(--text-secondary);
+    color: #e4e4e7;
     font-weight: 300;
     width: 100%;
     margin: 0 auto;
     text-align: center;
     line-height: 1.6;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+    max-width: 860px;
 }
 
 .hero-actions {
@@ -920,11 +968,6 @@ img, video {
     .testimonial-user h4 {
         font-size: 0.8rem;
     }
-    padding: 24px 30px;
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    margin-bottom: 60px;
 }
 
 .disclaimer-icon {
@@ -934,27 +977,6 @@ img, video {
 }
 
 /* Dobra 5: CONTRATE e Rodapé Integrado */
-.contrate-section {
-    height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    padding: 30px 0 !important;
-    box-sizing: border-box;
-}
-
-.contrate-section .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    gap: 20px;
-}
-
-.contrate-section .section-header {
-    margin-bottom: 0 !important;
-}
 
 .disclaimer-card {
     background: rgba(255, 255, 255, 0.02);
@@ -1013,6 +1035,64 @@ img, video {
     .testimonials-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+/* Estilos globais para o layout unificado dos slides (baseado no Hero) */
+.slide-layout-container {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 1400px !important;
+    height: 100vh !important;
+    margin: 0 auto !important;
+    padding: 84px 24px 85px 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+}
+
+.slide-content-wrap {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+}
+
+.slide-content-wrap h2 {
+    font-size: clamp(1.6rem, 2.2vw, 2.2rem) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    margin-top: 0 !important;
+    margin-bottom: 10px !important;
+    color: var(--text-primary) !important;
+    text-transform: uppercase !important;
+    text-align: center !important;
+}
+
+.slide-content-wrap p {
+    color: var(--text-secondary) !important;
+    font-size: 0.95rem !important;
+    font-weight: 300 !important;
+    text-align: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 0 24px 0 !important;
+    line-height: 1.6 !important;
+    box-sizing: border-box !important;
+}
+
+.slide-actions {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
 }
 
 @media (max-width: 768px) {
@@ -1154,21 +1234,7 @@ img, video {
         box-sizing: border-box;
     }
 
-    .contrate-section {
-        min-height: 100dvh !important;
-        scroll-snap-align: center !important;
-        scroll-snap-stop: always !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        padding: 68px 0 0 0 !important;  /* footer na base extrema */
-        box-sizing: border-box;
-        gap: 12px;
-    }
 
-    .contrate-section .section-header {
-        margin-bottom: 0 !important;
-    }
 
     .contrate-section .disclaimer-card {
         padding: 10px 14px !important;
@@ -1220,118 +1286,106 @@ img, video {
         width: 100% !important;
     }
 
-    /* Desativar snap nas seções mãe no mobile e aplicar nos filhos (headers e rows) */
-    .how-it-works,
-    .use-cases,
-    .testimonials {
-        min-height: auto !important;
-        scroll-snap-align: none !important;
+    /* Ajustes Mobile para o Layout Unificado */
+    .section, 
+    .how-it-works, 
+    .use-cases, 
+    .testimonials,
+    .contrate-section,
+    .faq-section {
+        min-height: 100dvh !important;
+        height: auto !important;
+        scroll-snap-align: start !important;
+        scroll-snap-stop: always !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        padding: 70px 0 45px 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-section {
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
         padding: 0 !important;
+        box-sizing: border-box !important;
     }
 
-    .how-it-works .container,
-    .use-cases .container,
-    .testimonials .container {
+    .slide-layout-container {
+        height: auto !important;
+        min-height: 100dvh !important;
         padding: 0 16px !important;
-    }
-
-    /* Cabeçalhos de Seções como Slides de 100dvh isolados */
-    .how-it-works .section-header,
-    .use-cases .section-header,
-    .testimonials .section-header {
-        min-height: 100dvh !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        scroll-snap-align: center !important;
-        scroll-snap-stop: always !important;
+        justify-content: flex-start !important;
+        gap: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .slide-content-wrap {
+        flex: none !important;
         margin: 0 !important;
-        padding: 24px 0 !important;
-        box-sizing: border-box !important;
+        width: 100% !important;
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
     }
 
-    /* -------------------------------------------------------
-       ROW WRAPPER — ocupa 100dvh como slide único
-    ------------------------------------------------------- */
-    /* Alterna section-tag: mobile mostra texto alternativo */
-    .tag-desktop { display: none !important; }
-    .tag-mobile  { display: inline !important; }
+    .slide-content-wrap h2 {
+        margin-top: 0 !important;
+        margin-bottom: 8px !important;
+        font-size: clamp(1.2rem, 4.5vw, 1.6rem) !important;
+        text-align: left !important;
+    }
 
-    /* Steps: cards com altura natural, centrados com espaço entre eles */
-    .steps-row {
+    .slide-content-wrap p {
+        margin: 0 0 18px 0 !important;
+        font-size: 0.85rem !important;
+        text-align: left !important;
+    }
+
+    .slide-layout-container.hero-content {
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        padding: 70px 16px 90px 16px !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: center !important;
-        align-items: stretch !important;
-        min-height: 100dvh !important;
-        height: 100dvh !important;
+        justify-content: space-between !important;
+        gap: 0 !important;
+    }
+
+    .slide-content-wrap {
+        flex: none !important;
+        margin: 0 !important;
         width: 100% !important;
-        scroll-snap-align: center !important;
-        scroll-snap-stop: always !important;
-        box-sizing: border-box !important;
-        padding: 28px 0 !important;
-        gap: 12px !important;
     }
 
-    /* Cases e Testimonials: cards se expandem para preencher a tela */
-    .cases-row,
-    .testimonials-row {
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: stretch !important;
-        min-height: 100dvh !important;
-        height: 100dvh !important;
-        width: 100% !important;
-        scroll-snap-align: center !important;
-        scroll-snap-stop: always !important;
-        box-sizing: border-box !important;
-        padding: 8px 0 !important;
-        gap: 6px !important;
-    }
-
-    .testimonials-row {
-        padding-top: 68px !important;    /* offset navbar fixa de 60px + margem */
-        padding-bottom: clamp(8px, 2dvh, 20px) !important;
-        gap: clamp(5px, 1.2dvh, 14px) !important;
-    }
-
-    /* -------------------------------------------------------
-       GRID — coluna única, 4 linhas
-    ------------------------------------------------------- */
     .steps-grid,
     .cases-grid,
     .testimonials-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    .steps-row,
+    .cases-row,
+    .testimonials-row {
         display: contents !important;
     }
 
-    /* -------------------------------------------------------
-       CARDS GENÉRICOS — 4 empilhados verticalmente em 100dvh
-    ------------------------------------------------------- */
-    /* Step-cards: altura automática (conteúdo define), sem esticar */
-    .step-card {
-        width: 100% !important;
-        flex: 0 0 auto !important;
-        height: auto !important;
-        min-height: 0 !important;
-        max-height: none !important;
-        margin: 0 !important;
-        box-sizing: border-box !important;
-        border-radius: var(--radius-md) !important;
-        overflow: hidden !important;
-    }
-
-    /* Case/Testimonial cards: esticam para preencher o espaço igual */
+    .step-card,
     .case-card,
     .testimonial-card {
         width: 100% !important;
-        flex: 1 1 0 !important;
-        height: 0 !important;
+        height: auto !important;
         min-height: 0 !important;
         max-height: none !important;
+        flex: none !important;
         margin: 0 !important;
-        box-sizing: border-box !important;
         border-radius: var(--radius-md) !important;
         overflow: hidden !important;
     }
@@ -1594,7 +1648,7 @@ img, video {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     transform: scale(0.95);
     transition: transform 3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1603,10 +1657,37 @@ img, video {
     transform: scale(1);
 }
 
+/* Cabeçalho do Site Sobreposto no Vídeo com altura calculada */
+.video-modal-navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 100020;
+    background: linear-gradient(to bottom, rgba(11, 11, 12, 0.9) 0%, rgba(11, 11, 12, 0.5) 70%, transparent 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 16px 0;
+}
+
+.video-modal-navbar .nav-links a {
+    color: var(--text-primary);
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    cursor: pointer;
+}
+
+.video-modal-navbar .nav-links a:hover {
+    color: var(--brand-gold);
+    text-shadow: 0 0 10px rgba(197, 160, 89, 0.6);
+}
+
 /* Botão de Fechar na Base do Vídeo (Idêntico aos botões "Assista") */
 .close-video-bottom-btn {
     position: absolute;
-    bottom: 70px;
+    bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 100010;
@@ -1636,10 +1717,16 @@ body.video-active .audio-player-widget {
     transition: opacity 0.4s ease, transform 0.4s ease !important;
 }
 
+/* Container do Vídeo: topo encosta na base do cabeçalho (~74px) e ocupa o resto da tela */
 .video-container {
-    position: relative;
+    position: absolute;
+    top: 74px;
+    bottom: 0;
+    left: 0;
+    right: 0;
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 74px);
+    overflow: hidden;
 }
 
 /* Efeito Vinheta Cinematográfica (Sombreamento radial escuro suave nas bordas) */
@@ -1659,6 +1746,8 @@ body.video-active .audio-player-widget {
 .video-container iframe {
     width: 100%;
     height: 100%;
+    object-fit: cover !important;
+    object-position: center top !important;
     border: none;
     opacity: 0;
     transition: opacity 3s ease-in-out;
@@ -1690,6 +1779,17 @@ body.video-active .audio-player-widget {
         margin-bottom: 14px !important;
     }
 
+    .hero-content {
+        height: auto !important;
+        padding-top: 100px !important;
+        padding-bottom: 40px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+
     .hero-title {
         font-size: 1.6rem !important;
         letter-spacing: -0.2px !important;
@@ -1707,6 +1807,8 @@ body.video-active .audio-player-widget {
         text-align: center !important;
         letter-spacing: 1px !important;
     }
+
+
 
     .hero-subtitle {
         font-size: 0.85rem !important;
@@ -1732,21 +1834,74 @@ body.video-active .audio-player-widget {
 /* ==========================================================================
    Widget de Áudio Ultra-Minimalista Fixado na Base
    ========================================================================== */
+.desktop-only {
+    display: block;
+}
+
 .audio-player-widget {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 6px 12px;
-    background: transparent;
-    border: none;
-    box-shadow: none;
+    position: fixed !important;
+    bottom: 24px !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    padding: 0 24px !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     transition: all 0.3s ease;
+    pointer-events: none !important;
+}
+
+.audio-footer-left {
+    flex: 1 !important;
+    text-align: left !important;
+    pointer-events: auto !important;
+}
+
+.audio-footer-right {
+    flex: 1 !important;
+    text-align: right !important;
+    pointer-events: auto !important;
+}
+
+.audio-controls-wrap {
+    flex: 0 0 auto !important;
+    pointer-events: auto !important;
+}
+
+.audio-footer-left a,
+.audio-footer-right {
+    font-size: 0.82rem !important;
+    color: var(--text-secondary) !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9) !important;
+    font-weight: 500 !important;
+    display: inline-block !important;
+}
+
+.audio-footer-left a {
+    color: var(--brand-gold) !important;
+    text-decoration: underline !important;
+}
+
+.audio-footer-left a:hover {
+    color: #ffffff !important;
+}
+
+.audio-controls-wrap {
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
 }
 
 /* Botão Play/Pause Sem Círculo (Ícone solto sincronizado na cor das ondas sonoras) */
@@ -1836,10 +1991,24 @@ body.video-active .audio-player-widget {
 
 /* Responsividade Mobile do Player */
 @media (max-width: 768px) {
+    .desktop-only {
+        display: none !important;
+    }
+
     .audio-player-widget {
-        bottom: 16px;
-        gap: 8px;
-        padding: 4px 8px;
+        bottom: 16px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: auto !important;
+        max-width: none !important;
+        padding: 0 !important;
+        justify-content: center !important;
+    }
+
+    .audio-controls-wrap {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
     }
 
     .audio-toggle-btn {
@@ -1851,25 +2020,25 @@ body.video-active .audio-player-widget {
         width: 12px;
         height: 12px;
     }
+}
 
 /* ==========================================================================
-   Efeito Manuscrito "Allura" Animado na Posição Final Exata
+   Efeito Manuscrito "Montserrat" Animado na Posição Final Exata
    ========================================================================== */
 .handwritten-title {
-    font-family: 'Allura', cursive !important;
+    font-family: var(--font-handwriting) !important;
     font-weight: 400 !important;
     color: var(--brand-gold) !important;
+    -webkit-text-fill-color: var(--brand-gold) !important;
+    background: none !important;
     text-transform: none !important;
     letter-spacing: 0.5px !important;
     display: inline-block !important;
     text-align: center !important;
-    background: linear-gradient(135deg, #f7e7ce 0%, #c5a059 50%, #8c6827 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     
     /* Posição estática 100% fixa: a frase inteira é revelada da esquerda para a direita sem mover nenhuma letra */
     clip-path: inset(0 100% 0 0);
-    animation: revealStaticText 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    animation: revealStaticText 1.5s linear forwards;
 }
 
 @keyframes revealStaticText {
@@ -1881,58 +2050,530 @@ body.video-active .audio-player-widget {
     }
 }
 
-
-
-
 span.section-tag.handwritten-title {
-    font-size: 1.8rem !important;
-    font-family: 'Allura', cursive !important;
+    display: inline-block !important;
+    width: auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+    font-size: clamp(1.8rem, 2.8vw, 2.5rem) !important;
+    font-family: var(--font-handwriting) !important;
     text-transform: none !important;
     padding: 0 !important;
     background: none !important;
     border: none !important;
     -webkit-text-fill-color: var(--brand-gold) !important;
+    margin-top: 0 !important;
+    margin-bottom: 6px !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7) !important;
+    line-height: 1.2 !important;
 }
 
-.title-line-1.handwritten-title {
-    font-size: clamp(1.8rem, 4vw, 3.2rem) !important;
-    font-family: 'Allura', cursive !important;
-    line-height: 1.2;
+.title-line-1 {
+    font-size: clamp(1.8rem, 2.5vw, 2.5rem) !important;
+    font-family: var(--font-primary) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    line-height: 1.25 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    background: none !important;
+    text-transform: uppercase !important;
 }
 
 
 
 
 
-/* Ajustes de layout para posicionar título no Topo e Botão Assista na Base do Slide */
-.section-header,
-.hero-content {
+/* ==========================================================================
+   Dobra 5: Seção Contrate - Tabela Oficial de Planos & Investimento (Ajuste 100vh)
+   ========================================================================== */
+
+.contrate-section {
+    position: relative !important;
+    height: 100vh !important;
+    padding: 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    height: 100% !important;
-    justify-content: space-between !important;
+    justify-content: flex-start !important;
     align-items: center !important;
-    padding-top: 10px !important;
-    padding-bottom: 10px !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+    overflow: visible !important;
+}
+
+.contrate-container {
+    max-width: 1200px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
     box-sizing: border-box !important;
 }
 
-.section-actions,
-.hero-actions {
-    margin-top: auto !important;
-    padding-bottom: 10px !important;
-    width: 100%;
+.contrate-header {
+    margin-bottom: 40px !important;
+    width: 100% !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+
+.contrate-header h2 {
+    font-size: clamp(1.6rem, 2.2vw, 2.2rem) !important;
+    margin-bottom: 8px !important;
+    line-height: 1.25 !important;
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
+}
+
+.contrate-header p {
+    margin-bottom: 0 !important;
+    max-width: 700px !important;
+    font-size: 0.95rem !important;
+    color: var(--text-secondary) !important;
+}
+
+.plans-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+    gap: 24px !important;
+    width: 100% !important;
+    margin-top: 16px !important;
+    margin-bottom: 30px !important;
+    box-sizing: border-box !important;
+}
+
+.contrate-section .slide-content-wrap {
+    margin-top: 0 !important;
+}
+
+.contrate-section .slide-content-wrap h2 {
+    margin-bottom: 10px !important;
+}
+
+.contrate-section .slide-content-wrap p {
+    margin-bottom: 30px !important;
+}
+
+/* Card de Plano Premium Escuro */
+.plan-card {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    flex: 1 1 300px !important;
+    max-width: 450px !important;
+    min-width: 280px !important;
+    position: relative !important;
+    background: rgba(20, 20, 22, 0.85) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(197, 160, 89, 0.25) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 16px 18px !important;
+    transition: var(--transition-smooth) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+    box-sizing: border-box !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.plan-card:hover {
+    transform: translateY(-5px) !important;
+    border-color: var(--brand-gold) !important;
+    box-shadow: 0 16px 45px rgba(197, 160, 89, 0.25) !important;
+}
+
+/* Card Em Destaque (Plano Emoção) */
+.plan-card.featured {
+    background: linear-gradient(180deg, rgba(31, 27, 20, 0.9) 0%, rgba(20, 20, 22, 0.95) 100%) !important;
+    border: 1.5px solid var(--brand-gold) !important;
+    box-shadow: 0 16px 45px rgba(197, 160, 89, 0.3) !important;
+}
+
+/* Badges */
+.plan-badge {
+    position: absolute !important;
+    top: -12px !important;
+    right: 20px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-secondary) !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 3px 12px !important;
+    border-radius: var(--radius-full) !important;
+}
+
+.plan-badge.featured-badge {
+    background: linear-gradient(135deg, #c5a059 0%, #a47e38 100%) !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(197, 160, 89, 0.4) !important;
+}
+
+.plan-top-info {
+    margin-bottom: 6px;
+}
+
+.plan-header-line {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin-bottom: 2px !important;
+}
+
+.plan-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0;
+}
+
+.plan-duration {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--brand-gold);
+    margin-bottom: 0;
+}
+
+.plan-duration svg {
+    width: 13px;
+    height: 13px;
+}
+
+.plan-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.3;
+}
+
+/* Área de Preço Compacta */
+.plan-pricing {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.price-display {
     display: flex;
+    align-items: baseline;
     justify-content: center;
+    gap: 2px;
+    color: #ffffff;
+}
+
+.price-display .currency {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--brand-gold);
+}
+
+.price-display .amount {
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.price-display .cents {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.price-subtitle {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--brand-gold);
+    margin-top: 2px;
+}
+
+/* Opções de Formato e Upsell Compactas */
+.plan-options {
+    margin-bottom: 10px;
+}
+
+.option-group {
+    margin-bottom: 6px;
+}
+
+.option-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.format-selector {
+    display: flex;
+    gap: 4px;
+    width: 100%;
+}
+
+.format-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.format-btn svg {
+    width: 13px;
+    height: 13px;
+}
+
+.format-btn.active {
+    background: rgba(197, 160, 89, 0.2);
+    border-color: var(--brand-gold);
+    color: var(--brand-gold);
+    font-weight: 700;
+}
+
+.upsell-box {
+    background: rgba(197, 160, 89, 0.08);
+    border: 1px dashed rgba(197, 160, 89, 0.3);
+    border-radius: 4px;
+    padding: 8px 10px;
+}
+
+.upsell-checkbox-container {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+}
+
+.upsell-checkbox-container input {
+    display: block !important;
+    width: 15px !important;
+    height: 15px !important;
+    accent-color: var(--brand-gold) !important;
+    cursor: pointer !important;
+}
+
+/* Ocultar checkmark customizado redundante antigo */
+.checkmark {
+    display: none !important;
+}
+
+.upsell-text {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    line-height: 1.3;
+    font-weight: 600;
+}
+
+.upsell-text small {
+    display: block;
+    color: var(--brand-gold);
+    font-size: 0.72rem;
+    font-weight: 500;
+}
+
+/* Features List */
+.plan-features {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 0 12px 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+}
+
+.plan-features li {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 0.76rem !important;
+    color: var(--text-secondary) !important;
+    list-style-type: none !important;
+    background: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.plan-features li::before {
+    display: none !important;
+}
+
+.plan-features li svg {
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
+    color: var(--brand-gold) !important;
+    display: inline-block !important;
+}
+
+.plan-buy-btn {
+    width: 100%;
+    padding: 9px 12px !important;
+    font-size: 0.82rem !important;
+    margin-top: auto;
+}
+
+/* Disclaimer Enxuto */
+.disclaimer-mini {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    font-size: 0.88rem !important;
+    color: var(--text-primary) !important;
+    background: rgba(197, 160, 89, 0.08) !important;
+    border: 1px solid rgba(197, 160, 89, 0.25) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 12px 24px !important;
+    margin: 15px 0 10px 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.disclaimer-mini span {
+    text-align: justify !important;
+}
+
+.disclaimer-mini svg {
+    width: 18px !important;
+    height: 18px !important;
+    color: var(--brand-gold) !important;
+    flex-shrink: 0 !important;
+}
+
+.contrate-footer-wrap {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+@media (max-width: 992px) {
+    .contrate-section {
+        height: auto !important;
+        overflow: visible !important;
+    }
+    
+    .plans-grid {
+        flex-direction: column !important;
+        max-height: none !important;
+    }
+
+    .plan-card {
+        width: 100% !important;
+    }
+}
+
+/* FAQ Accordion Styles */
+.faq-section {
+    background: transparent;
+}
+
+.faq-accordion {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.faq-item {
+    background: rgba(20, 20, 22, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: var(--radius-md) !important;
+    overflow: hidden !important;
+    transition: var(--transition-smooth) !important;
+}
+
+.faq-item:hover, .faq-item.active {
+    border-color: rgba(197, 160, 89, 0.3) !important;
+    background: rgba(20, 20, 22, 0.8) !important;
+}
+
+.faq-question {
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 16px 20px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    color: var(--text-primary) !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    text-align: left !important;
+    cursor: pointer !important;
+    gap: 15px !important;
+}
+
+.faq-question span {
+    font-family: var(--font-primary) !important;
+}
+
+.faq-question svg {
+    color: var(--brand-gold) !important;
+    transition: transform 0.3s ease !important;
+    width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0 !important;
+}
+
+.faq-item.active .faq-question svg {
+    transform: rotate(180deg) !important;
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.faq-answer p {
+    padding: 0 20px 16px 20px !important;
+    margin: 0 !important;
+    font-size: 0.9rem !important;
+    color: var(--text-secondary) !important;
+    line-height: 1.5 !important;
+    text-align: justify !important;
 }
 
 @media (max-width: 768px) {
-    .handwritten-title {
-        font-size: clamp(2rem, 8vw, 3.2rem) !important;
-        line-height: 1.2 !important;
-        clip-path: none !important;
-        animation: none !important;
-        opacity: 1 !important;
+    .faq-question {
+        padding: 14px 16px !important;
+        font-size: 0.9rem !important;
+    }
+    .faq-answer p {
+        padding: 0 16px 14px 16px !important;
+        font-size: 0.82rem !important;
     }
 }
 

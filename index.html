@@ -32,7 +32,8 @@
                 <a href="#como-funciona">EXPERIÊNCIA</a>
                 <a href="#casos-de-uso">OCASIÕES</a>
                 <a href="#depoimentos">DEPOIMENTOS</a>
-                <a href="#contrate">CONTRATE</a>
+                <a href="#planos">PLANOS</a>
+                <a href="#faq">PERGUNTAS</a>
             </nav>
 
             <!-- Botão Hambúrguer Mobile -->
@@ -47,13 +48,18 @@
 
     <!-- Dobra 1: Hero Section -->
     <section class="hero-section" id="topo">
+        <!-- Fundo Ultra Realista Céu / Montanhas (Substituível por Vídeo futuramente) -->
+        <div class="hero-bg-container">
+            <img src="hero_bg.jpg" alt="Céu com nuvens e montanhas ao fundo no estilo ultra realista ao pôr do sol" class="hero-bg-media">
+            <div class="hero-bg-overlay"></div>
+        </div>
 
-        <div class="container hero-content">
-            <span class="section-tag">Homenagens Inesquecíveis</span>
+        <div class="container slide-layout-container hero-content">
+            <span class="section-tag handwritten-title">Homenagens Inesquecíveis</span>
             
-            <div class="hero-main-title-wrap">
+            <div class="slide-content-wrap">
                 <h1 class="hero-title">
-                    <span class="title-line-1 handwritten-title">O abraço que ficou no tempo, agora ganha</span>
+                    <span class="title-line-1">O abraço que ficou no tempo, agora ganha</span>
                     <span class="text-gold uppercase-gold">VOZ - EMOÇÃO - MOVIMENTO - SENTIMENTO</span>
                 </h1>
                 
@@ -62,241 +68,501 @@
                 </p>
             </div>
             
-            <div class="hero-actions">
+            <div class="slide-actions">
                 <button class="btn btn-primary watch-video-btn" data-video-url="video_01.webm">
                     <i data-lucide="play-circle"></i> Assista
                 </button>
             </div>
-        </    <!-- Dobra 2: A Experiência (Como Funciona) -->
+        </div>
+    </section>
+
+    <!-- Dobra 2: A Experiência (Como Funciona) -->
     <section class="section how-it-works" id="como-funciona">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-tag handwritten-title">Experiência Singela</span>
+        <div class="container slide-layout-container">
+            <span class="section-tag handwritten-title">Experiência Singela</span>
+            
+            <div class="slide-content-wrap">
                 <h2>Como produzimos essa emoção em 4 passos</h2>
                 <p>Um processo simples, cuidadoso e profundamente humanizado, focado no respeito absoluto à memória de quem você ama, combinando tecnologia de ponta com a máxima sensibilidade afetiva.</p>
-                <div class="section-actions">
-                    <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4">
-                        <i data-lucide="play-circle"></i> Assista
-                    </button>
+                <div class="steps-grid">
+                    <div class="steps-row">
+                        <div class="step-card">
+                            <div class="step-number">01</div>
+                            <div class="step-icon">
+                                <i data-lucide="image"></i>
+                            </div>
+                            <div class="step-text-wrap">
+                                <h3>O Resgate</h3>
+                                <p>Você nos envia as fotografias mais marcantes, registros em áudio e nos conta sobre a história e personalidade da pessoa para que imagem em alta resolução seja produzida e o áudio capturado.</p>
+                            </div>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">02</div>
+                            <div class="step-icon">
+                                <i data-lucide="pen-tool"></i>
+                            </div>
+                            <div class="step-text-wrap">
+                                <h3>A Essência</h3>
+                                <p>Você envia o texto com os dizeres especiais e aprimoraremos juntos o roteiro com sensibilidade e emoção, capturando os detalhes afetivos e o carinho da mensagem.</p>
+                            </div>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">03</div>
+                            <div class="step-icon">
+                                <i data-lucide="wand-2"></i>
+                            </div>
+                            <div class="step-text-wrap">
+                                <h3>A Lapidação</h3>
+                                <p>Aplicamos nossa tecnologia avançada com inteligência artificial para recriar com realismo a voz, respiração e microexpressões com interpretação e máxima fidelidade.</p>
+                            </div>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">04</div>
+                            <div class="step-icon">
+                                <i data-lucide="gift"></i>
+                            </div>
+                            <div class="step-text-wrap">
+                                <h3>O Reencontro</h3>
+                                <p>Você recebe um vídeo de altíssima definição visual e sonora, pronto para emocionar e surpreender a todos no grande dia, como um presente respeitoso e inesquecível.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="steps-grid">
-                <div class="steps-row">
-                    <div class="step-card">
-                        <div class="step-number">01</div>
-                        <div class="step-icon">
-                            <i data-lucide="image"></i>
-                        </div>
-                        <div class="step-text-wrap">
-                            <h3>O Resgate</h3>
-                            <p>Você nos envia as fotografias mais marcantes, registros em áudio e nos conta sobre a história e personalidade da pessoa para que imagem em alta resolução seja produzida e o áudio capturado.</p>
-                        </div>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">02</div>
-                        <div class="step-icon">
-                            <i data-lucide="pen-tool"></i>
-                        </div>
-                        <div class="step-text-wrap">
-                            <h3>A Essência</h3>
-                            <p>Você envia o texto com os dizeres especiais e aprimoraremos juntos o roteiro com sensibilidade e emoção, capturando os detalhes afetivos e o carinho da mensagem.</p>
-                        </div>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">03</div>
-                        <div class="step-icon">
-                            <i data-lucide="wand-2"></i>
-                        </div>
-                        <div class="step-text-wrap">
-                            <h3>A Lapidação</h3>
-                            <p>Aplicamos nossa tecnologia avançada com inteligência artificial para recriar com realismo a voz, respiração e microexpressões com interpretação e máxima fidelidade.</p>
-                        </div>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">04</div>
-                        <div class="step-icon">
-                            <i data-lucide="gift"></i>
-                        </div>
-                        <div class="step-text-wrap">
-                            <h3>O Reencontro</h3>
-                            <p>Você recebe um vídeo de altíssima definição visual e sonora, pronto para emocionar e surpreender a todos no grande dia, como um presente respeitoso e inesquecível.</p>
-                        </div>
-                    </div>
-                </div>
+
+            <div class="slide-actions">
+                <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4">
+                    <i data-lucide="play-circle"></i> Assista
+                </button>
             </div>
         </div>
     </section>
  
     <!-- Dobra 3: Para Onde Enviar (Casos de Uso) -->
     <section class="section use-cases" id="casos-de-uso">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-tag handwritten-title">Ocasiões Especiais</span>
-                <h2>Onde o presente ganha o maior significado</h2>itten-title">Onde o presente ganha o maior significado</h2>
+        <div class="container slide-layout-container">
+            <span class="section-tag handwritten-title">Ocasiões Especiais</span>
+            
+            <div class="slide-content-wrap">
+                <h2>Onde o presente ganha o maior significado</h2>
                 <p>Surpreenda pessoas queridas em aniversários, casamentos, homenagens e datas especiais com uma recordação inesquecível, transformando memórias valiosas em presenças emocionantes e eternas.</p>
-                <div class="section-actions">
-                    <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/9XAS9qB62Cg">
-                        <i data-lucide="play-circle"></i> Assista
-                    </button>
+                <div class="cases-grid">
+                    <div class="cases-row">
+                        <!-- 1. Nascimentos & Batizados -->
+                        <div class="case-card">
+                            <div class="case-image" style="background-image: url('birth_baptism.jpg');"></div>
+                            <div class="case-content">
+                                <div class="case-badge">Nascimentos & Batizados</div>
+                                <h3>Boas-Vindas Eternas</h3>
+                                <p>A bênção e o carinho dos bisavós ou entes queridos que já partiram para marcar o nascimento e os primeiros momentos do bebê.</p>
+                            </div>
+                        </div>
+                        <!-- 2. Aniversários & 15 Anos -->
+                        <div class="case-card">
+                            <div class="case-image" style="background-image: url('birthday_15.jpg');"></div>
+                            <div class="case-content">
+                                <div class="case-badge">Aniversários & 15 Anos</div>
+                                <h3>Conselhos do Coração</h3>
+                                <p>Uma mensagem inesquecível de sabedoria e carinho na festa de debutante ou datas comemorativas em família.</p>
+                            </div>
+                        </div>
+                        <!-- 3. Formaturas -->
+                        <div class="case-card">
+                            <div class="case-image" style="background-image: url('graduation.jpg');"></div>
+                            <div class="case-content">
+                                <div class="case-badge">Formaturas</div>
+                                <h3>Orgulho que Transcende</h3>
+                                <p>O orgulho materializado dos avós ou pais no dia da colação de grau, celebrando a conquista acadêmica tão sonhada.</p>
+                            </div>
+                        </div>
+                        <!-- 4. Casamentos -->
+                        <div class="case-card">
+                            <div class="case-image" style="background-image: url('wedding.jpg');"></div>
+                            <div class="case-content">
+                                <div class="case-badge">Casamentos</div>
+                                <h3>O Abraço no Altar</h3>
+                                <p>A noiva ou noivo recebendo uma mensagem carinhosa e abençoada de um pai, mãe ou avós antes de entrar na celebração.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="cases-grid">
-                <div class="cases-row">
-                    <!-- 1. Nascimentos & Batizados -->
-                    <div class="case-card">
-                        <div class="case-image" style="background-image: url('birth_baptism.jpg');"></div>
-                        <div class="case-content">
-                            <div class="case-badge">Nascimentos & Batizados</div>
-                            <h3>Boas-Vindas Eternas</h3>
-                            <p>A bênção e o carinho dos bisavós ou entes queridos que já partiram para marcar o nascimento e os primeiros momentos do bebê.</p>
-                        </div>
-                    </div>
-                    <!-- 2. Aniversários & 15 Anos -->
-                    <div class="case-card">
-                        <div class="case-image" style="background-image: url('birthday_15.jpg');"></div>
-                        <div class="case-content">
-                            <div class="case-badge">Aniversários & 15 Anos</div>
-                            <h3>Conselhos do Coração</h3>
-                            <p>Uma mensagem inesquecível de sabedoria e carinho na festa de debutante ou datas comemorativas em família.</p>
-                        </div>
-                    </div>
-                    <!-- 3. Formaturas -->
-                    <div class="case-card">
-                        <div class="case-image" style="background-image: url('graduation.jpg');"></div>
-                        <div class="case-content">
-                            <div class="case-badge">Formaturas</div>
-                            <h3>Orgulho que Transcende</h3>
-                            <p>O orgulho materializado dos avós ou pais no dia da colação de grau, celebrando a conquista acadêmica tão sonhada.</p>
-                        </div>
-                    </div>
-                    <!-- 4. Casamentos -->
-                    <div class="case-card">
-                        <div class="case-image" style="background-image: url('wedding.jpg');"></div>
-                        <div class="case-content">
-                            <div class="case-badge">Casamentos</div>
-                            <h3>O Abraço no Altar</h3>
-                            <p>A noiva ou noivo recebendo uma mensagem carinhosa e abençoada de um pai, mãe ou avós antes de entrar na celebração.</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="slide-actions">
+                <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/9XAS9qB62Cg">
+                    <i data-lucide="play-circle"></i> Assista
+                </button>
             </div>
         </div>
     </section>
-
+ 
     <!-- Dobra 4: Prova Social (Depoimentos e Reações) -->
     <section class="section testimonials" id="depoimentos">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-tag handwritten-title">Depoimentos Marcantes</span>
+        <div class="container slide-layout-container">
+            <span class="section-tag handwritten-title">Depoimentos Marcantes</span>
+            
+            <div class="slide-content-wrap">
                 <h2>A emoção de quem já viveu essa experiência</h2>
                 <p>Veja o impacto transformador que uma homenagem em vídeo causa no coração de famílias inteiras, trazendo alento, sorrisos e lembranças inestimáveis para todos os momentos festivos.</p>
-                <div class="section-actions">
-                    <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4">
-                        <i data-lucide="play-circle"></i> Assista
-                    </button>
+                <div class="testimonials-grid">
+                    <div class="testimonials-row">
+                        <!-- 1. Depoimento Nascimento / Batizado -->
+                        <div class="testimonial-card">
+                            <div class="quote-icon">“</div>
+                            <p class="testimonial-text">
+                                "Ouvir a voz da minha avó abençoando o nascimento do meu filho no batizado fez toda a família se emocionar. Foi o momento mais inesquecível da nossa vida."
+                            </p>
+                            <div class="testimonial-user">
+                                <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80');"></div>
+                                <div>
+                                    <h4>Camila M.</h4>
+                                    <span>Mãe - Batizado em Campinas, SP</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 2. Depoimento Aniversário / 15 Anos -->
+                        <div class="testimonial-card">
+                            <div class="quote-icon">“</div>
+                            <p class="testimonial-text">
+                                "No meu aniversário de 15 anos, ver a mensagem do meu avô me desejando felicidades foi algo mágico. Todo mundo na festa sentiu a presença dele."
+                            </p>
+                            <div class="testimonial-user">
+                                <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80');"></div>
+                                <div>
+                                    <h4>Beatriz R.</h4>
+                                    <span>Debutante - Rio de Janeiro, RJ</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 3. Depoimento Formatura -->
+                        <div class="testimonial-card">
+                            <div class="quote-icon">“</div>
+                            <p class="testimonial-text">
+                                "Entregar esse vídeo de formatura para minha mãe com a voz da minha avó foi o presente mais lindo da minha vida. O realismo dos trejeitos é inacreditável."
+                            </p>
+                            <div class="testimonial-user">
+                                <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80');"></div>
+                                <div>
+                                    <h4>Lucas C.</h4>
+                                    <span>Formando de Medicina - Curitiba, PR</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 4. Depoimento Casamento -->
+                        <div class="testimonial-card">
+                            <div class="quote-icon">“</div>
+                            <p class="testimonial-text">
+                                "Quando a mensagem do meu pai passou no telão antes de eu entrar na igreja, não teve uma pessoa que não chorou. Parecia que ele estava ali segurando minha mão."
+                            </p>
+                            <div class="testimonial-user">
+                                <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80');"></div>
+                                <div>
+                                    <h4>Mariana S.</h4>
+                                    <span>Noiva - São Paulo, SP</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="testimonials-grid">
-                <div class="testimonials-row">
-                    <!-- 1. Depoimento Nascimento / Batizado -->
-                    <div class="testimonial-card">
-                        <div class="quote-icon">“</div>
-                        <p class="testimonial-text">
-                            "Ouvir a voz da minha avó abençoando o nascimento do meu filho no batizado fez toda a família se emocionar. Foi o momento mais inesquecível da nossa vida."
-                        </p>
-                        <div class="testimonial-user">
-                            <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80');"></div>
-                            <div>
-                                <h4>Camila M.</h4>
-                                <span>Mãe - Batizado em Campinas, SP</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 2. Depoimento Aniversário / 15 Anos -->
-                    <div class="testimonial-card">
-                        <div class="quote-icon">“</div>
-                        <p class="testimonial-text">
-                            "No meu aniversário de 15 anos, ver a mensagem do meu avô me desejando felicidades foi algo mágico. Todo mundo na festa sentiu a presença dele."
-                        </p>
-                        <div class="testimonial-user">
-                            <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80');"></div>
-                            <div>
-                                <h4>Beatriz R.</h4>
-                                <span>Debutante - Rio de Janeiro, RJ</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 3. Depoimento Formatura -->
-                    <div class="testimonial-card">
-                        <div class="quote-icon">“</div>
-                        <p class="testimonial-text">
-                            "Entregar esse vídeo de formatura para minha mãe com a voz da minha avó foi o presente mais lindo da minha vida. O realismo dos trejeitos é inacreditável."
-                        </p>
-                        <div class="testimonial-user">
-                            <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80');"></div>
-                            <div>
-                                <h4>Lucas C.</h4>
-                                <span>Formando de Medicina - Curitiba, PR</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 4. Depoimento Casamento -->
-                    <div class="testimonial-card">
-                        <div class="quote-icon">“</div>
-                        <p class="testimonial-text">
-                            "Quando a mensagem do meu pai passou no telão antes de eu entrar na igreja, não teve uma pessoa que não chorou. Parecia que ele estava ali segurando minha mão."
-                        </p>
-                        <div class="testimonial-user">
-                            <div class="user-avatar" style="background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80');"></div>
-                            <div>
-                                <h4>Mariana S.</h4>
-                                <span>Noiva - São Paulo, SP</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="slide-actions">
+                <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4">
+                    <i data-lucide="play-circle"></i> Assista
+                </button>
             </div>
         </div>
     </section>
-
-    <!-- Dobra 5: CONTRATE (Seção Dedicada Exclusiva) -->
-    <section class="section contrate-section" id="contrate">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-tag handwritten-title">Contrate</span>
-                <h2>Quer criar um momento inesquecível para alguém especial?</h2>
-                <p>Nossa equipe especializada está pronta para te atender com acolhimento, total sensibilidade e a dedicação exclusiva que a história e a memória do seu ente querido realmente merecem.</p>
-                <div class="section-actions">
-                    <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/3JZ_D3KntM8">
-                        <i data-lucide="play-circle"></i> Assista
-                    </button>
+ 
+    <!-- Dobra 5: PLANOS (Seção Dedicada Exclusiva) -->
+    <section class="section contrate-section" id="planos">
+        <div class="container slide-layout-container">
+            <span class="section-tag handwritten-title">Planos & Investimento</span>
+            
+            <div class="slide-content-wrap">
+                <h2>A homenagem perfeita para eternizar suas memórias</h2>
+                <p>Escolha a estrutura ideal para eternizar a sua homenagem com planos variando em tempo e capacidade narrativa, mantendo a mesma dedicação técnica e sensibilidade artística.</p>
+                
+                <!-- Grid de 3 Planos -->
+                <div class="plans-grid">
+                    
+                    <!-- Plano 1: Essencial -->
+                    <div class="plan-card">
+                        <div class="plan-badge">Popular</div>
+                        
+                        <div class="plan-top-info">
+                            <div class="plan-header-line">
+                                <h3 class="plan-name">Plano Affectus</h3>
+                                <span class="plan-duration"><i data-lucide="clock"></i> 1 Minuto</span>
+                            </div>
+                            <p class="plan-desc">Ideal para uma mensagem direta de saudade, agradecimento ou datas especiais. Espaço preciso para sentimentos focados e marcantes.</p>
+                        </div>
+    
+                        <div class="plan-pricing">
+                            <div class="price-display" data-base="497" data-upsell="248.50">
+                                <span class="currency">R$</span>
+                                <span class="amount">497</span>
+                                <span class="cents">,00</span>
+                            </div>
+                            <span class="price-subtitle">Formato único à escolha</span>
+                        </div>
+    
+                        <div class="plan-options">
+                            <div class="option-group">
+                                <label class="option-label">Formato Principal:</label>
+                                <div class="format-selector">
+                                    <button class="format-btn active" data-format="horizontal"><i data-lucide="monitor"></i> Horizontal</button>
+                                    <button class="format-btn" data-format="vertical"><i data-lucide="smartphone"></i> Vertical</button>
+                                </div>
+                            </div>
+    
+                            <div class="upsell-box">
+                                <label class="upsell-checkbox-container">
+                                    <input type="checkbox" class="upsell-checkbox" data-upsell-val="248.50">
+                                    <span class="checkmark"></span>
+                                    <span class="upsell-text">
+                                        <strong>Adicionar formato Vertical (+50%)</strong>
+                                        <small>+R$ 248,50 (Total R$ 745,50)</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+    
+                        <ul class="plan-features">
+                            <li><i data-lucide="check-circle-2"></i> Restauração de Foto</li>
+                            <li><i data-lucide="check-circle-2"></i> Clonagem de Voz</li>
+                            <li><i data-lucide="check-circle-2"></i> Animação Realista</li>
+                            <li><i data-lucide="check-circle-2"></i> Roteiro Humanizado</li>
+                        </ul>
+    
+                        <a href="https://checkout.previva.com.br/essencial" target="_blank" class="btn btn-primary plan-buy-btn">
+                            <i data-lucide="shopping-bag"></i> Contratar Plano
+                        </a>
+                    </div>
+    
+                    <!-- Plano 2: Emoção (Destaque) -->
+                    <div class="plan-card featured">
+                        <div class="plan-badge featured-badge">Mais Escolhido</div>
+                        
+                        <div class="plan-top-info">
+                            <div class="plan-header-line">
+                                <h3 class="plan-name">Plano Legatum</h3>
+                                <span class="plan-duration"><i data-lucide="clock"></i> 2 Minutos</span>
+                            </div>
+                            <p class="plan-desc">Equilíbrio perfeito para resgatar momentos marcantes da trajetória. Espaço ideal para narrar histórias de vida detalhadas e memórias afetivas.</p>
+                        </div>
+    
+                        <div class="plan-pricing">
+                            <div class="price-display" data-base="897" data-upsell="448.50">
+                                <span class="currency">R$</span>
+                                <span class="amount">897</span>
+                                <span class="cents">,00</span>
+                            </div>
+                            <span class="price-subtitle">Formato único à escolha</span>
+                        </div>
+    
+                        <div class="plan-options">
+                            <div class="option-group">
+                                <label class="option-label">Formato Principal:</label>
+                                <div class="format-selector">
+                                    <button class="format-btn active" data-format="horizontal"><i data-lucide="monitor"></i> Horizontal</button>
+                                    <button class="format-btn" data-format="vertical"><i data-lucide="smartphone"></i> Vertical</button>
+                                </div>
+                            </div>
+    
+                            <div class="upsell-box">
+                                <label class="upsell-checkbox-container">
+                                    <input type="checkbox" class="upsell-checkbox" data-upsell-val="448.50">
+                                    <span class="checkmark"></span>
+                                    <span class="upsell-text">
+                                        <strong>Adicionar formato Vertical (+50%)</strong>
+                                        <small>+R$ 448,50 (Total R$ 1.345,50)</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+    
+                        <ul class="plan-features">
+                            <li><i data-lucide="check-circle-2"></i> Tudo do Plano Affectus</li>
+                            <li><i data-lucide="check-circle-2"></i> Maior riqueza narrativa</li>
+                            <li><i data-lucide="check-circle-2"></i> Trilha sonora cinematográfica</li>
+                            <li><i data-lucide="check-circle-2"></i> Revisão de roteiro dedicada</li>
+                        </ul>
+    
+                        <a href="https://checkout.previva.com.br/emocao" target="_blank" class="btn btn-primary plan-buy-btn">
+                            <i data-lucide="shopping-bag"></i> Contratar Plano
+                        </a>
+                    </div>
+    
+                    <!-- Plano 3: Tributo (Master) -->
+                    <div class="plan-card">
+                        <div class="plan-badge">Experiência Completa</div>
+                        
+                        <div class="plan-top-info">
+                            <div class="plan-header-line">
+                                <h3 class="plan-name">Plano Tributum</h3>
+                                <span class="plan-duration"><i data-lucide="clock"></i> 3 Minutos</span>
+                            </div>
+                            <p class="plan-desc">Nossa homenagem mais profunda. Ideal para celebrar uma trajetória inteira, com espaço para citar múltiplos familiares e recordar ricas memórias.</p>
+                        </div>
+    
+                        <div class="plan-pricing">
+                            <div class="price-display" data-base="1297" data-upsell="648.50">
+                                <span class="currency">R$</span>
+                                <span class="amount">1.297</span>
+                                <span class="cents">,00</span>
+                            </div>
+                            <span class="price-subtitle">Formato único à escolha</span>
+                        </div>
+    
+                        <div class="plan-options">
+                            <div class="option-group">
+                                <label class="option-label">Formato Principal:</label>
+                                <div class="format-selector">
+                                    <button class="format-btn active" data-format="horizontal"><i data-lucide="monitor"></i> Horizontal</button>
+                                    <button class="format-btn" data-format="vertical"><i data-lucide="smartphone"></i> Vertical</button>
+                                </div>
+                            </div>
+    
+                            <div class="upsell-box">
+                                <label class="upsell-checkbox-container">
+                                    <input type="checkbox" class="upsell-checkbox" data-upsell-val="648.50">
+                                    <span class="checkmark"></span>
+                                    <span class="upsell-text">
+                                        <strong>Adicionar formato Vertical (+50%)</strong>
+                                        <small>+R$ 648,50 (Total R$ 1.945,50)</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+    
+                        <ul class="plan-features">
+                            <li><i data-lucide="check-circle-2"></i> Narrativa Profunda & Completa</li>
+                            <li><i data-lucide="check-circle-2"></i> Múltiplas fotos e cenários</li>
+                            <li><i data-lucide="check-circle-2"></i> Atendimento executivo prioritário</li>
+                            <li><i data-lucide="check-circle-2"></i> Prioridade máxima de entrega</li>
+                        </ul>
+    
+                        <a href="https://checkout.previva.com.br/tributo" target="_blank" class="btn btn-primary plan-buy-btn">
+                            <i data-lucide="shopping-bag"></i> Contratar Plano
+                        </a>
+                    </div>
+    
                 </div>
             </div>
+            
+            <div class="slide-actions"></div>
+        </div>
+    </section>
 
-            <div class="disclaimer-card">
-                <div class="disclaimer-icon">
+    <!-- Dobra 6: PERGUNTAS FREQUENTES (FAQ) -->
+    <section class="section faq-section" id="faq">
+        <div class="container slide-layout-container">
+            <span class="section-tag handwritten-title">Perguntas Frequentes</span>
+            
+            <div class="slide-content-wrap">
+                <h2>Esclareça suas dúvidas sobre a RE.VIVA memories</h2>
+                <p>Reunimos as perguntas mais comuns de quem deseja eternizar uma memória com respeito, cuidado e emoção. Se tiver outras dúvidas, nossa equipe está pronta para te atender.</p>
+                
+                <div class="faq-accordion">
+                    <!-- FAQ Item 1 -->
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Como funciona o processo de recriação de voz e imagem?</span>
+                            <i data-lucide="chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Utilizamos Inteligência Artificial avançada combinada com curadoria humana sensível. Você nos envia fotos e áudios de referência (como mensagens de WhatsApp). Nossa IA restaura e gera a imagem animada realista, enquanto a clonagem de voz reproduz o timbre de forma fiel.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 2 -->
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Quais materiais eu preciso enviar para a produção?</span>
+                            <i data-lucide="chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Precisamos de pelo menos uma foto com boa resolução e foco no rosto do homenageado, e uma amostra de áudio (de 15 segundos a 1 minuto) onde a pessoa fale de forma clara, sem ruídos excessivos ao fundo.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 3 -->
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Qual é o prazo de entrega da homenagem?</span>
+                            <i data-lucide="chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>O prazo padrão de entrega é de 7 a 10 dias úteis após o envio e aprovação dos materiais. Para o Plano Tributum, oferecemos atendimento prioritário e entrega expressa.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 4 -->
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Como funciona a assinatura do Termo de Responsabilidade?</span>
+                            <i data-lucide="chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>A segurança ética é nossa prioridade absoluta. Antes do início da produção, enviamos um Termo de Responsabilidade digital que deve ser assinado eletronicamente, garantindo que a homenagem é autorizada e possui fins estritamente privados.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 5 -->
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Posso alterar o roteiro ou a trilha sonora do vídeo?</span>
+                            <i data-lucide="chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Sim! Em todos os planos, o roteiro é submetido à sua aprovação antes da gravação final. Nos planos Legatum e Tributum, oferecemos revisão de roteiro dedicada e trilha sonora cinematográfica para se adequar ao tom desejado.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 6 -->
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>O que é a opção de adicionar formato nos planos?</span>
+                            <i data-lucide="chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Por padrão, você escolhe se prefere o vídeo no formato Horizontal (ideal para TVs e projetores de eventos) ou Vertical (perfeito para celulares). A opção adicional entrega a homenagem em ambos os formatos, adaptada profissionalmente para cada tela.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="slide-actions contrate-footer-wrap">
+                <!-- Disclaimer de Ética Enxuto -->
+                <div class="disclaimer-mini">
                     <i data-lucide="shield-check"></i>
+                    <span><strong>Ética, Consentimento, Responsabilidade & Privacidade:</strong> Todas as nossas homenagens são produzidas exclusivamente mediante autorização formal e assinatura do Termo de Responsabilidade. Respeitamos profundamente a memória afetiva e a privacidade, assegurando sigilo absoluto e uso estritamente privado de todos os dados e materiais fornecidos.</span>
                 </div>
-                <div class="disclaimer-content">
-                    <h4>Compromisso com Ética e Respeito</h4>
-                    <p>
-                        O serviço <strong>re.viva memories</strong> prioriza a integridade moral das famílias. Todas as produções requerem obrigatoriamente a assinatura prévia de um Termo de Consentimento e Responsabilidade, restrito a familiares diretos e contratantes autorizados, garantindo total privacidade, legalidade e segurança jurídica para que a homenagem ao seu ente querido seja um momento de amor, recordação e paz.
-                    </p>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p class="footer-copy">
-                    <a href="https://previewstudio.com.br/" target="_blank" rel="noopener noreferrer" style="color: var(--brand-gold); text-decoration: underline;"><strong>Preview Studio Digital</strong></a>&copy; 2026. Todos os direitos reservados.
-                </p>
             </div>
         </div>
     </section>
+
     <!-- Modal de Vídeo Global -->
-    <div class="video-modal" id="videoModal">
+    <div class="video-modal" id="videoModal" tabindex="-1">
         <div class="video-modal-content">
+            <!-- Cabeçalho / Navbar dentro do Player de Vídeo -->
+            <header class="navbar video-modal-navbar">
+                <div class="container nav-container">
+                    <a href="#topo" class="brand-logo video-nav-link" title="Voltar ao início">
+                        <img src="logo.png" alt="re.viva memories logo" class="logo-img">
+                    </a>
+                    <nav class="nav-links">
+                        <a href="#topo" class="video-nav-link">INÍCIO</a>
+                        <a href="#como-funciona" class="video-nav-link">EXPERIÊNCIA</a>
+                        <a href="#casos-de-uso" class="video-nav-link">OCASIÕES</a>
+                        <a href="#depoimentos" class="video-nav-link">DEPOIMENTOS</a>
+                        <a href="#planos" class="video-nav-link">PLANOS</a>
+                        <a href="#faq" class="video-nav-link">PERGUNTAS</a>
+                    </nav>
+                </div>
+            </header>
+
             <div class="video-container">
                 <div class="video-vignette-overlay"></div>
                 <iframe id="videoPlayer" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="display: none;"></iframe>
@@ -313,29 +579,42 @@
     <div class="audio-player-widget" id="audioPlayerWidget">
         <audio id="bgAudio" loop src="bg_music.mp3" preload="metadata"></audio>
         
-        <!-- Ondas Sonoras Esquerda -->
-        <div class="sound-waves left-waves">
-            <span class="bar bar-1"></span>
-            <span class="bar bar-2"></span>
-            <span class="bar bar-3"></span>
-            <span class="bar bar-4"></span>
+        <!-- Conteúdo do Rodapé Esquerdo (Desktop Only) -->
+        <div class="audio-footer-left desktop-only">
+            <a href="https://previewstudio.com.br/" target="_blank" rel="noopener noreferrer"><strong>Preview Studio Digital</strong></a>
         </div>
+        
+        <!-- Controles de Áudio (Centro) -->
+        <div class="audio-controls-wrap">
+            <!-- Ondas Sonoras Esquerda -->
+            <div class="sound-waves left-waves">
+                <span class="bar bar-1"></span>
+                <span class="bar bar-2"></span>
+                <span class="bar bar-3"></span>
+                <span class="bar bar-4"></span>
+            </div>
 
-        <!-- Botão Principal Play/Pause -->
-        <button class="audio-toggle-btn" id="audioToggleBtn" aria-label="Tocar ou pausar música de fundo">
-            <i data-lucide="play" id="audioIconPlay"></i>
-            <i data-lucide="pause" id="audioIconPause" style="display: none;"></i>
-        </button>
+            <!-- Botão Principal Play/Pause -->
+            <button class="audio-toggle-btn" id="audioToggleBtn" aria-label="Tocar ou pausar música de fundo">
+                <i data-lucide="play" id="audioIconPlay"></i>
+                <i data-lucide="pause" id="audioIconPause" style="display: none;"></i>
+            </button>
 
-        <!-- Ondas Sonoras Direita -->
-        <div class="sound-waves right-waves">
-            <span class="bar bar-4"></span>
-            <span class="bar bar-3"></span>
-            <span class="bar bar-2"></span>
-            <span class="bar bar-1"></span>
+            <!-- Ondas Sonoras Direita -->
+            <div class="sound-waves right-waves">
+                <span class="bar bar-4"></span>
+                <span class="bar bar-3"></span>
+                <span class="bar bar-2"></span>
+                <span class="bar bar-1"></span>
+            </div>
+        </div>
+        
+        <!-- Conteúdo do Rodapé Direito (Desktop Only) -->
+        <div class="audio-footer-right desktop-only">
+            &copy; 2026. Todos os direitos reservados.
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=1.0.4"></script>
 </body>
 </html>

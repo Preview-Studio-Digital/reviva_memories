@@ -29,35 +29,40 @@ document.addEventListener('DOMContentLoaded', () => {
             observer.disconnect();
         }
 
-        if (window.innerWidth <= 768) {
-            // Mobile: Dividido por cabeçalhos e rows de 2 em 2
-            sections = document.querySelectorAll('.hero-section, .how-it-works .section-header, .steps-row, .use-cases .section-header, .cases-row, .testimonials .section-header, .testimonials-row, .contrate-section');
-        } else {
-            // Desktop: Seções inteiras tradicionais
-            sections = document.querySelectorAll('.hero-section, .how-it-works, .use-cases, .testimonials, .contrate-section');
-        }
+        sections = document.querySelectorAll('.hero-section, .how-it-works, .use-cases, .testimonials, .contrate-section, .faq-section');
 
         // Re-sincronizar o IntersectionObserver
         const observerOptions = {
             root: null,
-            rootMargin: '-5% 0px -5% 0px',
-            threshold: 0.2
+            rootMargin: '0px',
+            threshold: 0.01 // Dispara instantaneamente no primeiro pixel que entra na tela
         };
 
         observer = new IntersectionObserver((entries) => {
+            // Se estamos rolando via clique (menu), ignora o observer para não cancelar a animação imediata
+            if (document.documentElement.classList.contains('disable-snap')) {
+                return;
+            }
+
             entries.forEach(entry => {
+                const title = entry.target.querySelector('.handwritten-title');
                 if (entry.isIntersecting) {
                     const index = Array.from(sections).indexOf(entry.target);
                     if (index !== -1) {
                         currentIdx = index;
                     }
 
-                    // Reiniciar a revelação suave da esquerda para a direita mantendo o texto 100% estático (Apenas no Desktop)
-                    const title = entry.target.querySelector('.handwritten-title');
-                    if (title && window.innerWidth > 768) {
+                    // Se foi rolagem manual, inicia imediatamente
+                    if (title) {
                         title.style.animation = 'none';
                         title.offsetHeight; // Reflow
-                        title.style.animation = 'revealStaticText 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards';
+                        title.style.animation = 'revealStaticText 1.5s linear forwards';
+                    }
+                } else {
+                    // Esconde o texto dos slides que saíram da tela para reiniciar
+                    if (title) {
+                        title.style.animation = 'none';
+                        title.style.clipPath = 'inset(0 100% 0 0)';
                     }
                 }
             });
@@ -84,20 +89,34 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
+                // Temporariamente desativar scroll snap para evitar conflitos na animação
+                document.documentElement.classList.add('disable-snap');
+                
                 targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 
-                // Sincroniza o índice do slide ativo logo após o início do scroll
-                setTimeout(() => {
-                    let targetIdx = -1;
-                    sections.forEach((sec, idx) => {
-                        if (sec === targetElement || targetElement.contains(sec)) {
-                            if (targetIdx === -1) targetIdx = idx;
-                        }
-                    });
-                    if (targetIdx !== -1) {
-                        currentIdx = targetIdx;
+                // Dispara a animação no clique instantaneamente (atraso zero)
+                const targetTitle = targetElement.querySelector('.handwritten-title');
+                if (targetTitle) {
+                    targetTitle.style.animation = 'none';
+                    targetTitle.offsetHeight; // Reflow
+                    targetTitle.style.animation = 'revealStaticText 1.5s linear forwards';
+                }
+                
+                // Sincroniza o índice do slide ativo
+                let targetIdx = -1;
+                sections.forEach((sec, idx) => {
+                    if (sec === targetElement || targetElement.contains(sec)) {
+                        if (targetIdx === -1) targetIdx = idx;
                     }
-                }, 600);
+                });
+                if (targetIdx !== -1) {
+                    currentIdx = targetIdx;
+                }
+
+                // Apenas reativa o snap após o término do scroll nativo
+                setTimeout(() => {
+                    document.documentElement.classList.remove('disable-snap');
+                }, 300);
             }
         });
     });
@@ -257,6 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         requestAnimationFrame(() => {
             videoModal.classList.add('active');
+            videoModal.focus();
         });
     }
 
@@ -300,6 +320,23 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModalBottomBtn.addEventListener('click', closeVideoModal);
         }
 
+        // Cliques nos menus do cabeçalho dentro do vídeo player
+        document.querySelectorAll('.video-nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                closeVideoModal();
+                if (targetId && targetId !== '#') {
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        setTimeout(() => {
+                            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 100);
+                    }
+                }
+            });
+        });
+
         // Fechar ao clicar no fundo escuro do Modal
         videoModal.addEventListener('click', (e) => {
             if (e.target === videoModal) {
@@ -307,8 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Fechar com a Tecla ESC (Escape)
-        document.addEventListener('keydown', (e) => {
+        // Fechar com a Tecla ESC (Escape) - Escuta global no window
+        window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' || e.key === 'Esc') {
                 closeVideoModal();
             }
@@ -393,6 +430,105 @@ document.addEventListener('DOMContentLoaded', () => {
                 soundWaves.forEach(wave => wave.classList.remove('playing'));
             }
         }
+
+        // TEMPORARIAMENTE DESABILITADO (Toque/clique na tela para auto-play)
+        /*
+        function startAudioOnFirstInteraction() {
+            if (bgAudio.paused && !document.body.classList.contains('video-active')) {
+                bgAudio.play().then(() => {
+                    updateAudioUI(true);
+                }).catch(err => {
+                    console.log("Aguardando interação para reprodução:", err);
+                });
+            }
+            document.removeEventListener('touchstart', startAudioOnFirstInteraction);
+            document.removeEventListener('click', startAudioOnFirstInteraction);
+        }
+
+        document.addEventListener('touchstart', startAudioOnFirstInteraction, { passive: true });
+        document.addEventListener('click', startAudioOnFirstInteraction);
+        */
     }
+
+    // Interatividade da Tabela de Planos (Seleção de Formato e Upsell Multiformato)
+    document.querySelectorAll('.plan-card').forEach(card => {
+        const formatBtns = card.querySelectorAll('.format-btn');
+        const upsellCheckbox = card.querySelector('.upsell-checkbox');
+        const priceDisplay = card.querySelector('.price-display');
+        const amountSpan = priceDisplay ? priceDisplay.querySelector('.amount') : null;
+        const centsSpan = priceDisplay ? priceDisplay.querySelector('.cents') : null;
+        const subtitleSpan = card.querySelector('.price-subtitle');
+
+        if (!priceDisplay || !amountSpan) return;
+
+        const basePrice = parseFloat(priceDisplay.getAttribute('data-base'));
+        const upsellPrice = parseFloat(priceDisplay.getAttribute('data-upsell'));
+
+        // Toggle dos botões de formato (Horizontal vs Vertical)
+        formatBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                formatBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Atualizar dinamicamente o texto do Upsell com base no formato primário selecionado
+                const upsellTitle = card.querySelector('.upsell-text strong');
+                if (upsellTitle) {
+                    const format = btn.getAttribute('data-format');
+                    if (format === 'horizontal') {
+                        upsellTitle.textContent = 'Adicionar formato Vertical (+50%)';
+                    } else {
+                        upsellTitle.textContent = 'Adicionar formato Horizontal (+50%)';
+                    }
+                }
+            });
+        });
+
+        // Atualizar preço dinamicamente ao marcar/desmarcar o Upsell Multiformato
+        if (upsellCheckbox) {
+            upsellCheckbox.addEventListener('change', () => {
+                if (upsellCheckbox.checked) {
+                    const totalPrice = basePrice + upsellPrice;
+                    const formatted = totalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const parts = formatted.split(',');
+                    amountSpan.textContent = parts[0];
+                    if (centsSpan) centsSpan.textContent = ',' + parts[1];
+                    if (subtitleSpan) subtitleSpan.textContent = 'Multiformato Incluído (Horizontal + Vertical)';
+                } else {
+                    const formatted = basePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const parts = formatted.split(',');
+                    amountSpan.textContent = parts[0];
+                    if (centsSpan) centsSpan.textContent = ',00';
+                    if (subtitleSpan) subtitleSpan.textContent = 'Formato único à escolha (Horizontal ou Vertical)';
+                }
+            });
+        }
+    });
+
+    // Interatividade do FAQ Accordion (Esconde/Mostra Respostas)
+    document.querySelectorAll('.faq-question').forEach(button => {
+        button.addEventListener('click', () => {
+            const faqItem = button.parentElement;
+            const isOpen = faqItem.classList.contains('active');
+            
+            // Fecha todos os outros itens para um efeito sanfona limpo
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+                const answer = item.querySelector('.faq-answer');
+                if (answer) {
+                    answer.style.maxHeight = null;
+                }
+            });
+            
+            // Se o item clicado não estava aberto, abre-o
+            if (!isOpen) {
+                faqItem.classList.add('active');
+                const answer = faqItem.querySelector('.faq-answer');
+                if (answer) {
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                }
+            }
+        });
+    });
 });
 
