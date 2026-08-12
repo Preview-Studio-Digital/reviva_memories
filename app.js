@@ -19,6 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Clique na Logo - Recarrega a página limpa do início para reexecutar todas as animações
+    document.querySelectorAll('.brand-logo').forEach(logo => {
+        logo.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = window.location.pathname;
+        });
+    });
+
     // Detectar dinamicamente a lista de slides de acordo com o dispositivo (Desktop vs Mobile)
     let sections;
     let currentIdx = 0;
@@ -125,25 +133,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('wavesCanvas');
     if (canvas) {
         const ctx = canvas.getContext('2d');
-        let width = canvas.width = window.innerWidth;
-        let height = canvas.height = window.innerHeight;
+        
+        // Reduz a resolução interna do canvas para otimizar drasticamente a performance de renderização.
+        // O navegador fará o upscale bilinear automático no CSS, gerando um desfoque suave e natural.
+        const scale = 0.25;
+        let width = canvas.width = Math.floor(window.innerWidth * scale);
+        let height = canvas.height = Math.floor(window.innerHeight * scale);
+
+        // Configuração inicial das Ondas Douradas (com amplitude escalada)
+        let waves = [
+            { y: height * 0.5, length: 0.005, amplitude: 90 * scale, speed: 0.008, color: 'rgba(197, 160, 89, 0.25)' },
+            { y: height * 0.45, length: 0.004, amplitude: 120 * scale, speed: 0.005, color: 'rgba(247, 230, 165, 0.18)' },
+            { y: height * 0.55, length: 0.006, amplitude: 70 * scale, speed: 0.011, color: 'rgba(158, 123, 54, 0.22)' },
+            { y: height * 0.6, length: 0.003, amplitude: 140 * scale, speed: 0.004, color: 'rgba(255, 215, 0, 0.12)' }
+        ];
 
         window.addEventListener('resize', () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+            width = canvas.width = Math.floor(window.innerWidth * scale);
+            height = canvas.height = Math.floor(window.innerHeight * scale);
+            
+            // Atualizar posições e amplitudes conforme a nova altura escalada
+            waves[0].y = height * 0.5; waves[0].amplitude = 90 * scale;
+            waves[1].y = height * 0.45; waves[1].amplitude = 120 * scale;
+            waves[2].y = height * 0.55; waves[2].amplitude = 70 * scale;
+            waves[3].y = height * 0.6; waves[3].amplitude = 140 * scale;
         });
-
-        // Configuração das Ondas Douradas
-        const waves = [
-            { y: height * 0.5, length: 0.005, amplitude: 90, speed: 0.008, color: 'rgba(197, 160, 89, 0.25)' },
-            { y: height * 0.45, length: 0.004, amplitude: 120, speed: 0.005, color: 'rgba(247, 230, 165, 0.18)' },
-            { y: height * 0.55, length: 0.006, amplitude: 70, speed: 0.011, color: 'rgba(158, 123, 54, 0.22)' },
-            { y: height * 0.6, length: 0.003, amplitude: 140, speed: 0.004, color: 'rgba(255, 215, 0, 0.12)' }
-        ];
 
         let increment = 0;
 
         function animateWaves() {
+            // Se o modal de vídeo estiver ativo ou a página oculta, pausa o processamento gráfico
+            if (document.body.classList.contains('video-active') || document.hidden) {
+                requestAnimationFrame(animateWaves);
+                return;
+            }
+
             ctx.fillStyle = '#0b0b0c';
             ctx.fillRect(0, 0, width, height);
 
@@ -151,8 +175,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.beginPath();
                 ctx.moveTo(0, wave.y);
 
-                for (let i = 0; i < width; i++) {
-                    ctx.lineTo(i, wave.y + Math.sin(i * wave.length + increment * wave.speed * 100) * wave.amplitude * Math.sin(increment * 0.005));
+                // Incremento de 8 pixels por passo no loop reduz o uso de CPU/GPU em 87%
+                const step = 8;
+                for (let i = 0; i < width + step; i += step) {
+                    // Ajusta a coordenada x na função seno multiplicando por 1/scale para manter a mesma frequência original no espaço real
+                    const realX = i / scale;
+                    ctx.lineTo(i, wave.y + Math.sin(realX * wave.length + increment * wave.speed * 100) * wave.amplitude * Math.sin(increment * 0.005));
                 }
 
                 ctx.lineTo(width, height);
@@ -297,12 +325,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Lógica de Persistência dos Badges de Vídeos Assistidos (LocalStorage)
+    document.querySelectorAll('.video-new-badge').forEach(badge => {
+        const videoId = badge.getAttribute('data-video-id');
+        if (localStorage.getItem(`watched-${videoId}`)) {
+            badge.classList.add('watched');
+        }
+    });
+
     if (videoModal) {
         // Abrir Modal
         document.querySelectorAll('.watch-video-btn').forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                
+                // Obter ID do vídeo para persistir o estado assistido
+                const videoId = button.getAttribute('data-video-id');
+                if (videoId) {
+                    localStorage.setItem(`watched-${videoId}`, 'true');
+                    const badge = document.querySelector(`.video-new-badge[data-video-id="${videoId}"]`);
+                    if (badge) {
+                        badge.classList.add('watched');
+                    }
+                }
+
                 const videoUrl = button.getAttribute('data-video-url');
                 if (videoUrl) {
                     openVideoModal(videoUrl);
@@ -530,5 +577,315 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Efeito de Máquina de Escrever no Hero (Sem deslocamento de layout)
+    const typewriterEl = document.getElementById('typewriter-text');
+    if (typewriterEl) {
+        const fullText = typewriterEl.textContent.trim();
+        typewriterEl.innerHTML = '';
+        
+        // Criar sub-elementos para manter a largura do texto estável durante a digitação
+        const visibleSpan = document.createElement('span');
+        visibleSpan.className = 'visible-chars';
+        const invisibleSpan = document.createElement('span');
+        invisibleSpan.className = 'invisible-chars';
+        invisibleSpan.style.color = 'transparent';
+        invisibleSpan.style.userSelect = 'none';
+        
+        typewriterEl.appendChild(visibleSpan);
+        typewriterEl.appendChild(invisibleSpan);
+        
+        invisibleSpan.textContent = fullText;
+        let index = 0;
+        
+        function type() {
+            if (index <= fullText.length) {
+                visibleSpan.textContent = fullText.substring(0, index);
+                invisibleSpan.textContent = fullText.substring(index);
+                index++;
+                setTimeout(type, 80); // 80ms por caractere
+            } else {
+                // Remove o cursor após terminar de digitar
+                visibleSpan.style.borderRight = 'none';
+            }
+        }
+        
+        // Inicia o efeito após 400ms
+        setTimeout(type, 400);
+    }
+
+    // Inicialização do Fundo de Galáxia WebGL (OGL)
+    function initGalaxy() {
+        const ctn = document.getElementById('galaxyBg');
+        if (!ctn || !window.ogl) return;
+
+        const { Renderer, Program, Mesh, Color, Triangle } = window.ogl;
+
+        // Configurações padrão do componente
+        const focal = [0.5, 0.5];
+        const rotation = [1.0, 0.0];
+        const starSpeed = 0.5;
+        const density = 0.7; // Atualizado de 1.0 para 0.7
+        const hueShift = 360; // Atualizado de 140 para 360
+        const disableAnimation = false;
+        const speed = 1.0;
+        const mouseInteraction = true; // Mantido ativo
+        const glowIntensity = 0.3;
+        const saturation = 0.6; // Atualizado de 0.0 para 0.6 (adiciona cor suave às estrelas)
+        const mouseRepulsion = false; // Desativado (muda para o efeito de paralaxe suave)
+        const repulsionStrength = 2;
+        const twinkleIntensity = 0.3;
+        const rotationSpeed = 0.1;
+        const autoCenterRepulsion = 0;
+        const transparent = true;
+
+        const targetMousePos = { x: 0.5, y: 0.5 };
+        const smoothMousePos = { x: 0.5, y: 0.5 };
+        let targetMouseActive = 0.0;
+        let smoothMouseActive = 0.0;
+
+        const renderer = new Renderer({
+            alpha: transparent,
+            premultipliedAlpha: false
+        });
+        const gl = renderer.gl;
+
+        if (transparent) {
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            gl.clearColor(0, 0, 0, 0);
+        } else {
+            gl.clearColor(0, 0, 0, 1);
+        }
+
+        let program;
+
+        function resize() {
+            const scale = 1;
+            renderer.setSize(ctn.offsetWidth * scale, ctn.offsetHeight * scale);
+            if (program) {
+                program.uniforms.uResolution.value = new Color(
+                    gl.canvas.width,
+                    gl.canvas.height,
+                    gl.canvas.width / gl.canvas.height
+                );
+            }
+        }
+        window.addEventListener('resize', resize, false);
+
+        const vertexShader = `
+        attribute vec2 uv;
+        attribute vec2 position;
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position, 0, 1);
+        }
+        `;
+
+        const fragmentShader = `
+        precision highp float;
+        uniform float uTime;
+        uniform vec3 uResolution;
+        uniform vec2 uFocal;
+        uniform vec2 uRotation;
+        uniform float uStarSpeed;
+        uniform float uDensity;
+        uniform float uHueShift;
+        uniform float uSpeed;
+        uniform vec2 uMouse;
+        uniform float uGlowIntensity;
+        uniform float uSaturation;
+        uniform bool uMouseRepulsion;
+        uniform float uTwinkleIntensity;
+        uniform float uRotationSpeed;
+        uniform float uRepulsionStrength;
+        uniform float uMouseActiveFactor;
+        uniform float uAutoCenterRepulsion;
+        uniform bool uTransparent;
+        varying vec2 vUv;
+        #define NUM_LAYER 4.0
+        #define STAR_COLOR_CUTOFF 0.2
+        #define MAT45 mat2(0.7071, -0.7071, 0.7071, 0.7071)
+        #define PERIOD 3.0
+        float Hash21(vec2 p) {
+          p = fract(p * vec2(123.34, 456.21));
+          p += dot(p, p + 45.32);
+          return fract(p.x * p.y);
+        }
+        float tri(float x) {
+          return abs(fract(x) * 2.0 - 1.0);
+        }
+        float tris(float x) {
+          float t = fract(x);
+          return 1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0));
+        }
+        float trisn(float x) {
+          float t = fract(x);
+          return 2.0 * (1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0))) - 1.0;
+        }
+        vec3 hsv2rgb(vec3 c) {
+          vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+          vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+          return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+        }
+        float Star(vec2 uv, float flare) {
+          float d = length(uv);
+          float m = (0.05 * uGlowIntensity) / d;
+          float rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+          m += rays * flare * uGlowIntensity;
+          uv *= MAT45;
+          rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+          m += rays * 0.3 * flare * uGlowIntensity;
+          m *= smoothstep(1.0, 0.2, d);
+          return m;
+        }
+        vec3 StarLayer(vec2 uv) {
+          vec3 col = vec3(0.0);
+          vec2 gv = fract(uv) - 0.5; 
+          vec2 id = floor(uv);
+          for (int y = -1; y <= 1; y++) {
+            for (int x = -1; x <= 1; x++) {
+              vec2 offset = vec2(float(x), float(y));
+              vec2 si = id + vec2(float(x), float(y));
+              float seed = Hash21(si);
+              float size = fract(seed * 345.32);
+              float flareSize = smoothstep(0.9, 1.0, size) * tri(uStarSpeed / (PERIOD * seed + 1.0));
+              float red = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 1.0)) + STAR_COLOR_CUTOFF;
+              float blu = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 3.0)) + STAR_COLOR_CUTOFF;
+              float grn = min(red, blu) * seed;
+              vec3 base = vec3(red, grn, blu);
+              float hue = atan(base.g - base.r, base.b - base.r) / (2.0 * 3.14159) + 0.5;
+              hue = fract(hue + uHueShift / 360.0);
+              float sat = length(base - vec3(dot(base, vec3(0.299, 0.587, 0.114)))) * uSaturation;
+              float val = max(max(base.r, base.g), base.b);
+              base = hsv2rgb(vec3(hue, sat, val));
+              vec2 pad = vec2(tris(seed * 34.0 + uTime * uSpeed / 10.0), tris(seed * 38.0 + uTime * uSpeed / 30.0)) - 0.5;
+              float star = Star(gv - offset - pad, flareSize);
+              vec3 color = base;
+              float twinkle = trisn(uTime * uSpeed + seed * 6.2831) * 0.5 + 1.0;
+              twinkle = mix(1.0, twinkle, uTwinkleIntensity);
+              star *= twinkle;
+              col += star * size * color;
+            }
+          }
+          return col;
+        }
+        void main() {
+          vec2 focalPx = uFocal * uResolution.xy;
+          vec2 uv = (vUv * uResolution.xy - focalPx) / uResolution.y;
+          vec2 mouseNorm = uMouse - vec2(0.5);
+          if (uAutoCenterRepulsion > 0.0) {
+            vec2 centerUV = vec2(0.0, 0.0);
+            float centerDist = length(uv - centerUV);
+            vec2 repulsion = normalize(uv - centerUV) * (uAutoCenterRepulsion / (centerDist + 0.1));
+            uv += repulsion * 0.05;
+          } else if (uMouseRepulsion) {
+            vec2 mousePosUV = (uMouse * uResolution.xy - focalPx) / uResolution.y;
+            float mouseDist = length(uv - mousePosUV);
+            vec2 repulsion = normalize(uv - mousePosUV) * (uRepulsionStrength / (mouseDist + 0.1));
+            uv += repulsion * 0.05 * uMouseActiveFactor;
+          } else {
+            vec2 mouseOffset = mouseNorm * 0.1 * uMouseActiveFactor;
+            uv += mouseOffset;
+          }
+          float autoRotAngle = uTime * uRotationSpeed;
+          mat2 autoRot = mat2(cos(autoRotAngle), -sin(autoRotAngle), sin(autoRotAngle), cos(autoRotAngle));
+          uv = autoRot * uv;
+          uv = mat2(uRotation.x, -uRotation.y, uRotation.y, uRotation.x) * uv;
+          vec3 col = vec3(0.0);
+          for (float i = 0.0; i < 1.0; i += 1.0 / NUM_LAYER) {
+            float depth = fract(i + uStarSpeed * uSpeed);
+            float scale = mix(20.0 * uDensity, 0.5 * uDensity, depth);
+            float fade = depth * smoothstep(1.0, 0.9, depth);
+            col += StarLayer(uv * scale + i * 453.32) * fade;
+          }
+          if (uTransparent) {
+            float alpha = length(col);
+            alpha = smoothstep(0.0, 0.3, alpha);
+            alpha = min(alpha, 1.0);
+            gl_FragColor = vec4(col * alpha, alpha);
+          } else {
+            gl_FragColor = vec4(col, 1.0);
+          }
+        }
+        `;
+
+        const geometry = new Triangle(gl);
+        program = new Program(gl, {
+            vertex: vertexShader,
+            fragment: fragmentShader,
+            uniforms: {
+                uTime: { value: 0 },
+                uResolution: {
+                    value: new Color(gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height)
+                },
+                uFocal: { value: new Float32Array(focal) },
+                uRotation: { value: new Float32Array(rotation) },
+                uStarSpeed: { value: starSpeed },
+                uDensity: { value: density },
+                uHueShift: { value: hueShift },
+                uSpeed: { value: speed },
+                uMouse: {
+                    value: new Float32Array([smoothMousePos.x, smoothMousePos.y])
+                },
+                uGlowIntensity: { value: glowIntensity },
+                uSaturation: { value: saturation },
+                uMouseRepulsion: { value: mouseRepulsion },
+                uTwinkleIntensity: { value: twinkleIntensity },
+                uRotationSpeed: { value: rotationSpeed },
+                uRepulsionStrength: { value: repulsionStrength },
+                uMouseActiveFactor: { value: 0.0 },
+                uAutoCenterRepulsion: { value: autoCenterRepulsion },
+                uTransparent: { value: transparent }
+            }
+        });
+
+        const mesh = new Mesh(gl, { geometry, program });
+        let animateId;
+
+        function update(t) {
+            animateId = requestAnimationFrame(update);
+            if (!disableAnimation) {
+                program.uniforms.uTime.value = t * 0.001;
+                program.uniforms.uStarSpeed.value = (t * 0.001 * starSpeed) / 10.0;
+            }
+
+            const lerpFactor = 0.05;
+            smoothMousePos.x += (targetMousePos.x - smoothMousePos.x) * lerpFactor;
+            smoothMousePos.y += (targetMousePos.y - smoothMousePos.y) * lerpFactor;
+            smoothMouseActive += (targetMouseActive - smoothMouseActive) * lerpFactor;
+
+            program.uniforms.uMouse.value[0] = smoothMousePos.x;
+            program.uniforms.uMouse.value[1] = smoothMousePos.y;
+            program.uniforms.uMouseActiveFactor.value = smoothMouseActive;
+
+            renderer.render({ scene: mesh });
+        }
+
+        resize();
+        animateId = requestAnimationFrame(update);
+        ctn.appendChild(gl.canvas);
+
+        function handleMouseMove(e) {
+            const rect = ctn.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = 1.0 - (e.clientY - rect.top) / rect.height;
+            targetMousePos.x = x;
+            targetMousePos.y = y;
+            targetMouseActive = 1.0;
+        }
+
+        function handleMouseLeave() {
+            targetMouseActive = 0.0;
+        }
+
+        if (mouseInteraction) {
+            ctn.addEventListener('mousemove', handleMouseMove);
+            ctn.addEventListener('mouseleave', handleMouseLeave);
+        }
+    }
+
+    initGalaxy();
 });
 
