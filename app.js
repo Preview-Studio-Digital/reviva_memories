@@ -10,11 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
             navbar.style.padding = '14px 0';
-            navbar.style.background = 'rgba(11, 11, 12, 0.95)';
-            navbar.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+            navbar.style.background = 'transparent';
+            navbar.style.boxShadow = 'none';
         } else {
             navbar.style.padding = '20px 0';
-            navbar.style.background = 'rgba(11, 11, 12, 0.6)';
+            navbar.style.background = 'transparent';
             navbar.style.boxShadow = 'none';
         }
     });
@@ -367,19 +367,11 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModalBottomBtn.addEventListener('click', closeVideoModal);
         }
 
-        // Cliques nos menus do cabeçalho dentro do vídeo player
-        document.querySelectorAll('.video-nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = link.getAttribute('href');
-                closeVideoModal();
-                if (targetId && targetId !== '#') {
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        setTimeout(() => {
-                            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }, 100);
-                    }
+        // Fechar modal ao clicar em qualquer link da navbar principal (que fica sobreposta ao player)
+        document.querySelectorAll('.navbar .nav-links a, .navbar .brand-logo').forEach(link => {
+            link.addEventListener('click', () => {
+                if (videoModal.classList.contains('active')) {
+                    closeVideoModal();
                 }
             });
         });
@@ -578,41 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Efeito de Máquina de Escrever no Hero (Sem deslocamento de layout)
-    const typewriterEl = document.getElementById('typewriter-text');
-    if (typewriterEl) {
-        const fullText = typewriterEl.textContent.trim();
-        typewriterEl.innerHTML = '';
-        
-        // Criar sub-elementos para manter a largura do texto estável durante a digitação
-        const visibleSpan = document.createElement('span');
-        visibleSpan.className = 'visible-chars';
-        const invisibleSpan = document.createElement('span');
-        invisibleSpan.className = 'invisible-chars';
-        invisibleSpan.style.color = 'transparent';
-        invisibleSpan.style.userSelect = 'none';
-        
-        typewriterEl.appendChild(visibleSpan);
-        typewriterEl.appendChild(invisibleSpan);
-        
-        invisibleSpan.textContent = fullText;
-        let index = 0;
-        
-        function type() {
-            if (index <= fullText.length) {
-                visibleSpan.textContent = fullText.substring(0, index);
-                invisibleSpan.textContent = fullText.substring(index);
-                index++;
-                setTimeout(type, 80); // 80ms por caractere
-            } else {
-                // Remove o cursor após terminar de digitar
-                visibleSpan.style.borderRight = 'none';
-            }
-        }
-        
-        // Inicia o efeito após 400ms
-        setTimeout(type, 400);
-    }
+
 
     // Inicialização do Fundo de Galáxia WebGL (OGL)
     function initGalaxy() {
@@ -625,12 +583,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const focal = [0.5, 0.5];
         const rotation = [1.0, 0.0];
         const starSpeed = 0.5;
-        const density = 0.7; // Atualizado de 1.0 para 0.7
+        const density = 0.7; // Restaurado para 0.7
         const hueShift = 360; // Atualizado de 140 para 360
         const disableAnimation = false;
         const speed = 1.0;
         const mouseInteraction = true; // Mantido ativo
-        const glowIntensity = 0.3;
+        const glowIntensity = 0.3; // Restaurado para 0.3
         const saturation = 0.6; // Atualizado de 0.0 para 0.6 (adiciona cor suave às estrelas)
         const mouseRepulsion = false; // Desativado (muda para o efeito de paralaxe suave)
         const repulsionStrength = 2;
@@ -887,5 +845,149 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initGalaxy();
+
+    // Inicialização da Galeria de Acordeão com GSAP
+    function initAccordionGallery() {
+        const gallery = document.getElementById('heroAccordion');
+        if (!gallery) return;
+
+        const panels = gallery.querySelectorAll('.ag-panel');
+        const count = panels.length;
+        let activeIndex = 3; // Índice padrão (centro de 7 itens)
+
+        const gap = 10;
+        const expandRatio = 0.52;
+        const duration = 0.6;
+        const ease = 'power3.out';
+        const parallax = 0.5;
+        const tilt = 8;
+        const stagger = 0.06;
+        const grayscale = true;
+        const showLabels = true;
+
+        let mediaSize = 320;
+        let tl = null;
+
+        function applyLayout(animate = true) {
+            if (!panels.length) return;
+
+            const r = Math.min(Math.max(expandRatio, 0.2), 0.9);
+            const grow = count > 1 ? (r * (count - 1)) / (1 - r) : 1;
+
+            if (tl) tl.kill();
+            
+            const dur = animate ? duration : 0;
+            tl = gsap.timeline();
+
+            panels.forEach((panel, i) => {
+                const isActive = i === activeIndex;
+                const media = panel.querySelector('.ag-panel__media');
+                const overlay = panel.querySelector('.ag-panel__overlay');
+                const bar = panel.querySelector('.ag-panel__bar');
+                const text = panel.querySelector('.ag-panel__text');
+
+                // Ângulo de inclinação 3D
+                const rot = isActive ? 0 : (i < activeIndex ? tilt : -tilt);
+
+                // Anima o painel do acordeão (flex-grow e rotação no eixo Y)
+                tl.to(panel, { 
+                    flexGrow: isActive ? grow : 1, 
+                    rotateY: rot, 
+                    duration: dur, 
+                    ease: ease 
+                }, 0);
+
+                if (isActive) {
+                    panel.classList.add('ag-panel--active');
+                } else {
+                    panel.classList.remove('ag-panel--active');
+                }
+
+                // Anima a imagem interna (efeito paralaxe, escala e escala de cinza)
+                if (media) {
+                    const drift = Math.max(-1.5, Math.min(1.5, activeIndex - i));
+                    const shift = drift * parallax * mediaSize * 0.06;
+                    const gray = grayscale ? (isActive ? 0 : 1) : 0;
+                    
+                    // Aplicamos a animação direta da propriedade de filtro CSS
+                    const filterVal = `grayscale(${gray}) brightness(${isActive ? 1 : 0.65})`;
+                    
+                    tl.to(media, {
+                        xPercent: -50,
+                        yPercent: -50,
+                        x: isActive ? 0 : shift,
+                        y: 0,
+                        filter: filterVal,
+                        duration: dur,
+                        ease: ease
+                    }, 0);
+
+                    // Anima o overlay de escurecimento dos painéis inativos
+                    if (overlay) {
+                        tl.to(overlay, {
+                            opacity: isActive ? 0.2 : 0.7,
+                            duration: dur,
+                            ease: ease
+                        }, 0);
+                    }
+                }
+
+                // Anima as etiquetas (barra lateral e texto do painel ativo)
+                if (showLabels && bar && text) {
+                    if (isActive) {
+                        tl.to([bar, text], { 
+                            opacity: 1, 
+                            x: 0, 
+                            duration: dur, 
+                            ease: ease, 
+                            stagger: stagger 
+                        }, 0);
+                    } else {
+                        tl.to([bar, text], { 
+                            opacity: 0, 
+                            x: -14, 
+                            duration: dur * 0.6, 
+                            ease: ease 
+                        }, 0);
+                    }
+                }
+            });
+        }
+
+        function measure() {
+            const rect = gallery.getBoundingClientRect();
+            const total = rect.width;
+            const usable = Math.max(total - gap * (count - 1), 120);
+            mediaSize = Math.max(140, usable * Math.min(Math.max(expandRatio, 0.2), 0.9) * 1.22);
+            gallery.style.setProperty('--ag-media-size', `${mediaSize}px`);
+            applyLayout(false);
+        }
+
+        window.addEventListener('resize', measure);
+        measure();
+
+        // Eventos de mouse e teclado
+        panels.forEach((panel, i) => {
+            panel.addEventListener('mouseenter', () => {
+                activeIndex = i;
+                applyLayout(true);
+            });
+            panel.addEventListener('focus', () => {
+                activeIndex = i;
+                applyLayout(true);
+            });
+            panel.addEventListener('click', (e) => {
+                if (i !== activeIndex) {
+                    e.preventDefault();
+                    activeIndex = i;
+                    applyLayout(true);
+                }
+            });
+        });
+
+        applyLayout(false);
+    }
+
+    initAccordionGallery();
 });
 

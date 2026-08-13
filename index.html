@@ -17,7 +17,10 @@
     <!-- OGL WebGL Library -->
     <script src="https://cdn.jsdelivr.net/npm/ogl/dist/ogl.umd.js"></script>
     
-    <link rel="stylesheet" href="styles.css?v=1.1.7">
+    <!-- GSAP Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <link rel="stylesheet" href="styles.css?v=1.5.4">
 </head>
 <body>
 
@@ -49,14 +52,13 @@
     <!-- Overlay de desfoque para fundo do menu mobile -->
     <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
 
+    <!-- Fundo de Vídeo e Galáxia WebGL Global (Site Inteiro) -->
+    <video id="globalVideoBg" src="Video_Nuvens_Compac.webm" autoplay loop muted playsinline class="global-video-bg"></video>
+    <div id="galaxyBg" class="global-galaxy-bg"></div>
+    <div class="global-white-vignette"></div>
+
     <!-- Dobra 1: Hero Section -->
     <section class="hero-section" id="topo">
-        <!-- Fundo de Galáxia Interativo em WebGL sobreposto ao Céu Estático -->
-        <div class="hero-bg-container">
-            <img src="hero_bg.jpg" alt="Céu com nuvens e montanhas ao fundo no estilo ultra realista ao pôr do sol" class="hero-bg-media">
-            <div id="galaxyBg" class="hero-bg-galaxy"></div>
-            <div class="hero-bg-overlay"></div>
-        </div>
 
         <div class="container slide-layout-container hero-content">
             <!-- Tag no Topo -->
@@ -68,6 +70,94 @@
                     <span class="title-line-1">Eternizando a <span class="title-highlight">VOZ</span> e a <span class="title-highlight">PRESENÇA</span> que o tempo levou,</span>
                     <span class="hero-title-sub"><span id="typewriter-text">emocionando o seu</span> <span class="highlight-italic">momento especial</span>.</span>
                 </h1>
+            </div>
+            
+            <!-- Galeria de Acordeão Interativa (GSAP) -->
+            <div id="heroAccordion" class="accordion-gallery" role="list" aria-label="Galeria de Homenagens">
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Canyon" data-index="0">
+                    <span class="ag-panel__frame">
+                        <span class="ag-panel__media">
+                            <img src="https://picsum.photos/id/1015/900/1200" alt="Canyon" draggable="false">
+                        </span>
+                        <span class="ag-panel__overlay" aria-hidden="true"></span>
+                    </span>
+                    <span class="ag-panel__label" aria-hidden="true">
+                        <span class="ag-panel__bar"></span>
+                        <span class="ag-panel__text">Canyon</span>
+                    </span>
+                </div>
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Ridgeline" data-index="1">
+                    <span class="ag-panel__frame">
+                        <span class="ag-panel__media">
+                            <img src="https://picsum.photos/id/1018/900/1200" alt="Ridgeline" draggable="false">
+                        </span>
+                        <span class="ag-panel__overlay" aria-hidden="true"></span>
+                    </span>
+                    <span class="ag-panel__label" aria-hidden="true">
+                        <span class="ag-panel__bar"></span>
+                        <span class="ag-panel__text">Ridgeline</span>
+                    </span>
+                </div>
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Falls" data-index="2">
+                    <span class="ag-panel__frame">
+                        <span class="ag-panel__media">
+                            <img src="https://picsum.photos/id/1039/900/1200" alt="Falls" draggable="false">
+                        </span>
+                        <span class="ag-panel__overlay" aria-hidden="true"></span>
+                    </span>
+                    <span class="ag-panel__label" aria-hidden="true">
+                        <span class="ag-panel__bar"></span>
+                        <span class="ag-panel__text">Falls</span>
+                    </span>
+                </div>
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Harbour" data-index="3">
+                    <span class="ag-panel__frame">
+                        <span class="ag-panel__media">
+                            <img src="https://picsum.photos/id/1043/900/1200" alt="Harbour" draggable="false">
+                        </span>
+                        <span class="ag-panel__overlay" aria-hidden="true"></span>
+                    </span>
+                    <span class="ag-panel__label" aria-hidden="true">
+                        <span class="ag-panel__bar"></span>
+                        <span class="ag-panel__text">Harbour</span>
+                    </span>
+                </div>
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Skyline" data-index="4">
+                    <span class="ag-panel__frame">
+                        <span class="ag-panel__media">
+                            <img src="https://picsum.photos/id/1044/900/1200" alt="Skyline" draggable="false">
+                        </span>
+                        <span class="ag-panel__overlay" aria-hidden="true"></span>
+                    </span>
+                    <span class="ag-panel__label" aria-hidden="true">
+                        <span class="ag-panel__bar"></span>
+                        <span class="ag-panel__text">Skyline</span>
+                    </span>
+                </div>
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Mist" data-index="5">
+                    <span class="ag-panel__frame">
+                        <span class="ag-panel__media">
+                            <img src="https://picsum.photos/id/1050/900/1200" alt="Mist" draggable="false">
+                        </span>
+                        <span class="ag-panel__overlay" aria-hidden="true"></span>
+                    </span>
+                    <span class="ag-panel__label" aria-hidden="true">
+                        <span class="ag-panel__bar"></span>
+                        <span class="ag-panel__text">Mist</span>
+                    </span>
+                </div>
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Forest" data-index="6">
+                    <span class="ag-panel__frame">
+                        <span class="ag-panel__media">
+                            <img src="https://picsum.photos/id/1053/900/1200" alt="Forest" draggable="false">
+                        </span>
+                        <span class="ag-panel__overlay" aria-hidden="true"></span>
+                    </span>
+                    <span class="ag-panel__label" aria-hidden="true">
+                        <span class="ag-panel__bar"></span>
+                        <span class="ag-panel__text">Forest</span>
+                    </span>
+                </div>
             </div>
             
             <!-- Subtítulo e Botão na Base -->
@@ -482,7 +572,7 @@
             <span class="section-tag handwritten-title">Perguntas Frequentes</span>
             
             <div class="slide-content-wrap">
-                <h2>Esclareça suas dúvidas sobre a RE.VIVA memories</h2>
+                <h2>Esclareça todas as suas dúvidas!</h2>
                 <p>Reunimos as perguntas mais comuns de quem deseja eternizar uma memória com respeito, cuidado e emoção. Se tiver outras dúvidas, nossa equipe está pronta para te atender.</p>
                 
                 <div class="faq-accordion">
@@ -567,23 +657,6 @@
     <!-- Modal de Vídeo Global -->
     <div class="video-modal" id="videoModal" tabindex="-1">
         <div class="video-modal-content">
-            <!-- Cabeçalho / Navbar dentro do Player de Vídeo -->
-            <header class="navbar video-modal-navbar">
-                <div class="container nav-container">
-                    <a href="#topo" class="brand-logo video-nav-link" title="Voltar ao início">
-                        <img src="logo.png" alt="re.viva memories logo" class="logo-img">
-                    </a>
-                    <nav class="nav-links">
-                        <a href="#topo" class="video-nav-link">INÍCIO</a>
-                        <a href="#como-funciona" class="video-nav-link">EXPERIÊNCIA</a>
-                        <a href="#casos-de-uso" class="video-nav-link">OCASIÕES</a>
-                        <a href="#depoimentos" class="video-nav-link">DEPOIMENTOS</a>
-                        <a href="#planos" class="video-nav-link">PLANOS</a>
-                        <a href="#faq" class="video-nav-link">PERGUNTAS</a>
-                    </nav>
-                </div>
-            </header>
-
             <div class="video-container">
                 <div class="video-vignette-overlay"></div>
                 <iframe id="videoPlayer" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="display: none;"></iframe>
@@ -601,9 +674,7 @@
         <audio id="bgAudio" loop src="bg_music.mp3" preload="metadata"></audio>
         
         <!-- Conteúdo do Rodapé Esquerdo (Desktop Only) -->
-        <div class="audio-footer-left desktop-only">
-            <a href="https://previewstudio.com.br/" target="_blank" rel="noopener noreferrer"><strong>Preview Studio Digital</strong></a>
-        </div>
+        <div class="audio-footer-left desktop-only"></div>
         
         <!-- Controles de Áudio (Centro) -->
         <div class="audio-controls-wrap">
@@ -631,11 +702,9 @@
         </div>
         
         <!-- Conteúdo do Rodapé Direito (Desktop Only) -->
-        <div class="audio-footer-right desktop-only">
-            &copy; 2026. Todos os direitos reservados.
-        </div>
+        <div class="audio-footer-right desktop-only"></div>
     </div>
 
-    <script src="app.js?v=1.0.5"></script>
+    <script src="app.js?v=1.1.0"></script>
 </body>
 </html>

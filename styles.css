@@ -6,19 +6,20 @@
 /* Variables / Design System */
 :root {
     /* Color Palette */
-    --bg-main: #0b0b0c;
-    --bg-card: #141416;
-    --bg-card-hover: #1c1c1f;
-    --bg-glass: rgba(20, 20, 22, 0.75);
+    --bg-main: #ffffff;
+    --bg-card: #221812; /* Fundo dos cards puxado para marrom ferroso escuro */
+    --bg-card-hover: #2e2118; /* Hover dos cards puxado para marrom ferroso médio */
+    --bg-glass: rgba(34, 24, 18, 0.75); /* Fundo de vidro com tom marrom ferroso */
     
-    --text-primary: #f5f5f7;
-    --text-secondary: #a1a1aa;
+    --text-primary: #e5dacb; /* Tom champagne areia claro capturado da palavra memories do logotipo */
+    --text-secondary: #4a3625; /* Tom marrom ferroso escuro para textos descritivos */
     --text-dark: #1a1a1a;
     
     /* Branding Hex Colors */
     --brand-dark: #1a1a1a;
-    --brand-gold: #c5a059;
-    --brand-gold-glow: rgba(197, 160, 89, 0.25);
+    --brand-gold: #9c7247; /* Tom marrom ferroso capturado do logotipo */
+    --brand-gold-glow: rgba(156, 114, 71, 0.25);
+    --brand-metallic: linear-gradient(135deg, #7c5128 0%, #e6cca7 50%, #523114 100%);
     --brand-smoke: #8a8583;
     
     /* Typography */
@@ -28,7 +29,7 @@
     
     /* Spacing & Borders */
     --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-gold: rgba(197, 160, 89, 0.3);
+    --border-gold: rgba(156, 114, 71, 0.3);
     --radius-sm: 8px;
     --radius-md: 16px;
     --radius-lg: 24px;
@@ -222,6 +223,13 @@ img, video {
     align-items: center;
     position: relative;
     user-select: none;
+    transition: transform var(--transition-smooth), filter var(--transition-smooth);
+    will-change: transform, filter;
+}
+
+.brand-logo:hover {
+    transform: scale(1.04);
+    filter: drop-shadow(0 2px 8px rgba(156, 114, 71, 0.35));
 }
 
 .logo-img {
@@ -279,7 +287,7 @@ img, video {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #c5a059 0%, #a47e38 100%);
+    background: linear-gradient(135deg, #9c7247 0%, #76522f 100%);
     color: #ffffff;
     box-shadow: 0 4px 20px var(--brand-gold-glow);
     font-weight: 600;
@@ -287,7 +295,7 @@ img, video {
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(197, 160, 89, 0.4);
+    box-shadow: 0 8px 30px rgba(156, 114, 71, 0.4);
 }
 
 .btn-secondary {
@@ -322,13 +330,11 @@ img, video {
     left: 0;
     right: 10px;
     width: auto;
-    z-index: 100;
+    z-index: 200000;
     padding: 16px 0;
     transition: var(--transition-fast);
-    background: rgba(11, 11, 12, 0.7);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border-subtle);
+    background: transparent;
+    border-bottom: none;
     will-change: transform;
 }
 
@@ -360,7 +366,7 @@ img, video {
 .nav-links a {
     color: var(--text-secondary);
     font-size: 0.9rem;
-    font-weight: 400;
+    font-weight: 700;
     transition: var(--transition-fast);
     position: relative;
 }
@@ -379,55 +385,53 @@ img, video {
     justify-content: center;
     padding: 0;
     overflow: hidden;
-    background: #0b0b0c;
+    background: transparent; /* Alterado de #0b0b0c para transparente */
 }
 
-/* Fundo Visual (Imagem / Vídeo) */
-.hero-bg-container {
-    position: absolute;
+/* Fundo de Vídeo e Galáxia WebGL Globais (Site Inteiro) */
+.global-video-bg {
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    overflow: hidden;
-}
-
-.hero-bg-media {
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     object-fit: cover;
-    object-position: center;
-    filter: brightness(0.65) contrast(1.05); /* Escurece um pouco a imagem para as estrelas brilharem mais */
-    transform: scale(1.03);
-    animation: heroBgZoom 25s ease-in-out infinite alternate;
+    z-index: -2; /* Atrás de todo o conteúdo e do canvas de estrelas */
+    pointer-events: none;
+
 }
 
-@keyframes heroBgZoom {
-    0% {
-        transform: scale(1.03);
-    }
-    100% {
-        transform: scale(1.1);
-    }
-}
-
-.hero-bg-galaxy {
-    position: absolute;
+.global-galaxy-bg {
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2; /* Fica acima da imagem de fundo */
-    pointer-events: none; /* Deixa o mouse passar para o container abaixo se necessário, embora os listeners estejam no wrapper */
-    mix-blend-mode: screen; /* Remove pixels pretos e mescla as estrelas de forma brilhante com a imagem do pôr do sol */
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; /* À frente do vídeo, mas atrás de todo o conteúdo e botões */
+    pointer-events: none;
+    mix-blend-mode: screen; /* Remove o fundo escuro do shader e mescla as estrelas no vídeo do fundo */
 }
 
-.hero-bg-galaxy canvas {
+.global-galaxy-bg canvas {
     width: 100% !important;
     height: 100% !important;
     display: block;
 }
+
+.global-white-vignette {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0; /* À frente do vídeo e estrelas, mas atrás de todo o conteúdo */
+    pointer-events: none;
+    background: 
+      linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 5%, rgba(255, 255, 255, 0.4) 15%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.4) 85%, rgba(255, 255, 255, 1) 95%, rgba(255, 255, 255, 1) 100%),
+      linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.4) 5%, transparent 10%, transparent 90%, rgba(255, 255, 255, 0.4) 95%, rgba(255, 255, 255, 1) 100%);
+}
+
+
 
 .hero-bg-overlay {
     position: absolute;
@@ -489,26 +493,26 @@ img, video {
     font-weight: 300;
     line-height: 1.2;
     letter-spacing: -0.5px;
-    margin-bottom: 28px;
+    margin-bottom: 4px;
     text-align: center;
     width: 100%;
     max-width: 100%;
     text-transform: none; /* Desativa uppercase automático para manter a elegância e delicadeza */
-    text-shadow: 0 4px 24px rgba(0, 0, 0, 0.95);
-}
-
-.hero-title .title-line-1 {
-    display: block;
-    color: var(--text-primary);
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
-    text-align: center;
+    text-shadow: 0 4px 24px rgba(255, 255, 255, 0.95);
     
-    /* Efeito de revelação com fade-in e desfoque inicial (Premium) */
+    /* Efeito de revelação com fade-in e desfoque inicial global no título todo */
     opacity: 0;
     filter: blur(12px);
     transform: translateY(4px);
     animation: blurFadeIn 1.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     animation-delay: 0.2s; /* Atraso leve para dar elegância ao carregar */
+}
+
+.hero-title .title-line-1 {
+    display: block;
+    color: var(--text-primary);
+    text-shadow: 0 2px 12px rgba(255, 255, 255, 0.9);
+    text-align: center;
 }
 
 @keyframes blurFadeIn {
@@ -543,8 +547,11 @@ img, video {
 
 .hero-title .title-highlight {
     font-weight: 700;
-    color: #ebd097; /* Cor dourada sólida premium para 100% de nitidez */
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 15px rgba(0, 0, 0, 0.5); /* Sombra de alto contraste para separar do fundo */
+    background: var(--brand-metallic);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.95), 0 0 15px rgba(255, 255, 255, 0.5); /* Sombra de alto contraste para separar do fundo */
     letter-spacing: 0.5px;
 }
 
@@ -563,17 +570,15 @@ img, video {
     font-size: 1.45em; /* Aumentado por ser manuscrito */
     font-weight: 400;
     font-style: normal;
-    color: #ebd097; /* Cor dourada sólida premium para 100% de nitidez */
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 15px rgba(0, 0, 0, 0.5); /* Sombra de alto contraste */
+    background: var(--brand-metallic);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.95), 0 0 15px rgba(255, 255, 255, 0.5); /* Sombra de alto contraste */
     display: inline-block;
     vertical-align: middle;
     text-transform: none;
     padding-right: 15px; /* Adiciona respiro para evitar o corte da cauda da última letra 'l' */
     
-    /* Revelação manuscrita (clip-path desenhando da esquerda para a direita com folga nas bordas) */
-    clip-path: inset(-10px 100% -10px -10px);
-    animation: revealHandwrittenText 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    animation-delay: 1.7s; /* Aguarda a conclusão do efeito máquina de escrever */
 }
 
 @keyframes revealHandwrittenText {
@@ -585,25 +590,16 @@ img, video {
     }
 }
 
-#typewriter-text {
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: 4px;
-}
-
-#typewriter-text .visible-chars {
-    border-right: 2px solid var(--brand-gold);
-    padding-right: 1px;
-}
+/* Estilos legados de máquina de escrever removidos */
 
 .hero-center-wrap {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex: 1;
+    flex: 0 0 auto; /* Alterado de 1 para 0 0 auto para permitir crescimento responsivo da galeria */
     width: 100%;
-    margin: 20px 0;
+    margin: 10px 0 0 0;
     text-align: center;
 }
 
@@ -618,12 +614,12 @@ img, video {
 
 .hero-subtitle {
     font-size: clamp(0.85rem, 1.1vw, 1.05rem); /* Tamanho de fonte ideal para leitura premium */
-    color: #e4e4e7;
+    color: var(--text-secondary);
     font-weight: 300;
     width: 100%;
     margin: 0 auto 24px auto;
     line-height: 1.6;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9);
     max-width: 1350px; /* Alinhado exatamente com o limite lateral do cabeçalho */
     text-align: justify; /* Estica o texto para tocar a margem esquerda e direita */
     text-align-last: justify; /* Garante que a segunda linha também se espalhe uniformemente até a margem direita */
@@ -802,7 +798,7 @@ img, video {
 }
 
 .step-card {
-    background: rgba(20, 20, 22, 0.85);
+    background: rgba(34, 24, 18, 0.28);
     backdrop-filter: blur(16px);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
@@ -816,7 +812,7 @@ img, video {
 .step-card:hover {
     transform: translateY(-8px);
     border-color: var(--border-gold);
-    background: rgba(28, 28, 31, 0.85);
+    background: rgba(46, 33, 24, 0.42);
 }
 
 .step-number {
@@ -875,7 +871,7 @@ img, video {
 }
 
 .case-card {
-    background: rgba(20, 20, 22, 0.85);
+    background: rgba(34, 24, 18, 0.28);
     border-radius: var(--radius-lg);
     overflow: hidden;
     border: 1px solid var(--border-subtle);
@@ -963,7 +959,7 @@ img, video {
 }
 
 .testimonial-card {
-    background: rgba(20, 20, 22, 0.85);
+    background: rgba(34, 24, 18, 0.28);
     backdrop-filter: blur(20px);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
@@ -1033,7 +1029,7 @@ img, video {
 }
 
 .cta-box {
-    background: linear-gradient(135deg, rgba(20, 20, 22, 0.9) 0%, rgba(30, 25, 15, 0.9) 100%);
+    background: linear-gradient(135deg, rgba(34, 24, 18, 0.35) 0%, rgba(48, 34, 22, 0.35) 100%);
     border: 1px solid var(--border-gold);
     border-radius: var(--radius-lg);
     padding: 60px 40px;
@@ -1474,7 +1470,7 @@ img, video {
         color: var(--text-primary) !important;
         border-bottom: 1px solid rgba(197, 160, 89, 0.15) !important;
         display: block !important;
-        font-weight: 500 !important;
+        font-weight: 700 !important;
         transition: var(--transition-fast) !important;
     }
 
@@ -1669,7 +1665,7 @@ img, video {
         align-items: center !important;
         gap: 12px !important;
         padding: 10px 14px !important;
-        background: rgba(20, 20, 22, 0.45) !important;
+        background: rgba(34, 24, 18, 0.22) !important;
         border: 1px solid var(--border-subtle) !important;
     }
 
@@ -1735,7 +1731,7 @@ img, video {
         display: flex !important;
         flex-direction: row !important;
         align-items: stretch !important;
-        background: rgba(20, 20, 22, 0.45) !important;
+        background: rgba(34, 24, 18, 0.22) !important;
         border: 1px solid var(--border-subtle) !important;
     }
 
@@ -1809,7 +1805,7 @@ img, video {
         min-height: 0 !important;
         height: 0 !important;
         padding: clamp(6px, 1.5dvh, 16px) clamp(10px, 3vw, 16px) !important;
-        background: rgba(20, 20, 22, 0.45) !important;
+        background: rgba(34, 24, 18, 0.22) !important;
         border: 1px solid var(--border-subtle) !important;
         gap: clamp(3px, 0.6dvh, 8px) !important;
         overflow: hidden !important;
@@ -1999,15 +1995,7 @@ body.video-active .audio-player-widget {
 
 /* Efeito Vinheta Cinematográfica (Sombreamento radial escuro suave nas bordas) */
 .video-vignette-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 5;
-    background: radial-gradient(circle at center, transparent 45%, rgba(0, 0, 0, 0.4) 75%, rgba(0, 0, 0, 0.85) 100%);
-    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
+    display: none !important;
 }
 
 .video-container video,
@@ -2147,7 +2135,7 @@ body.video-active .audio-player-widget {
 .audio-footer-right {
     font-size: 0.82rem !important;
     color: var(--text-secondary) !important;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9) !important;
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9) !important;
     font-weight: 500 !important;
     display: inline-block !important;
 }
@@ -2296,9 +2284,9 @@ body.video-active .audio-player-widget {
 .handwritten-title {
     font-family: var(--font-handwriting) !important;
     font-weight: 400 !important;
-    color: var(--brand-gold) !important;
-    -webkit-text-fill-color: var(--brand-gold) !important;
-    background: none !important;
+    background: var(--brand-metallic) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
     text-transform: none !important;
     letter-spacing: 0.5px !important;
     display: inline-block !important;
@@ -2328,12 +2316,13 @@ span.section-tag.handwritten-title {
     font-family: var(--font-handwriting) !important;
     text-transform: none !important;
     padding: 0 !important;
-    background: none !important;
+    background: var(--brand-metallic) !important;
     border: none !important;
-    -webkit-text-fill-color: var(--brand-gold) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
     margin-top: 0 !important;
     margin-bottom: 6px !important;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7) !important;
+    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8) !important;
     line-height: 1.2 !important;
 }
 
@@ -2427,7 +2416,7 @@ span.section-tag.handwritten-title {
     max-width: 450px !important;
     min-width: 280px !important;
     position: relative !important;
-    background: rgba(20, 20, 22, 0.85) !important;
+    background: rgba(34, 24, 18, 0.28) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
     border: 1px solid rgba(197, 160, 89, 0.25) !important;
@@ -2448,7 +2437,7 @@ span.section-tag.handwritten-title {
 
 /* Card Em Destaque (Plano Emoção) */
 .plan-card.featured {
-    background: linear-gradient(180deg, rgba(31, 27, 20, 0.9) 0%, rgba(20, 20, 22, 0.95) 100%) !important;
+    background: linear-gradient(180deg, rgba(49, 39, 30, 0.4) 0%, rgba(34, 24, 18, 0.45) 100%) !important;
     border: 1.5px solid var(--brand-gold) !important;
     box-shadow: 0 16px 45px rgba(197, 160, 89, 0.3) !important;
 }
@@ -2700,9 +2689,9 @@ span.section-tag.handwritten-title {
     justify-content: center !important;
     gap: 12px !important;
     font-size: 0.88rem !important;
-    color: var(--text-primary) !important;
-    background: rgba(197, 160, 89, 0.08) !important;
-    border: 1px solid rgba(197, 160, 89, 0.25) !important;
+    color: var(--text-secondary) !important;
+    background: rgba(156, 114, 71, 0.08) !important;
+    border: 1px solid rgba(156, 114, 71, 0.25) !important;
     border-radius: var(--radius-md) !important;
     padding: 12px 24px !important;
     margin: 15px 0 10px 0 !important;
@@ -2749,6 +2738,13 @@ span.section-tag.handwritten-title {
 /* FAQ Accordion Styles */
 .faq-section {
     background: transparent;
+    height: auto !important;
+}
+
+.faq-section .slide-layout-container {
+    height: auto !important;
+    min-height: 100vh !important;
+    padding-bottom: 50px !important; /* Margem extra na base para afastar o disclaimer */
 }
 
 .faq-accordion {
@@ -2761,7 +2757,7 @@ span.section-tag.handwritten-title {
 }
 
 .faq-item {
-    background: rgba(20, 20, 22, 0.6) !important;
+    background: rgba(34, 24, 18, 0.25) !important;
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -2772,7 +2768,7 @@ span.section-tag.handwritten-title {
 
 .faq-item:hover, .faq-item.active {
     border-color: rgba(197, 160, 89, 0.3) !important;
-    background: rgba(20, 20, 22, 0.8) !important;
+    background: rgba(34, 24, 18, 0.38) !important;
 }
 
 .faq-question {
@@ -2831,6 +2827,175 @@ span.section-tag.handwritten-title {
         padding: 0 16px 14px 16px !important;
         font-size: 0.82rem !important;
     }
+}
+
+/* ==========================================================================
+   Galeria de Acordeão Interativa (AccordionGallery) no Hero
+   ========================================================================== */
+.accordion-gallery {
+  --ag-accent: var(--brand-gold);
+  --ag-overlay: #0b0b0c;
+  --ag-text: #ffffff;
+  --ag-gap: 10px;
+  --ag-radius: 12px;
+  --ag-media-size: 320px;
+
+  display: flex;
+  flex-direction: row;
+  gap: var(--ag-gap);
+  width: 100%;
+  max-width: 1350px; /* Alinhado perfeitamente com a largura máxima do subtítulo e margens do site */
+  margin: 4px auto 10px auto; /* Reduzido o topo para colar no título */
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+  flex: 1 1 auto !important; /* Cresce dinamicamente para ocupar todo o espaço vertical disponível */
+  height: auto !important; /* Desativa a altura física fixa */
+  min-height: 220px; /* Garante tamanho mínimo em telas muito compactas */
+  max-height: 580px; /* Aumentado de 480px para 580px para preencher mais o espaço vertical em telas grandes */
+  z-index: 5;
+  position: relative;
+}
+
+.accordion-gallery--vertical {
+  flex-direction: column;
+}
+
+.ag-panel {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--ag-radius);
+  cursor: pointer;
+  display: block;
+  text-decoration: none;
+  outline: none;
+  transform-style: preserve-3d;
+  transform-origin: center center;
+  background: var(--bg-card);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  will-change: flex-grow, transform;
+  -webkit-tap-highlight-color: transparent;
+  border: none;
+}
+
+.ag-panel.ag-panel--active {
+  box-shadow: 0 10px 30px rgba(156, 114, 71, 0.15);
+}
+
+.ag-panel:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--ag-accent),
+    0 10px 30px -18px rgba(0, 0, 0, 0.8);
+}
+
+.ag-panel__frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.ag-panel__media {
+  --ag-gray: 1;
+  --ag-dim: 0.35;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--ag-media-size);
+  height: 100%;
+  transform: translate(-50%, -50%);
+  filter: grayscale(var(--ag-gray));
+  will-change: transform, filter;
+}
+
+.accordion-gallery--vertical .ag-panel__media {
+  width: 100%;
+  height: var(--ag-media-size);
+}
+
+.ag-panel__media img,
+.ag-panel__media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.ag-panel__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent 45%, color-mix(in srgb, var(--ag-overlay) 78%, transparent) 100%),
+    color-mix(in srgb, var(--ag-overlay) calc(var(--ag-dim, 0.35) * 100%), transparent);
+}
+
+.ag-panel__label {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.ag-panel__bar {
+  flex: 0 0 auto;
+  width: 3px;
+  height: 20px;
+  border-radius: 3px;
+  background: var(--ag-accent);
+  opacity: 0;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--ag-accent) 60%, transparent);
+}
+
+.ag-panel__text {
+  color: var(--ag-text);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: clamp(0.75rem, 1vw, 0.95rem);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
+}
+
+@media (max-width: 768px) {
+  .accordion-gallery {
+    height: 280px !important; /* Altura ideal proporcional para tablets */
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .accordion-gallery {
+    flex-direction: column;
+    perspective: none;
+    height: auto !important;
+    max-height: 380px;
+    margin: 12px auto;
+  }
+  .ag-panel {
+    min-height: 52px;
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ag-panel,
+  .ag-panel__media {
+    will-change: auto;
+  }
 }
 
 
