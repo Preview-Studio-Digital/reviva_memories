@@ -39,6 +39,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         sections = document.querySelectorAll('.hero-section, .how-it-works, .use-cases, .testimonials, .contrate-section, .faq-section');
 
+        // Sincroniza dinamicamente a classe active no cabeçalho
+        function updateActiveNavLink(sectionId) {
+            document.querySelectorAll('.navbar .nav-links a').forEach(link => {
+                if (link.getAttribute('href') === `#${sectionId}`) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
         // Re-sincronizar o IntersectionObserver
         const observerOptions = {
             root: null,
@@ -58,6 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const index = Array.from(sections).indexOf(entry.target);
                     if (index !== -1) {
                         currentIdx = index;
+                        const sectionId = entry.target.getAttribute('id');
+                        if (sectionId) {
+                            updateActiveNavLink(sectionId);
+                        }
                     }
 
                     // Se foi rolagem manual, inicia imediatamente
@@ -86,6 +101,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!sections || index < 0 || index >= sections.length) return;
         currentIdx = index;
         sections[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const sectionId = sections[index].getAttribute('id');
+        if (sectionId) {
+            document.querySelectorAll('.navbar .nav-links a').forEach(link => {
+                if (link.getAttribute('href') === `#${sectionId}`) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
     }
 
     // Smooth scroll para links internos e sincronização do slide ativo
@@ -121,6 +146,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentIdx = targetIdx;
                 }
 
+                // Sincroniza a classe active do menu no clique
+                const sectionId = targetElement.getAttribute('id');
+                if (sectionId) {
+                    document.querySelectorAll('.navbar .nav-links a').forEach(link => {
+                        if (link.getAttribute('href') === `#${sectionId}`) {
+                            link.classList.add('active');
+                        } else {
+                            link.classList.remove('active');
+                        }
+                    });
+                }
+
                 // Apenas reativa o snap após o término do scroll nativo
                 setTimeout(() => {
                     document.documentElement.classList.remove('disable-snap');
@@ -142,10 +179,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Configuração inicial das Ondas Douradas (com amplitude escalada)
         let waves = [
-            { y: height * 0.5, length: 0.005, amplitude: 90 * scale, speed: 0.008, color: 'rgba(197, 160, 89, 0.25)' },
-            { y: height * 0.45, length: 0.004, amplitude: 120 * scale, speed: 0.005, color: 'rgba(247, 230, 165, 0.18)' },
-            { y: height * 0.55, length: 0.006, amplitude: 70 * scale, speed: 0.011, color: 'rgba(158, 123, 54, 0.22)' },
-            { y: height * 0.6, length: 0.003, amplitude: 140 * scale, speed: 0.004, color: 'rgba(255, 215, 0, 0.12)' }
+            { y: height * 0.5, length: 0.005, amplitude: 90 * scale, speed: 0.008, color: 'rgba(156, 114, 71, 0.25)' },
+            { y: height * 0.45, length: 0.004, amplitude: 120 * scale, speed: 0.005, color: 'rgba(180, 140, 100, 0.18)' },
+            { y: height * 0.55, length: 0.006, amplitude: 70 * scale, speed: 0.011, color: 'rgba(130, 90, 50, 0.22)' },
+            { y: height * 0.6, length: 0.003, amplitude: 140 * scale, speed: 0.004, color: 'rgba(156, 114, 71, 0.12)' }
         ];
 
         window.addEventListener('resize', () => {
@@ -168,8 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            ctx.fillStyle = '#0b0b0c';
-            ctx.fillRect(0, 0, width, height);
+            ctx.clearRect(0, 0, width, height);
 
             waves.forEach(wave => {
                 ctx.beginPath();
@@ -180,17 +216,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 for (let i = 0; i < width + step; i += step) {
                     // Ajusta a coordenada x na função seno multiplicando por 1/scale para manter a mesma frequência original no espaço real
                     const realX = i / scale;
-                    ctx.lineTo(i, wave.y + Math.sin(realX * wave.length + increment * wave.speed * 100) * wave.amplitude * Math.sin(increment * 0.005));
+                    ctx.lineTo(i, wave.y + Math.sin(realX * wave.length + increment * wave.speed * 100) * wave.amplitude);
                 }
 
                 ctx.lineTo(width, height);
                 ctx.lineTo(0, height);
                 ctx.closePath();
 
-                const gradient = ctx.createLinearGradient(0, 0, width, height);
-                gradient.addColorStop(0, wave.color);
-                gradient.addColorStop(0.5, 'rgba(197, 160, 89, 0.15)');
-                gradient.addColorStop(1, 'rgba(11, 11, 12, 0.9)');
+                const gradient = ctx.createLinearGradient(0, 0, 0, height);
+                gradient.addColorStop(0, 'rgba(156, 114, 71, 0.0)');
+                gradient.addColorStop(0.5, wave.color);
+                gradient.addColorStop(1, 'rgba(156, 114, 71, 0.65)');
 
                 ctx.fillStyle = gradient;
                 ctx.fill();
@@ -258,10 +294,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openVideoModal(videoUrl) {
         const bgAudio = document.getElementById('bgAudio');
-        if (bgAudio && !bgAudio.paused) {
-            originalVolume = bgAudio.volume || 1;
-            // Abaixar volume da música de fundo imediatamente para 0.25
-            bgAudio.volume = 0.25;
+        if (bgAudio) {
+            if (!bgAudio.paused) {
+                originalVolume = bgAudio.volume || 1;
+                bgAudio.volume = 0.25;
+            } else {
+                originalVolume = 1;
+                bgAudio.volume = 0.25;
+                bgAudio.play().catch(err => console.log("Audio play failed on video modal open:", err));
+            }
         }
 
         stopVideos();
@@ -433,64 +474,101 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Lógica do Player de Áudio Fixo Minimalista
+    const playlist = [
+        'bg_music.mp3',
+        'bg_music_02.mp3'
+    ];
+
     const bgAudio = document.getElementById('bgAudio');
+    if (bgAudio) {
+        // Escolhe uma música aleatoriamente da playlist no carregamento/recarregamento da página
+        const randomTrack = playlist[Math.floor(Math.random() * playlist.length)];
+        bgAudio.src = randomTrack;
+        bgAudio.load();
+    }
+
     const audioToggleBtn = document.getElementById('audioToggleBtn');
     const audioIconPlay = document.getElementById('audioIconPlay');
     const audioIconPause = document.getElementById('audioIconPause');
     const soundWaves = document.querySelectorAll('.sound-waves');
 
-    if (bgAudio && audioToggleBtn) {
-        audioToggleBtn.addEventListener('click', () => {
-            if (bgAudio.paused) {
-                bgAudio.play().then(() => {
-                    updateAudioUI(true);
-                }).catch(err => {
-                    console.log("Erro ao reproduzir áudio:", err);
-                });
-            } else {
-                bgAudio.pause();
-                updateAudioUI(false);
-            }
-        });
-
+    if (bgAudio) {
         bgAudio.addEventListener('play', () => updateAudioUI(true));
         bgAudio.addEventListener('pause', () => updateAudioUI(false));
 
         function updateAudioUI(isPlaying) {
             if (isPlaying) {
-                audioIconPlay.style.display = 'none';
-                audioIconPause.style.display = 'inline-block';
-                audioToggleBtn.classList.add('is-playing');
+                if (audioIconPlay) audioIconPlay.style.display = 'none';
+                if (audioIconPause) audioIconPause.style.display = 'inline-block';
+                if (audioToggleBtn) audioToggleBtn.classList.add('is-playing');
                 soundWaves.forEach(wave => wave.classList.add('playing'));
             } else {
-                audioIconPlay.style.display = 'inline-block';
-                audioIconPause.style.display = 'none';
-                audioToggleBtn.classList.remove('is-playing');
+                if (audioIconPlay) audioIconPlay.style.display = 'inline-block';
+                if (audioIconPause) audioIconPause.style.display = 'none';
+                if (audioToggleBtn) audioToggleBtn.classList.remove('is-playing');
                 soundWaves.forEach(wave => wave.classList.remove('playing'));
             }
         }
 
-        // TEMPORARIAMENTE DESABILITADO (Toque/clique na tela para auto-play)
-        /*
-        function startAudioOnFirstInteraction() {
-            if (bgAudio.paused && !document.body.classList.contains('video-active')) {
+        const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+        function playMusic() {
+            if (bgAudio.paused) {
+                const isVideoActive = document.body.classList.contains('video-active');
+                bgAudio.volume = isVideoActive ? 0.25 : 1.0;
                 bgAudio.play().then(() => {
                     updateAudioUI(true);
                 }).catch(err => {
-                    console.log("Aguardando interação para reprodução:", err);
+                    console.log("Audio play waiting for interaction:", err);
                 });
             }
-            document.removeEventListener('touchstart', startAudioOnFirstInteraction);
-            document.removeEventListener('click', startAudioOnFirstInteraction);
         }
 
-        document.addEventListener('touchstart', startAudioOnFirstInteraction, { passive: true });
-        document.addEventListener('click', startAudioOnFirstInteraction);
-        */
+        if (isMobile) {
+            // Qualquer toque ou clique na tela no mobile inicia a música
+            const handleMobileInteraction = () => {
+                playMusic();
+                document.removeEventListener('touchstart', handleMobileInteraction);
+                document.removeEventListener('click', handleMobileInteraction);
+            };
+            document.addEventListener('touchstart', handleMobileInteraction, { passive: true });
+            document.addEventListener('click', handleMobileInteraction);
+        } else {
+            // No desktop, a música também começa a tocar se clicar em assistir vídeo
+            document.querySelectorAll('.watch-video-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    playMusic();
+                });
+            });
+        }
     }
 
     // Interatividade da Tabela de Planos (Seleção de Formato e Upsell Multiformato)
+    function selectPlanCard(selectedCard) {
+        document.querySelectorAll('.plan-card').forEach(c => {
+            if (c !== selectedCard) {
+                c.classList.remove('featured');
+                const checkbox = c.querySelector('.upsell-checkbox');
+                if (checkbox && checkbox.checked) {
+                    checkbox.checked = false;
+                    // Força a atualização do preço e estado visual do checkbox desmarcado
+                    checkbox.dispatchEvent(new Event('change'));
+                }
+            }
+        });
+        selectedCard.classList.add('featured');
+    }
+
     document.querySelectorAll('.plan-card').forEach(card => {
+        // Seleção do Card ao Clicar (Torna o plano selecionado/featured)
+        card.addEventListener('click', (e) => {
+            // Se clicar em elementos de controle internos (botões, seletores, checkbox), ignora a seleção do card
+            if (e.target.closest('.plan-buy-btn') || e.target.closest('.format-btn') || e.target.closest('.upsell-checkbox-container')) {
+                return;
+            }
+            selectPlanCard(card);
+        });
+
         const formatBtns = card.querySelectorAll('.format-btn');
         const upsellCheckbox = card.querySelector('.upsell-checkbox');
         const priceDisplay = card.querySelector('.price-display');
@@ -507,6 +585,9 @@ document.addEventListener('DOMContentLoaded', () => {
         formatBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
+                // Seleciona automaticamente este card de plano e desmarca outros upsells
+                selectPlanCard(card);
+
                 formatBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 
@@ -525,7 +606,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Atualizar preço dinamicamente ao marcar/desmarcar o Upsell Multiformato
         if (upsellCheckbox) {
-            upsellCheckbox.addEventListener('change', () => {
+            upsellCheckbox.addEventListener('change', (e) => {
+                // Se foi um evento simulado (desmarcando por causa da troca de card), evita loop infinito
+                if (e.isTrigger || !upsellCheckbox.checked) {
+                    // apenas atualiza o preço para o original
+                    const formatted = basePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const parts = formatted.split(',');
+                    amountSpan.textContent = parts[0];
+                    if (centsSpan) centsSpan.textContent = ',00';
+                    if (subtitleSpan) subtitleSpan.textContent = 'Formato único à escolha (Horizontal ou Vertical)';
+                    return;
+                }
+
+                // Seleciona automaticamente este card de plano e desmarca outros upsells
+                selectPlanCard(card);
+
                 if (upsellCheckbox.checked) {
                     const totalPrice = basePrice + upsellPrice;
                     const formatted = totalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -572,276 +667,242 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // Inicialização do Fundo de Galáxia WebGL (OGL)
+    // Inicialização do Fundo de Raios de Luz WebGL (OGL)
     function initGalaxy() {
         const ctn = document.getElementById('galaxyBg');
         if (!ctn || !window.ogl) return;
 
-        const { Renderer, Program, Mesh, Color, Triangle } = window.ogl;
-
-        // Configurações padrão do componente
-        const focal = [0.5, 0.5];
-        const rotation = [1.0, 0.0];
-        const starSpeed = 0.5;
-        const density = 0.7; // Restaurado para 0.7
-        const hueShift = 360; // Atualizado de 140 para 360
-        const disableAnimation = false;
-        const speed = 1.0;
-        const mouseInteraction = true; // Mantido ativo
-        const glowIntensity = 0.3; // Restaurado para 0.3
-        const saturation = 0.6; // Atualizado de 0.0 para 0.6 (adiciona cor suave às estrelas)
-        const mouseRepulsion = false; // Desativado (muda para o efeito de paralaxe suave)
-        const repulsionStrength = 2;
-        const twinkleIntensity = 0.3;
-        const rotationSpeed = 0.1;
-        const autoCenterRepulsion = 0;
-        const transparent = true;
-
-        const targetMousePos = { x: 0.5, y: 0.5 };
-        const smoothMousePos = { x: 0.5, y: 0.5 };
-        let targetMouseActive = 0.0;
-        let smoothMouseActive = 0.0;
+        const { Renderer, Program, Mesh, Triangle } = window.ogl;
 
         const renderer = new Renderer({
-            alpha: transparent,
-            premultipliedAlpha: false
+            dpr: Math.min(window.devicePixelRatio, 2),
+            alpha: true
         });
         const gl = renderer.gl;
+        gl.canvas.style.width = '100%';
+        gl.canvas.style.height = '100%';
 
-        if (transparent) {
-            gl.enable(gl.BLEND);
-            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-            gl.clearColor(0, 0, 0, 0);
-        } else {
-            gl.clearColor(0, 0, 0, 1);
+        while (ctn.firstChild) {
+            ctn.removeChild(ctn.firstChild);
         }
-
-        let program;
-
-        function resize() {
-            const scale = 1;
-            renderer.setSize(ctn.offsetWidth * scale, ctn.offsetHeight * scale);
-            if (program) {
-                program.uniforms.uResolution.value = new Color(
-                    gl.canvas.width,
-                    gl.canvas.height,
-                    gl.canvas.width / gl.canvas.height
-                );
-            }
-        }
-        window.addEventListener('resize', resize, false);
-
-        const vertexShader = `
-        attribute vec2 uv;
-        attribute vec2 position;
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = vec4(position, 0, 1);
-        }
-        `;
-
-        const fragmentShader = `
-        precision highp float;
-        uniform float uTime;
-        uniform vec3 uResolution;
-        uniform vec2 uFocal;
-        uniform vec2 uRotation;
-        uniform float uStarSpeed;
-        uniform float uDensity;
-        uniform float uHueShift;
-        uniform float uSpeed;
-        uniform vec2 uMouse;
-        uniform float uGlowIntensity;
-        uniform float uSaturation;
-        uniform bool uMouseRepulsion;
-        uniform float uTwinkleIntensity;
-        uniform float uRotationSpeed;
-        uniform float uRepulsionStrength;
-        uniform float uMouseActiveFactor;
-        uniform float uAutoCenterRepulsion;
-        uniform bool uTransparent;
-        varying vec2 vUv;
-        #define NUM_LAYER 4.0
-        #define STAR_COLOR_CUTOFF 0.2
-        #define MAT45 mat2(0.7071, -0.7071, 0.7071, 0.7071)
-        #define PERIOD 3.0
-        float Hash21(vec2 p) {
-          p = fract(p * vec2(123.34, 456.21));
-          p += dot(p, p + 45.32);
-          return fract(p.x * p.y);
-        }
-        float tri(float x) {
-          return abs(fract(x) * 2.0 - 1.0);
-        }
-        float tris(float x) {
-          float t = fract(x);
-          return 1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0));
-        }
-        float trisn(float x) {
-          float t = fract(x);
-          return 2.0 * (1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0))) - 1.0;
-        }
-        vec3 hsv2rgb(vec3 c) {
-          vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-          vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-          return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-        }
-        float Star(vec2 uv, float flare) {
-          float d = length(uv);
-          float m = (0.05 * uGlowIntensity) / d;
-          float rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
-          m += rays * flare * uGlowIntensity;
-          uv *= MAT45;
-          rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
-          m += rays * 0.3 * flare * uGlowIntensity;
-          m *= smoothstep(1.0, 0.2, d);
-          return m;
-        }
-        vec3 StarLayer(vec2 uv) {
-          vec3 col = vec3(0.0);
-          vec2 gv = fract(uv) - 0.5; 
-          vec2 id = floor(uv);
-          for (int y = -1; y <= 1; y++) {
-            for (int x = -1; x <= 1; x++) {
-              vec2 offset = vec2(float(x), float(y));
-              vec2 si = id + vec2(float(x), float(y));
-              float seed = Hash21(si);
-              float size = fract(seed * 345.32);
-              float flareSize = smoothstep(0.9, 1.0, size) * tri(uStarSpeed / (PERIOD * seed + 1.0));
-              float red = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 1.0)) + STAR_COLOR_CUTOFF;
-              float blu = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 3.0)) + STAR_COLOR_CUTOFF;
-              float grn = min(red, blu) * seed;
-              vec3 base = vec3(red, grn, blu);
-              float hue = atan(base.g - base.r, base.b - base.r) / (2.0 * 3.14159) + 0.5;
-              hue = fract(hue + uHueShift / 360.0);
-              float sat = length(base - vec3(dot(base, vec3(0.299, 0.587, 0.114)))) * uSaturation;
-              float val = max(max(base.r, base.g), base.b);
-              base = hsv2rgb(vec3(hue, sat, val));
-              vec2 pad = vec2(tris(seed * 34.0 + uTime * uSpeed / 10.0), tris(seed * 38.0 + uTime * uSpeed / 30.0)) - 0.5;
-              float star = Star(gv - offset - pad, flareSize);
-              vec3 color = base;
-              float twinkle = trisn(uTime * uSpeed + seed * 6.2831) * 0.5 + 1.0;
-              twinkle = mix(1.0, twinkle, uTwinkleIntensity);
-              star *= twinkle;
-              col += star * size * color;
-            }
-          }
-          return col;
-        }
-        void main() {
-          vec2 focalPx = uFocal * uResolution.xy;
-          vec2 uv = (vUv * uResolution.xy - focalPx) / uResolution.y;
-          vec2 mouseNorm = uMouse - vec2(0.5);
-          if (uAutoCenterRepulsion > 0.0) {
-            vec2 centerUV = vec2(0.0, 0.0);
-            float centerDist = length(uv - centerUV);
-            vec2 repulsion = normalize(uv - centerUV) * (uAutoCenterRepulsion / (centerDist + 0.1));
-            uv += repulsion * 0.05;
-          } else if (uMouseRepulsion) {
-            vec2 mousePosUV = (uMouse * uResolution.xy - focalPx) / uResolution.y;
-            float mouseDist = length(uv - mousePosUV);
-            vec2 repulsion = normalize(uv - mousePosUV) * (uRepulsionStrength / (mouseDist + 0.1));
-            uv += repulsion * 0.05 * uMouseActiveFactor;
-          } else {
-            vec2 mouseOffset = mouseNorm * 0.1 * uMouseActiveFactor;
-            uv += mouseOffset;
-          }
-          float autoRotAngle = uTime * uRotationSpeed;
-          mat2 autoRot = mat2(cos(autoRotAngle), -sin(autoRotAngle), sin(autoRotAngle), cos(autoRotAngle));
-          uv = autoRot * uv;
-          uv = mat2(uRotation.x, -uRotation.y, uRotation.y, uRotation.x) * uv;
-          vec3 col = vec3(0.0);
-          for (float i = 0.0; i < 1.0; i += 1.0 / NUM_LAYER) {
-            float depth = fract(i + uStarSpeed * uSpeed);
-            float scale = mix(20.0 * uDensity, 0.5 * uDensity, depth);
-            float fade = depth * smoothstep(1.0, 0.9, depth);
-            col += StarLayer(uv * scale + i * 453.32) * fade;
-          }
-          if (uTransparent) {
-            float alpha = length(col);
-            alpha = smoothstep(0.0, 0.3, alpha);
-            alpha = min(alpha, 1.0);
-            gl_FragColor = vec4(col * alpha, alpha);
-          } else {
-            gl_FragColor = vec4(col, 1.0);
-          }
-        }
-        `;
-
-        const geometry = new Triangle(gl);
-        program = new Program(gl, {
-            vertex: vertexShader,
-            fragment: fragmentShader,
-            uniforms: {
-                uTime: { value: 0 },
-                uResolution: {
-                    value: new Color(gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height)
-                },
-                uFocal: { value: new Float32Array(focal) },
-                uRotation: { value: new Float32Array(rotation) },
-                uStarSpeed: { value: starSpeed },
-                uDensity: { value: density },
-                uHueShift: { value: hueShift },
-                uSpeed: { value: speed },
-                uMouse: {
-                    value: new Float32Array([smoothMousePos.x, smoothMousePos.y])
-                },
-                uGlowIntensity: { value: glowIntensity },
-                uSaturation: { value: saturation },
-                uMouseRepulsion: { value: mouseRepulsion },
-                uTwinkleIntensity: { value: twinkleIntensity },
-                uRotationSpeed: { value: rotationSpeed },
-                uRepulsionStrength: { value: repulsionStrength },
-                uMouseActiveFactor: { value: 0.0 },
-                uAutoCenterRepulsion: { value: autoCenterRepulsion },
-                uTransparent: { value: transparent }
-            }
-        });
-
-        const mesh = new Mesh(gl, { geometry, program });
-        let animateId;
-
-        function update(t) {
-            animateId = requestAnimationFrame(update);
-            if (!disableAnimation) {
-                program.uniforms.uTime.value = t * 0.001;
-                program.uniforms.uStarSpeed.value = (t * 0.001 * starSpeed) / 10.0;
-            }
-
-            const lerpFactor = 0.05;
-            smoothMousePos.x += (targetMousePos.x - smoothMousePos.x) * lerpFactor;
-            smoothMousePos.y += (targetMousePos.y - smoothMousePos.y) * lerpFactor;
-            smoothMouseActive += (targetMouseActive - smoothMouseActive) * lerpFactor;
-
-            program.uniforms.uMouse.value[0] = smoothMousePos.x;
-            program.uniforms.uMouse.value[1] = smoothMousePos.y;
-            program.uniforms.uMouseActiveFactor.value = smoothMouseActive;
-
-            renderer.render({ scene: mesh });
-        }
-
-        resize();
-        animateId = requestAnimationFrame(update);
         ctn.appendChild(gl.canvas);
 
-        function handleMouseMove(e) {
-            const rect = ctn.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / rect.width;
-            const y = 1.0 - (e.clientY - rect.top) / rect.height;
-            targetMousePos.x = x;
-            targetMousePos.y = y;
-            targetMouseActive = 1.0;
+        const vert = `
+attribute vec2 position;
+varying vec2 vUv;
+void main() {
+  vUv = position * 0.5 + 0.5;
+  gl_Position = vec4(position, 0.0, 1.0);
+}`;
+
+        const frag = `precision highp float;
+
+uniform float iTime;
+uniform vec2  iResolution;
+
+uniform vec2  rayPos;
+uniform vec2  rayDir;
+uniform vec3  raysColor;
+uniform float raysSpeed;
+uniform float lightSpread;
+uniform float rayLength;
+uniform float pulsating;
+uniform float fadeDistance;
+uniform float saturation;
+uniform vec2  mousePos;
+uniform float mouseInfluence;
+uniform float noiseAmount;
+uniform float distortion;
+
+varying vec2 vUv;
+
+float noise(vec2 st) {
+  return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+}
+
+float rayStrength(vec2 raySource, vec2 rayRefDirection, vec2 coord,
+                  float seedA, float seedB, float speed) {
+  vec2 sourceToCoord = coord - raySource;
+  vec2 dirNorm = normalize(sourceToCoord);
+  float cosAngle = dot(dirNorm, rayRefDirection);
+
+  float distortedAngle = cosAngle + distortion * sin(iTime * 2.0 + length(sourceToCoord) * 0.01) * 0.2;
+  
+  float spreadFactor = pow(max(distortedAngle, 0.0), 1.0 / max(lightSpread, 0.001));
+
+  float distance = length(sourceToCoord);
+  float maxDistance = iResolution.x * rayLength;
+  float lengthFalloff = clamp((maxDistance - distance) / maxDistance, 0.0, 1.0);
+  
+  float fadeFalloff = clamp((iResolution.x * fadeDistance - distance) / (iResolution.x * fadeDistance), 0.5, 1.0);
+  float pulse = pulsating > 0.5 ? (0.8 + 0.2 * sin(iTime * speed * 3.0)) : 1.0;
+
+  float baseStrength = clamp(
+    (0.45 + 0.15 * sin(distortedAngle * seedA + iTime * speed)) +
+    (0.3 + 0.2 * cos(-distortedAngle * seedB + iTime * speed)),
+    0.0, 1.0
+  );
+
+  return baseStrength * lengthFalloff * fadeFalloff * spreadFactor * pulse;
+}
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+  vec2 coord = vec2(fragCoord.x, iResolution.y - fragCoord.y);
+  
+  vec2 finalRayDir = rayDir;
+  if (mouseInfluence > 0.0) {
+    vec2 mouseScreenPos = mousePos * iResolution.xy;
+    vec2 mouseDirection = normalize(mouseScreenPos - rayPos);
+    finalRayDir = normalize(mix(rayDir, mouseDirection, mouseInfluence));
+  }
+
+  vec4 rays1 = vec4(1.0) *
+               rayStrength(rayPos, finalRayDir, coord, 36.2214, 21.11349,
+                           1.5 * raysSpeed);
+  vec4 rays2 = vec4(1.0) *
+               rayStrength(rayPos, finalRayDir, coord, 22.3991, 18.0234,
+                           1.1 * raysSpeed);
+
+  fragColor = rays1 * 0.5 + rays2 * 0.4;
+
+  if (noiseAmount > 0.0) {
+    float n = noise(coord * 0.01 + iTime * 0.1);
+    fragColor.rgb *= (1.0 - noiseAmount + noiseAmount * n);
+  }
+
+  float brightness = 1.0 - (coord.y / iResolution.y);
+  fragColor.x *= mix(0.61, 0.9, brightness);
+  fragColor.y *= mix(0.45, 0.9, brightness);
+  fragColor.z *= mix(0.28, 1.0, brightness);
+
+  if (saturation != 1.0) {
+    float gray = dot(fragColor.rgb, vec3(0.299, 0.587, 0.114));
+    fragColor.rgb = mix(vec3(gray), fragColor.rgb, saturation);
+  }
+
+  fragColor.rgb *= raysColor;
+}
+
+void main() {
+  vec4 color;
+  mainImage(color, gl_FragCoord.xy);
+  gl_FragColor  = color;
+}`;
+
+        const hexToRgb = (hex) => {
+            const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return m ? [parseInt(m[1], 16) / 255, parseInt(m[2], 16) / 255, parseInt(m[3], 16) / 255] : [1, 1, 1];
+        };
+
+        const getAnchorAndDir = (origin, w, h) => {
+            const outside = 0.2;
+            switch (origin) {
+                case 'top-left':
+                    return { anchor: [0, -outside * h], dir: [0, 1] };
+                case 'top-right':
+                    return { anchor: [w, -outside * h], dir: [0, 1] };
+                case 'left':
+                    return { anchor: [-outside * w, 0.5 * h], dir: [1, 0] };
+                case 'right':
+                    return { anchor: [(1 + outside) * w, 0.5 * h], dir: [-1, 0] };
+                case 'bottom-left':
+                    return { anchor: [0, (1 + outside) * h], dir: [0, -1] };
+                case 'bottom-center':
+                    return { anchor: [0.5 * w, (1 + outside) * h], dir: [0, -1] };
+                case 'bottom-right':
+                    return { anchor: [w, (1 + outside) * h], dir: [0, -1] };
+                default: // "top-center"
+                    return { anchor: [0.5 * w, -outside * h], dir: [0, 1] };
+            }
+        };
+
+        const raysColor = '#ffffff';
+        const raysOrigin = 'top-center';
+        const raysSpeed = 1.0;
+        const lightSpread = 1.0;
+        const rayLength = 2.0;
+        const pulsating = false;
+        const fadeDistance = 1.0;
+        const saturation = 1.0;
+        const followMouse = true;
+        const mouseInfluence = 0.1;
+        const noiseAmount = 0.0;
+        const distortion = 0.0;
+
+        const uniforms = {
+            iTime: { value: 0 },
+            iResolution: { value: [1, 1] },
+            rayPos: { value: [0, 0] },
+            rayDir: { value: [0, 1] },
+            raysColor: { value: hexToRgb(raysColor) },
+            raysSpeed: { value: raysSpeed },
+            lightSpread: { value: lightSpread },
+            rayLength: { value: rayLength },
+            pulsating: { value: pulsating ? 1.0 : 0.0 },
+            fadeDistance: { value: fadeDistance },
+            saturation: { value: saturation },
+            mousePos: { value: [0.5, 0.5] },
+            mouseInfluence: { value: mouseInfluence },
+            noiseAmount: { value: noiseAmount },
+            distortion: { value: distortion }
+        };
+
+        const geometry = new Triangle(gl);
+        const program = new Program(gl, {
+            vertex: vert,
+            fragment: frag,
+            uniforms
+        });
+        const mesh = new Mesh(gl, { geometry, program });
+
+        const updatePlacement = () => {
+            if (!ctn) return;
+            renderer.dpr = Math.min(window.devicePixelRatio, 2);
+            const wCSS = ctn.clientWidth;
+            const hCSS = ctn.clientHeight;
+            renderer.setSize(wCSS, hCSS);
+            const dpr = renderer.dpr;
+            const w = wCSS * dpr;
+            const h = hCSS * dpr;
+            uniforms.iResolution.value = [w, h];
+            const { anchor, dir } = getAnchorAndDir(raysOrigin, w, h);
+            uniforms.rayPos.value = anchor;
+            uniforms.rayDir.value = dir;
+        };
+
+        const mouse = { x: 0.5, y: 0.5 };
+        const smoothMouse = { x: 0.5, y: 0.5 };
+
+        if (followMouse) {
+            window.addEventListener('mousemove', (e) => {
+                const rect = ctn.getBoundingClientRect();
+                mouse.x = (e.clientX - rect.left) / rect.width;
+                mouse.y = (e.clientY - rect.top) / rect.height;
+            });
         }
 
-        function handleMouseLeave() {
-            targetMouseActive = 0.0;
-        }
+        let animationFrameId;
+        const loop = (t) => {
+            uniforms.iTime.value = t * 0.001;
 
-        if (mouseInteraction) {
-            ctn.addEventListener('mousemove', handleMouseMove);
-            ctn.addEventListener('mouseleave', handleMouseLeave);
-        }
+            if (followMouse && mouseInfluence > 0.0) {
+                const smoothing = 0.92;
+                smoothMouse.x = smoothMouse.x * smoothing + mouse.x * (1 - smoothing);
+                smoothMouse.y = smoothMouse.y * smoothing + mouse.y * (1 - smoothing);
+                uniforms.mousePos.value = [smoothMouse.x, smoothMouse.y];
+            }
+
+            try {
+                renderer.render({ scene: mesh });
+                animationFrameId = requestAnimationFrame(loop);
+            } catch (error) {
+                console.warn('WebGL rendering error:', error);
+            }
+        };
+
+        window.addEventListener('resize', updatePlacement);
+        updatePlacement();
+        animationFrameId = requestAnimationFrame(loop);
     }
 
     initGalaxy();

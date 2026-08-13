@@ -6,21 +6,22 @@
 /* Variables / Design System */
 :root {
     /* Color Palette */
-    --bg-main: #ffffff;
-    --bg-card: #221812; /* Fundo dos cards puxado para marrom ferroso escuro */
-    --bg-card-hover: #2e2118; /* Hover dos cards puxado para marrom ferroso médio */
-    --bg-glass: rgba(34, 24, 18, 0.75); /* Fundo de vidro com tom marrom ferroso */
+    --bg-main: #06111a; /* Fundo do site adaptado para o novo WebGL LightRays (azul oceano escuro) */
+    --bg-card: rgba(13, 27, 42, 0.28); /* Fundo dos cards azul marinho/teal translúcido */
+    --bg-card-hover: rgba(22, 44, 68, 0.42); /* Hover dos cards */
+    --bg-glass: rgba(13, 27, 42, 0.75); /* Fundo de vidro */
     
-    --text-primary: #e5dacb; /* Tom champagne areia claro capturado da palavra memories do logotipo */
-    --text-secondary: #4a3625; /* Tom marrom ferroso escuro para textos descritivos */
-    --text-dark: #1a1a1a;
+    --text-primary: #e2eff5; /* Tom champagne areia azulado claro */
+    --text-secondary: #b3b3b3; /* Cinza claro sólido para textos descritivos e cards */
+    --text-dark: #06111a;
     
     /* Branding Hex Colors */
-    --brand-dark: #1a1a1a;
-    --brand-gold: #9c7247; /* Tom marrom ferroso capturado do logotipo */
+    --brand-dark: #06111a;
+    --brand-gold: #9c7247;
     --brand-gold-glow: rgba(156, 114, 71, 0.25);
-    --brand-metallic: linear-gradient(135deg, #7c5128 0%, #e6cca7 50%, #523114 100%);
-    --brand-smoke: #8a8583;
+    --brand-metallic: linear-gradient(135deg, #9c7247 0%, #c39c6b 50%, #f6e3c5 100%);
+    --brand-smoke: #8496a3;
+    --brand-metallic-earth: linear-gradient(135deg, #9c7247 0%, #c39c6b 30%, #f6e3c5 70%, #9c7247 100%);
     
     /* Typography */
     --font-primary: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -85,6 +86,24 @@ html.disable-snap {
 body {
     overflow-x: hidden;
     min-height: 100vh;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -20;
+    background-image: url('bg_01.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    filter: blur(10px); /* Ajuste o valor para mais ou menos desfoque */
+    transform: scale(1.04); /* Escala ligeiramente para evitar que as bordas da tela fiquem brancas/borradas */
+    pointer-events: none;
 }
 
 a {
@@ -188,7 +207,8 @@ img, video {
     display: inline-block;
     font-family: 'Allura', cursive;
     font-size: clamp(1.5rem, 2.8vw, 2.5rem);
-    color: var(--brand-gold);
+    color: #e5c378;
+    text-shadow: 0 0 8px rgba(229, 195, 120, 0.6), 0 0 16px rgba(229, 195, 120, 0.3);
     margin-bottom: 8px;
     font-weight: 400;
     text-transform: none;
@@ -229,7 +249,7 @@ img, video {
 
 .brand-logo:hover {
     transform: scale(1.04);
-    filter: drop-shadow(0 2px 8px rgba(156, 114, 71, 0.35));
+    filter: drop-shadow(0 0 6px #e5c378) drop-shadow(0 0 12px rgba(229, 195, 120, 0.6));
 }
 
 .logo-img {
@@ -277,25 +297,43 @@ img, video {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 14px 28px;
+    padding: 12.5px 26.5px; /* Ajustado compensando a borda de 2.5px */
     border-radius: var(--radius-full);
     font-weight: 500;
     font-size: 0.95rem;
     transition: var(--transition-smooth);
     cursor: pointer;
-    border: 1px solid transparent;
+    border: 2.5px solid transparent;
+    box-shadow: 0 0 12px rgba(229, 195, 120, 0.3), 0 0 25px rgba(156, 114, 71, 0.15); /* Glow sutil mas brilhante */
+}
+
+.btn:hover {
+    border-color: #e5c378; /* Borda dourada no hover */
+    box-shadow: 0 0 15px #e5c378, 0 0 35px rgba(229, 195, 120, 0.7), 0 0 60px rgba(156, 114, 71, 0.5); /* Glow intenso dourado */
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #9c7247 0%, #76522f 100%);
+    background: linear-gradient(135deg, #9c7247 0%, #7d5b38 100%);
     color: #ffffff;
-    box-shadow: 0 4px 20px var(--brand-gold-glow);
+    box-shadow: 0 0 15px rgba(229, 195, 120, 0.4), 0 0 30px rgba(156, 114, 71, 0.2);
     font-weight: 600;
+    border-color: #9c7247; /* Define cor da borda sólida para evitar artefatos visuais de transparência */
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(156, 114, 71, 0.4);
+    color: #e5c378; /* Texto dourado no hover */
+    border-color: #e5c378; /* Borda dourada igual à da galeria */
+    box-shadow: 0 0 20px #e5c378, 0 0 45px rgba(229, 195, 120, 0.8), 0 0 75px rgba(156, 114, 71, 0.6);
+}
+
+.btn-primary:hover svg {
+    stroke: #e5c378 !important;
+}
+
+/* Apenas preenche o triângulo de play com dourado */
+.btn-primary:hover svg.lucide-play {
+    fill: #e5c378 !important;
 }
 
 .btn-secondary {
@@ -303,11 +341,13 @@ img, video {
     color: var(--text-primary);
     border-color: var(--border-subtle);
     backdrop-filter: blur(10px);
+    box-shadow: 0 0 10px rgba(229, 195, 120, 0.2);
 }
 
 .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: var(--border-gold);
+    border-color: #e5c378; /* Borda brilha em dourado */
+    box-shadow: 0 0 15px #e5c378, 0 0 35px rgba(229, 195, 120, 0.6);
 }
 
 .btn-ghost {
@@ -316,6 +356,7 @@ img, video {
 
 .btn-ghost:hover {
     color: var(--text-primary);
+    box-shadow: 0 0 15px rgba(229, 195, 120, 0.5), 0 0 30px rgba(156, 114, 71, 0.3);
 }
 
 .btn-large {
@@ -364,16 +405,18 @@ img, video {
 }
 
 .nav-links a {
-    color: var(--text-secondary);
+    color: #b3b3b3;
     font-size: 0.9rem;
-    font-weight: 700;
+    font-weight: 500;
     transition: var(--transition-fast);
     position: relative;
 }
 
-.nav-links a:hover {
-    color: var(--brand-gold);
-    text-shadow: 0 0 10px rgba(197, 160, 89, 0.4);
+.nav-links a:hover,
+.nav-links a:active,
+.nav-links a.active {
+    color: #e5c378;
+    text-shadow: 0 0 8px #e5c378, 0 0 20px rgba(229, 195, 120, 0.8), 0 0 35px rgba(156, 114, 71, 0.5);
 }
 
 /* Dobra 1: Hero Section */
@@ -455,6 +498,7 @@ img, video {
     filter: blur(8px); /* Reduzido de 25px para 8px, pois o downscaling no JS já provê suavização natural de forma ultra-leve */
     opacity: 0.85;
     pointer-events: none;
+    display: none !important; /* Desabilitado temporariamente para testar imagem de fundo */
 }
 
 .hero-content {
@@ -488,17 +532,16 @@ img, video {
 }
 
 .hero-title {
-    font-family: var(--font-serif);
-    font-size: clamp(1.8rem, 3.6vw, 3.8rem); /* Ajustado dinamicamente para manter a frase longa sem quebra no desktop */
-    font-weight: 300;
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(1.6rem, 2.8vw, 3.0rem); /* Reduzido para ficar mais proporcional com a fonte Inter */
+    font-weight: 700;
     line-height: 1.2;
     letter-spacing: -0.5px;
     margin-bottom: 4px;
     text-align: center;
     width: 100%;
     max-width: 100%;
-    text-transform: none; /* Desativa uppercase automático para manter a elegância e delicadeza */
-    text-shadow: 0 4px 24px rgba(255, 255, 255, 0.95);
+    text-transform: none; /* Mantém a caixa original */
     
     /* Efeito de revelação com fade-in e desfoque inicial global no título todo */
     opacity: 0;
@@ -511,7 +554,6 @@ img, video {
 .hero-title .title-line-1 {
     display: block;
     color: var(--text-primary);
-    text-shadow: 0 2px 12px rgba(255, 255, 255, 0.9);
     text-align: center;
 }
 
@@ -547,11 +589,10 @@ img, video {
 
 .hero-title .title-highlight {
     font-weight: 700;
-    background: var(--brand-metallic);
+    background: var(--brand-metallic-earth);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     display: inline-block;
-    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.95), 0 0 15px rgba(255, 255, 255, 0.5); /* Sombra de alto contraste para separar do fundo */
     letter-spacing: 0.5px;
 }
 
@@ -570,10 +611,9 @@ img, video {
     font-size: 1.45em; /* Aumentado por ser manuscrito */
     font-weight: 400;
     font-style: normal;
-    background: var(--brand-metallic);
+    background: var(--brand-metallic-earth);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.95), 0 0 15px rgba(255, 255, 255, 0.5); /* Sombra de alto contraste */
     display: inline-block;
     vertical-align: middle;
     text-transform: none;
@@ -597,9 +637,9 @@ img, video {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex: 0 0 auto; /* Alterado de 1 para 0 0 auto para permitir crescimento responsivo da galeria */
+    flex: 0 0 auto;
     width: 100%;
-    margin: 10px 0 0 0;
+    margin: -8px 0 0 0; /* Ajuste para subir o título ligeiramente sem mover a galeria */
     text-align: center;
 }
 
@@ -614,15 +654,13 @@ img, video {
 
 .hero-subtitle {
     font-size: clamp(0.85rem, 1.1vw, 1.05rem); /* Tamanho de fonte ideal para leitura premium */
-    color: var(--text-secondary);
+    color: #ffffff;
     font-weight: 300;
     width: 100%;
-    margin: 0 auto 24px auto;
+    margin: 16px auto 8px auto; /* Aumentado o topo para empurrar o texto para baixo e reduzido o rodapé para aproximar do botão */
     line-height: 1.6;
-    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9);
     max-width: 1350px; /* Alinhado exatamente com o limite lateral do cabeçalho */
-    text-align: justify; /* Estica o texto para tocar a margem esquerda e direita */
-    text-align-last: justify; /* Garante que a segunda linha também se espalhe uniformemente até a margem direita */
+    text-align: center; /* Centraliza o texto de forma limpa e harmônica, evitando espaçamentos forçados */
 }
 
 .hero-content .slide-actions {
@@ -722,8 +760,8 @@ img, video {
     z-index: 10;
     font-size: 0.55rem;
     font-weight: 700;
-    color: var(--brand-gold); /* Texto dourado contrastando com o fundo escuro */
-    background: #141416; /* Fundo escuro igual ao card, criando alto contraste com o botão dourado */
+    color: #ffffff; /* Texto branco */
+    background: var(--bg-main); /* Fundo igual ao do site */
     border: 1px solid var(--brand-gold); /* Borda dourada nítida */
     padding: 2px 8px;
     border-radius: var(--radius-full);
@@ -795,6 +833,10 @@ img, video {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     width: 100%;
+    margin: 24px auto 10px auto; /* Afasta do título e aproxima do rodapé, igual ao slide 1 */
+    flex: 1 1 auto !important; /* Mesma altura flexível */
+    min-height: 220px;
+    max-height: 580px;
 }
 
 .step-card {
@@ -805,8 +847,12 @@ img, video {
     padding: 30px 22px;
     position: relative;
     transition: var(--transition-smooth);
-    min-height: auto;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%; /* Estica para ocupar toda a célula do grid */
+    box-sizing: border-box;
 }
 
 .step-card:hover {
@@ -821,7 +867,7 @@ img, video {
     right: 30px;
     font-size: 2.5rem;
     font-weight: 800;
-    color: rgba(255, 255, 255, 0.05);
+    color: rgba(229, 195, 120, 0.15); /* Dourado suave a 15% para melhor visibilidade e elegância */
 }
 
 .step-icon {
@@ -836,10 +882,21 @@ img, video {
     margin-bottom: 24px;
 }
 
+.steps-subtitle {
+    text-align: center;
+    max-width: 900px;
+    margin: 25px auto 0 auto !important;
+    color: #ffffff;
+    font-size: clamp(0.85rem, 1.1vw, 1.05rem);
+    line-height: 1.6;
+}
+
 .step-card h3 {
     font-size: 1.4rem;
     font-weight: 600;
     margin-bottom: 12px;
+    color: #e5c378; /* Titulo dourado */
+    text-shadow: 0 0 8px rgba(229, 195, 120, 0.4); /* Efeito glow sutil */
 }
 
 .step-card p {
@@ -868,6 +925,10 @@ img, video {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     width: 100%;
+    margin: 24px auto 10px auto; /* Afasta do título e aproxima do rodapé, igual ao slide 1 */
+    flex: 1 1 auto !important; /* Mesma altura flexível */
+    min-height: 220px;
+    max-height: 580px;
 }
 
 .case-card {
@@ -878,11 +939,12 @@ img, video {
     transition: var(--transition-smooth);
     display: flex;
     flex-direction: column;
-    min-height: auto;
     width: 100%;
     margin: 0;
     scroll-snap-align: none;
     scroll-snap-stop: normal;
+    height: 100%; /* Estica para ocupar toda a célula do grid */
+    box-sizing: border-box;
 }
 
 .case-card:hover {
@@ -925,9 +987,10 @@ img, video {
     font-size: 0.95rem;
     font-weight: 600;
     margin-bottom: 8px;
-    color: var(--text-primary);
+    color: #e5c378; /* Titulo dourado */
     text-align: center;
     white-space: nowrap;
+    text-shadow: 0 0 8px rgba(229, 195, 120, 0.4); /* Efeito glow sutil */
 }
 
 .case-content p {
@@ -955,7 +1018,10 @@ img, video {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     width: 100%;
-    margin-bottom: 0;
+    margin: 24px auto 10px auto; /* Afasta do título e aproxima do rodapé, igual ao slide 1 */
+    flex: 1 1 auto !important; /* Mesma altura flexível */
+    min-height: 220px;
+    max-height: 580px;
 }
 
 .testimonial-card {
@@ -965,7 +1031,6 @@ img, video {
     border-radius: var(--radius-lg);
     padding: 28px 22px;
     position: relative;
-    min-height: auto;
     width: 100%;
     margin: 0;
     display: flex;
@@ -975,6 +1040,8 @@ img, video {
     text-align: left;
     scroll-snap-align: none;
     scroll-snap-stop: normal;
+    height: 100%; /* Estica para ocupar toda a célula do grid */
+    box-sizing: border-box;
 }
 
 .testimonial-card:hover {
@@ -983,11 +1050,11 @@ img, video {
 
 .quote-icon {
     font-family: Georgia, serif;
-    font-size: 3.5rem;
-    color: var(--brand-gold);
-    opacity: 0.3;
+    font-size: 4.5rem;
+    color: #e5c378; /* Dourado brilhante */
+    opacity: 0.75;  /* Opacidade aumentada para maior visibilidade */
     line-height: 1;
-    margin-bottom: -15px;
+    margin-bottom: -22px;
 }
 
 .testimonial-text {
@@ -1024,6 +1091,7 @@ img, video {
 }
 
 .testimonial-user span {
+    display: block;
     font-size: 0.85rem;
     color: var(--text-secondary);
 }
@@ -1214,8 +1282,8 @@ img, video {
     }
 
     .quote-icon {
-        font-size: 1.6rem;
-        margin-bottom: -6px;
+        font-size: 2.2rem;
+        margin-bottom: -10px;
     }
 
     .testimonial-text {
@@ -1310,7 +1378,7 @@ img, video {
     max-width: 1400px !important;
     height: 100vh !important;
     margin: 0 auto !important;
-    padding: 84px 24px 85px 24px !important;
+    padding: 60px 24px 28px 24px !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
@@ -1369,7 +1437,7 @@ img, video {
     /* Navbar Mobile Alinhada na Mesma Linha */
     .navbar {
         padding: 12px 0 !important;
-        z-index: 2000 !important;
+        z-index: 200000 !important;
     }
 
     .nav-container {
@@ -1443,7 +1511,7 @@ img, video {
         padding: 20px 24px !important;
         gap: 14px !important;
         box-shadow: -8px 20px 40px rgba(0, 0, 0, 0.9) !important;
-        z-index: 2000 !important;
+        z-index: 200020 !important;
         box-sizing: border-box !important;
         border-radius: 0 0 0 var(--radius-md) !important;
     }
@@ -1467,18 +1535,20 @@ img, video {
         font-size: 1.1rem !important;
         padding: 14px 20px !important;
         text-align: center !important;
-        color: var(--text-primary) !important;
+        color: #b3b3b3 !important;
         border-bottom: 1px solid rgba(197, 160, 89, 0.15) !important;
         display: block !important;
-        font-weight: 700 !important;
+        font-weight: 500 !important;
         transition: var(--transition-fast) !important;
     }
 
     .nav-links a:active,
-    .nav-links a:hover {
-        color: var(--brand-gold) !important;
+    .nav-links a:hover,
+    .nav-links a.active {
+        color: #e5c378 !important;
         background: rgba(197, 160, 89, 0.08) !important;
         border-radius: var(--radius-sm) !important;
+        text-shadow: 0 0 8px #e5c378, 0 0 20px rgba(229, 195, 120, 0.8), 0 0 35px rgba(156, 114, 71, 0.5) !important;
     }
 
     .mobile-only-contact-btn {
@@ -1615,7 +1685,7 @@ img, video {
     .slide-layout-container.hero-content {
         height: 100dvh !important;
         min-height: 100dvh !important;
-        padding: 70px 16px 90px 16px !important;
+        padding: 50px 16px 28px 16px !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: space-between !important;
@@ -1856,9 +1926,10 @@ img, video {
     }
 
     .testimonial-user span {
+        display: block !important;
         font-size: clamp(0.55rem, 1.2dvh, 0.68rem) !important;
         color: var(--text-secondary) !important;
-    }
+     }
 }
 
 /* ==========================================================================
@@ -1981,15 +2052,15 @@ body.video-active .audio-player-widget {
     transition: opacity 0.4s ease, transform 0.4s ease !important;
 }
 
-/* Container do Vídeo: topo encosta na base do cabeçalho (~74px) e ocupa o resto da tela */
+/* Container do Vídeo: Ocupa 100% da tela para que o cabeçalho sobreponha o player de forma transparente */
 .video-container {
     position: absolute;
-    top: 74px;
+    top: 0;
     bottom: 0;
     left: 0;
     right: 0;
     width: 100%;
-    height: calc(100vh - 74px);
+    height: 100%;
     overflow: hidden;
 }
 
@@ -2047,8 +2118,10 @@ body.video-active .audio-player-widget {
 
 
     .hero-title {
-        font-family: var(--font-serif) !important;
-        font-size: 2.1rem !important; /* Tamanho ajustado para mobile ficar nítido e elegante */
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 700 !important;
+        text-transform: none !important;
+        font-size: 1.8rem !important; /* Reduzido para mobile */
         letter-spacing: -0.2px !important;
         line-height: 1.25 !important;
         margin-bottom: 16px !important;
@@ -2284,9 +2357,10 @@ body.video-active .audio-player-widget {
 .handwritten-title {
     font-family: var(--font-handwriting) !important;
     font-weight: 400 !important;
-    background: var(--brand-metallic) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
+    color: #e5c378 !important;
+    -webkit-text-fill-color: #e5c378 !important;
+    text-shadow: 0 0 8px rgba(229, 195, 120, 0.6), 0 0 16px rgba(229, 195, 120, 0.3) !important;
+    background: none !important;
     text-transform: none !important;
     letter-spacing: 0.5px !important;
     display: inline-block !important;
@@ -2316,13 +2390,13 @@ span.section-tag.handwritten-title {
     font-family: var(--font-handwriting) !important;
     text-transform: none !important;
     padding: 0 !important;
-    background: var(--brand-metallic) !important;
+    color: #e5c378 !important;
+    -webkit-text-fill-color: #e5c378 !important;
+    background: none !important;
     border: none !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
     margin-top: 0 !important;
     margin-bottom: 6px !important;
-    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8) !important;
+    text-shadow: 0 0 8px rgba(229, 195, 120, 0.6), 0 0 16px rgba(229, 195, 120, 0.3) !important;
     line-height: 1.2 !important;
 }
 
@@ -2390,8 +2464,10 @@ span.section-tag.handwritten-title {
     align-items: stretch !important;
     gap: 24px !important;
     width: 100% !important;
-    margin-top: 16px !important;
-    margin-bottom: 30px !important;
+    margin: 24px auto 10px auto !important; /* Afasta do título e aproxima do rodapé, igual ao slide 1 */
+    flex: 1 1 auto !important; /* Mesma altura flexível */
+    min-height: 220px;
+    max-height: 580px;
     box-sizing: border-box !important;
 }
 
@@ -2431,15 +2507,15 @@ span.section-tag.handwritten-title {
 
 .plan-card:hover {
     transform: translateY(-5px) !important;
-    border-color: var(--brand-gold) !important;
-    box-shadow: 0 16px 45px rgba(197, 160, 89, 0.25) !important;
+    border-color: #e5c378 !important;
+    box-shadow: 0 0 20px rgba(229, 195, 120, 0.6), 0 0 40px rgba(156, 114, 71, 0.4), 0 10px 30px rgba(0, 0, 0, 0.6) !important;
 }
 
 /* Card Em Destaque (Plano Emoção) */
 .plan-card.featured {
     background: linear-gradient(180deg, rgba(49, 39, 30, 0.4) 0%, rgba(34, 24, 18, 0.45) 100%) !important;
-    border: 1.5px solid var(--brand-gold) !important;
-    box-shadow: 0 16px 45px rgba(197, 160, 89, 0.3) !important;
+    border: 2.5px solid #e5c378 !important; /* Mesma borda da galeria */
+    box-shadow: 0 0 20px rgba(229, 195, 120, 0.6), 0 0 40px rgba(156, 114, 71, 0.4), 0 10px 30px rgba(0, 0, 0, 0.6) !important; /* Mesmo glow da galeria */
 }
 
 /* Badges */
@@ -2456,13 +2532,14 @@ span.section-tag.handwritten-title {
     letter-spacing: 0.5px !important;
     padding: 3px 12px !important;
     border-radius: var(--radius-full) !important;
+    transition: var(--transition-smooth) !important;
 }
 
-.plan-badge.featured-badge {
-    background: linear-gradient(135deg, #c5a059 0%, #a47e38 100%) !important;
+.plan-card.featured .plan-badge {
+    background: linear-gradient(135deg, #e5c378 0%, #a47e38 100%) !important;
     color: #fff !important;
     border: none !important;
-    box-shadow: 0 4px 12px rgba(197, 160, 89, 0.4) !important;
+    box-shadow: 0 4px 12px rgba(229, 195, 120, 0.4) !important;
 }
 
 .plan-top-info {
@@ -2480,8 +2557,15 @@ span.section-tag.handwritten-title {
 .plan-name {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--brand-gold); /* Titulo marrom por padrão */
     margin-bottom: 0;
+    text-shadow: none;
+    transition: var(--transition-smooth);
+}
+
+.plan-card.featured .plan-name {
+    color: #e5c378; /* Titulo dourado no card selecionado */
+    text-shadow: 0 0 8px rgba(229, 195, 120, 0.4); /* Glow no selecionado */
 }
 
 .plan-duration {
@@ -2490,8 +2574,13 @@ span.section-tag.handwritten-title {
     gap: 4px;
     font-size: 0.78rem;
     font-weight: 600;
-    color: var(--brand-gold);
+    color: var(--brand-gold); /* Marrom por padrão */
     margin-bottom: 0;
+    transition: var(--transition-smooth);
+}
+
+.plan-card.featured .plan-duration {
+    color: #e5c378; /* Dourado no selecionado */
 }
 
 .plan-duration svg {
@@ -2503,6 +2592,7 @@ span.section-tag.handwritten-title {
     font-size: 0.78rem;
     color: var(--text-secondary);
     line-height: 1.3;
+    text-align: justify; /* Alinhamento justificado */
 }
 
 /* Área de Preço Compacta */
@@ -2548,27 +2638,41 @@ span.section-tag.handwritten-title {
     margin-top: 2px;
 }
 
+/* Quadro de valor dourado no card selecionado */
+.plan-card.featured .price-display .currency,
+.plan-card.featured .price-display .cents,
+.plan-card.featured .price-subtitle {
+    color: #e5c378 !important;
+}
+
 /* Opções de Formato e Upsell Compactas */
 .plan-options {
     margin-bottom: 10px;
 }
 
 .option-group {
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
 }
 
 .option-label {
-    display: block;
-    font-size: 0.8rem;
+    display: inline-block !important;
+    font-size: 0.80rem;
     color: var(--text-primary);
     font-weight: 600;
-    margin-bottom: 5px;
+    margin-bottom: 0 !important;
+    white-space: nowrap !important;
 }
 
 .format-selector {
-    display: flex;
+    display: flex !important;
     gap: 4px;
-    width: 100%;
+    width: auto !important;
+    flex: 1 !important;
+    max-width: 185px !important;
 }
 
 .format-btn {
@@ -2594,10 +2698,26 @@ span.section-tag.handwritten-title {
 }
 
 .format-btn.active {
-    background: rgba(197, 160, 89, 0.2);
-    border-color: var(--brand-gold);
-    color: var(--brand-gold);
+    background: rgba(156, 114, 71, 0.15) !important;
+    border-color: var(--brand-gold) !important;
+    color: var(--brand-gold) !important;
     font-weight: 700;
+    box-shadow: none !important;
+}
+
+.format-btn.active svg {
+    stroke: var(--brand-gold) !important;
+}
+
+.plan-card.featured .format-btn.active {
+    background: rgba(229, 195, 120, 0.15) !important;
+    border-color: #e5c378 !important;
+    color: #e5c378 !important;
+    box-shadow: 0 0 10px rgba(229, 195, 120, 0.2) !important;
+}
+
+.plan-card.featured .format-btn.active svg {
+    stroke: #e5c378 !important;
 }
 
 .upsell-box {
@@ -2680,6 +2800,103 @@ span.section-tag.handwritten-title {
     padding: 9px 12px !important;
     font-size: 0.82rem !important;
     margin-top: auto;
+}
+
+/* Botão do card não selecionado (cinza discreto como a tag inativa) */
+.plan-card .plan-buy-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-secondary) !important; /* #b3b3b3 */
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* Hover no botão do card não selecionado */
+.plan-card .plan-buy-btn:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+.plan-card .plan-buy-btn:hover svg {
+    stroke: #ffffff !important;
+}
+
+/* Botão do card ativo/selecionado (dourado/destaque original) */
+.plan-card.featured .plan-buy-btn {
+    background: linear-gradient(135deg, #9c7247 0%, #7d5b38 100%) !important;
+    border: 2.5px solid #9c7247 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(156, 114, 71, 0.3) !important;
+}
+
+/* Hover do botão do card selecionado */
+.plan-card.featured .plan-buy-btn:hover {
+    background: transparent !important;
+    border-color: #e5c378 !important;
+    color: #e5c378 !important;
+    box-shadow: 0 0 20px #e5c378, 0 0 45px rgba(229, 195, 120, 0.8), 0 0 75px rgba(156, 114, 71, 0.6) !important;
+}
+
+.plan-card.featured .plan-buy-btn:hover svg {
+    stroke: #e5c378 !important;
+}
+
+/* Linha horizontal na base do card agrupando os itens contratados (features) e o botão de contratar lado a lado */
+.plan-features-buy-row {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    width: 100% !important;
+    margin-top: auto !important; /* Envia para a base do card */
+    box-sizing: border-box !important;
+}
+
+.plan-features-buy-row .plan-features {
+    flex: 1.2 !important;
+    margin-bottom: 0 !important;
+}
+
+.plan-features-buy-row .plan-buy-btn {
+    flex: 0.8 !important;
+    width: auto !important;
+    padding: 10px 8px !important;
+    font-size: 0.78rem !important;
+    white-space: nowrap !important;
+    margin-top: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+}
+
+/* Customizações do card selecionado para tornar todos os acentos marrons em dourado brilhante */
+.plan-card.featured .plan-features li svg {
+    color: #e5c378 !important;
+}
+
+.plan-card.featured .upsell-box {
+    background: rgba(229, 195, 120, 0.08) !important;
+    border: 1px dashed rgba(229, 195, 120, 0.4) !important;
+}
+
+.plan-card.featured .upsell-text strong {
+    color: #e5c378 !important;
+}
+
+.plan-card.featured .upsell-text small {
+    color: #e5c378 !important;
+}
+
+.plan-card.featured .upsell-checkbox-container .checkmark {
+    border-color: #e5c378 !important;
+}
+
+.plan-card.featured .upsell-checkbox-container input:checked ~ .checkmark {
+    background-color: #e5c378 !important;
+    border-color: #e5c378 !important;
 }
 
 /* Disclaimer Enxuto */
@@ -2845,7 +3062,7 @@ span.section-tag.handwritten-title {
   gap: var(--ag-gap);
   width: 100%;
   max-width: 1350px; /* Alinhado perfeitamente com a largura máxima do subtítulo e margens do site */
-  margin: 4px auto 10px auto; /* Reduzido o topo para colar no título */
+  margin: 24px auto 10px auto; /* Aumentado de 4px para 24px para abaixar a galeria e o texto explicativo */
   perspective: 1400px;
   perspective-origin: 50% 50%;
   flex: 1 1 auto !important; /* Cresce dinamicamente para ocupar todo o espaço vertical disponível */
@@ -2881,7 +3098,23 @@ span.section-tag.handwritten-title {
 }
 
 .ag-panel.ag-panel--active {
-  box-shadow: 0 10px 30px rgba(156, 114, 71, 0.15);
+  box-shadow: 0 0 20px rgba(229, 195, 120, 0.6), 0 0 40px rgba(156, 114, 71, 0.4), 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.ag-panel.ag-panel--active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2.5px solid #e5c378;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: inset 0 0 15px rgba(229, 195, 120, 0.3); /* Um leve brilho dourado interno */
+}
+
+.ag-panel.ag-panel--active .ag-panel__bar {
+  background: #e5c378;
+  box-shadow: 0 0 12px rgba(229, 195, 120, 0.8);
 }
 
 .ag-panel:focus-visible {
