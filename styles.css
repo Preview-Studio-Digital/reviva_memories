@@ -3316,6 +3316,7 @@ span.section-tag.handwritten-title {
     opacity: 0.45;
     transition: opacity 0.3s ease, filter 0.3s ease;
     will-change: opacity;
+    margin-top: 10px !important; /* Alinha perfeitamente com a margem do botão de play */
 }
 
 .music-wave-toggle:hover {
