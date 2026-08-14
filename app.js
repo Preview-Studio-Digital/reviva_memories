@@ -5,20 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
 
-    // Scroll Navbar Effect
-    const navbar = document.querySelector('.navbar');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.style.padding = '14px 0';
-            navbar.style.background = 'transparent';
-            navbar.style.boxShadow = 'none';
-        } else {
-            navbar.style.padding = '20px 0';
-            navbar.style.background = 'transparent';
-            navbar.style.boxShadow = 'none';
-        }
-    });
-
     // Clique na Logo - Rola suavemente para o topo (primeiro slide) sem recarregar a página
     document.querySelectorAll('.brand-logo').forEach(logo => {
         logo.addEventListener('click', (e) => {
