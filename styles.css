@@ -631,14 +631,16 @@ img, video {
     font-size: 1.45em; /* Aumentado por ser manuscrito */
     font-weight: 400;
     font-style: normal;
-    background: var(--brand-metallic-earth);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     display: inline-block;
     vertical-align: middle;
     text-transform: none;
     padding-right: 15px; /* Adiciona respiro para evitar o corte da cauda da última letra 'l' */
-    
+}
+
+.hero-title .highlight-italic .blur-word {
+    background: var(--brand-metallic-earth) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
 }
 
 @keyframes revealHandwrittenText {
