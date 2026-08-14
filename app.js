@@ -5,6 +5,153 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
 
+    // Rotação de Frases do Slide Inicial por Inatividade
+    const introPhrases = [
+        "Quer reviver memórias inesquecíveis?",
+        "Que tal um reencontro na memória?",
+        "E se a saudade falasse mais uma vez?",
+        "E se o amor eterno falasse de novo?",
+        "Como seria ouvir a voz da saudade?"
+    ];
+
+    const randomIndex = Math.floor(Math.random() * introPhrases.length);
+    let currentPhraseIdx = randomIndex;
+    
+    const introHeading = document.querySelector('.intro-title');
+    if (introHeading) {
+        introHeading.setAttribute('data-text', introPhrases[currentPhraseIdx]);
+    }
+
+    function reinitSingleMaskedHeading(el, preservedMedia) {
+        const text = el.getAttribute('data-text') || '';
+        const words = text.split(/\s+/).filter(Boolean);
+        const clipId = `mh-${Math.random().toString(36).substring(2, 10)}`;
+        
+        let measureHTML = '';
+        words.forEach((word) => {
+            measureHTML += `<span class="masked-heading__word">${word}<i class="masked-heading__baseline"></i></span> `;
+        });
+
+        let defsHTML = `
+        <svg class="masked-heading__defs" aria-hidden="true" focusable="false">
+            <defs>
+                <clipPath id="${clipId}" clipPathUnits="userSpaceOnUse">
+        `;
+        words.forEach((word) => {
+            defsHTML += `<text>${word}</text>`;
+        });
+        defsHTML += `
+                </clipPath>
+            </defs>
+        </svg>
+        `;
+
+        let revealHTML = '';
+        if (preservedMedia) {
+            const clipContainer = preservedMedia.parentElement;
+            if (clipContainer) {
+                clipContainer.setAttribute('style', `clip-path: url(#${clipId}); -webkit-clip-path: url(#${clipId});`);
+            }
+            revealHTML = preservedMedia.parentElement.parentElement.outerHTML;
+        } else {
+            const mediaType = el.getAttribute('data-media-type') || 'video';
+            const src = el.getAttribute('data-src') || '';
+            let mediaHTML = '';
+            if (src) {
+                if (mediaType === 'video') {
+                    mediaHTML = `<video class="masked-heading__source" src="${src}" autoplay muted loop playsinline></video>`;
+                } else {
+                    mediaHTML = `<img class="masked-heading__source" src="${src}" alt="" draggable="false">`;
+                }
+            }
+            revealHTML = `
+            <span class="masked-heading__reveal">
+                <span class="masked-heading__clip" style="clip-path: url(#${clipId}); -webkit-clip-path: url(#${clipId});">
+                    <span class="masked-heading__media">${mediaHTML}</span>
+                </span>
+            </span>
+            `;
+        }
+
+        el.innerHTML = `<span class="masked-heading__measure">${measureHTML}</span>${defsHTML}${revealHTML}`;
+        
+        const revealLayer = el.querySelector('.masked-heading__reveal');
+        const wordRefs = el.querySelectorAll('.masked-heading__word');
+        const glyphRefs = el.querySelectorAll('.masked-heading__defs text');
+        const glyphsArr = Array.from(glyphRefs);
+        const H = el.clientHeight;
+        
+        wordRefs.forEach((w, i) => {
+            const rect = w.getBoundingClientRect();
+            const baseline = w.querySelector('.masked-heading__baseline');
+            const baseRect = baseline.getBoundingClientRect();
+            const g = glyphRefs[i];
+            if (g) {
+                g.setAttribute('x', (rect.left - el.getBoundingClientRect().left).toFixed(2));
+                g.setAttribute('y', (baseRect.top - el.getBoundingClientRect().top).toFixed(2));
+            }
+        });
+        
+        const duration = parseFloat(el.getAttribute('data-duration')) || 1.1;
+        const stagger = parseFloat(el.getAttribute('data-stagger')) || 0.09;
+        
+        gsap.set(revealLayer, { opacity: 1, scale: 1, clipPath: 'inset(0% 0% 0% 0%)' });
+        const riseDistance = () => H * 0.9;
+        gsap.fromTo(
+            glyphsArr,
+            { y: riseDistance() },
+            { y: 0, duration, stagger, ease: 'power4.out', overwrite: 'auto' }
+        );
+    }
+
+    function rotateIntroPhrase() {
+        if (!introHeading) return;
+        currentPhraseIdx = (currentPhraseIdx + 1) % introPhrases.length;
+        const nextPhrase = introPhrases[currentPhraseIdx];
+        
+        const revealLayer = introHeading.querySelector('.masked-heading__reveal');
+        const glyphs = introHeading.querySelectorAll('.masked-heading__defs text');
+        
+        if (!revealLayer || glyphs.length === 0) {
+            introHeading.setAttribute('data-text', nextPhrase);
+            return;
+        }
+        
+        gsap.to(Array.from(glyphs), {
+            y: introHeading.clientHeight * 0.9,
+            duration: 0.5,
+            stagger: 0.05,
+            ease: 'power3.in',
+            onComplete: () => {
+                introHeading.setAttribute('data-text', nextPhrase);
+                const existingMedia = introHeading.querySelector('.masked-heading__media');
+                reinitSingleMaskedHeading(introHeading, existingMedia);
+            }
+        });
+    }
+
+    let inactivityTimer = null;
+    const INACTIVITY_TIME = 15000;
+
+    function resetInactivityTimer() {
+        if (inactivityTimer) clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(() => {
+            const firstSection = document.querySelector('.intro-section');
+            if (firstSection) {
+                const rect = firstSection.getBoundingClientRect();
+                if (rect.top >= -100 && rect.top <= 100) {
+                    rotateIntroPhrase();
+                }
+            }
+            resetInactivityTimer();
+        }, INACTIVITY_TIME);
+    }
+
+    ['mousemove', 'keydown', 'scroll', 'touchstart', 'click'].forEach(evt => {
+        window.addEventListener(evt, resetInactivityTimer, { passive: true });
+    });
+    resetInactivityTimer();
+
     // Clique na Logo - Rola suavemente para o topo (primeiro slide) sem recarregar a página
     document.querySelectorAll('.brand-logo').forEach(logo => {
         logo.addEventListener('click', (e) => {
@@ -95,9 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Gerenciar classe de fundo ativo do slide inicial
+            // Gerenciar classe de fundo ativo do slide inicial e do último slide (FAQ)
             const activeSection = sections[currentIdx];
-            if (activeSection && activeSection.classList.contains('intro-section')) {
+            if (activeSection && (activeSection.classList.contains('intro-section') || activeSection.classList.contains('faq-section'))) {
                 document.documentElement.classList.add('intro-active');
                 document.body.classList.add('intro-active');
             } else {
@@ -548,7 +695,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         selectedCard.classList.add('featured');
     }
-
     document.querySelectorAll('.plan-card').forEach(card => {
         // Seleção do Card ao Clicar (Torna o plano selecionado/featured)
         card.addEventListener('click', (e) => {
@@ -581,15 +727,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 formatBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 
+                const format = btn.getAttribute('data-format');
                 // Atualizar dinamicamente o texto do Upsell com base no formato primário selecionado
                 const upsellTitle = card.querySelector('.upsell-text strong');
                 if (upsellTitle) {
-                    const format = btn.getAttribute('data-format');
                     if (format === 'horizontal') {
                         upsellTitle.textContent = 'Adicionar formato Vertical (+50%)';
                     } else {
                         upsellTitle.textContent = 'Adicionar formato Horizontal (+50%)';
                     }
+                }
+
+                // Atualizar legenda com o formato escolhido (se o addon multiformato não estiver ativo)
+                if (subtitleSpan && (!upsellCheckbox || !upsellCheckbox.checked)) {
+                    const formatName = format === 'horizontal' ? 'Horizontal' : 'Vertical';
+                    subtitleSpan.textContent = `Formato [${formatName}]`;
                 }
             });
         });
@@ -597,6 +749,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Atualizar preço dinamicamente ao marcar/desmarcar o Upsell Multiformato
         if (upsellCheckbox) {
             upsellCheckbox.addEventListener('change', (e) => {
+                const activeFormatBtn = card.querySelector('.format-btn.active');
+                const format = activeFormatBtn ? activeFormatBtn.getAttribute('data-format') : 'horizontal';
+                const formatName = format === 'horizontal' ? 'Horizontal' : 'Vertical';
+
                 // Se foi um evento simulado (desmarcando por causa da troca de card), evita loop infinito
                 if (e.isTrigger || !upsellCheckbox.checked) {
                     // apenas atualiza o preço para o original
@@ -604,7 +760,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const parts = formatted.split(',');
                     amountSpan.textContent = parts[0];
                     if (centsSpan) centsSpan.textContent = ',00';
-                    if (subtitleSpan) subtitleSpan.textContent = 'Formato único à escolha (Horizontal ou Vertical)';
+                    if (subtitleSpan) subtitleSpan.textContent = `Formato [${formatName}]`;
                     return;
                 }
 
@@ -617,13 +773,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     const parts = formatted.split(',');
                     amountSpan.textContent = parts[0];
                     if (centsSpan) centsSpan.textContent = ',' + parts[1];
-                    if (subtitleSpan) subtitleSpan.textContent = 'Multiformato Incluído (Horizontal + Vertical)';
+                    if (subtitleSpan) subtitleSpan.textContent = 'Formatos Horizontal e Vertical';
                 } else {
                     const formatted = basePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     const parts = formatted.split(',');
                     amountSpan.textContent = parts[0];
                     if (centsSpan) centsSpan.textContent = ',00';
-                    if (subtitleSpan) subtitleSpan.textContent = 'Formato único à escolha (Horizontal ou Vertical)';
+                    if (subtitleSpan) subtitleSpan.textContent = `Formato [${formatName}]`;
                 }
             });
         }
@@ -1325,7 +1481,9 @@ void main() {
             `;
 
             let mediaHTML = '';
-            if (src) {
+            if (mediaType === 'liquid-ether') {
+                mediaHTML = `<div class="liquid-ether-canvas-wrapper" style="width: 100%; height: 100%;"></div>`;
+            } else if (src) {
                 if (mediaType === 'video') {
                     mediaHTML = `<video class="masked-heading__source" src="${src}" poster="${poster}" autoplay muted loop playsinline></video>`;
                 } else {
@@ -1350,6 +1508,22 @@ void main() {
             const wordRefs = el.querySelectorAll('.masked-heading__word');
             const baseRefs = el.querySelectorAll('.masked-heading__baseline');
             const glyphRefs = el.querySelectorAll('.masked-heading__defs text');
+
+            if (mediaType === 'liquid-ether') {
+                const wrapper = el.querySelector('.liquid-ether-canvas-wrapper');
+                if (wrapper && window.initLiquidEther) {
+                    const ether = window.initLiquidEther(wrapper, {
+                        mouseForce: 30,
+                        cursorSize: 80,
+                        colors: ['#301b0f', '#9c7247', '#c39c6b', '#ffd700', '#f6e3c5'],
+                        autoDemo: true,
+                        autoSpeed: 0.6,
+                        autoIntensity: 2.2,
+                        resolution: 1.0
+                    });
+                    el._liquidEther = ether;
+                }
+            }
 
             const offset = { x: 0, y: 0, tx: 0, ty: 0 };
 
@@ -1495,10 +1669,13 @@ void main() {
                 rest();
                 const io = new IntersectionObserver(
                     entries => {
-                        if (entries.some(e => e.isIntersecting)) {
-                            play();
-                            io.disconnect();
-                        }
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                play();
+                            } else {
+                                rest();
+                            }
+                        });
                     },
                     { threshold: 0.25 }
                 );
