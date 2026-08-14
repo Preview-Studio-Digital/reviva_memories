@@ -20,8 +20,7 @@
     <!-- GSAP Animation Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css?v=1.7.1">
-    <link rel="stylesheet" href="masked-heading.css">
+    <link rel="stylesheet" href="styles.css?v=1.7.8">
 </head>
 <body>
 
@@ -54,26 +53,17 @@
 
     <div id="galaxyBg" class="global-galaxy-bg"></div>
 
-    <!-- Intro Section: Nova página inicial com fundo preto e efeito de texto mascarado -->
+    <!-- Intro Section: Nova página inicial com fundo preto e título elegante -->
     <section class="intro-section" id="intro">
         <div class="container slide-layout-container intro-content">
             <!-- Espaçador no Topo para centralizar o título verticalmente -->
             <div class="intro-header-placeholder" style="height: 48px;"></div>
             
-            <h2 class="masked-heading intro-title" 
-                data-text="Quer reviver memórias inesquecíveis?" 
-                data-media-type="video" 
-                data-src="Ondas Douradas Compac.webm"
-                data-reveal="rise"
-                data-duration="1.5"
-                data-stagger="0.1"
-                data-trigger="view"
-                data-align="center"
-                data-weight="700"
-                data-tracking="-0.02"
-                data-line-height="1.2"
-                data-text-scale="0.045">
-            </h2>
+            <div class="hero-center-wrap">
+                <h1 class="hero-title intro-title">
+                    <span class="title-line-1">Quer reviver memórias inesquecíveis?</span>
+                </h1>
+            </div>
 
             <div class="intro-bottom-wrap" style="width: 100%; display: flex; justify-content: center; z-index: 10;">
                 <div class="slide-actions">
@@ -1037,7 +1027,7 @@
 
     <!-- Player de Áudio Fixo Minimalista na Base do Slide -->
     <div class="audio-player-widget" id="audioPlayerWidget">
-        <audio id="bgAudio" loop src="bg_music.mp3" preload="metadata"></audio>
+        <audio id="bgAudio" src="bg_music.mp3" preload="metadata"></audio>
         
         <!-- Conteúdo do Rodapé Esquerdo (Desktop Only) -->
         <div class="audio-footer-left desktop-only"></div>
@@ -1048,6 +1038,6 @@
         <div class="audio-footer-right desktop-only"></div>
     </div>
 
-    <script src="app.js?v=1.1.7"></script>
+    <script src="app.js?v=1.2.1"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
 
-    // Rotação de Frases do Slide Inicial por Inatividade
+    // Frases do Slide Inicial (Sorteio Aleatório no carregamento)
     const introPhrases = [
         "Quer reviver memórias inesquecíveis?",
         "Que tal um reencontro na memória?",
@@ -14,143 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
         "Como seria ouvir a voz da saudade?"
     ];
 
-    const randomIndex = Math.floor(Math.random() * introPhrases.length);
-    let currentPhraseIdx = randomIndex;
-    
-    const introHeading = document.querySelector('.intro-title');
-    if (introHeading) {
-        introHeading.setAttribute('data-text', introPhrases[currentPhraseIdx]);
+    let currentIntroPhraseIdx = Math.floor(Math.random() * introPhrases.length);
+    const introTitleLine = document.querySelector('.intro-title .title-line-1');
+    if (introTitleLine) {
+        introTitleLine.textContent = introPhrases[currentIntroPhraseIdx];
     }
-
-    function reinitSingleMaskedHeading(el, preservedMedia) {
-        const text = el.getAttribute('data-text') || '';
-        const words = text.split(/\s+/).filter(Boolean);
-        const clipId = `mh-${Math.random().toString(36).substring(2, 10)}`;
-        
-        let measureHTML = '';
-        words.forEach((word) => {
-            measureHTML += `<span class="masked-heading__word">${word}<i class="masked-heading__baseline"></i></span> `;
-        });
-
-        let defsHTML = `
-        <svg class="masked-heading__defs" aria-hidden="true" focusable="false">
-            <defs>
-                <clipPath id="${clipId}" clipPathUnits="userSpaceOnUse">
-        `;
-        words.forEach((word) => {
-            defsHTML += `<text>${word}</text>`;
-        });
-        defsHTML += `
-                </clipPath>
-            </defs>
-        </svg>
-        `;
-
-        let revealHTML = '';
-        if (preservedMedia) {
-            const clipContainer = preservedMedia.parentElement;
-            if (clipContainer) {
-                clipContainer.setAttribute('style', `clip-path: url(#${clipId}); -webkit-clip-path: url(#${clipId});`);
-            }
-            revealHTML = preservedMedia.parentElement.parentElement.outerHTML;
-        } else {
-            const mediaType = el.getAttribute('data-media-type') || 'video';
-            const src = el.getAttribute('data-src') || '';
-            let mediaHTML = '';
-            if (src) {
-                if (mediaType === 'video') {
-                    mediaHTML = `<video class="masked-heading__source" src="${src}" autoplay muted loop playsinline></video>`;
-                } else {
-                    mediaHTML = `<img class="masked-heading__source" src="${src}" alt="" draggable="false">`;
-                }
-            }
-            revealHTML = `
-            <span class="masked-heading__reveal">
-                <span class="masked-heading__clip" style="clip-path: url(#${clipId}); -webkit-clip-path: url(#${clipId});">
-                    <span class="masked-heading__media">${mediaHTML}</span>
-                </span>
-            </span>
-            `;
-        }
-
-        el.innerHTML = `<span class="masked-heading__measure">${measureHTML}</span>${defsHTML}${revealHTML}`;
-        
-        const revealLayer = el.querySelector('.masked-heading__reveal');
-        const wordRefs = el.querySelectorAll('.masked-heading__word');
-        const glyphRefs = el.querySelectorAll('.masked-heading__defs text');
-        const glyphsArr = Array.from(glyphRefs);
-        const H = el.clientHeight;
-        
-        wordRefs.forEach((w, i) => {
-            const rect = w.getBoundingClientRect();
-            const baseline = w.querySelector('.masked-heading__baseline');
-            const baseRect = baseline.getBoundingClientRect();
-            const g = glyphRefs[i];
-            if (g) {
-                g.setAttribute('x', (rect.left - el.getBoundingClientRect().left).toFixed(2));
-                g.setAttribute('y', (baseRect.top - el.getBoundingClientRect().top).toFixed(2));
-            }
-        });
-        
-        const duration = parseFloat(el.getAttribute('data-duration')) || 1.1;
-        const stagger = parseFloat(el.getAttribute('data-stagger')) || 0.09;
-        
-        gsap.set(revealLayer, { opacity: 1, scale: 1, clipPath: 'inset(0% 0% 0% 0%)' });
-        const riseDistance = () => H * 0.9;
-        gsap.fromTo(
-            glyphsArr,
-            { y: riseDistance() },
-            { y: 0, duration, stagger, ease: 'power4.out', overwrite: 'auto' }
-        );
-    }
-
-    function rotateIntroPhrase() {
-        if (!introHeading) return;
-        currentPhraseIdx = (currentPhraseIdx + 1) % introPhrases.length;
-        const nextPhrase = introPhrases[currentPhraseIdx];
-        
-        const revealLayer = introHeading.querySelector('.masked-heading__reveal');
-        const glyphs = introHeading.querySelectorAll('.masked-heading__defs text');
-        
-        if (!revealLayer || glyphs.length === 0) {
-            introHeading.setAttribute('data-text', nextPhrase);
-            return;
-        }
-        
-        gsap.to(Array.from(glyphs), {
-            y: introHeading.clientHeight * 0.9,
-            duration: 0.5,
-            stagger: 0.05,
-            ease: 'power3.in',
-            onComplete: () => {
-                introHeading.setAttribute('data-text', nextPhrase);
-                const existingMedia = introHeading.querySelector('.masked-heading__media');
-                reinitSingleMaskedHeading(introHeading, existingMedia);
-            }
-        });
-    }
-
-    let inactivityTimer = null;
-    const INACTIVITY_TIME = 15000;
-
-    function resetInactivityTimer() {
-        if (inactivityTimer) clearTimeout(inactivityTimer);
-        inactivityTimer = setTimeout(() => {
-            const firstSection = document.querySelector('.intro-section');
-            if (firstSection) {
-                const rect = firstSection.getBoundingClientRect();
-                if (rect.top >= -100 && rect.top <= 100) {
-                    rotateIntroPhrase();
-                }
-            }
-            resetInactivityTimer();
-        }, INACTIVITY_TIME);
-    }
-
-    ['mousemove', 'keydown', 'scroll', 'touchstart', 'click'].forEach(evt => {
-        window.addEventListener(evt, resetInactivityTimer, { passive: true });
-    });
-    resetInactivityTimer();
 
     // Clique na Logo - Rola suavemente para o topo (primeiro slide) sem recarregar a página
     document.querySelectorAll('.brand-logo').forEach(logo => {
@@ -683,7 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Lógica do Player de Áudio Fixo Minimalista
+    // Lógica do Player de Áudio Fixo Minimalista com Shuffle sem Repetição
     const playlist = [
         'bg_music.mp3',
         'bg_music_02.mp3',
@@ -693,7 +561,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const bgAudio = document.getElementById('bgAudio');
     let currentTrack = '';
     
+    // Função para escolher a próxima música aleatória garantindo que NUNCA repita a anterior
+    function getNextRandomTrack() {
+        const availableTracks = playlist.filter(track => track !== currentTrack);
+        if (availableTracks.length === 0) return playlist[0];
+        const nextTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+        return nextTrack;
+    }
+
     if (bgAudio) {
+        bgAudio.loop = false; // Desativa repetição interna para disparar o evento 'ended'
         // Escolhe uma música aleatoriamente da playlist no carregamento/recarregamento da página
         currentTrack = playlist[Math.floor(Math.random() * playlist.length)];
         bgAudio.src = currentTrack;
@@ -718,12 +595,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Quando a música atual acabar, escolhe uma música DIFERENTE da atual e toca automaticamente
         bgAudio.addEventListener('ended', () => {
-            const remainingTracks = playlist.filter(track => track !== currentTrack);
-            const nextTrack = remainingTracks[Math.floor(Math.random() * remainingTracks.length)];
-            currentTrack = nextTrack;
-            
+            currentTrack = getNextRandomTrack();
             bgAudio.src = currentTrack;
             bgAudio.load();
+            const isVideoActive = document.body.classList.contains('video-active');
+            bgAudio.volume = isVideoActive ? 0.25 : 1.0;
             bgAudio.play().then(() => {
                 updateAudioUI(true);
             }).catch(err => {
@@ -1402,52 +1278,41 @@ void main() {
         let lastActivity = Date.now();
         let activeTitleElement = null;
         
+        function splitIntoBlurSpans(lineEl, text) {
+            lineEl.innerHTML = '';
+            const words = text.split(/(\s+)/);
+            const fragment = document.createDocumentFragment();
+            let wordIdx = 0;
+            
+            words.forEach(word => {
+                if (word.trim() === '') {
+                    fragment.appendChild(document.createTextNode(word));
+                } else {
+                    const span = document.createElement('span');
+                    span.className = 'blur-word';
+                    span.textContent = word;
+                    span.style.setProperty('--word-idx', wordIdx);
+                    wordIdx++;
+                    gsap.set(span, {
+                        display: 'inline-block',
+                        filter: 'blur(10px)',
+                        opacity: 0,
+                        y: -50,
+                        willChange: 'transform, filter, opacity'
+                    });
+                    fragment.appendChild(span);
+                }
+            });
+            lineEl.appendChild(fragment);
+        }
+
         const titles = document.querySelectorAll('.hero-title');
         
         titles.forEach(title => {
             const line = title.querySelector('.title-line-1');
             if (!line) return;
             
-            const originalHTML = line.innerHTML;
-            
-            let tempDiv = document.createElement('div');
-            tempDiv.innerHTML = originalHTML;
-            
-            const wrapTextNodes = (node) => {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    const text = node.textContent;
-                    const words = text.split(/(\s+)/);
-                    const fragment = document.createDocumentFragment();
-                    
-                    words.forEach(word => {
-                        if (word.trim() === '') {
-                            fragment.appendChild(document.createTextNode(word));
-                        } else {
-                            const span = document.createElement('span');
-                            span.className = 'blur-word';
-                            span.textContent = word;
-                            gsap.set(span, {
-                                display: 'inline-block',
-                                filter: 'blur(10px)',
-                                opacity: 0,
-                                y: -50,
-                                willChange: 'transform, filter, opacity'
-                            });
-                            fragment.appendChild(span);
-                        }
-                    });
-                    node.parentNode.replaceChild(fragment, node);
-                } else if (node.nodeType === Node.ELEMENT_NODE) {
-                    if (node.classList.contains('blur-word')) return;
-                    const children = Array.from(node.childNodes);
-                    children.forEach(wrapTextNodes);
-                }
-            };
-            
-            wrapTextNodes(tempDiv);
-            line.innerHTML = tempDiv.innerHTML;
-            
-            const words = line.querySelectorAll('.blur-word');
+            splitIntoBlurSpans(line, line.textContent);
             
             // Remove o efeito original estático do CSS
             title.style.opacity = '1';
@@ -1487,23 +1352,6 @@ void main() {
                 });
             }
 
-            function replayTitle(tEl) {
-                const wordsList = tEl.querySelectorAll('.blur-word');
-                gsap.killTweensOf(wordsList);
-                gsap.timeline()
-                    .to(wordsList, {
-                        filter: 'blur(10px)',
-                        opacity: 0,
-                        y: -30,
-                        duration: 0.35,
-                        stagger: 0.05,
-                        ease: 'power1.in'
-                    })
-                    .add(() => {
-                        playTitle(tEl);
-                    });
-            }
-
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -1520,6 +1368,51 @@ void main() {
             
             observer.observe(title);
         });
+
+        function replayTitle(tEl) {
+            const wordsList = tEl.querySelectorAll('.blur-word');
+            const isIntro = tEl.classList.contains('intro-title');
+            
+            gsap.killTweensOf(wordsList);
+            gsap.timeline()
+                .to(wordsList, {
+                    filter: 'blur(10px)',
+                    opacity: 0,
+                    y: -30,
+                    duration: 0.35,
+                    stagger: 0.05,
+                    ease: 'power1.in'
+                })
+                .add(() => {
+                    if (isIntro) {
+                        currentIntroPhraseIdx = (currentIntroPhraseIdx + 1) % introPhrases.length;
+                        const nextPhrase = introPhrases[currentIntroPhraseIdx];
+                        const line = tEl.querySelector('.title-line-1');
+                        if (line) {
+                            splitIntoBlurSpans(line, nextPhrase);
+                        }
+                    }
+                    const newWordsList = tEl.querySelectorAll('.blur-word');
+                    gsap.killTweensOf(newWordsList);
+                    gsap.timeline()
+                        .to(newWordsList, {
+                            filter: 'blur(5px)',
+                            opacity: 0.5,
+                            y: 5,
+                            duration: 0.35,
+                            stagger: 0.1,
+                            ease: 'power1.out'
+                        })
+                        .to(newWordsList, {
+                            filter: 'blur(0px)',
+                            opacity: 1,
+                            y: 0,
+                            duration: 0.35,
+                            stagger: 0.1,
+                            ease: 'power1.out'
+                        }, 0.35);
+                });
+        }
 
         // Lógica de inatividade global
         const resetInactivity = () => {
@@ -1541,264 +1434,5 @@ void main() {
         }, 1000);
     }
 
-    function initMaskedHeadings() {
-        const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
-
-        document.querySelectorAll('.masked-heading').forEach(el => {
-            const text = el.getAttribute('data-text') || 'Designed in the details';
-            const mediaType = el.getAttribute('data-media-type') || 'image';
-            const src = el.getAttribute('data-src') || '';
-            const poster = el.getAttribute('data-poster') || '';
-            const fillScale = parseFloat(el.getAttribute('data-fill-scale')) || 1.25;
-            const parallax = parseFloat(el.getAttribute('data-parallax')) || 26;
-            const drift = parseFloat(el.getAttribute('data-drift')) || 18;
-            const brightness = parseFloat(el.getAttribute('data-brightness')) || 1;
-            const saturation = parseFloat(el.getAttribute('data-saturation')) || 1;
-            const grayscale = el.getAttribute('data-grayscale') === 'true';
-            const reveal = el.getAttribute('data-reveal') || 'rise';
-            const duration = parseFloat(el.getAttribute('data-duration')) || 1.1;
-            const stagger = parseFloat(el.getAttribute('data-stagger')) || 0.09;
-            const trigger = el.getAttribute('data-trigger') || 'view';
-            const align = el.getAttribute('data-align') || 'center';
-            const weight = el.getAttribute('data-weight') || '700';
-            const tracking = parseFloat(el.getAttribute('data-tracking')) || -0.03;
-            const lineHeight = parseFloat(el.getAttribute('data-line-height')) || 1.06;
-            const textScale = parseFloat(el.getAttribute('data-text-scale')) || 0.115;
-
-            el.style.textAlign = align;
-            el.style.fontWeight = weight;
-            el.style.letterSpacing = `${tracking}em`;
-            el.style.lineHeight = lineHeight;
-
-            const words = String(text).split(/\s+/).filter(Boolean);
-            const clipId = `mh-${Math.random().toString(36).substring(2, 10)}`;
-
-            // Build HTML
-            let measureHTML = '';
-            words.forEach((word) => {
-                measureHTML += `<span class="masked-heading__word">${word}<i class="masked-heading__baseline"></i></span> `;
-            });
-
-            let defsHTML = `
-            <svg class="masked-heading__defs" aria-hidden="true" focusable="false">
-                <defs>
-                    <clipPath id="${clipId}" clipPathUnits="userSpaceOnUse">
-            `;
-            words.forEach((word) => {
-                defsHTML += `<text>${word}</text>`;
-            });
-            defsHTML += `
-                    </clipPath>
-                </defs>
-            </svg>
-            `;
-
-            let mediaHTML = '';
-            if (mediaType === 'liquid-ether') {
-                mediaHTML = `<div class="liquid-ether-canvas-wrapper" style="width: 100%; height: 100%;"></div>`;
-            } else if (src) {
-                if (mediaType === 'video') {
-                    mediaHTML = `<video class="masked-heading__source" src="${src}" poster="${poster}" autoplay muted loop playsinline></video>`;
-                } else {
-                    mediaHTML = `<img class="masked-heading__source" src="${src}" alt="" draggable="false">`;
-                }
-            }
-
-            let revealHTML = `
-            <span class="masked-heading__reveal">
-                <span class="masked-heading__clip" style="clip-path: url(#${clipId}); -webkit-clip-path: url(#${clipId});">
-                    <span class="masked-heading__media">${mediaHTML}</span>
-                </span>
-            </span>
-            `;
-
-            el.innerHTML = `<span class="masked-heading__measure">${measureHTML}</span>${defsHTML}${revealHTML}`;
-
-            // Get element references
-            const measure = el.querySelector('.masked-heading__measure');
-            const revealLayer = el.querySelector('.masked-heading__reveal');
-            const media = el.querySelector('.masked-heading__media');
-            const wordRefs = el.querySelectorAll('.masked-heading__word');
-            const baseRefs = el.querySelectorAll('.masked-heading__baseline');
-            const glyphRefs = el.querySelectorAll('.masked-heading__defs text');
-
-            if (mediaType === 'liquid-ether') {
-                const wrapper = el.querySelector('.liquid-ether-canvas-wrapper');
-                if (wrapper && window.initLiquidEther) {
-                    const ether = window.initLiquidEther(wrapper, {
-                        mouseForce: 30,
-                        cursorSize: 80,
-                        colors: ['#301b0f', '#9c7247', '#c39c6b', '#ffd700', '#f6e3c5'],
-                        autoDemo: true,
-                        autoSpeed: 0.6,
-                        autoIntensity: 2.2,
-                        resolution: 1.0
-                    });
-                    el._liquidEther = ether;
-                }
-            }
-
-            const offset = { x: 0, y: 0, tx: 0, ty: 0 };
-
-            const place = () => {
-                if (!media) return;
-                const W = el.clientWidth;
-                const H = el.clientHeight;
-                const maxX = Math.max(0, ((fillScale - 1) / 2) * W);
-                const maxY = Math.max(0, ((fillScale - 1) / 2) * H);
-
-                media.style.transform = `translate3d(${clamp(offset.x, -maxX, maxX).toFixed(2)}px, ${clamp(offset.y, -maxY, maxY).toFixed(2)}px, 0) scale(${fillScale})`;
-                media.style.filter = `brightness(${brightness}) saturate(${saturation})${grayscale ? ' grayscale(1)' : ''}`;
-            };
-
-            const sync = () => {
-                if (!measure) return;
-                el.style.fontSize = `${clamp(el.clientWidth * textScale, 20, 200).toFixed(1)}px`;
-
-                const cs = window.getComputedStyle(measure);
-                for (let i = 0; i < wordRefs.length; i++) {
-                    const box = wordRefs[i];
-                    const base = baseRefs[i];
-                    const glyph = glyphRefs[i];
-                    if (!box || !base || !glyph) continue;
-                    glyph.setAttribute('x', `${box.offsetLeft}`);
-                    glyph.setAttribute('y', `${base.offsetTop}`);
-                    glyph.style.fontFamily = cs.fontFamily;
-                    glyph.style.fontSize = cs.fontSize;
-                    glyph.style.fontWeight = cs.fontWeight;
-                    glyph.style.fontStyle = cs.fontStyle;
-                    glyph.style.letterSpacing = cs.letterSpacing;
-                }
-                place();
-            };
-
-            sync();
-            const ro = new ResizeObserver(sync);
-            ro.observe(el);
-            if (document.fonts?.ready) {
-                document.fonts.ready.then(sync).catch(() => {});
-            }
-
-            let raf = 0;
-            let last = performance.now();
-            let clock = 0;
-
-            const frame = (now) => {
-                const dt = Math.min(0.05, (now - last) / 1000);
-                last = now;
-                clock += dt;
-
-                const dx = Math.sin(clock * 0.21) * drift;
-                const dy = Math.cos(clock * 0.17) * drift * 0.6;
-
-                const ease = 1 - Math.exp(-dt / 0.18);
-                offset.x += (offset.tx + dx - offset.x) * ease;
-                offset.y += (offset.ty + dy - offset.y) * ease;
-
-                place();
-                raf = requestAnimationFrame(frame);
-            };
-
-            const onMove = (e) => {
-                if (parallax <= 0) return;
-                const r = el.getBoundingClientRect();
-                const nx = ((e.clientX - r.left) / (r.width || 1)) * 2 - 1;
-                const ny = ((e.clientY - r.top) / (r.height || 1)) * 2 - 1;
-                offset.tx = clamp(nx, -1, 1) * -parallax;
-                offset.ty = clamp(ny, -1, 1) * -parallax;
-            };
-
-            const onLeave = () => {
-                offset.tx = 0;
-                offset.ty = 0;
-            };
-
-            el.addEventListener('pointermove', onMove);
-            el.addEventListener('pointerleave', onLeave);
-            raf = requestAnimationFrame(frame);
-
-            // GSAP Reveal
-            const glyphsArr = Array.from(glyphRefs);
-            const riseDistance = () => (parseFloat(window.getComputedStyle(el).fontSize) || 48) * 1.15;
-
-            const settle = () => {
-                gsap.set(glyphsArr, { y: 0 });
-                gsap.set(revealLayer, { opacity: 1, scale: 1, clipPath: 'inset(0% 0% 0% 0%)' });
-            };
-
-            const rest = () => {
-                if (reveal === 'rise') {
-                    gsap.set(glyphsArr, { y: riseDistance() });
-                } else if (reveal === 'wipe') {
-                    gsap.set(revealLayer, { clipPath: 'inset(0% 100% 0% 0%)' });
-                } else if (reveal === 'fade') {
-                    gsap.set(revealLayer, { opacity: 0, scale: 1.08 });
-                }
-            };
-
-            const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (reveal === 'none' || reduce) {
-                settle();
-                return;
-            }
-
-            let tween = null;
-            const play = () => {
-                tween?.kill();
-                if (reveal === 'rise') {
-                    gsap.set(revealLayer, { opacity: 1, scale: 1, clipPath: 'inset(0% 0% 0% 0%)' });
-                    tween = gsap.fromTo(
-                        glyphsArr,
-                        { y: riseDistance() },
-                        { y: 0, duration, stagger, ease: 'power4.out', overwrite: 'auto' }
-                    );
-                } else if (reveal === 'wipe') {
-                    gsap.set(glyphsArr, { y: 0 });
-                    const state = { p: 100 };
-                    tween = gsap.to(state, {
-                        p: 0,
-                        duration,
-                        ease: 'power3.inOut',
-                        overwrite: 'auto',
-                        onUpdate: () => {
-                            revealLayer.style.clipPath = `inset(0% ${state.p}% 0% 0%)`;
-                        }
-                    });
-                } else {
-                    gsap.set(glyphsArr, { y: 0 });
-                    tween = gsap.fromTo(
-                        revealLayer,
-                        { opacity: 0, scale: 1.08 },
-                        { opacity: 1, scale: 1, duration, ease: 'power3.out', overwrite: 'auto' }
-                    );
-                }
-            };
-
-            if (trigger === 'hover') {
-                settle();
-                el.addEventListener('pointerenter', play);
-            } else if (trigger === 'view') {
-                settle();
-                rest();
-                const io = new IntersectionObserver(
-                    entries => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                play();
-                            } else {
-                                rest();
-                            }
-                        });
-                    },
-                    { threshold: 0.25 }
-                );
-                io.observe(el);
-            } else {
-                play();
-            }
-        });
-    }
-
     initBlurText();
-    initMaskedHeadings();
 });

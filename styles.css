@@ -168,17 +168,33 @@ img, video {
     background: transparent;
 }
 
-.intro-title {
-    font-family: 'Montserrat', 'Inter', sans-serif;
-    font-weight: 700;
-    text-transform: none;
-    color: transparent;
-    max-width: 100%;
-    margin: 0 auto;
-    white-space: nowrap;
-    text-align: center;
-    display: block;
-    text-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+.intro-title,
+.intro-title.hero-title,
+.intro-title .title-line-1 {
+    font-size: clamp(2.8rem, 4.8vw, 4.8rem) !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.5px !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    width: 100% !important;
+    max-width: 1400px !important;
+    text-transform: none !important;
+}
+
+.intro-title .title-line-1 {
+    display: inline-block !important;
+    color: #e8d5b7 !important; /* Tom bege dourado nobre dos títulos dos slides */
+    text-shadow: none !important;
+    text-align: center !important;
+}
+
+.intro-title .blur-word {
+    font-size: inherit !important;
+    color: #e8d5b7 !important;
+    text-shadow: none !important;
+    animation: none !important;
 }
 
 
