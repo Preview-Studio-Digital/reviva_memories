@@ -6,7 +6,7 @@
 /* Variables / Design System */
 :root {
     /* Color Palette */
-    --bg-main: #06111a; /* Fundo do site adaptado para o novo WebGL LightRays (azul oceano escuro) */
+    --bg-main: #140d08; /* Fundo marrom escuro aconchegante e nobre */
     --bg-card: rgba(13, 27, 42, 0.28); /* Fundo dos cards azul marinho/teal translúcido */
     --bg-card-hover: rgba(22, 44, 68, 0.42); /* Hover dos cards */
     --bg-glass: rgba(13, 27, 42, 0.75); /* Fundo de vidro */
@@ -82,18 +82,18 @@ html.disable-snap {
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--bg-main);
-    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    background: #18110b; /* Fundo marrom escuro nobre e quente */
+    border-left: 1px solid rgba(197, 160, 89, 0.15);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, var(--brand-gold) 0%, #9e7b36 100%);
+    background: linear-gradient(180deg, #c5a059 0%, #9c7247 100%);
     border-radius: 5px;
-    border: 2px solid var(--bg-main);
+    border: 2px solid #18110b;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #e5c378 0%, var(--brand-gold) 100%);
+    background: linear-gradient(180deg, #e5c378 0%, #c5a059 100%);
 }
 
 body {
@@ -2088,28 +2088,47 @@ img, video {
     text-shadow: 0 0 10px rgba(197, 160, 89, 0.6);
 }
 
-/* Botão de Fechar na Base do Vídeo (Idêntico ao botão de play do slide em tamanho e posição) */
+/* Botão de Fechar na Base do Vídeo (Idêntico ao padrão dos botões de assistir) */
 .close-video-bottom-btn {
     position: absolute;
     bottom: 28px; /* Alinhado à mesma posição inferior do botão de play */
     left: 50%;
     transform: translateX(-50%);
     z-index: 100010;
-    box-shadow: 0 10px 30px rgba(197, 160, 89, 0.4);
     
-    /* Mesmo tamanho do botão de play (.watch-video-btn) */
+    background: linear-gradient(135deg, #9c7247 0%, #7d5b38 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #9c7247 !important;
+    box-shadow: 0 0 15px rgba(229, 195, 120, 0.4), 0 0 30px rgba(156, 114, 71, 0.2) !important;
+    
     padding: 6px 14px !important;
     font-size: 0.74rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    border-radius: var(--radius-full) !important;
     gap: 6px !important;
+    cursor: pointer !important;
+    transition: var(--transition-smooth) !important;
 }
 
 .close-video-bottom-btn:hover {
-    transform: translateX(-50%) translateY(-2px) scale(1.04);
+    background: transparent !important;
+    border-color: #e5c378 !important;
+    color: #e5c378 !important;
+    box-shadow: 0 0 20px #e5c378, 0 0 45px rgba(229, 195, 120, 0.8), 0 0 75px rgba(156, 114, 71, 0.6) !important;
+    transform: translateX(-50%) translateY(-2px) !important;
 }
 
 .close-video-bottom-btn svg {
     width: 14px !important;
     height: 14px !important;
+    stroke: currentColor !important;
+    transition: var(--transition-fast) !important;
+}
+
+.close-video-bottom-btn:hover svg {
+    stroke: #e5c378 !important;
 }
 
 /* Bloquear rolagem do site e ocultar áudio fixo quando o vídeo estiver ativo */
@@ -2577,7 +2596,6 @@ span.section-tag.handwritten-title {
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
     box-sizing: border-box !important;
     visibility: visible !important;
-    opacity: 1 !important;
 }
 
 .plan-card:hover {
@@ -3015,61 +3033,98 @@ span.section-tag.handwritten-title {
     }
 }
 
-/* FAQ Accordion Styles */
+/* FAQ Accordion Styles - Alinhamento Perfeito com os Cards dos Slides Anteriores */
 .faq-section {
     background: transparent;
-    height: auto !important;
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: always !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
 }
 
 .faq-section .slide-layout-container {
-    height: auto !important;
-    min-height: 100vh !important;
-    padding-bottom: 20px !important; /* Reduzido para evitar rolagem excessiva */
+    height: 100vh !important;
+    max-height: 100vh !important;
+    padding: 60px 24px 28px 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
 }
 
 .faq-accordion {
     width: 100%;
-    max-width: 900px;
-    margin: 24px auto 10px auto !important; /* Afasta do título e aproxima do rodapé */
-    display: flex;
-    flex-direction: column;
-    gap: 8px; /* Reduzido de 12px */
+    max-width: 1100px;
+    margin: 24px auto 10px auto !important; /* Mesma posição superior e inferior dos grids de cards */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important; /* Alinha o 1º no topo e o 10º na base exata dos cards */
+    gap: 6px;
+    flex: 1 1 auto !important; /* Mesma altura flexível dos cards */
+    min-height: 220px;
+    max-height: 580px; /* Mesma altura máxima dos cards */
+    box-sizing: border-box !important;
+    position: relative;
 }
 
 .faq-item {
-    background: rgba(34, 24, 18, 0.25) !important;
-    backdrop-filter: blur(10px) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: var(--radius-md) !important;
-    overflow: hidden !important;
+    background: rgba(34, 24, 18, 0.28) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(197, 160, 89, 0.22) !important;
+    border-radius: var(--radius-sm) !important;
     transition: var(--transition-smooth) !important;
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    flex: 1 1 auto !important;
+    position: relative !important;
 }
 
-.faq-item:hover, .faq-item.active {
-    border-color: rgba(197, 160, 89, 0.3) !important;
-    background: rgba(34, 24, 18, 0.38) !important;
+.faq-item:hover {
+    border-color: rgba(197, 160, 89, 0.45) !important;
+    background: rgba(46, 33, 24, 0.38) !important;
+}
+
+.faq-item.active {
+    z-index: 60 !important;
+    border-color: #e5c378 !important;
+    background: rgba(46, 33, 24, 0.95) !important;
+    box-shadow: 0 0 20px rgba(229, 195, 120, 0.5), 0 0 35px rgba(156, 114, 71, 0.3) !important;
 }
 
 .faq-item.active .faq-question,
 .faq-item.active .faq-question span {
     color: #e5c378 !important;
+    text-shadow: 0 0 10px rgba(229, 195, 120, 0.75), 0 0 20px rgba(229, 195, 120, 0.35) !important;
 }
 
 .faq-question {
     width: 100% !important;
     background: transparent !important;
     border: none !important;
-    padding: 12px 18px !important; /* Reduzido de 16px 20px */
+    padding: 0 18px !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
     color: var(--text-primary) !important;
-    font-size: 0.95rem !important; /* Ligeiramente reduzido */
-    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    font-weight: 500 !important;
     text-align: left !important;
     cursor: pointer !important;
-    gap: 15px !important;
+    gap: 12px !important;
+    line-height: 1.35 !important;
+    box-sizing: border-box;
+    min-height: 38px !important;
+    flex: 1 1 auto !important;
 }
 
 .faq-question span {
@@ -3079,41 +3134,111 @@ span.section-tag.handwritten-title {
 .faq-question svg {
     color: var(--brand-gold) !important;
     transition: transform 0.3s ease !important;
-    width: 16px !important; /* Reduzido de 18px */
-    height: 16px !important;
+    width: 14px !important;
+    height: 14px !important;
     flex-shrink: 0 !important;
 }
 
 .faq-item.active .faq-question svg {
+    color: #e5c378 !important;
+    filter: drop-shadow(0 0 6px rgba(229, 195, 120, 0.8)) !important;
     transform: rotate(180deg) !important;
 }
 
+/* Balão de Resposta em Camada Flutuante (Sobrepõe cobrindo sem empurrar as outras perguntas) */
 .faq-answer {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
+    display: none;
+    position: absolute;
+    left: -1px;
+    right: -1px;
+    width: calc(100% + 2px);
+    background: rgba(24, 14, 8, 0.98) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid #e5c378 !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), 0 0 25px rgba(229, 195, 120, 0.4) !important;
+    z-index: 100 !important;
+    box-sizing: border-box;
+}
+
+.faq-item.active .faq-answer {
+    display: block !important;
+    animation: faqBalloonFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Perguntas superiores (1 a 5) abrem o balão para baixo */
+.faq-item:nth-child(-n+5) .faq-answer {
+    top: 100%;
+    bottom: auto;
+    border-top: 1px solid rgba(229, 195, 120, 0.25) !important;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important;
+}
+
+.faq-item:nth-child(-n+5).active {
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important;
+}
+
+/* Perguntas inferiores (6 a 10) abrem o balão para cima */
+.faq-item:nth-child(n+6) .faq-answer {
+    bottom: 100%;
+    top: auto;
+    border-bottom: 1px solid rgba(229, 195, 120, 0.25) !important;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important;
+}
+
+.faq-item:nth-child(n+6).active {
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important;
 }
 
 .faq-answer p {
-    padding: 0 18px 12px 18px !important; /* Reduzido de 0 20px 16px 20px */
+    padding: 14px 20px !important;
     margin: 0 !important;
-    font-size: 0.86rem !important; /* Ligeiramente reduzido */
-    color: var(--text-secondary) !important;
-    line-height: 1.45 !important;
+    font-size: 0.88rem !important;
+    color: #f2e8dc !important;
+    line-height: 1.55 !important;
     text-align: justify !important;
 }
 
+@keyframes faqBalloonFade {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @media (max-width: 768px), (max-aspect-ratio: 5/4) {
+    .faq-section {
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow: visible !important;
+    }
+    .faq-section .slide-layout-container {
+        height: auto !important;
+        min-height: 100vh !important;
+        max-height: none !important;
+        overflow: visible !important;
+        padding-bottom: 24px !important;
+    }
     .faq-accordion {
-        gap: 5px !important; /* Mais compacto em telas menores */
+        gap: 5px !important;
+        max-height: none !important;
+        min-height: auto !important;
+    }
+    .faq-item {
+        flex: none !important;
     }
     .faq-question {
-        padding: 9px 12px !important; /* Mais compacto */
-        font-size: 0.8rem !important;
+        padding: 9px 14px !important;
+        font-size: 0.82rem !important;
+        min-height: auto !important;
     }
     .faq-answer p {
-        padding: 0 12px 10px 12px !important;
-        font-size: 0.76rem !important;
+        padding: 10px 14px !important;
+        font-size: 0.78rem !important;
     }
 }
 

@@ -179,6 +179,97 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- CONTROLE DE DIREÇÃO DE ROLAGEM & ANIMAÇÃO EXCLUSIVA DOS CARDS ---
+    let currentScrollDirection = 'down';
+    let lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+    // Detecta direção pelo Scroll Nativo da Página
+    window.addEventListener('scroll', () => {
+        const currentY = window.pageYOffset || document.documentElement.scrollTop;
+        if (currentY > lastScrollY + 2) {
+            currentScrollDirection = 'down';
+        } else if (currentY < lastScrollY - 2) {
+            currentScrollDirection = 'up';
+        }
+        lastScrollY = currentY;
+    }, { passive: true });
+
+    // Detecta direção pela Roda do Mouse (Wheel)
+    window.addEventListener('wheel', (e) => {
+        if (e.deltaY > 0) {
+            currentScrollDirection = 'down';
+        } else if (e.deltaY < 0) {
+            currentScrollDirection = 'up';
+        }
+    }, { passive: true });
+
+    // Detecta direção pelo Toque Touch em dispositivos móveis
+    let touchStartY = 0;
+    window.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches[0]) {
+            touchStartY = e.touches[0].clientY;
+        }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+        if (e.touches && e.touches[0]) {
+            const touchDiff = touchStartY - e.touches[0].clientY;
+            if (Math.abs(touchDiff) > 6) {
+                currentScrollDirection = touchDiff > 0 ? 'down' : 'up';
+            }
+        }
+    }, { passive: true });
+
+    // Detecta direção pelas teclas de navegação
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) {
+            currentScrollDirection = 'down';
+        } else if (e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)) {
+            currentScrollDirection = 'up';
+        }
+    }, { passive: true });
+
+    // Função para animar exclusivamente os cards do slide conforme a direção
+    function animateSectionCards(section, direction = currentScrollDirection) {
+        if (!section) return;
+        const cards = section.querySelectorAll('.step-card, .case-card, .testimonial-card, .plan-card');
+        if (!cards || cards.length === 0) return;
+
+        // Rolando para baixo: surgem de baixo para cima (startY = 70px)
+        // Rolando para cima: surgem de cima para baixo (startY = -70px)
+        const startY = (direction === 'up') ? -70 : 70;
+
+        if (window.gsap) {
+            gsap.killTweensOf(cards);
+            gsap.fromTo(cards,
+                {
+                    y: startY,
+                    opacity: 0
+                },
+                {
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.85,
+                    stagger: 0.09,
+                    ease: 'power3.out',
+                    clearProps: 'transform' // Libera transform para os efeitos de :hover funcionarem perfeitamente
+                }
+            );
+        }
+    }
+
+    // Função para resetar o estado dos cards quando o slide sai da visão
+    function resetSectionCards(section) {
+        if (!section) return;
+        const cards = section.querySelectorAll('.step-card, .case-card, .testimonial-card, .plan-card');
+        if (!cards || cards.length === 0) return;
+
+        if (window.gsap) {
+            gsap.killTweensOf(cards);
+            gsap.set(cards, { opacity: 0 });
+        }
+    }
+
     // Detectar dinamicamente a lista de slides de acordo com o dispositivo (Desktop vs Mobile)
     let sections;
     let currentIdx = 0;
@@ -233,12 +324,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         title.offsetHeight; // Reflow
                         title.style.animation = 'revealStaticText 1.5s linear forwards';
                     }
+
+                    // Dispara a animação direcional dos cards da seção que entrou
+                    animateSectionCards(entry.target, currentScrollDirection);
                 } else {
                     // Esconde o texto dos slides que saíram da tela para reiniciar
                     if (title) {
                         title.style.animation = 'none';
                         title.style.clipPath = 'inset(0 100% 0 0)';
                     }
+
+                    // Reseta os cards dos slides que saíram da tela
+                    resetSectionCards(entry.target);
                 }
             });
 
@@ -260,8 +357,14 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSectionsList();
     window.addEventListener('resize', updateSectionsList);
 
+    // Inicializa os cards da seção visível inicialmente (caso comece fora do topo)
+    if (sections && sections[currentIdx]) {
+        animateSectionCards(sections[currentIdx], 'down');
+    }
+
     function goToSlide(index) {
         if (!sections || index < 0 || index >= sections.length) return;
+        currentScrollDirection = (index > currentIdx) ? 'down' : 'up';
         currentIdx = index;
         sections[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
         const sectionId = sections[index].getAttribute('id');
@@ -274,6 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+        animateSectionCards(sections[index], currentScrollDirection);
     }
 
     // Smooth scroll para links internos e sincronização do slide ativo
@@ -291,6 +395,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Temporariamente desativar scroll snap para evitar conflitos na animação
                 document.documentElement.classList.add('disable-snap');
                 
+                // Sincroniza o índice do slide ativo e calcula a direção
+                let targetIdx = -1;
+                sections.forEach((sec, idx) => {
+                    if (sec === targetElement || targetElement.contains(sec)) {
+                        if (targetIdx === -1) targetIdx = idx;
+                    }
+                });
+                if (targetIdx !== -1) {
+                    if (targetIdx > currentIdx) {
+                        currentScrollDirection = 'down';
+                    } else if (targetIdx < currentIdx) {
+                        currentScrollDirection = 'up';
+                    }
+                    currentIdx = targetIdx;
+                }
+
                 targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 
                 // Dispara a animação no clique instantaneamente (atraso zero)
@@ -301,16 +421,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     targetTitle.style.animation = 'revealStaticText 1.5s linear forwards';
                 }
                 
-                // Sincroniza o índice do slide ativo
-                let targetIdx = -1;
-                sections.forEach((sec, idx) => {
-                    if (sec === targetElement || targetElement.contains(sec)) {
-                        if (targetIdx === -1) targetIdx = idx;
-                    }
-                });
-                if (targetIdx !== -1) {
-                    currentIdx = targetIdx;
-                }
+                // Dispara a animação direcional dos cards no clique do menu
+                animateSectionCards(targetElement, currentScrollDirection);
 
                 // Sincroniza a classe active do menu no clique
                 const sectionId = targetElement.getAttribute('id');
@@ -785,32 +897,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Interatividade do FAQ Accordion (Esconde/Mostra Respostas)
+    // Interatividade do FAQ Accordion (Balão Flutuante Sobreposto)
     document.querySelectorAll('.faq-question').forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
             const faqItem = button.parentElement;
             const isOpen = faqItem.classList.contains('active');
             
-            // Fecha todos os outros itens para um efeito sanfona limpo
+            // Fecha todos os outros itens
             document.querySelectorAll('.faq-item').forEach(item => {
                 item.classList.remove('active');
-                const answer = item.querySelector('.faq-answer');
-                if (answer) {
-                    answer.style.maxHeight = null;
-                }
             });
             
             // Se o item clicado não estava aberto, abre-o
             if (!isOpen) {
                 faqItem.classList.add('active');
-                const answer = faqItem.querySelector('.faq-answer');
-                if (answer) {
-                    answer.style.maxHeight = answer.scrollHeight + 'px';
-                }
             }
         });
     });
 
+    // Fecha o balão se clicar fora dos itens do FAQ
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.faq-item')) {
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+    });
 
 
     // Inicialização do Fundo de Galáxia WebGL (OGL) adaptado do @omnedia/ngx-galaxy
