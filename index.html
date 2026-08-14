@@ -21,6 +21,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
     <link rel="stylesheet" href="styles.css?v=1.6.3">
+    <link rel="stylesheet" href="masked-heading.css">
 </head>
 <body>
 
@@ -30,7 +31,7 @@
     <!-- Header / Navbar -->
     <header class="navbar">
         <div class="container nav-container">
-            <a href="#topo" class="brand-logo" title="Voltar ao início">
+            <a href="#intro" class="brand-logo" title="Voltar ao início">
                 <img src="logo.png" alt="re.viva memories logo" class="logo-img">
             </a>
             <nav class="nav-links" id="navLinks">
@@ -53,6 +54,27 @@
     <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
 
     <div id="galaxyBg" class="global-galaxy-bg"></div>
+    <div class="global-vignette"></div>
+
+    <!-- Intro Section: Nova página inicial com fundo preto e efeito de texto mascarado -->
+    <section class="intro-section" id="intro">
+        <div class="container slide-layout-container intro-content">
+            <h2 class="masked-heading intro-title" 
+                data-text="Quer reviver memórias inesquecíveis?" 
+                data-media-type="video" 
+                data-src="Video_Nuvens_Compac.webm"
+                data-reveal="rise"
+                data-duration="1.5"
+                data-stagger="0.1"
+                data-trigger="view"
+                data-align="center"
+                data-weight="700"
+                data-tracking="-0.02"
+                data-line-height="1.2"
+                data-text-scale="0.045">
+            </h2>
+        </div>
+    </section>
 
     <!-- Dobra 1: Hero Section -->
     <section class="hero-section" id="topo">
@@ -64,7 +86,7 @@
             <!-- Título no Centro da Página -->
             <div class="hero-center-wrap">
                 <h1 class="hero-title">
-                    <span class="title-line-1">Eternizando a <span class="title-highlight">VOZ</span> e a <span class="title-highlight">PRESENÇA</span> que o tempo levou.</span>
+                    <span class="title-line-1">Eternizando a VOZ e a PRESENÇA que o tempo levou.</span>
                 </h1>
             </div>
             
@@ -163,11 +185,45 @@
                 </p>
                 
                 <div class="slide-actions">
+                    <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                    </div>
                     <div class="video-badge-wrapper">
                         <span class="video-new-badge" data-video-id="video-inicio">NOVO</span>
                         <button class="btn btn-primary watch-video-btn" data-video-url="video_01.webm" data-video-id="video-inicio">
                             <i data-lucide="play"></i> INÍCIO
                         </button>
+                    </div>
+                    <div class="music-wave-toggle right-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
                     </div>
                 </div>
             </div>
@@ -237,11 +293,45 @@
             <div class="hero-bottom-wrap">
                 <p class="hero-subtitle">Um processo simples, cuidadoso e profundamente humanizado, focado no respeito absoluto à memória de quem você ama. Combinamos tecnologia de inteligência artificial de ponta com a máxima sensibilidade afetiva e artística para lapidar registros e criar um reencontro inesquecível, repleto de afeto e carinho.</p>
                 <div class="slide-actions">
+                    <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                    </div>
                     <div class="video-badge-wrapper">
                         <span class="video-new-badge" data-video-id="video-experiencia">NOVO</span>
                         <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4" data-video-id="video-experiencia">
                             <i data-lucide="play"></i> EXPERIÊNCIA
                         </button>
+                    </div>
+                    <div class="music-wave-toggle right-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
                     </div>
                 </div>
             </div>
@@ -306,11 +396,45 @@
             <div class="hero-bottom-wrap">
                 <p class="hero-subtitle">Surpreenda pessoas queridas em aniversários, casamentos, homenagens e datas especiais com uma recordação inesquecível. Transformamos memórias valiosas e sentimentos profundos em presenças emocionantes e eternas, permitindo que a voz de quem você ama abençoe e celebre estes momentos especiais.</p>
                 <div class="slide-actions">
+                    <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                    </div>
                     <div class="video-badge-wrapper">
                         <span class="video-new-badge" data-video-id="video-ocasioes">NOVO</span>
                         <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/9XAS9qB62Cg" data-video-id="video-ocasioes">
                             <i data-lucide="play"></i> OCASIÕES
                         </button>
+                    </div>
+                    <div class="music-wave-toggle right-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
                     </div>
                 </div>
             </div>
@@ -399,11 +523,45 @@
             <div class="hero-bottom-wrap">
                 <p class="hero-subtitle">Veja o impacto transformador que uma homenagem em vídeo causa no coração de famílias inteiras, com relatos reais de nossos clientes, revelando como a restauração sensível de voz e imagem traz alento, sorrisos e lembranças inestimáveis para todos os momentos festivos em família.</p>
                 <div class="slide-actions">
+                    <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                    </div>
                     <div class="video-badge-wrapper">
                         <span class="video-new-badge" data-video-id="video-depoimentos">NOVO</span>
                         <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4" data-video-id="video-depoimentos">
                             <i data-lucide="play"></i> DEPOIMENTOS
                         </button>
+                    </div>
+                    <div class="music-wave-toggle right-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
                     </div>
                 </div>
             </div>
@@ -601,11 +759,45 @@
             <div class="hero-bottom-wrap">
                 <p class="hero-subtitle">Escolha a estrutura ideal para eternizar a sua homenagem com planos que variam em tempo e capacidade narrativa que garantem a mesma dedicação técnica e sensibilidade artística para criar um registro sonoro e visual inestimável capazes de emocionar a todos os presentes.</p>
                 <div class="slide-actions">
+                    <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                    </div>
                     <div class="video-badge-wrapper">
                         <span class="video-new-badge" data-video-id="video-planos">NOVO</span>
                         <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4" data-video-id="video-planos">
                             <i data-lucide="play"></i> PLANOS
                         </button>
+                    </div>
+                    <div class="music-wave-toggle right-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
                     </div>
                 </div>
             </div>
@@ -627,7 +819,18 @@
             
             <!-- Acordeão FAQ (Content) -->
             <div class="faq-accordion">
-                <!-- FAQ Item 1 -->
+                <!-- FAQ Item 1: Ética e Privacidade -->
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Como funciona a questão de ética, consentimento e privacidade?</span>
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Todas as nossas homenagens são produzidas exclusivamente mediante autorização formal e assinatura do Termo de Responsabilidade. Respeitamos profundamente a memória afetiva e a privacidade, assegurando sigilo absoluto e uso estritamente privado de todos os dados e materiais fornecidos.</p>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 2 -->
                 <div class="faq-item">
                     <button class="faq-question">
                         <span>Como funciona o processo de recriação de voz e imagem?</span>
@@ -692,19 +895,62 @@
                         <p>Por padrão, você escolhe se prefere o vídeo no formato Horizontal (ideal para TVs e projetores de eventos) ou Vertical (perfeito para celulares). A opção adicional entrega a homenagem em ambos os formatos, adaptada profissionalmente para cada tela.</p>
                     </div>
                 </div>
+
+                <!-- FAQ Item 7 -->
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Posso solicitar desistência ou reembolso após o início da produção?</span>
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Por se tratar de um serviço sob encomenda, altamente personalizado e desenvolvido especificamente a partir das suas mídias e roteiro, o Código de Defesa do Consumidor afasta o direito de desistência ou arrependimento após o início da produção, já que o produto não pode ser comercializado para terceiros. Para garantir sua total satisfação, incluímos etapas formais de revisão e aprovação da foto, roteiro e voz antes da produção final.</p>
+                    </div>
+                </div>
             </div>
             
             <!-- Subtítulo e Rodapé Disclaimer na Base -->
             <div class="hero-bottom-wrap">
-                <p class="hero-subtitle">Reunimos as perguntas mais comuns de quem deseja eternizar uma memória com respeito, cuidado e emoção. Se tiver outras dúvidas, nossa equipe está pronta para te atender.</p>
-                <div class="slide-actions contrate-footer-wrap">
-                    <a href="https://wa.me/5511999999999" target="_blank" class="btn btn-primary" style="margin-bottom: 20px;">
-                        <i data-lucide="message-circle"></i> TIRAR DÚVIDAS NO WHATSAPP
-                    </a>
-                    <!-- Disclaimer de Ética Enxuto -->
-                    <div class="disclaimer-mini">
-                        <i data-lucide="shield-check"></i>
-                        <span><strong>Ética, Consentimento, Responsabilidade & Privacidade:</strong> Todas as nossas homenagens são produzidas exclusivamente mediante autorização formal e assinatura do Termo de Responsabilidade. Respeitamos profundamente a memória afetiva e a privacidade, assegurando sigilo absoluto e uso estritamente privado de todos os dados e materiais fornecidos.</span>
+                <p class="hero-subtitle">Reunimos as dúvidas e perguntas mais comuns de quem deseja eternizar uma memória com máximo respeito, cuidado técnico e sensibilidade afetiva, mas caso ainda tenha algum outro questionamento, nossa equipe dedicada está sempre pronta para ajudar, atender e acolher suas solicitações.</p>
+                <div class="slide-actions">
+                    <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                    </div>
+                    <div class="video-badge-wrapper">
+                        <span class="video-new-badge" data-video-id="video-faq">NOVO</span>
+                        <button class="btn btn-primary watch-video-btn" data-video-url="https://www.youtube.com/embed/ScMzIvxBSi4" data-video-id="video-faq">
+                            <i data-lucide="play"></i> PERGUNTAS
+                        </button>
+                    </div>
+                    <div class="music-wave-toggle right-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
                     </div>
                 </div>
             </div>
@@ -714,6 +960,7 @@
     <!-- Modal de Vídeo Global -->
     <div class="video-modal" id="videoModal" tabindex="-1">
         <div class="video-modal-content">
+            <div id="videoGalaxyBg" class="video-galaxy-bg"></div>
             <div class="video-container">
                 <div class="video-vignette-overlay"></div>
                 <iframe id="videoPlayer" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="display: none;"></iframe>

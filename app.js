@@ -19,11 +19,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Clique na Logo - Recarrega a página limpa do início para reexecutar todas as animações
+    // Clique na Logo - Rola suavemente para o topo (primeiro slide) sem recarregar a página
     document.querySelectorAll('.brand-logo').forEach(logo => {
         logo.addEventListener('click', (e) => {
             e.preventDefault();
-            window.location.href = window.location.pathname;
+            const firstSection = document.querySelector('.intro-section');
+            if (firstSection) {
+                if (currentIdx === 0) return; // Evita ação se já estiver no topo
+                
+                document.documentElement.classList.add('disable-snap');
+                document.documentElement.classList.add('intro-active'); // Força fundo preto no html
+                document.body.classList.add('intro-active'); // Força fundo preto no body imediatamente
+                firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                currentIdx = 0;
+                
+                // Desativa a classe active de todos os links de navegação
+                document.querySelectorAll('.navbar .nav-links a').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                setTimeout(() => {
+                    document.documentElement.classList.remove('disable-snap');
+                }, 300);
+            }
         });
     });
 
@@ -37,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             observer.disconnect();
         }
 
-        sections = document.querySelectorAll('.hero-section, .how-it-works, .use-cases, .testimonials, .contrate-section, .faq-section');
+        sections = document.querySelectorAll('.intro-section, .hero-section, .how-it-works, .use-cases, .testimonials, .contrate-section, .faq-section');
 
         // Sincroniza dinamicamente a classe active no cabeçalho
         function updateActiveNavLink(sectionId) {
@@ -89,10 +108,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
+
+            // Gerenciar classe de fundo ativo do slide inicial
+            const activeSection = sections[currentIdx];
+            if (activeSection && activeSection.classList.contains('intro-section')) {
+                document.documentElement.classList.add('intro-active');
+                document.body.classList.add('intro-active');
+            } else {
+                document.documentElement.classList.remove('intro-active');
+                document.body.classList.remove('intro-active');
+            }
         }, observerOptions);
 
         sections.forEach(sec => observer.observe(sec));
     }
+
 
     updateSectionsList();
     window.addEventListener('resize', updateSectionsList);
@@ -114,11 +144,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Smooth scroll para links internos e sincronização do slide ativo
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    document.querySelectorAll('a[href^="#"]:not(.brand-logo)').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const targetId = this.getAttribute('href');
             if (targetId === '#') return;
+            
+            // Se o link já está ativo, ignora para não reiniciar animações
+            if (this.classList.contains('active')) return;
             
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
@@ -346,6 +379,11 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(() => {
             videoModal.classList.add('active');
             videoModal.focus();
+            
+            // Dispara resize para atualizar o tamanho do canvas da galáxia que estava oculto (0x0)
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 100);
         });
     }
 
@@ -476,39 +514,78 @@ document.addEventListener('DOMContentLoaded', () => {
     // Lógica do Player de Áudio Fixo Minimalista
     const playlist = [
         'bg_music.mp3',
-        'bg_music_02.mp3'
+        'bg_music_02.mp3',
+        'bg_music_03.mp3'
     ];
 
     const bgAudio = document.getElementById('bgAudio');
+    let currentTrack = '';
+    
     if (bgAudio) {
         // Escolhe uma música aleatoriamente da playlist no carregamento/recarregamento da página
-        const randomTrack = playlist[Math.floor(Math.random() * playlist.length)];
-        bgAudio.src = randomTrack;
+        currentTrack = playlist[Math.floor(Math.random() * playlist.length)];
+        bgAudio.src = currentTrack;
         bgAudio.load();
     }
 
-    const audioToggleBtn = document.getElementById('audioToggleBtn');
-    const audioIconPlay = document.getElementById('audioIconPlay');
-    const audioIconPause = document.getElementById('audioIconPause');
-    const soundWaves = document.querySelectorAll('.sound-waves');
+    const musicWaves = document.querySelectorAll('.music-wave-toggle');
+    
+    // Gera dinamicamente 45 barras (strokes) em cada container para preencher toda a largura da tela
+    musicWaves.forEach(wave => {
+        wave.innerHTML = '';
+        for (let i = 0; i < 45; i++) {
+            const span = document.createElement('span');
+            span.className = 'stroke';
+            wave.appendChild(span);
+        }
+    });
 
     if (bgAudio) {
         bgAudio.addEventListener('play', () => updateAudioUI(true));
         bgAudio.addEventListener('pause', () => updateAudioUI(false));
+        
+        // Quando a música atual acabar, escolhe uma música DIFERENTE da atual e toca automaticamente
+        bgAudio.addEventListener('ended', () => {
+            const remainingTracks = playlist.filter(track => track !== currentTrack);
+            const nextTrack = remainingTracks[Math.floor(Math.random() * remainingTracks.length)];
+            currentTrack = nextTrack;
+            
+            bgAudio.src = currentTrack;
+            bgAudio.load();
+            bgAudio.play().then(() => {
+                updateAudioUI(true);
+            }).catch(err => {
+                console.log("Auto-play next track failed:", err);
+            });
+        });
 
         function updateAudioUI(isPlaying) {
-            if (isPlaying) {
-                if (audioIconPlay) audioIconPlay.style.display = 'none';
-                if (audioIconPause) audioIconPause.style.display = 'inline-block';
-                if (audioToggleBtn) audioToggleBtn.classList.add('is-playing');
-                soundWaves.forEach(wave => wave.classList.add('playing'));
-            } else {
-                if (audioIconPlay) audioIconPlay.style.display = 'inline-block';
-                if (audioIconPause) audioIconPause.style.display = 'none';
-                if (audioToggleBtn) audioToggleBtn.classList.remove('is-playing');
-                soundWaves.forEach(wave => wave.classList.remove('playing'));
-            }
+            musicWaves.forEach(wave => {
+                if (isPlaying) {
+                    wave.classList.add('playing');
+                } else {
+                    wave.classList.remove('playing');
+                }
+            });
         }
+
+        // Adiciona listeners para todas as ondas sonoras que controlam a música
+        musicWaves.forEach(wave => {
+            wave.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (bgAudio.paused) {
+                    const isVideoActive = document.body.classList.contains('video-active');
+                    bgAudio.volume = isVideoActive ? 0.25 : 1.0;
+                    bgAudio.play().then(() => {
+                        updateAudioUI(true);
+                    }).catch(err => {
+                        console.log("Play failed:", err);
+                    });
+                } else {
+                    bgAudio.pause();
+                }
+            });
+        });
 
         const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
@@ -667,18 +744,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // Inicialização do Fundo de Raios de Luz WebGL (OGL)
-    function initGalaxy() {
-        const ctn = document.getElementById('galaxyBg');
+    // Inicialização do Fundo de Galáxia WebGL (OGL) adaptado do @omnedia/ngx-galaxy
+    function initGalaxy(ctn, mouseInteraction = true) {
         if (!ctn || !window.ogl) return;
 
         const { Renderer, Program, Mesh, Triangle } = window.ogl;
 
         const renderer = new Renderer({
-            dpr: Math.min(window.devicePixelRatio, 2),
-            alpha: true
+            alpha: true,
+            premultipliedAlpha: false
         });
         const gl = renderer.gl;
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.clearColor(0, 0, 0, 0);
+
         gl.canvas.style.width = '100%';
         gl.canvas.style.height = '100%';
 
@@ -697,154 +777,184 @@ void main() {
 
         const frag = `precision highp float;
 
-uniform float iTime;
-uniform vec2  iResolution;
-
-uniform vec2  rayPos;
-uniform vec2  rayDir;
-uniform vec3  raysColor;
-uniform float raysSpeed;
-uniform float lightSpread;
-uniform float rayLength;
-uniform float pulsating;
-uniform float fadeDistance;
-uniform float saturation;
-uniform vec2  mousePos;
-uniform float mouseInfluence;
-uniform float noiseAmount;
-uniform float distortion;
+uniform float uTime;
+uniform vec3 uResolution;
+uniform vec2 uFocal;
+uniform vec2 uRotation;
+uniform float uStarSpeed;
+uniform float uDensity;
+uniform float uHueShift;
+uniform float uSpeed;
+uniform vec2 uMouse;
+uniform float uGlowIntensity;
+uniform float uSaturation;
+uniform bool uMouseRepulsion;
+uniform float uTwinkleIntensity;
+uniform float uRotationSpeed;
+uniform float uRepulsionStrength;
+uniform float uMouseActiveFactor;
+uniform float uAutoCenterRepulsion;
+uniform bool uTransparent;
 
 varying vec2 vUv;
 
-float noise(vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+#define NUM_LAYER 4.0
+#define STAR_COLOR_CUTOFF 0.2
+#define MAT45 mat2(0.7071, -0.7071, 0.7071, 0.7071)
+#define PERIOD 3.0
+
+float Hash21(vec2 p) {
+  p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32);
+  return fract(p.x * p.y);
 }
 
-float rayStrength(vec2 raySource, vec2 rayRefDirection, vec2 coord,
-                  float seedA, float seedB, float speed) {
-  vec2 sourceToCoord = coord - raySource;
-  vec2 dirNorm = normalize(sourceToCoord);
-  float cosAngle = dot(dirNorm, rayRefDirection);
-
-  float distortedAngle = cosAngle + distortion * sin(iTime * 2.0 + length(sourceToCoord) * 0.01) * 0.2;
-  
-  float spreadFactor = pow(max(distortedAngle, 0.0), 1.0 / max(lightSpread, 0.001));
-
-  float distance = length(sourceToCoord);
-  float maxDistance = iResolution.x * rayLength;
-  float lengthFalloff = clamp((maxDistance - distance) / maxDistance, 0.0, 1.0);
-  
-  float fadeFalloff = clamp((iResolution.x * fadeDistance - distance) / (iResolution.x * fadeDistance), 0.5, 1.0);
-  float pulse = pulsating > 0.5 ? (0.8 + 0.2 * sin(iTime * speed * 3.0)) : 1.0;
-
-  float baseStrength = clamp(
-    (0.45 + 0.15 * sin(distortedAngle * seedA + iTime * speed)) +
-    (0.3 + 0.2 * cos(-distortedAngle * seedB + iTime * speed)),
-    0.0, 1.0
-  );
-
-  return baseStrength * lengthFalloff * fadeFalloff * spreadFactor * pulse;
+float tri(float x) {
+  return abs(fract(x) * 2.0 - 1.0);
 }
 
-void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-  vec2 coord = vec2(fragCoord.x, iResolution.y - fragCoord.y);
-  
-  vec2 finalRayDir = rayDir;
-  if (mouseInfluence > 0.0) {
-    vec2 mouseScreenPos = mousePos * iResolution.xy;
-    vec2 mouseDirection = normalize(mouseScreenPos - rayPos);
-    finalRayDir = normalize(mix(rayDir, mouseDirection, mouseInfluence));
+float tris(float x) {
+  float t = fract(x);
+  return 1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0));
+}
+
+float trisn(float x) {
+  float t = fract(x);
+  return 2.0 * (1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0))) - 1.0;
+}
+
+vec3 hsv2rgb(vec3 c) {
+  vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+  vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+  return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+float Star(vec2 uv, float flare) {
+  float d = length(uv);
+  float m = (0.05 * uGlowIntensity) / d;
+  float rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+  m += rays * flare * uGlowIntensity;
+  uv *= MAT45;
+  rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+  m += rays * 0.3 * flare * uGlowIntensity;
+  m *= smoothstep(1.0, 0.2, d);
+  return m;
+}
+
+vec3 StarLayer(vec2 uv) {
+  vec3 col = vec3(0.0);
+
+  vec2 gv = fract(uv) - 0.5;
+  vec2 id = floor(uv);
+
+  for (int y = -1; y <= 1; y++) {
+    for (int x = -1; x <= 1; x++) {
+      vec2 offset = vec2(float(x), float(y));
+      vec2 si = id + vec2(float(x), float(y));
+      float seed = Hash21(si);
+      float size = fract(seed * 345.32);
+      float glossLocal = tri(uStarSpeed / (PERIOD * seed + 1.0));
+      float flareSize = smoothstep(0.9, 1.0, size) * glossLocal;
+
+      float red = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 1.0)) + STAR_COLOR_CUTOFF;
+      float blu = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 3.0)) + STAR_COLOR_CUTOFF;
+      float grn = min(red, blu) * seed;
+      vec3 base = vec3(red, grn, blu);
+
+      float hue = atan(base.g - base.r, base.b - base.r) / (2.0 * 3.14159) + 0.5;
+      hue = fract(hue + uHueShift / 360.0);
+      float sat = length(base - vec3(dot(base, vec3(0.299, 0.587, 0.114)))) * uSaturation;
+      float val = max(max(base.r, base.g), base.b);
+      base = hsv2rgb(vec3(hue, sat, val));
+
+      vec2 pad = vec2(tris(seed * 34.0 + uTime * uSpeed / 10.0), tris(seed * 38.0 + uTime * uSpeed / 30.0)) - 0.5;
+
+      float star = Star(gv - offset - pad, flareSize);
+      vec3 color = base;
+
+      float twinkle = trisn(uTime * uSpeed + seed * 6.2831) * 0.5 + 1.0;
+      twinkle = mix(1.0, twinkle, uTwinkleIntensity);
+      star *= twinkle;
+
+      col += star * size * color;
+    }
   }
 
-  vec4 rays1 = vec4(1.0) *
-               rayStrength(rayPos, finalRayDir, coord, 36.2214, 21.11349,
-                           1.5 * raysSpeed);
-  vec4 rays2 = vec4(1.0) *
-               rayStrength(rayPos, finalRayDir, coord, 22.3991, 18.0234,
-                           1.1 * raysSpeed);
-
-  fragColor = rays1 * 0.5 + rays2 * 0.4;
-
-  if (noiseAmount > 0.0) {
-    float n = noise(coord * 0.01 + iTime * 0.1);
-    fragColor.rgb *= (1.0 - noiseAmount + noiseAmount * n);
-  }
-
-  float brightness = 1.0 - (coord.y / iResolution.y);
-  fragColor.x *= mix(0.61, 0.9, brightness);
-  fragColor.y *= mix(0.45, 0.9, brightness);
-  fragColor.z *= mix(0.28, 1.0, brightness);
-
-  if (saturation != 1.0) {
-    float gray = dot(fragColor.rgb, vec3(0.299, 0.587, 0.114));
-    fragColor.rgb = mix(vec3(gray), fragColor.rgb, saturation);
-  }
-
-  fragColor.rgb *= raysColor;
+  return col;
 }
 
 void main() {
-  vec4 color;
-  mainImage(color, gl_FragCoord.xy);
-  gl_FragColor  = color;
+  vec2 focalPx = uFocal * uResolution.xy;
+  vec2 uv = (vUv * uResolution.xy - focalPx) / uResolution.y;
+
+  vec2 mouseNorm = uMouse - vec2(0.5);
+
+  if (uAutoCenterRepulsion > 0.0) {
+    vec2 centerUV = vec2(0.0, 0.0);
+    float centerDist = length(uv - centerUV);
+    vec2 repulsion = normalize(uv - centerUV) * (uAutoCenterRepulsion / (centerDist + 0.1));
+    uv += repulsion * 0.05;
+  } else if (uMouseRepulsion) {
+    vec2 mousePosUV = (uMouse * uResolution.xy - focalPx) / uResolution.y;
+    float mouseDist = length(uv - mousePosUV);
+    vec2 repulsion = normalize(uv - mousePosUV) * (uRepulsionStrength / (mouseDist + 0.1));
+    uv += repulsion * 0.05 * uMouseActiveFactor;
+  } else {
+    vec2 mouseOffset = mouseNorm * 0.1 * uMouseActiveFactor;
+    uv += mouseOffset;
+  }
+
+  float autoRotAngle = uTime * uRotationSpeed;
+  mat2 autoRot = mat2(cos(autoRotAngle), -sin(autoRotAngle), sin(autoRotAngle), cos(autoRotAngle));
+  uv = autoRot * uv;
+
+  uv = mat2(uRotation.x, -uRotation.y, uRotation.y, uRotation.x) * uv;
+
+  vec3 col = vec3(0.0);
+
+  for (float i = 0.0; i < 1.0; i += 1.0 / NUM_LAYER) {
+    float depth = fract(i + uStarSpeed * uSpeed);
+    float scale = mix(20.0 * uDensity, 0.5 * uDensity, depth);
+    float fade = depth * smoothstep(1.0, 0.9, depth);
+    col += StarLayer(uv * scale + i * 453.32) * fade;
+  }
+
+  if (uTransparent) {
+    float alpha = length(col);
+    alpha = smoothstep(0.0, 0.3, alpha);
+    alpha = min(alpha, 1.0);
+    gl_FragColor = vec4(col, alpha);
+  } else {
+    gl_FragColor = vec4(col, 1.0);
+  }
 }`;
 
-        const hexToRgb = (hex) => {
-            const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return m ? [parseInt(m[1], 16) / 255, parseInt(m[2], 16) / 255, parseInt(m[3], 16) / 255] : [1, 1, 1];
-        };
-
-        const getAnchorAndDir = (origin, w, h) => {
-            const outside = 0.2;
-            switch (origin) {
-                case 'top-left':
-                    return { anchor: [0, -outside * h], dir: [0, 1] };
-                case 'top-right':
-                    return { anchor: [w, -outside * h], dir: [0, 1] };
-                case 'left':
-                    return { anchor: [-outside * w, 0.5 * h], dir: [1, 0] };
-                case 'right':
-                    return { anchor: [(1 + outside) * w, 0.5 * h], dir: [-1, 0] };
-                case 'bottom-left':
-                    return { anchor: [0, (1 + outside) * h], dir: [0, -1] };
-                case 'bottom-center':
-                    return { anchor: [0.5 * w, (1 + outside) * h], dir: [0, -1] };
-                case 'bottom-right':
-                    return { anchor: [w, (1 + outside) * h], dir: [0, -1] };
-                default: // "top-center"
-                    return { anchor: [0.5 * w, -outside * h], dir: [0, 1] };
-            }
-        };
-
-        const raysColor = '#ffffff';
-        const raysOrigin = 'top-center';
-        const raysSpeed = 1.0;
-        const lightSpread = 1.0;
-        const rayLength = 2.0;
-        const pulsating = false;
-        const fadeDistance = 1.0;
-        const saturation = 1.0;
-        const followMouse = true;
-        const mouseInfluence = 0.1;
-        const noiseAmount = 0.0;
-        const distortion = 0.0;
+        const mouseInteractionVal = mouseInteraction;
+        const mouseRepulsion = false;
+        const density = 0.18;
+        const glowIntensity = 0.25;
+        const saturation = 0.9;
+        const hueShift = 270.0;
 
         const uniforms = {
-            iTime: { value: 0 },
-            iResolution: { value: [1, 1] },
-            rayPos: { value: [0, 0] },
-            rayDir: { value: [0, 1] },
-            raysColor: { value: hexToRgb(raysColor) },
-            raysSpeed: { value: raysSpeed },
-            lightSpread: { value: lightSpread },
-            rayLength: { value: rayLength },
-            pulsating: { value: pulsating ? 1.0 : 0.0 },
-            fadeDistance: { value: fadeDistance },
-            saturation: { value: saturation },
-            mousePos: { value: [0.5, 0.5] },
-            mouseInfluence: { value: mouseInfluence },
-            noiseAmount: { value: noiseAmount },
-            distortion: { value: distortion }
+            uTime: { value: 0 },
+            uResolution: { value: [gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height] },
+            uFocal: { value: [0.5, 0.5] },
+            uRotation: { value: [1.0, 0.0] },
+            uStarSpeed: { value: 0.5 },
+            uDensity: { value: density },
+            uHueShift: { value: hueShift },
+            uSpeed: { value: 1.0 },
+            uMouse: { value: [0.5, 0.5] },
+            uGlowIntensity: { value: glowIntensity },
+            uSaturation: { value: saturation },
+            uMouseRepulsion: { value: mouseRepulsion },
+            uTwinkleIntensity: { value: 0.3 },
+            uRotationSpeed: { value: 0.1 },
+            uRepulsionStrength: { value: 2.0 },
+            uMouseActiveFactor: { value: 0.0 },
+            uAutoCenterRepulsion: { value: 0.0 },
+            uTransparent: { value: true }
         };
 
         const geometry = new Triangle(gl);
@@ -861,40 +971,55 @@ void main() {
             const wCSS = ctn.clientWidth;
             const hCSS = ctn.clientHeight;
             renderer.setSize(wCSS, hCSS);
-            const dpr = renderer.dpr;
-            const w = wCSS * dpr;
-            const h = hCSS * dpr;
-            uniforms.iResolution.value = [w, h];
-            const { anchor, dir } = getAnchorAndDir(raysOrigin, w, h);
-            uniforms.rayPos.value = anchor;
-            uniforms.rayDir.value = dir;
+            const w = gl.canvas.width;
+            const h = gl.canvas.height;
+            uniforms.uResolution.value = [w, h, w / h];
         };
 
-        const mouse = { x: 0.5, y: 0.5 };
-        const smoothMouse = { x: 0.5, y: 0.5 };
+        const targetMousePos = { x: 0.5, y: 0.5 };
+        const smoothMousePos = { x: 0.5, y: 0.5 };
+        let targetMouseActive = 0.0;
+        let smoothMouseActive = 0.0;
 
-        if (followMouse) {
-            window.addEventListener('mousemove', (e) => {
+        if (mouseInteractionVal) {
+            window.addEventListener('pointermove', (e) => {
                 const rect = ctn.getBoundingClientRect();
-                mouse.x = (e.clientX - rect.left) / rect.width;
-                mouse.y = (e.clientY - rect.top) / rect.height;
-            });
+                const x = (e.clientX - rect.left) / rect.width;
+                const y = 1.0 - (e.clientY - rect.top) / rect.height;
+                targetMousePos.x = x;
+                targetMousePos.y = y;
+                targetMouseActive = 1.0;
+            }, { passive: true });
+
+            window.addEventListener('pointerleave', () => {
+                targetMouseActive = 0.0;
+            }, { passive: true });
         }
 
         let animationFrameId;
         const loop = (t) => {
-            uniforms.iTime.value = t * 0.001;
+            animationFrameId = requestAnimationFrame(loop);
 
-            if (followMouse && mouseInfluence > 0.0) {
-                const smoothing = 0.92;
-                smoothMouse.x = smoothMouse.x * smoothing + mouse.x * (1 - smoothing);
-                smoothMouse.y = smoothMouse.y * smoothing + mouse.y * (1 - smoothing);
-                uniforms.mousePos.value = [smoothMouse.x, smoothMouse.y];
-            }
+            // OTIMIZAÇÃO DE PERFORMANCE: Pausa a renderização WebGL do canvas inativo para economizar GPU e evitar travamento do vídeo
+            const isVideoActive = document.body.classList.contains('video-active');
+            if (ctn.id === 'galaxyBg' && isVideoActive) return; // Se o modal está aberto, pausa a galáxia de fundo
+            if (ctn.id === 'videoGalaxyBg' && !isVideoActive) return; // Se o modal está fechado, pausa a galáxia do modal
+
+            const timeSeconds = t * 0.001;
+            uniforms.uTime.value = timeSeconds;
+            uniforms.uStarSpeed.value = (timeSeconds * 0.5) / 10.0;
+
+            const lerp = 0.05;
+            smoothMousePos.x += (targetMousePos.x - smoothMousePos.x) * lerp;
+            smoothMousePos.y += (targetMousePos.y - smoothMousePos.y) * lerp;
+            smoothMouseActive += (targetMouseActive - smoothMouseActive) * lerp;
+
+            uniforms.uMouse.value[0] = smoothMousePos.x;
+            uniforms.uMouse.value[1] = smoothMousePos.y;
+            uniforms.uMouseActiveFactor.value = smoothMouseActive;
 
             try {
                 renderer.render({ scene: mesh });
-                animationFrameId = requestAnimationFrame(loop);
             } catch (error) {
                 console.warn('WebGL rendering error:', error);
             }
@@ -905,12 +1030,51 @@ void main() {
         animationFrameId = requestAnimationFrame(loop);
     }
 
-    initGalaxy();
+    const galaxyBg = document.getElementById('galaxyBg');
+    if (galaxyBg) initGalaxy(galaxyBg, true);
+
+    const videoGalaxyBg = document.getElementById('videoGalaxyBg');
+    if (videoGalaxyBg) initGalaxy(videoGalaxyBg, false);
 
     // Inicialização da Galeria de Acordeão com GSAP
     function initAccordionGallery() {
         const gallery = document.getElementById('heroAccordion');
         if (!gallery) return;
+
+        // Imagens do usuário comprimidas com seus respectivos títulos e ocasiões fixas
+        const imagePool = [
+            { src: 'gallery_homem_01.jpg', label: 'Pai - Homenagem para Aniversário' },
+            { src: 'gallery_homem_02.jpg', label: 'Avô - Homenagem para Formatura' },
+            { src: 'gallery_homem_03.jpg', label: 'Irmão - Homenagem para Casamento' },
+            { src: 'gallery_homem_04.jpg', label: 'Filho - Homenagem para Aniversário' },
+            { src: 'gallery_mulher_01.jpg', label: 'Mãe - Homenagem para Aniversário' },
+            { src: 'gallery_mulher_02.jpg', label: 'Mãe - Homenagem para Formatura' },
+            { src: 'gallery_mulher_03.jpg', label: 'Tia - Homenagem Especial' },
+            { src: 'gallery_mulher_04.jpg', label: 'Avó - Homenagem para Batizado' }
+        ];
+
+        // Embaralha a pool de imagens (cada uma carrega seu próprio vínculo fixo de texto)
+        const shuffledImages = [...imagePool].sort(() => Math.random() - 0.5);
+
+        // Preenche o acordeão com as imagens aleatórias antes de aplicar o GSAP
+        const tempPanels = gallery.querySelectorAll('.ag-panel');
+
+        tempPanels.forEach((panel, index) => {
+            if (index < shuffledImages.length) {
+                const imgData = shuffledImages[index];
+                const imgEl = panel.querySelector('.ag-panel__media img');
+                const labelTextEl = panel.querySelector('.ag-panel__text');
+                
+                if (imgEl) {
+                    imgEl.src = imgData.src;
+                    imgEl.alt = imgData.label;
+                }
+                if (labelTextEl) {
+                    labelTextEl.textContent = imgData.label;
+                }
+                panel.setAttribute('aria-label', imgData.label);
+            }
+        });
 
         const panels = gallery.querySelectorAll('.ag-panel');
         const count = panels.length;
@@ -1050,5 +1214,386 @@ void main() {
     }
 
     initAccordionGallery();
-});
 
+    // Efeito BlurText para os títulos dos slides (idêntico ao componente React BlurText)
+    function initBlurText() {
+        let lastActivity = Date.now();
+        let activeTitleElement = null;
+        
+        const titles = document.querySelectorAll('.hero-title');
+        
+        titles.forEach(title => {
+            const line = title.querySelector('.title-line-1');
+            if (!line) return;
+            
+            const originalHTML = line.innerHTML;
+            
+            let tempDiv = document.createElement('div');
+            tempDiv.innerHTML = originalHTML;
+            
+            const wrapTextNodes = (node) => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const text = node.textContent;
+                    const words = text.split(/(\s+)/);
+                    const fragment = document.createDocumentFragment();
+                    
+                    words.forEach(word => {
+                        if (word.trim() === '') {
+                            fragment.appendChild(document.createTextNode(word));
+                        } else {
+                            const span = document.createElement('span');
+                            span.className = 'blur-word';
+                            span.textContent = word;
+                            gsap.set(span, {
+                                display: 'inline-block',
+                                filter: 'blur(10px)',
+                                opacity: 0,
+                                y: -50,
+                                willChange: 'transform, filter, opacity'
+                            });
+                            fragment.appendChild(span);
+                        }
+                    });
+                    node.parentNode.replaceChild(fragment, node);
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    if (node.classList.contains('blur-word')) return;
+                    const children = Array.from(node.childNodes);
+                    children.forEach(wrapTextNodes);
+                }
+            };
+            
+            wrapTextNodes(tempDiv);
+            line.innerHTML = tempDiv.innerHTML;
+            
+            const words = line.querySelectorAll('.blur-word');
+            
+            // Remove o efeito original estático do CSS
+            title.style.opacity = '1';
+            title.style.filter = 'none';
+            title.style.transform = 'none';
+            title.style.animation = 'none';
+
+            function playTitle(tEl) {
+                const wordsList = tEl.querySelectorAll('.blur-word');
+                gsap.killTweensOf(wordsList);
+                gsap.timeline()
+                    .to(wordsList, {
+                        filter: 'blur(5px)',
+                        opacity: 0.5,
+                        y: 5,
+                        duration: 0.35,
+                        stagger: 0.1,
+                        ease: 'power1.out'
+                    })
+                    .to(wordsList, {
+                        filter: 'blur(0px)',
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.35,
+                        stagger: 0.1,
+                        ease: 'power1.out'
+                    }, 0.35);
+            }
+
+            function resetTitle(tEl) {
+                const wordsList = tEl.querySelectorAll('.blur-word');
+                gsap.killTweensOf(wordsList);
+                gsap.set(wordsList, {
+                    filter: 'blur(10px)',
+                    opacity: 0,
+                    y: -50
+                });
+            }
+
+            function replayTitle(tEl) {
+                const wordsList = tEl.querySelectorAll('.blur-word');
+                gsap.killTweensOf(wordsList);
+                gsap.timeline()
+                    .to(wordsList, {
+                        filter: 'blur(10px)',
+                        opacity: 0,
+                        y: -30,
+                        duration: 0.35,
+                        stagger: 0.05,
+                        ease: 'power1.in'
+                    })
+                    .add(() => {
+                        playTitle(tEl);
+                    });
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        activeTitleElement = title; // Define como o título ativo
+                        playTitle(title);
+                    } else {
+                        if (activeTitleElement === title) {
+                            activeTitleElement = null;
+                        }
+                        resetTitle(title);
+                    }
+                });
+            }, { threshold: 0.15 });
+            
+            observer.observe(title);
+        });
+
+        // Lógica de inatividade global
+        const resetInactivity = () => {
+            lastActivity = Date.now();
+        };
+
+        ['mousemove', 'click', 'scroll', 'keydown', 'touchstart'].forEach(evt => {
+            window.addEventListener(evt, resetInactivity, { passive: true });
+        });
+
+        setInterval(() => {
+            const elapsed = (Date.now() - lastActivity) / 1000;
+            if (elapsed >= 15) {
+                resetInactivity();
+                if (activeTitleElement) {
+                    replayTitle(activeTitleElement);
+                }
+            }
+        }, 1000);
+    }
+
+    function initMaskedHeadings() {
+        const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+
+        document.querySelectorAll('.masked-heading').forEach(el => {
+            const text = el.getAttribute('data-text') || 'Designed in the details';
+            const mediaType = el.getAttribute('data-media-type') || 'image';
+            const src = el.getAttribute('data-src') || '';
+            const poster = el.getAttribute('data-poster') || '';
+            const fillScale = parseFloat(el.getAttribute('data-fill-scale')) || 1.25;
+            const parallax = parseFloat(el.getAttribute('data-parallax')) || 26;
+            const drift = parseFloat(el.getAttribute('data-drift')) || 18;
+            const brightness = parseFloat(el.getAttribute('data-brightness')) || 1;
+            const saturation = parseFloat(el.getAttribute('data-saturation')) || 1;
+            const grayscale = el.getAttribute('data-grayscale') === 'true';
+            const reveal = el.getAttribute('data-reveal') || 'rise';
+            const duration = parseFloat(el.getAttribute('data-duration')) || 1.1;
+            const stagger = parseFloat(el.getAttribute('data-stagger')) || 0.09;
+            const trigger = el.getAttribute('data-trigger') || 'view';
+            const align = el.getAttribute('data-align') || 'center';
+            const weight = el.getAttribute('data-weight') || '700';
+            const tracking = parseFloat(el.getAttribute('data-tracking')) || -0.03;
+            const lineHeight = parseFloat(el.getAttribute('data-line-height')) || 1.06;
+            const textScale = parseFloat(el.getAttribute('data-text-scale')) || 0.115;
+
+            el.style.textAlign = align;
+            el.style.fontWeight = weight;
+            el.style.letterSpacing = `${tracking}em`;
+            el.style.lineHeight = lineHeight;
+
+            const words = String(text).split(/\s+/).filter(Boolean);
+            const clipId = `mh-${Math.random().toString(36).substring(2, 10)}`;
+
+            // Build HTML
+            let measureHTML = '';
+            words.forEach((word) => {
+                measureHTML += `<span class="masked-heading__word">${word}<i class="masked-heading__baseline"></i></span> `;
+            });
+
+            let defsHTML = `
+            <svg class="masked-heading__defs" aria-hidden="true" focusable="false">
+                <defs>
+                    <clipPath id="${clipId}" clipPathUnits="userSpaceOnUse">
+            `;
+            words.forEach((word) => {
+                defsHTML += `<text>${word}</text>`;
+            });
+            defsHTML += `
+                    </clipPath>
+                </defs>
+            </svg>
+            `;
+
+            let mediaHTML = '';
+            if (mediaType === 'video') {
+                mediaHTML = `<video class="masked-heading__source" src="${src}" poster="${poster}" autoplay muted loop playsinline></video>`;
+            } else {
+                mediaHTML = `<img class="masked-heading__source" src="${src}" alt="" draggable="false">`;
+            }
+
+            let revealHTML = `
+            <span class="masked-heading__reveal">
+                <span class="masked-heading__clip" style="clip-path: url(#${clipId}); -webkit-clip-path: url(#${clipId});">
+                    <span class="masked-heading__media">${mediaHTML}</span>
+                </span>
+            </span>
+            `;
+
+            el.innerHTML = `<span class="masked-heading__measure">${measureHTML}</span>${defsHTML}${revealHTML}`;
+
+            // Get element references
+            const measure = el.querySelector('.masked-heading__measure');
+            const revealLayer = el.querySelector('.masked-heading__reveal');
+            const media = el.querySelector('.masked-heading__media');
+            const wordRefs = el.querySelectorAll('.masked-heading__word');
+            const baseRefs = el.querySelectorAll('.masked-heading__baseline');
+            const glyphRefs = el.querySelectorAll('.masked-heading__defs text');
+
+            const offset = { x: 0, y: 0, tx: 0, ty: 0 };
+
+            const place = () => {
+                if (!media) return;
+                const W = el.clientWidth;
+                const H = el.clientHeight;
+                const maxX = Math.max(0, ((fillScale - 1) / 2) * W);
+                const maxY = Math.max(0, ((fillScale - 1) / 2) * H);
+
+                media.style.transform = `translate3d(${clamp(offset.x, -maxX, maxX).toFixed(2)}px, ${clamp(offset.y, -maxY, maxY).toFixed(2)}px, 0) scale(${fillScale})`;
+                media.style.filter = `brightness(${brightness}) saturate(${saturation})${grayscale ? ' grayscale(1)' : ''}`;
+            };
+
+            const sync = () => {
+                if (!measure) return;
+                el.style.fontSize = `${clamp(el.clientWidth * textScale, 20, 200).toFixed(1)}px`;
+
+                const cs = window.getComputedStyle(measure);
+                for (let i = 0; i < wordRefs.length; i++) {
+                    const box = wordRefs[i];
+                    const base = baseRefs[i];
+                    const glyph = glyphRefs[i];
+                    if (!box || !base || !glyph) continue;
+                    glyph.setAttribute('x', `${box.offsetLeft}`);
+                    glyph.setAttribute('y', `${base.offsetTop}`);
+                    glyph.style.fontFamily = cs.fontFamily;
+                    glyph.style.fontSize = cs.fontSize;
+                    glyph.style.fontWeight = cs.fontWeight;
+                    glyph.style.fontStyle = cs.fontStyle;
+                    glyph.style.letterSpacing = cs.letterSpacing;
+                }
+                place();
+            };
+
+            sync();
+            const ro = new ResizeObserver(sync);
+            ro.observe(el);
+            if (document.fonts?.ready) {
+                document.fonts.ready.then(sync).catch(() => {});
+            }
+
+            let raf = 0;
+            let last = performance.now();
+            let clock = 0;
+
+            const frame = (now) => {
+                const dt = Math.min(0.05, (now - last) / 1000);
+                last = now;
+                clock += dt;
+
+                const dx = Math.sin(clock * 0.21) * drift;
+                const dy = Math.cos(clock * 0.17) * drift * 0.6;
+
+                const ease = 1 - Math.exp(-dt / 0.18);
+                offset.x += (offset.tx + dx - offset.x) * ease;
+                offset.y += (offset.ty + dy - offset.y) * ease;
+
+                place();
+                raf = requestAnimationFrame(frame);
+            };
+
+            const onMove = (e) => {
+                if (parallax <= 0) return;
+                const r = el.getBoundingClientRect();
+                const nx = ((e.clientX - r.left) / (r.width || 1)) * 2 - 1;
+                const ny = ((e.clientY - r.top) / (r.height || 1)) * 2 - 1;
+                offset.tx = clamp(nx, -1, 1) * -parallax;
+                offset.ty = clamp(ny, -1, 1) * -parallax;
+            };
+
+            const onLeave = () => {
+                offset.tx = 0;
+                offset.ty = 0;
+            };
+
+            el.addEventListener('pointermove', onMove);
+            el.addEventListener('pointerleave', onLeave);
+            raf = requestAnimationFrame(frame);
+
+            // GSAP Reveal
+            const glyphsArr = Array.from(glyphRefs);
+            const riseDistance = () => (parseFloat(window.getComputedStyle(el).fontSize) || 48) * 1.15;
+
+            const settle = () => {
+                gsap.set(glyphsArr, { y: 0 });
+                gsap.set(revealLayer, { opacity: 1, scale: 1, clipPath: 'inset(0% 0% 0% 0%)' });
+            };
+
+            const rest = () => {
+                if (reveal === 'rise') {
+                    gsap.set(glyphsArr, { y: riseDistance() });
+                } else if (reveal === 'wipe') {
+                    gsap.set(revealLayer, { clipPath: 'inset(0% 100% 0% 0%)' });
+                } else if (reveal === 'fade') {
+                    gsap.set(revealLayer, { opacity: 0, scale: 1.08 });
+                }
+            };
+
+            const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reveal === 'none' || reduce) {
+                settle();
+                return;
+            }
+
+            let tween = null;
+            const play = () => {
+                tween?.kill();
+                if (reveal === 'rise') {
+                    gsap.set(revealLayer, { opacity: 1, scale: 1, clipPath: 'inset(0% 0% 0% 0%)' });
+                    tween = gsap.fromTo(
+                        glyphsArr,
+                        { y: riseDistance() },
+                        { y: 0, duration, stagger, ease: 'power4.out', overwrite: 'auto' }
+                    );
+                } else if (reveal === 'wipe') {
+                    gsap.set(glyphsArr, { y: 0 });
+                    const state = { p: 100 };
+                    tween = gsap.to(state, {
+                        p: 0,
+                        duration,
+                        ease: 'power3.inOut',
+                        overwrite: 'auto',
+                        onUpdate: () => {
+                            revealLayer.style.clipPath = `inset(0% ${state.p}% 0% 0%)`;
+                        }
+                    });
+                } else {
+                    gsap.set(glyphsArr, { y: 0 });
+                    tween = gsap.fromTo(
+                        revealLayer,
+                        { opacity: 0, scale: 1.08 },
+                        { opacity: 1, scale: 1, duration, ease: 'power3.out', overwrite: 'auto' }
+                    );
+                }
+            };
+
+            if (trigger === 'hover') {
+                settle();
+                el.addEventListener('pointerenter', play);
+            } else if (trigger === 'view') {
+                settle();
+                rest();
+                const io = new IntersectionObserver(
+                    entries => {
+                        if (entries.some(e => e.isIntersecting)) {
+                            play();
+                            io.disconnect();
+                        }
+                    },
+                    { threshold: 0.25 }
+                );
+                io.observe(el);
+            } else {
+                play();
+            }
+        });
+    }
+
+    initBlurText();
+    initMaskedHeadings();
+});
