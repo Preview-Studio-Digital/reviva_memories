@@ -1463,6 +1463,8 @@ img, video {
 .slide-actions {
     width: 100% !important;
     display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
     justify-content: center !important;
     align-items: center !important;
 }
@@ -3301,6 +3303,7 @@ span.section-tag.handwritten-title {
     width: 100% !important;
     display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
     justify-content: space-between !important; /* Estica de ponta a ponta */
     gap: 32px !important;
