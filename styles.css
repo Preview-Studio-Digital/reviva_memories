@@ -538,18 +538,7 @@ img, video {
     pointer-events: none;
 }
 
-.global-waves-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -10;
-    filter: blur(8px); /* Reduzido de 25px para 8px, pois o downscaling no JS já provê suavização natural de forma ultra-leve */
-    opacity: 0.85;
-    pointer-events: none;
-    display: none !important; /* Desabilitado temporariamente para testar imagem de fundo */
-}
+
 
 .hero-content {
     position: relative;
