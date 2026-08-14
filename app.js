@@ -1325,10 +1325,12 @@ void main() {
             `;
 
             let mediaHTML = '';
-            if (mediaType === 'video') {
-                mediaHTML = `<video class="masked-heading__source" src="${src}" poster="${poster}" autoplay muted loop playsinline></video>`;
-            } else {
-                mediaHTML = `<img class="masked-heading__source" src="${src}" alt="" draggable="false">`;
+            if (src) {
+                if (mediaType === 'video') {
+                    mediaHTML = `<video class="masked-heading__source" src="${src}" poster="${poster}" autoplay muted loop playsinline></video>`;
+                } else {
+                    mediaHTML = `<img class="masked-heading__source" src="${src}" alt="" draggable="false">`;
+                }
             }
 
             let revealHTML = `

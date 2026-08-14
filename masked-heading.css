@@ -53,6 +53,8 @@
   inset: 0;
   display: block;
   will-change: transform, filter;
+  background: linear-gradient(135deg, #c5a059 0%, #fff7d6 50%, #9c7247 100%);
+  background-size: 200% 200%;
 }
 
 .masked-heading__source {
