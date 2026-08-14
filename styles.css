@@ -504,18 +504,6 @@ img, video {
     display: block;
 }
 
-.global-white-vignette {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 0; /* À frente do vídeo e estrelas, mas atrás de todo o conteúdo */
-    pointer-events: none;
-    background: 
-      linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 5%, rgba(255, 255, 255, 0.4) 15%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.4) 85%, rgba(255, 255, 255, 1) 95%, rgba(255, 255, 255, 1) 100%),
-      linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.4) 5%, transparent 10%, transparent 90%, rgba(255, 255, 255, 0.4) 95%, rgba(255, 255, 255, 1) 100%);
-}
 
 
 
