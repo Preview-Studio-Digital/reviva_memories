@@ -171,11 +171,11 @@ img, video {
 .intro-title,
 .intro-title.hero-title,
 .intro-title .title-line-1 {
-    font-size: clamp(2.8rem, 4.8vw, 4.8rem) !important;
-    font-family: 'Inter', sans-serif !important;
-    font-weight: 700 !important;
-    line-height: 1.2 !important;
-    letter-spacing: -0.5px !important;
+    font-size: clamp(2.0rem, 3.6vw, 3.8rem) !important;
+    font-family: 'Poiret One', cursive, sans-serif !important;
+    font-weight: 400 !important;
+    line-height: 1.25 !important;
+    letter-spacing: 1.2px !important;
     margin: 0 auto !important;
     text-align: center !important;
     width: 100% !important;
@@ -192,6 +192,7 @@ img, video {
 
 .intro-title .blur-word {
     font-size: inherit !important;
+    font-family: 'Poiret One', cursive, sans-serif !important;
     color: #e8d5b7 !important;
     text-shadow: none !important;
     animation: none !important;
@@ -569,11 +570,11 @@ img, video {
 }
 
 .hero-title {
-    font-family: 'Inter', sans-serif;
-    font-size: clamp(1.6rem, 2.8vw, 3.0rem); /* Reduzido para ficar mais proporcional com a fonte Inter */
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.5px;
+    font-family: 'Poiret One', cursive, sans-serif;
+    font-size: clamp(1.8rem, 3.2vw, 3.4rem);
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: 1.2px;
     margin-bottom: 4px;
     text-align: center;
     width: 100%;
@@ -590,6 +591,9 @@ img, video {
 
 .hero-title .title-line-1 {
     display: block;
+    font-family: 'Poiret One', cursive, sans-serif;
+    font-weight: 400;
+    letter-spacing: 1.2px;
     color: #e8d5b7; /* Tom de bege dourado mais presente e quente */
     text-align: center;
 }
@@ -2228,11 +2232,11 @@ body.video-active .audio-player-widget {
 
 
     .hero-title {
-        font-family: 'Inter', sans-serif !important;
-        font-weight: 700 !important;
+        font-family: 'Poiret One', cursive, sans-serif !important;
+        font-weight: 400 !important;
         text-transform: none !important;
-        font-size: 1.8rem !important; /* Reduzido para mobile */
-        letter-spacing: -0.2px !important;
+        font-size: 1.9rem !important; /* Reduzido para mobile */
+        letter-spacing: 1px !important;
         line-height: 1.25 !important;
         margin-bottom: 16px !important;
         width: 100% !important;
@@ -2950,11 +2954,11 @@ span.section-tag.handwritten-title {
     stroke: #e5c378 !important;
 }
 
-/* Forçar a lista de features a crescer e ocupar o espaço restante, empurrando o botão para o fundo */
+/* Ajuste de espaçamento para posicionar o botão mais acima com respiro na base do card */
 .plan-features {
-    flex: 1 1 auto !important;
-    margin-top: 18px !important;
-    margin-bottom: 20px !important;
+    flex: 0 1 auto !important;
+    margin-top: 10px !important;
+    margin-bottom: 12px !important;
 }
 
 .plan-buy-btn {
@@ -2963,9 +2967,10 @@ span.section-tag.handwritten-title {
     justify-content: center !important;
     gap: 6px !important;
     width: 100% !important;
-    padding: 8px 14px !important;
-    font-size: 0.76rem !important;
-    margin-top: auto !important;
+    padding: 9px 14px !important;
+    font-size: 0.78rem !important;
+    margin-top: 6px !important;
+    margin-bottom: 10px !important;
     box-sizing: border-box !important;
 }
 

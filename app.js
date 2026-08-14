@@ -5,20 +5,70 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
 
-    // Frases do Slide Inicial (Sorteio Aleatório no carregamento)
-    const introPhrases = [
-        "Quer reviver memórias inesquecíveis?",
-        "Que tal um reencontro na memória?",
-        "E se a saudade falasse mais uma vez?",
-        "E se o amor eterno falasse de novo?",
-        "Como seria ouvir a voz da saudade?"
-    ];
+    // Dicionário de Frases Dinâmicas para Todos os Slides
+    const slidePhrases = {
+        'intro': [
+            "Quer reviver memórias inesquecíveis?",
+            "Que tal um reencontro na memória?",
+            "E se a saudade falasse mais uma vez?",
+            "E se o amor eterno falasse de novo?",
+            "Como seria ouvir a voz da saudade?"
+        ],
+        'topo': [
+            "Eternize a voz e a presença que o tempo levou.",
+            "Reviva o carinho e o olhar de quem você ama.",
+            "Sinta a emoção de ouvir quem te amou.",
+            "Resgate a essência e a voz da sua maior saudade.",
+            "Guarde para sempre as palavras sublimes."
+        ],
+        'como-funciona': [
+            "Como produzimos essa emoção em 4 etapas",
+            "As 4 fases que transformam uma fotografia em pura emoção",
+            "As 4 fases de um processo sensível e humanizado",
+            "Do resgate ao reencontro em 4 etapas transparentes",
+            "Cada detalhe das etapas que dão vida à sua homenagem"
+        ],
+        'casos-de-uso': [
+            "Onde o presente ganha o maior significado",
+            "Momentos inesquecíveis abençoados por quem você ama",
+            "A presença mais esperada nas grandes celebrações da vida",
+            "O presente mais emocionante para datas que marcam a vida",
+            "Quando o amor ultrapassa o tempo em celebrações únicas"
+        ],
+        'depoimentos': [
+            "A emoção de quem já viveu essa experiência",
+            "Histórias reais de quem sentiu o reencontro na pele",
+            "Lágrimas de afeto e corações acolhidos pela saudade",
+            "O que dizem as famílias que reviveram esses momentos",
+            "Relatos verdadeiros de quem transformou saudade em consolo"
+        ],
+        'planos': [
+            "A homenagem perfeita para eternizar suas memórias",
+            "Escolha a dimensão ideal para a sua homenagem",
+            "Opções pensadas para acolher todo o afeto da sua história",
+            "Diferentes formas de eternizar uma história inesquecível",
+            "O tributo que a trajetória de quem você ama merece"
+        ],
+        'faq': [
+            "Esclareça todas as suas dúvidas!",
+            "Tudo o que você precisa saber",
+            "Clareza e segurança em cada detalhe",
+            "Detalhes sobre o nosso trabalho",
+            "Entenda cada detalhe com serenidade"
+        ]
+    };
 
-    let currentIntroPhraseIdx = Math.floor(Math.random() * introPhrases.length);
-    const introTitleLine = document.querySelector('.intro-title .title-line-1');
-    if (introTitleLine) {
-        introTitleLine.textContent = introPhrases[currentIntroPhraseIdx];
-    }
+    const slideCurrentIndices = {};
+    Object.keys(slidePhrases).forEach(sectionId => {
+        slideCurrentIndices[sectionId] = Math.floor(Math.random() * slidePhrases[sectionId].length);
+        const sectionEl = document.getElementById(sectionId);
+        if (sectionEl) {
+            const titleLine = sectionEl.querySelector('.hero-title .title-line-1');
+            if (titleLine) {
+                titleLine.textContent = slidePhrases[sectionId][slideCurrentIndices[sectionId]];
+            }
+        }
+    });
 
     // Clique na Logo - Rola suavemente para o topo (primeiro slide) sem recarregar a página
     document.querySelectorAll('.brand-logo').forEach(logo => {
@@ -1370,8 +1420,9 @@ void main() {
         });
 
         function replayTitle(tEl) {
+            const sectionEl = tEl.closest('section');
+            const sectionId = sectionEl ? sectionEl.id : null;
             const wordsList = tEl.querySelectorAll('.blur-word');
-            const isIntro = tEl.classList.contains('intro-title');
             
             gsap.killTweensOf(wordsList);
             gsap.timeline()
@@ -1384,9 +1435,9 @@ void main() {
                     ease: 'power1.in'
                 })
                 .add(() => {
-                    if (isIntro) {
-                        currentIntroPhraseIdx = (currentIntroPhraseIdx + 1) % introPhrases.length;
-                        const nextPhrase = introPhrases[currentIntroPhraseIdx];
+                    if (sectionId && slidePhrases[sectionId]) {
+                        slideCurrentIndices[sectionId] = (slideCurrentIndices[sectionId] + 1) % slidePhrases[sectionId].length;
+                        const nextPhrase = slidePhrases[sectionId][slideCurrentIndices[sectionId]];
                         const line = tEl.querySelector('.title-line-1');
                         if (line) {
                             splitIntoBlurSpans(line, nextPhrase);
