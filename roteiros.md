@@ -7,7 +7,7 @@ Este arquivo contém todos os roteiros e textos de narração dos vídeos de cad
 ## 🎥 Slide 1: Apresentação (Intro Section / #intro)
 **Personagem / Apresentador:** Iasis (Agente IA)
 **Texto de Narração:**
-> "Olá! Eu sou o Iasis, o agente de IA da Reviva Memories. Meu nome significava cura e restabelecimento na Grécia antiga. Hoje, através da Inteligência Artificial, serei o seu guia nessa jornada e o curador das suas lembranças mais preciosas. Nosso propósito é unir a inovação ao mais puro afeto, trazendo de volta o olhar, a voz e a presença de quem tanto amamos, mas que já se foram... Vamos reviver essas memórias juntos?"
+> "Olá! Eu sou o Iasis, o agente iá da Reviva Memories. Meu nome significava cura e restabelecimento na Grécia antiga e hoje, através da Inteligência Artificial, serei o seu guia nessa jornada e o curador das suas lembranças mais preciosas. Nosso propósito é unir a inovação ao mais puro afeto, trazendo de volta o olhar, a voz e a presença de quem tanto amamos, mas que já se foram. Vamos reviver essas memórias juntos?"
 
 ---
 
