@@ -245,6 +245,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Dispara a animação direcional dos cards da seção que entrou
                     animateSectionCards(entry.target, currentScrollDirection);
+
+                    // Atualiza a passagem bíblica no rodapé suavemente
+                    updateBiblicalQuote();
                 } else {
                     // Esconde o texto dos slides que saíram da tela para reiniciar
                     if (title) {
@@ -341,6 +344,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Dispara a animação direcional dos cards no clique do menu
                 animateSectionCards(targetElement, currentScrollDirection);
+
+                // Atualiza a passagem bíblica no rodapé suavemente
+                updateBiblicalQuote();
 
                 // Sincroniza a classe active do menu no clique
                 const sectionId = targetElement.getAttribute('id');
@@ -1059,12 +1065,54 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fechar com tecla ESC
+    // Fechar modal FAQ com a tecla ESC
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && faqModalBackdrop && faqModalBackdrop.classList.contains('active')) {
             closeFaqModal();
         }
     });
+
+    // ==========================================================================
+    // Biblioteca de 10 Passagens Bíblicas no Rodapé com Exibição Aleatória
+    // ==========================================================================
+    const biblicalPassages = [
+        '"A memória do justo é uma bênção eterna." — Provérbios 10:7',
+        '"O amor jamais acaba." — 1 Coríntios 13:8',
+        '"Deus colocou a eternidade no coração do homem." — Eclesiastes 3:11',
+        '"As muitas águas não podem apagar o amor, nem os rios afogá-lo." — Cânticos 8:7',
+        '"Agradeço a Deus todas as vezes que me lembro de você." — Filipenses 1:3',
+        '"Temos na eternidade uma morada feita de amor que nunca se desfaz." — 2 Coríntios 5:1',
+        '"Ele enxugará dos seus olhos toda lágrima, e a dor já não existirá." — Apocalipse 21:4',
+        '"O amor me acompanhará sempre, e habitarei na casa do Senhor para sempre." — Salmos 23:6',
+        '"O choro pode durar uma noite, mas a alegria vem pela manhã." — Salmos 30:5',
+        '"Combati o bom combate, guardei a fé e o amor permanece." — 2 Timóteo 4:7'
+    ];
+
+    let lastBiblicalIndex = -1;
+    function getRandomBiblicalPassage() {
+        let newIndex;
+        do {
+            newIndex = Math.floor(Math.random() * biblicalPassages.length);
+        } while (newIndex === lastBiblicalIndex && biblicalPassages.length > 1);
+        lastBiblicalIndex = newIndex;
+        return biblicalPassages[newIndex];
+    }
+
+    const biblicalQuoteText = document.getElementById('biblicalQuoteText');
+
+    function updateBiblicalQuote() {
+        if (!biblicalQuoteText) return;
+        biblicalQuoteText.classList.add('fade-out');
+        setTimeout(() => {
+            biblicalQuoteText.textContent = getRandomBiblicalPassage();
+            biblicalQuoteText.classList.remove('fade-out');
+        }, 450);
+    }
+
+    // Inicialização da passagem bíblica aleatória no carregamento
+    if (biblicalQuoteText) {
+        biblicalQuoteText.textContent = getRandomBiblicalPassage();
+    }
 
 
     // Inicialização do Fundo de Galáxia WebGL (OGL) adaptado do @omnedia/ngx-galaxy
