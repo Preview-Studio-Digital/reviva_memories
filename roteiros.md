@@ -39,7 +39,7 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 **Personagem / Apresentador:** Iasis (Agente IA)  
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
 **Texto de Narração:**
-> "Surpreenda pessoas queridas em aniversários, casamentos, homenagens e datas especiais com uma recordação inesquecível. Transformamos memórias valiosas e sentimentos profundos em presenças emocionantes e eternas, permitindo que a voz de quem você ama abençoe e celebre estes momentos especiais."
+> "Surpreenda pessoas queridas em nascimentos, aniversários, formaturas, casamentos ou qualquer data especial com uma recordação inesquecível através de memórias valiosas e sentimentos profundos, permitindo que a voz do ente querido abençoe e celebre estes momentos especiais, como se ele estivesse presente. Surpreenda!"
 
 ---
 
