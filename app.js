@@ -432,6 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('video-active');
 
         if (videoUrl.endsWith('.webm') || videoUrl.endsWith('.mp4') || videoUrl.endsWith('.ogg')) {
+            if (customVideoControls) customVideoControls.classList.add('visible');
             if (localVideoPlayer) {
                 localVideoPlayer.src = videoUrl;
                 localVideoPlayer.style.display = 'block';
@@ -460,6 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localVideoPlayer.addEventListener('ended', handleEnded);
             }
         } else {
+            if (customVideoControls) customVideoControls.classList.remove('visible');
             if (videoPlayer) {
                 videoPlayer.src = videoUrl;
                 videoPlayer.style.display = 'block';
@@ -469,11 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(() => {
             videoModal.classList.add('active');
             videoModal.focus();
-            
-            // Dispara resize para atualizar o tamanho do canvas da galáxia que estava oculto (0x0)
-            setTimeout(() => {
-                window.dispatchEvent(new Event('resize'));
-            }, 100);
+            if (window.lucide) lucide.createIcons();
         });
     }
 
@@ -483,6 +481,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function stopVideos() {
+        if (customVideoControls) {
+            customVideoControls.classList.remove('visible', 'idle');
+        }
         if (videoPlayer) {
             videoPlayer.src = '';
             videoPlayer.style.display = 'none';
@@ -491,6 +492,163 @@ document.addEventListener('DOMContentLoaded', () => {
             localVideoPlayer.pause();
             localVideoPlayer.src = '';
             localVideoPlayer.style.display = 'none';
+        }
+    }
+
+    // --- CONTROLES CUSTOMIZADOS DE VÍDEO (OURO & MARROM) ---
+    const customVideoControls = document.getElementById('customVideoControls');
+    const vPlayBtn = document.getElementById('vPlayBtn');
+    const vMuteBtn = document.getElementById('vMuteBtn');
+    const vTimeCurrent = document.getElementById('vTimeCurrent');
+    const vTimeDuration = document.getElementById('vTimeDuration');
+    const vProgressContainer = document.getElementById('vProgressContainer');
+    const vProgressCurrent = document.getElementById('vProgressCurrent');
+    const vProgressBuffer = document.getElementById('vProgressBuffer');
+    const vProgressScrubber = document.getElementById('vProgressScrubber');
+    const vFullscreenBtn = document.getElementById('vFullscreenBtn');
+    const videoContainerWrapper = document.getElementById('videoContainerWrapper');
+
+    let controlsIdleTimer = null;
+
+    function formatTime(seconds) {
+        if (isNaN(seconds) || seconds === Infinity) return "00:00";
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function resetControlsIdleTimer() {
+        if (!customVideoControls) return;
+        customVideoControls.classList.remove('idle');
+        if (controlsIdleTimer) clearTimeout(controlsIdleTimer);
+        if (localVideoPlayer && !localVideoPlayer.paused) {
+            controlsIdleTimer = setTimeout(() => {
+                customVideoControls.classList.add('idle');
+            }, 2500);
+        }
+    }
+
+    if (customVideoControls && localVideoPlayer) {
+        function updatePlayPauseUI() {
+            const isPaused = localVideoPlayer.paused;
+            const playIcon = vPlayBtn ? vPlayBtn.querySelector('.v-icon-play') : null;
+            const pauseIcon = vPlayBtn ? vPlayBtn.querySelector('.v-icon-pause') : null;
+            if (playIcon && pauseIcon) {
+                playIcon.style.display = isPaused ? 'block' : 'none';
+                pauseIcon.style.display = isPaused ? 'none' : 'block';
+            }
+            resetControlsIdleTimer();
+        }
+
+        if (vPlayBtn) {
+            vPlayBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (localVideoPlayer.paused) {
+                    localVideoPlayer.play();
+                } else {
+                    localVideoPlayer.pause();
+                }
+            });
+        }
+
+        function updateMuteUI() {
+            const isMuted = localVideoPlayer.muted;
+            const volIcon = vMuteBtn ? vMuteBtn.querySelector('.v-icon-vol') : null;
+            const mutedIcon = vMuteBtn ? vMuteBtn.querySelector('.v-icon-muted') : null;
+            if (volIcon && mutedIcon) {
+                volIcon.style.display = isMuted ? 'none' : 'block';
+                mutedIcon.style.display = isMuted ? 'block' : 'none';
+            }
+            resetControlsIdleTimer();
+        }
+
+        if (vMuteBtn) {
+            vMuteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                localVideoPlayer.muted = !localVideoPlayer.muted;
+                updateMuteUI();
+            });
+        }
+
+        localVideoPlayer.addEventListener('timeupdate', () => {
+            if (!localVideoPlayer.duration) return;
+            const current = localVideoPlayer.currentTime;
+            const duration = localVideoPlayer.duration;
+            const percent = (current / duration) * 100;
+
+            if (vProgressCurrent) vProgressCurrent.style.width = `${percent}%`;
+            if (vProgressScrubber) vProgressScrubber.style.left = `${percent}%`;
+            if (vTimeCurrent) vTimeCurrent.textContent = formatTime(current);
+
+            if (localVideoPlayer.buffered.length > 0) {
+                const bufferedEnd = localVideoPlayer.buffered.end(localVideoPlayer.buffered.length - 1);
+                const bufPercent = (bufferedEnd / duration) * 100;
+                if (vProgressBuffer) vProgressBuffer.style.width = `${bufPercent}%`;
+            }
+        });
+
+        localVideoPlayer.addEventListener('loadedmetadata', () => {
+            if (vTimeDuration) vTimeDuration.textContent = formatTime(localVideoPlayer.duration);
+            if (vTimeCurrent) vTimeCurrent.textContent = formatTime(0);
+            if (vProgressCurrent) vProgressCurrent.style.width = '0%';
+            if (vProgressScrubber) vProgressScrubber.style.left = '0%';
+            updatePlayPauseUI();
+            updateMuteUI();
+        });
+
+        localVideoPlayer.addEventListener('play', updatePlayPauseUI);
+        localVideoPlayer.addEventListener('pause', updatePlayPauseUI);
+
+        function seekVideo(e) {
+            if (!localVideoPlayer.duration || !vProgressContainer) return;
+            const rect = vProgressContainer.getBoundingClientRect();
+            const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            localVideoPlayer.currentTime = pos * localVideoPlayer.duration;
+            resetControlsIdleTimer();
+        }
+
+        let isSeeking = false;
+        if (vProgressContainer) {
+            vProgressContainer.addEventListener('click', (e) => {
+                e.stopPropagation();
+                seekVideo(e);
+            });
+            vProgressContainer.addEventListener('mousedown', (e) => {
+                isSeeking = true;
+                seekVideo(e);
+            });
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            if (isSeeking) {
+                seekVideo(e);
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isSeeking) isSeeking = false;
+        });
+
+        if (vFullscreenBtn) {
+            vFullscreenBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!document.fullscreenElement) {
+                    if (videoContainerWrapper && videoContainerWrapper.requestFullscreen) {
+                        videoContainerWrapper.requestFullscreen();
+                    } else if (localVideoPlayer.webkitEnterFullscreen) {
+                        localVideoPlayer.webkitEnterFullscreen();
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            });
+        }
+
+        if (videoContainerWrapper) {
+            videoContainerWrapper.addEventListener('mousemove', resetControlsIdleTimer);
+            videoContainerWrapper.addEventListener('touchstart', resetControlsIdleTimer, { passive: true });
         }
     }
 
@@ -906,7 +1064,7 @@ uniform bool uTransparent;
 
 varying vec2 vUv;
 
-#define NUM_LAYER 4.0
+#define NUM_LAYER 3.0
 #define STAR_COLOR_CUTOFF 0.2
 #define MAT45 mat2(0.7071, -0.7071, 0.7071, 0.7071)
 #define PERIOD 3.0
@@ -1075,7 +1233,8 @@ void main() {
 
         const updatePlacement = () => {
             if (!ctn) return;
-            renderer.dpr = Math.min(window.devicePixelRatio, 2);
+            // OTIMIZAÇÃO: Limita DPR a 1.0 para evitar sobrecarga em telas 2K/4K/Retina de laptops
+            renderer.dpr = Math.min(window.devicePixelRatio || 1, 1.0);
             const wCSS = ctn.clientWidth;
             const hCSS = ctn.clientHeight;
             renderer.setSize(wCSS, hCSS);
@@ -1104,14 +1263,16 @@ void main() {
             }, { passive: true });
         }
 
-        let animationFrameId;
+        let animationFrameId = null;
+        let isRunning = false;
+        let isCtnVisible = true;
+
         const loop = (t) => {
+            if (!isRunning) return;
             animationFrameId = requestAnimationFrame(loop);
 
-            // OTIMIZAÇÃO DE PERFORMANCE: Pausa a renderização WebGL do canvas inativo para economizar GPU e evitar travamento do vídeo
-            const isVideoActive = document.body.classList.contains('video-active');
-            if (ctn.id === 'galaxyBg' && isVideoActive) return; // Se o modal está aberto, pausa a galáxia de fundo
-            if (ctn.id === 'videoGalaxyBg' && !isVideoActive) return; // Se o modal está fechado, pausa a galáxia do modal
+            // OTIMIZAÇÃO DE PERFORMANCE: Pausa a renderização WebGL se o canvas não estiver visível
+            if (!isCtnVisible) return;
 
             const timeSeconds = t * 0.001;
             uniforms.uTime.value = timeSeconds;
@@ -1133,16 +1294,31 @@ void main() {
             }
         };
 
+        const startLoop = () => {
+            if (!isRunning) {
+                isRunning = true;
+                animationFrameId = requestAnimationFrame(loop);
+            }
+        };
+
+        const stopLoop = () => {
+            isRunning = false;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        };
+
+        // Inicia o loop e escuta visibilidade da tela
+        startLoop();
+
         window.addEventListener('resize', updatePlacement);
         updatePlacement();
-        animationFrameId = requestAnimationFrame(loop);
     }
 
+    // Único Fundo de Galáxia WebGL Global para todo o site
     const galaxyBg = document.getElementById('galaxyBg');
     if (galaxyBg) initGalaxy(galaxyBg, true);
-
-    const videoGalaxyBg = document.getElementById('videoGalaxyBg');
-    if (videoGalaxyBg) initGalaxy(videoGalaxyBg, false);
 
     // Inicialização da Galeria de Acordeão com GSAP
     function initAccordionGallery() {

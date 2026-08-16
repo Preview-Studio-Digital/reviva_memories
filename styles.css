@@ -307,8 +307,8 @@ img, video {
 }
 
 .brand-logo:hover {
-    transform: scale(1.04);
-    filter: drop-shadow(0 0 6px #e5c378) drop-shadow(0 0 12px rgba(229, 195, 120, 0.6));
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 6px rgba(229, 195, 120, 0.75)) drop-shadow(0 0 12px rgba(197, 160, 89, 0.35));
 }
 
 .logo-img {
@@ -511,9 +511,13 @@ img, video {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: -1; /* À frente do vídeo, mas atrás de todo o conteúdo e botões */
+    z-index: 1; /* À frente do vídeo de fundo, mas atrás de todo o conteúdo e botões */
     pointer-events: none;
     mix-blend-mode: screen; /* Remove o fundo escuro do shader e mescla as estrelas no vídeo do fundo */
+}
+
+body.video-active .global-galaxy-bg {
+    z-index: 100005 !important; /* Mesma galáxia única fica visível no modal do vídeo */
 }
 
 .global-galaxy-bg canvas {
@@ -1018,7 +1022,10 @@ img, video {
 }
 
 .case-image {
-    height: 190px;
+    flex: 0 0 50% !important;
+    height: 50% !important;
+    min-height: 50% !important;
+    max-height: 50% !important;
     background-size: cover;
     background-position: center;
     position: relative;
@@ -1031,27 +1038,34 @@ img, video {
     backdrop-filter: blur(10px);
     color: var(--brand-gold);
     border: 1px solid var(--border-gold);
-    padding: 5px 12px;
+    padding: 3px 10px;
     border-radius: var(--radius-full);
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 5px;
     align-self: center;
 }
 
 .case-content {
-    padding: 24px 20px;
+    flex: 0 0 50% !important;
+    height: 50% !important;
+    min-height: 50% !important;
+    max-height: 50% !important;
+    padding: 8px 18px 12px 18px;
     text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+    box-sizing: border-box;
 }
 
 .case-content h3 {
     font-size: 0.95rem;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 5px;
     color: #e5c378; /* Titulo dourado */
     text-align: center;
     white-space: nowrap;
@@ -1060,8 +1074,8 @@ img, video {
 
 .case-content p {
     color: var(--text-secondary);
-    font-size: 0.88rem;
-    line-height: 1.5;
+    font-size: 0.84rem;
+    line-height: 1.45;
     margin: 0;
     text-align: justify;
 }
@@ -1446,7 +1460,7 @@ img, video {
     max-width: 1400px !important;
     height: 100vh !important;
     margin: 0 auto !important;
-    padding: 60px 24px 28px 24px !important;
+    padding: 60px 24px 50px 24px !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
@@ -1756,7 +1770,7 @@ img, video {
     .slide-layout-container.hero-content {
         height: 100dvh !important;
         min-height: 100dvh !important;
-        padding: 50px 16px 28px 16px !important;
+        padding: 50px 16px 50px 16px !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: space-between !important;
@@ -2025,7 +2039,7 @@ img, video {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(11, 11, 12, 0.98); /* O fundo já é praticamente opaco, eliminando a necessidade de um filtro de desfoque pesado */
+    background: rgba(11, 11, 12, 0.90);
     z-index: 100000;
     display: flex;
     align-items: center;
@@ -2033,7 +2047,7 @@ img, video {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 3s cubic-bezier(0.16, 1, 0.3, 1), visibility 3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
 .video-modal.active {
@@ -2047,7 +2061,7 @@ img, video {
     width: 100vw;
     height: 100vh;
     max-width: 100vw;
-    background: #0b0b0c; /* Fundo escuro padrão */
+    background: transparent;
     border: none;
     border-radius: 0;
     overflow: hidden;
@@ -2055,30 +2069,12 @@ img, video {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    transform: scale(0.95);
-    transition: transform 3s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: scale(0.98);
+    transition: transform 0.5s ease;
 }
 
 .video-modal.active .video-modal-content {
     transform: scale(1);
-}
-
-.video-galaxy-bg {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    z-index: 3 !important; /* Fica sobreposto/à frente do player de vídeo */
-    pointer-events: none !important;
-    mix-blend-mode: screen !important;
-    opacity: 0.85 !important;
-}
-
-.video-galaxy-bg canvas {
-    width: 100% !important;
-    height: 100% !important;
-    display: block !important;
 }
 
 /* Cabeçalho do Site Sobreposto no Vídeo com altura calculada */
@@ -2090,8 +2086,6 @@ img, video {
     width: 100%;
     z-index: 100020;
     background: linear-gradient(to bottom, rgba(11, 11, 12, 0.9) 0%, rgba(11, 11, 12, 0.5) 70%, transparent 100%);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     padding: 16px 0;
 }
@@ -2108,18 +2102,17 @@ img, video {
     text-shadow: 0 0 10px rgba(197, 160, 89, 0.6);
 }
 
-/* Botão de Fechar na Base do Vídeo (Idêntico ao padrão dos botões de assistir) */
+/* Botão de Fechar Integrado no Painel de Controles do Vídeo */
 .close-video-bottom-btn {
-    position: absolute;
-    bottom: 28px; /* Alinhado à mesma posição inferior do botão de play */
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100010;
+    position: static !important;
+    transform: none !important;
+    margin: 0 !important;
+    z-index: 100020 !important;
     
     background: linear-gradient(135deg, #9c7247 0%, #7d5b38 100%) !important;
     color: #ffffff !important;
     border: 1px solid #9c7247 !important;
-    box-shadow: 0 0 15px rgba(229, 195, 120, 0.4), 0 0 30px rgba(156, 114, 71, 0.2) !important;
+    box-shadow: 0 0 14px rgba(229, 195, 120, 0.35), 0 0 25px rgba(156, 114, 71, 0.2) !important;
     
     padding: 6px 14px !important;
     font-size: 0.74rem !important;
@@ -2137,7 +2130,7 @@ img, video {
     border-color: #e5c378 !important;
     color: #e5c378 !important;
     box-shadow: 0 0 20px #e5c378, 0 0 45px rgba(229, 195, 120, 0.8), 0 0 75px rgba(156, 114, 71, 0.6) !important;
-    transform: translateX(-50%) translateY(-2px) !important;
+    transform: translateY(-2px) !important;
 }
 
 .close-video-bottom-btn svg {
@@ -2175,7 +2168,7 @@ body.video-active .audio-player-widget {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    z-index: 2 !important; /* Acima da galáxia do modal */
+    z-index: 2 !important; /* Acima da galáxia de fundo */
 }
 
 /* Efeito Vinheta Cinematográfica (Sombreamento radial escuro suave nas bordas) */
@@ -2191,7 +2184,9 @@ body.video-active .audio-player-widget {
     object-position: center top !important;
     border: none;
     opacity: 0;
-    transition: opacity 3s ease-in-out;
+    transform: translateZ(0);
+    will-change: opacity, transform;
+    transition: opacity 0.6s ease-in-out;
 }
 
 .video-modal.active .video-container video,
@@ -2201,7 +2196,203 @@ body.video-active .audio-player-widget {
 
 .video-container video.video-fading-out {
     opacity: 0 !important;
-    transition: opacity 3s ease-in-out !important;
+    transition: opacity 0.6s ease-in-out !important;
+}
+
+/* -------------------------------------------------------------
+   CONTROLES CUSTOMIZADOS DE VÍDEO (Dourado & Marrom)
+   Posicionado com precisão para que o botão Fechar fique em bottom: 50px
+------------------------------------------------------------- */
+.custom-video-controls {
+    position: absolute;
+    bottom: 38px; /* 38px + 12px de padding = 50px exatos na base do botão Fechar */
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    max-width: 880px;
+    background: linear-gradient(135deg, rgba(30, 20, 15, 0.92) 0%, rgba(15, 12, 10, 0.96) 100%);
+    border: 1px solid rgba(197, 160, 89, 0.35);
+    border-radius: var(--radius-md);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 0 25px rgba(156, 114, 71, 0.3);
+    padding: 8px 18px 12px 18px;
+    z-index: 100015;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
+    box-sizing: border-box;
+    display: none;
+}
+
+.custom-video-controls.visible {
+    display: block !important;
+}
+
+.custom-video-controls.idle {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateX(-50%) translateY(10px) !important;
+    pointer-events: none !important;
+}
+
+/* Barra de Progresso / Linha do Tempo */
+.v-progress-container {
+    width: 100%;
+    padding: 5px 0;
+    cursor: pointer;
+    position: relative;
+}
+
+.v-progress-track {
+    width: 100%;
+    height: 6px;
+    background: rgba(80, 54, 32, 0.55); /* Marrom escuro inativo */
+    border-radius: 3px;
+    position: relative;
+    overflow: visible;
+    transition: height 0.2s ease;
+}
+
+.v-progress-container:hover .v-progress-track {
+    height: 8px;
+}
+
+.v-progress-buffer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: rgba(156, 114, 71, 0.4); /* Marrom intermediário de buffer */
+    border-radius: 3px;
+    pointer-events: none;
+}
+
+.v-progress-current {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #9c7247 0%, #ffd700 100%); /* Gradiente Marrom para Dourado Ativo */
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.55);
+    pointer-events: none;
+}
+
+.v-progress-scrubber {
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffd700; /* Cabeça da agulha em ouro brilhante */
+    border: 2px solid #301b0f;
+    box-shadow: 0 0 12px #e5c378;
+    transform: translate(-50%, -50%) scale(0.85);
+    transition: transform 0.2s ease;
+    pointer-events: none;
+}
+
+.v-progress-container:hover .v-progress-scrubber {
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+/* Linha de Controles */
+.v-controls-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.v-controls-group-left,
+.v-controls-group-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1;
+}
+
+.v-controls-group-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+.v-ctrl-btn {
+    background: transparent;
+    border: none;
+    color: #c39c6b; /* Marrom dourado quando inativo */
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease, text-shadow 0.2s ease;
+}
+
+.v-ctrl-btn:hover {
+    color: #ffd700; /* Ouro brilhante quando ativo/hover */
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+}
+
+.v-ctrl-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+}
+
+/* Indicador de Tempo */
+.v-time-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.82rem;
+    font-family: var(--font-primary);
+    font-weight: 500;
+    margin-left: 6px;
+    user-select: none;
+}
+
+.v-time-active {
+    color: #ffd700; /* Dourado brilhante para tempo corrente ativo */
+    text-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
+    min-width: 38px;
+}
+
+.v-time-divider {
+    color: #7d5b38; /* Marrom escuro */
+}
+
+.v-time-inactive {
+    color: #9c7247; /* Marrom suave para duração total */
+    min-width: 38px;
+}
+
+@media (max-width: 768px) {
+    .custom-video-controls {
+        bottom: 38px;
+        width: calc(100% - 20px);
+        padding: 6px 12px 12px 12px;
+    }
+    .close-video-bottom-btn {
+        padding: 4px 12px !important;
+        font-size: 0.70rem !important;
+    }
+    .v-time-wrapper {
+        font-size: 0.72rem;
+    }
 }
 
 @media (max-width: 768px), (max-aspect-ratio: 5/4) {
@@ -3071,7 +3262,7 @@ span.section-tag.handwritten-title {
 .faq-section .slide-layout-container {
     height: 100vh !important;
     max-height: 100vh !important;
-    padding: 60px 24px 28px 24px !important;
+    padding: 60px 24px 50px 24px !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
