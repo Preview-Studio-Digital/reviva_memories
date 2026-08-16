@@ -2533,6 +2533,13 @@ body.video-active .audio-player-widget {
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
+    opacity: 1;
+    transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.biblical-quote-footer.hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
 .biblical-quote-text {

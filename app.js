@@ -246,8 +246,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Dispara a animação direcional dos cards da seção que entrou
                     animateSectionCards(entry.target, currentScrollDirection);
 
-                    // Atualiza a passagem bíblica no rodapé suavemente
-                    updateBiblicalQuote();
+                    // Atualiza a passagem bíblica no rodapé suavemente (oculta no slide 1)
+                    updateBiblicalQuote(entry.target);
                 } else {
                     // Esconde o texto dos slides que saíram da tela para reiniciar
                     if (title) {
@@ -345,8 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Dispara a animação direcional dos cards no clique do menu
                 animateSectionCards(targetElement, currentScrollDirection);
 
-                // Atualiza a passagem bíblica no rodapé suavemente
-                updateBiblicalQuote();
+                // Atualiza a passagem bíblica no rodapé suavemente (oculta no slide 1)
+                updateBiblicalQuote(targetElement);
 
                 // Sincroniza a classe active do menu no clique
                 const sectionId = targetElement.getAttribute('id');
@@ -1098,20 +1098,37 @@ document.addEventListener('DOMContentLoaded', () => {
         return biblicalPassages[newIndex];
     }
 
+    const biblicalQuoteFooter = document.getElementById('biblicalQuoteFooter');
     const biblicalQuoteText = document.getElementById('biblicalQuoteText');
 
-    function updateBiblicalQuote() {
-        if (!biblicalQuoteText) return;
+    function updateBiblicalQuote(activeSection) {
+        if (!biblicalQuoteFooter || !biblicalQuoteText) return;
+
+        // Identifica se a seção ativa é o primeiro slide (Intro / #intro)
+        const currentSec = activeSection || (sections && sections[currentIdx] ? sections[currentIdx] : document.querySelector('.intro-section'));
+        const isIntro = currentSec && (currentSec.classList.contains('intro-section') || currentSec.id === 'intro');
+
+        if (isIntro) {
+            biblicalQuoteFooter.classList.add('hidden');
+            return;
+        }
+
+        // Nos demais slides, exibe o rodapé e atualiza o versículo suavemente
+        biblicalQuoteFooter.classList.remove('hidden');
         biblicalQuoteText.classList.add('fade-out');
         setTimeout(() => {
             biblicalQuoteText.textContent = getRandomBiblicalPassage();
             biblicalQuoteText.classList.remove('fade-out');
-        }, 450);
+        }, 400);
     }
 
-    // Inicialização da passagem bíblica aleatória no carregamento
+    // Inicialização da passagem bíblica aleatória no carregamento (oculta se estiver no slide 1)
     if (biblicalQuoteText) {
         biblicalQuoteText.textContent = getRandomBiblicalPassage();
+    }
+    const initialSec = sections && sections[currentIdx] ? sections[currentIdx] : document.querySelector('.intro-section');
+    if (initialSec && (initialSec.classList.contains('intro-section') || initialSec.id === 'intro')) {
+        if (biblicalQuoteFooter) biblicalQuoteFooter.classList.add('hidden');
     }
 
 
