@@ -3445,9 +3445,10 @@ span.section-tag.handwritten-title {
 
 .faq-modal-badge {
     display: inline-block !important;
-    font-size: 1.15rem !important;
+    font-size: clamp(1.35rem, 1.4vw + 0.4vh, 1.6rem) !important;
     color: var(--brand-gold) !important;
     margin-bottom: 6px !important;
+    letter-spacing: 0.5px !important;
 }
 
 .faq-modal-title {
