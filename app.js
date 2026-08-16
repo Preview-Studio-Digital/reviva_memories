@@ -1104,16 +1104,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateBiblicalQuote(activeSection) {
         if (!biblicalQuoteFooter || !biblicalQuoteText) return;
 
-        // Identifica se a seção ativa é o primeiro slide (Intro / #intro)
+        // Identifica se a seção ativa é o primeiro slide (Intro / #intro) ou o último slide (FAQ / #faq)
         const currentSec = activeSection || (sections && sections[currentIdx] ? sections[currentIdx] : document.querySelector('.intro-section'));
-        const isIntro = currentSec && (currentSec.classList.contains('intro-section') || currentSec.id === 'intro');
+        const isExcludedSlide = currentSec && (
+            currentSec.classList.contains('intro-section') || 
+            currentSec.id === 'intro' || 
+            currentSec.classList.contains('faq-section') || 
+            currentSec.id === 'faq'
+        );
 
-        if (isIntro) {
+        if (isExcludedSlide) {
             biblicalQuoteFooter.classList.add('hidden');
             return;
         }
 
-        // Nos demais slides, exibe o rodapé e atualiza o versículo suavemente
+        // Nos demais slides (2 a 6), exibe o rodapé e atualiza o versículo suavemente
         biblicalQuoteFooter.classList.remove('hidden');
         biblicalQuoteText.classList.add('fade-out');
         setTimeout(() => {
@@ -1122,12 +1127,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 400);
     }
 
-    // Inicialização da passagem bíblica aleatória no carregamento (oculta se estiver no slide 1)
+    // Inicialização da passagem bíblica aleatória no carregamento (oculta se estiver no slide 1 ou FAQ)
     if (biblicalQuoteText) {
         biblicalQuoteText.textContent = getRandomBiblicalPassage();
     }
     const initialSec = sections && sections[currentIdx] ? sections[currentIdx] : document.querySelector('.intro-section');
-    if (initialSec && (initialSec.classList.contains('intro-section') || initialSec.id === 'intro')) {
+    if (initialSec && (
+        initialSec.classList.contains('intro-section') || 
+        initialSec.id === 'intro' || 
+        initialSec.classList.contains('faq-section') || 
+        initialSec.id === 'faq'
+    )) {
         if (biblicalQuoteFooter) biblicalQuoteFooter.classList.add('hidden');
     }
 
