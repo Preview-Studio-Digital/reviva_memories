@@ -13,7 +13,7 @@ Este arquivo contém todos os roteiros e textos de narração dos vídeos de cad
 
 ## 🎥 Slide 2: Homenagens Inesquecíveis (Hero Section / #topo)
 **Texto de Narração:**
-> "Recriamos com delicadeza, respeito e absoluto realismo a presença de quem sempre esteve ao seu lado, unindo a sensibilidade humana com a Inteligência Artificial para trazer mensagens emocionantes em momentos únicos, especiais e inesquecíveis, um presente sublime para celebrar o amor que transcende a ausência física."
+> "Recriamos com delicadeza, respeito e realismo a presença de quem sempre esteve ao seu lado, unindo a sensibilidade humana com a Inteligência Artificial para trazer mensagens emocionantes em momentos únicos, especiais e inesquecíveis, um presente sublime para celebrar o amor que transcende a ausência física. Os exemplos da tela não são de pessoas reais mas servem para você imaginar como seria a sua homenagem, uma experiência sobrenatural."
 
 ---
 
