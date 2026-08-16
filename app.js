@@ -1077,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
     const biblicalPassages = [
         '"A memória do justo é uma bênção eterna." — Provérbios 10:7',
-        '"O amor jamais acaba." — 1 Coríntios 13:8',
+        '"O amor é o vínculo perfeito que une para sempre." — Colossenses 3:14',
         '"Deus colocou a eternidade no coração do homem." — Eclesiastes 3:11',
         '"As muitas águas não podem apagar o amor, nem os rios afogá-lo." — Cânticos 8:7',
         '"Agradeço a Deus todas as vezes que me lembro de você." — Filipenses 1:3',
