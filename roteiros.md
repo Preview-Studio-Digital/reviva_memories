@@ -17,7 +17,7 @@ Este arquivo contém todos os roteiros e textos de narração dos vídeos de cad
 
 ---
 
-## 🎥 Slide 3: A Experiência (Como Funciona / #como-funciona)
+## 🎥 Slide 3: A Experiência (Experiência / #experiencia)
 **Texto de Narração:**
 > "Um processo simples, cuidadoso e profundamente humanizado, focado no respeito absoluto à memória de quem você ama. Combinamos tecnologia de inteligência artificial de ponta com a máxima sensibilidade afetiva e artística para lapidar registros e criar um reencontro inesquecível, repleto de afeto e carinho."
 

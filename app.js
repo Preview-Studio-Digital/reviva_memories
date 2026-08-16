@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "Resgate a essência e a voz da sua maior saudade.",
             "Guarde para sempre as palavras sublimes."
         ],
-        'como-funciona': [
+        'experiencia': [
             "Como produzimos essa emoção em 4 etapas",
             "As 4 fases que transformam uma fotografia em pura emoção",
             "As 4 fases de um processo sensível e humanizado",
