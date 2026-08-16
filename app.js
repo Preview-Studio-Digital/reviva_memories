@@ -943,7 +943,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Atualizar legenda com o formato escolhido (se o addon multiformato não estiver ativo)
                 if (subtitleSpan && (!upsellCheckbox || !upsellCheckbox.checked)) {
                     const formatName = format === 'horizontal' ? 'Horizontal' : 'Vertical';
-                    subtitleSpan.textContent = `Formato [${formatName}]`;
+                    subtitleSpan.textContent = `Formato ${formatName}`;
                 }
             });
         });
@@ -962,7 +962,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const parts = formatted.split(',');
                     amountSpan.textContent = parts[0];
                     if (centsSpan) centsSpan.textContent = ',00';
-                    if (subtitleSpan) subtitleSpan.textContent = `Formato [${formatName}]`;
+                    if (subtitleSpan) subtitleSpan.textContent = `Formato ${formatName}`;
                     return;
                 }
 
@@ -981,7 +981,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const parts = formatted.split(',');
                     amountSpan.textContent = parts[0];
                     if (centsSpan) centsSpan.textContent = ',00';
-                    if (subtitleSpan) subtitleSpan.textContent = `Formato [${formatName}]`;
+                    if (subtitleSpan) subtitleSpan.textContent = `Formato ${formatName}`;
                 }
             });
         }
