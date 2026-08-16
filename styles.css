@@ -2518,14 +2518,15 @@ body.video-active .audio-player-widget {
     display: inline-block !important;
 }
 
-/* Passagem Bíblica no Rodapé com Fonte do Título (Poiret One) e Tom Bege em Linha Única */
+/* Passagem Bíblica no Rodapé com Fonte do Título (Poiret One) e Tom Bege Centralizado Verticalmente */
 .biblical-quote-footer {
     position: fixed !important;
-    bottom: clamp(6px, 1.2vh, 12px) !important;
+    bottom: 0 !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     width: 95% !important;
     max-width: 1200px !important;
+    height: 50px !important; /* Altura exata do espaço entre as ações e a borda inferior do slide */
     text-align: center !important;
     z-index: 95 !important;
     pointer-events: none !important;
