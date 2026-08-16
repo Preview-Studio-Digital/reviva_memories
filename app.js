@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "Como seria ouvir a voz da saudade?"
         ],
         'topo': [
-            "Reviva o carinho e o olhar de quem sempre te amou.",
+            "Reviva o olhar de quem sempre te amou.",
             "Eternize a voz e a presença que o tempo levou.",
             "Sinta a emoção de ouvir quem te amou.",
             "Resgate a essência e a voz da sua maior saudade.",
