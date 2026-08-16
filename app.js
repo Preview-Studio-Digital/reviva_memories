@@ -981,31 +981,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Interatividade do FAQ Accordion (Balão Flutuante Sobreposto)
+    // Interatividade do FAQ (Spotlight Modal Centralizado com Fundo Desfocado)
+    const faqModalBackdrop = document.getElementById('faqModalBackdrop');
+    const faqModalQuestion = document.getElementById('faqModalQuestion');
+    const faqModalAnswer = document.getElementById('faqModalAnswer');
+    const faqModalCloseBtn = document.getElementById('faqModalCloseBtn');
+
+    function openFaqModal(questionText, answerText) {
+        if (!faqModalBackdrop || !faqModalQuestion || !faqModalAnswer) return;
+        faqModalQuestion.textContent = questionText;
+        faqModalAnswer.textContent = answerText;
+        faqModalBackdrop.classList.add('active');
+        document.body.classList.add('faq-modal-open');
+    }
+
+    function closeFaqModal() {
+        if (!faqModalBackdrop) return;
+        faqModalBackdrop.classList.remove('active');
+        document.body.classList.remove('faq-modal-open');
+    }
+
     document.querySelectorAll('.faq-question').forEach(button => {
         button.addEventListener('click', (e) => {
             e.stopPropagation();
-            const faqItem = button.parentElement;
-            const isOpen = faqItem.classList.contains('active');
+            const faqItem = button.closest('.faq-item');
+            const questionSpan = button.querySelector('span');
+            const answerP = faqItem ? faqItem.querySelector('.faq-answer p') : null;
             
-            // Fecha todos os outros itens
-            document.querySelectorAll('.faq-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Se o item clicado não estava aberto, abre-o
-            if (!isOpen) {
-                faqItem.classList.add('active');
+            const questionText = questionSpan ? questionSpan.textContent.trim() : '';
+            const answerText = answerP ? answerP.textContent.trim() : '';
+
+            if (questionText && answerText) {
+                openFaqModal(questionText, answerText);
             }
         });
     });
 
-    // Fecha o balão se clicar fora dos itens do FAQ
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.faq-item')) {
-            document.querySelectorAll('.faq-item').forEach(item => {
-                item.classList.remove('active');
-            });
+    if (faqModalCloseBtn) {
+        faqModalCloseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeFaqModal();
+        });
+    }
+
+    if (faqModalBackdrop) {
+        faqModalBackdrop.addEventListener('click', (e) => {
+            if (e.target === faqModalBackdrop) {
+                closeFaqModal();
+            }
+        });
+    }
+
+    // Fechar com tecla ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && faqModalBackdrop && faqModalBackdrop.classList.contains('active')) {
+            closeFaqModal();
         }
     });
 

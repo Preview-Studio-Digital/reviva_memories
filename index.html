@@ -20,7 +20,7 @@
     <!-- GSAP Animation Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css?v=1.8.2">
+    <link rel="stylesheet" href="styles.css?v=1.8.3">
 </head>
 <body>
 
@@ -1009,6 +1009,23 @@
         </div>
     </section>
 
+    <!-- Modal Centralizado de Pergunta e Resposta (FAQ Spotlight) -->
+    <div class="faq-modal-backdrop" id="faqModalBackdrop" tabindex="-1" aria-hidden="true">
+        <div class="faq-modal-card" id="faqModalCard" role="dialog" aria-modal="true">
+            <button class="faq-modal-close" id="faqModalCloseBtn" aria-label="Fechar Pergunta">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="faq-modal-header">
+                <span class="faq-modal-badge handwritten-title">Dúvidas Frequentes</span>
+                <h3 class="faq-modal-title" id="faqModalQuestion">Pergunta</h3>
+            </div>
+            <div class="faq-modal-divider"></div>
+            <div class="faq-modal-body">
+                <p id="faqModalAnswer">Resposta</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de Vídeo Global -->
     <div class="video-modal" id="videoModal" tabindex="-1">
         <div class="video-modal-content">
@@ -1080,6 +1097,6 @@
         <div class="audio-footer-right desktop-only"></div>
     </div>
 
-    <script src="app.js?v=1.2.8"></script>
+    <script src="app.js?v=1.2.9"></script>
 </body>
 </html>

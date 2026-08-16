@@ -1712,8 +1712,7 @@ body.video-active .global-galaxy-bg {
     .how-it-works, 
     .use-cases, 
     .testimonials,
-    .contrate-section,
-    .faq-section {
+    .contrate-section {
         min-height: 100dvh !important;
         height: auto !important;
         scroll-snap-align: start !important;
@@ -1725,7 +1724,8 @@ body.video-active .global-galaxy-bg {
         box-sizing: border-box !important;
     }
 
-    .hero-section {
+    .hero-section,
+    .faq-section {
         height: 100dvh !important;
         min-height: 100dvh !important;
         overflow: hidden !important;
@@ -3245,10 +3245,13 @@ span.section-tag.handwritten-title {
     }
 }
 
-/* FAQ Accordion Styles - Alinhamento Perfeito com os Cards dos Slides Anteriores */
+/* FAQ Accordion Styles - Encaixe e Distribuição Vertical Perfeita em Qualquer Dispositivo */
 .faq-section {
     background: transparent;
     height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
@@ -3257,12 +3260,18 @@ span.section-tag.handwritten-title {
     scroll-snap-stop: always !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
+    padding: 0 !important;
 }
 
 .faq-section .slide-layout-container {
     height: 100vh !important;
+    height: 100dvh !important;
     max-height: 100vh !important;
-    padding: 60px 24px 50px 24px !important;
+    max-height: 100dvh !important;
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: clamp(48px, 6vh, 60px) clamp(12px, 2.5vw, 24px) clamp(14px, 2.5vh, 28px) clamp(12px, 2.5vw, 24px) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
@@ -3271,19 +3280,48 @@ span.section-tag.handwritten-title {
     overflow: visible !important;
 }
 
+.faq-section .section-tag {
+    flex-shrink: 0 !important;
+    margin-bottom: clamp(2px, 0.6vh, 6px) !important;
+}
+
+.faq-section .hero-center-wrap {
+    flex-shrink: 0 !important;
+    margin: 0 0 clamp(4px, 1.2vh, 12px) 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.faq-section .hero-center-wrap .hero-title {
+    margin: 0 !important;
+    font-size: clamp(1.1rem, 2.2vh + 0.4vw, 2.2rem) !important;
+    line-height: 1.15 !important;
+}
+
+.faq-section .hero-bottom-wrap {
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    margin-top: clamp(4px, 1.2vh, 12px) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
 .faq-accordion {
-    width: 100%;
-    max-width: 1100px;
-    margin: 24px auto 10px auto !important; /* Mesma posição superior e inferior dos grids de cards */
+    width: 100% !important;
+    max-width: 1100px !important;
+    margin: 0 auto !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: space-between !important; /* Alinha o 1º no topo e o 10º na base exata dos cards */
-    gap: 6px;
-    flex: 1 1 auto !important; /* Mesma altura flexível dos cards */
-    min-height: 220px;
-    max-height: 580px; /* Mesma altura máxima dos cards */
+    justify-content: space-between !important;
+    gap: clamp(3px, 0.8vh, 10px) !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
     box-sizing: border-box !important;
-    position: relative;
+    position: relative !important;
 }
 
 .faq-item {
@@ -3293,11 +3331,13 @@ span.section-tag.handwritten-title {
     border: 1px solid rgba(197, 160, 89, 0.22) !important;
     border-radius: var(--radius-sm) !important;
     transition: var(--transition-smooth) !important;
-    box-sizing: border-box;
+    box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
-    flex: 1 1 auto !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
     position: relative !important;
 }
 
@@ -3321,33 +3361,46 @@ span.section-tag.handwritten-title {
 
 .faq-question {
     width: 100% !important;
+    height: 100% !important;
     background: transparent !important;
     border: none !important;
-    padding: 0 18px !important;
+    padding: 0 clamp(10px, 1.5vw, 18px) !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
     color: var(--text-primary) !important;
-    font-size: 0.88rem !important;
+    font-size: clamp(0.68rem, 0.92vh + 0.3vw, 0.88rem) !important;
     font-weight: 500 !important;
     text-align: left !important;
     cursor: pointer !important;
-    gap: 12px !important;
-    line-height: 1.35 !important;
-    box-sizing: border-box;
-    min-height: 38px !important;
+    gap: clamp(6px, 1vw, 12px) !important;
+    line-height: 1.25 !important;
+    box-sizing: border-box !important;
+    min-height: 0 !important;
     flex: 1 1 auto !important;
 }
 
 .faq-question span {
     font-family: var(--font-primary) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+@media (max-width: 600px) {
+    .faq-question span {
+        white-space: normal !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 1 !important;
+        -webkit-box-orient: vertical !important;
+    }
 }
 
 .faq-question svg {
     color: var(--brand-gold) !important;
     transition: transform 0.3s ease !important;
-    width: 14px !important;
-    height: 14px !important;
+    width: clamp(11px, 1.3vh, 14px) !important;
+    height: clamp(11px, 1.3vh, 14px) !important;
     flex-shrink: 0 !important;
 }
 
@@ -3357,101 +3410,124 @@ span.section-tag.handwritten-title {
     transform: rotate(180deg) !important;
 }
 
-/* Balão de Resposta em Camada Flutuante (Sobrepõe cobrindo sem empurrar as outras perguntas) */
-.faq-answer {
-    display: none;
-    position: absolute;
-    left: -1px;
-    right: -1px;
-    width: calc(100% + 2px);
-    background: rgba(24, 14, 8, 0.98) !important;
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
-    border: 1px solid #e5c378 !important;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), 0 0 25px rgba(229, 195, 120, 0.4) !important;
-    z-index: 100 !important;
-    box-sizing: border-box;
+/* FAQ Central Spotlight Modal (Pergunta e Resposta em Destaque Central com Fundo Desfocado) */
+.faq-modal-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    z-index: 10000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(6, 4, 3, 0.82) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
 }
 
-.faq-item.active .faq-answer {
-    display: block !important;
-    animation: faqBalloonFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.faq-modal-backdrop.active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
 }
 
-/* Perguntas superiores (1 a 5) abrem o balão para baixo */
-.faq-item:nth-child(-n+5) .faq-answer {
-    top: 100%;
-    bottom: auto;
-    border-top: 1px solid rgba(229, 195, 120, 0.25) !important;
-    border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important;
+.faq-modal-card {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 680px !important;
+    max-height: 85vh !important;
+    max-height: 85dvh !important;
+    background: radial-gradient(circle at 50% 0%, rgba(46, 32, 22, 0.96), rgba(18, 11, 7, 0.98)) !important;
+    border: 1px solid rgba(229, 195, 120, 0.45) !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 40px rgba(229, 195, 120, 0.3) !important;
+    border-radius: 18px !important;
+    padding: clamp(24px, 4.5vh, 40px) clamp(22px, 4vw, 40px) !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+    transform: scale(0.92) translateY(20px) !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand-gold) rgba(20, 12, 8, 0.8);
 }
 
-.faq-item:nth-child(-n+5).active {
-    border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important;
+.faq-modal-backdrop.active .faq-modal-card {
+    transform: scale(1) translateY(0) !important;
 }
 
-/* Perguntas inferiores (6 a 10) abrem o balão para cima */
-.faq-item:nth-child(n+6) .faq-answer {
-    bottom: 100%;
-    top: auto;
-    border-bottom: 1px solid rgba(229, 195, 120, 0.25) !important;
-    border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important;
+.faq-modal-close {
+    position: absolute !important;
+    top: 18px !important;
+    right: 18px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(229, 195, 120, 0.3) !important;
+    color: #e5c378 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.25s ease !important;
+    padding: 0 !important;
 }
 
-.faq-item:nth-child(n+6).active {
-    border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important;
+.faq-modal-close:hover {
+    background: rgba(229, 195, 120, 0.25) !important;
+    border-color: #e5c378 !important;
+    transform: rotate(90deg) scale(1.08) !important;
+    box-shadow: 0 0 15px rgba(229, 195, 120, 0.5) !important;
 }
 
-.faq-answer p {
-    padding: 14px 20px !important;
+.faq-modal-close svg {
+    width: 18px !important;
+    height: 18px !important;
+}
+
+.faq-modal-header {
+    padding-right: 36px !important;
+}
+
+.faq-modal-badge {
+    display: inline-block !important;
+    font-size: 1.15rem !important;
+    color: var(--brand-gold) !important;
+    margin-bottom: 6px !important;
+}
+
+.faq-modal-title {
+    font-family: var(--font-primary) !important;
+    font-size: clamp(1.1rem, 2vh + 0.3vw, 1.45rem) !important;
+    font-weight: 600 !important;
+    color: #f7ede2 !important;
+    line-height: 1.35 !important;
     margin: 0 !important;
-    font-size: 0.88rem !important;
-    color: #f2e8dc !important;
-    line-height: 1.55 !important;
+    letter-spacing: 0.3px !important;
+}
+
+.faq-modal-divider {
+    width: 100% !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, rgba(229, 195, 120, 0.6) 0%, rgba(229, 195, 120, 0.1) 100%) !important;
+    margin: clamp(14px, 2.2vh, 22px) 0 !important;
+}
+
+.faq-modal-body p {
+    font-family: var(--font-primary) !important;
+    font-size: clamp(0.9rem, 1.3vh + 0.3vw, 1.05rem) !important;
+    color: #ede2d5 !important;
+    line-height: 1.7 !important;
+    margin: 0 !important;
     text-align: justify !important;
 }
 
-@keyframes faqBalloonFade {
-    from {
-        opacity: 0;
-        transform: translateY(4px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@media (max-width: 768px), (max-aspect-ratio: 5/4) {
-    .faq-section {
-        height: auto !important;
-        min-height: 100vh !important;
-        overflow: visible !important;
-    }
-    .faq-section .slide-layout-container {
-        height: auto !important;
-        min-height: 100vh !important;
-        max-height: none !important;
-        overflow: visible !important;
-        padding-bottom: 24px !important;
-    }
-    .faq-accordion {
-        gap: 5px !important;
-        max-height: none !important;
-        min-height: auto !important;
-    }
-    .faq-item {
-        flex: none !important;
-    }
-    .faq-question {
-        padding: 9px 14px !important;
-        font-size: 0.82rem !important;
-        min-height: auto !important;
-    }
-    .faq-answer p {
-        padding: 10px 14px !important;
-        font-size: 0.78rem !important;
-    }
+.faq-answer {
+    display: none !important;
 }
 
 /* ==========================================================================
@@ -3801,12 +3877,6 @@ span.section-tag.handwritten-title {
         max-height: 640px !important;
         margin-top: 32px !important;
         margin-bottom: 24px !important;
-    }
-    
-    .faq-accordion {
-        margin-top: 32px !important;
-        margin-bottom: 24px !important;
-        gap: 12px !important; /* Espaçamento levemente maior entre os itens de FAQ */
     }
 }
 
