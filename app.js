@@ -1715,6 +1715,7 @@ void main() {
                     if (entry.isIntersecting) {
                         activeTitleElement = title; // Define como o título ativo
                         playTitle(title);
+                        startFixedRotationTimer();
                     } else {
                         if (activeTitleElement === title) {
                             activeTitleElement = null;
@@ -1773,24 +1774,23 @@ void main() {
                 });
         }
 
-        // Lógica de inatividade global
-        const resetInactivity = () => {
-            lastActivity = Date.now();
-        };
+        // Rotação de frases por tempo fixo de 15 segundos (independente de interação)
+        let rotationTimer = null;
 
-        ['mousemove', 'click', 'scroll', 'keydown', 'touchstart'].forEach(evt => {
-            window.addEventListener(evt, resetInactivity, { passive: true });
-        });
-
-        setInterval(() => {
-            const elapsed = (Date.now() - lastActivity) / 1000;
-            if (elapsed >= 15) {
-                resetInactivity();
+        function startFixedRotationTimer() {
+            if (rotationTimer) clearInterval(rotationTimer);
+            rotationTimer = setInterval(() => {
+                // Não rotaciona se o modal de vídeo ou FAQ estiver aberto
+                if (document.body.classList.contains('video-active') || document.body.classList.contains('faq-modal-open')) {
+                    return;
+                }
                 if (activeTitleElement) {
                     replayTitle(activeTitleElement);
                 }
-            }
-        }, 1000);
+            }, 15000);
+        }
+
+        startFixedRotationTimer();
     }
 
     initBlurText();
