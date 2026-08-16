@@ -47,7 +47,7 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 **Personagem / Apresentador:** Iasis (Agente IA)  
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
 **Texto de Narração:**
-> "Veja o impacto transformador que uma homenagem em vídeo causa no coração de famílias inteiras, com relatos reais de nossos clientes, revelando como a restauração sensível de voz e imagem traz alento, sorrisos e lembranças inestimáveis para todos os momentos festivos em família."
+> "Veja o impacto transformador que essas homenagens causam nos corações de quem viveu essa experiência. São relatos reais dentre centenas de homenagens feitas, revelando como a restauração sensível de voz e imagem traz alento, sorrisos e lembranças inestimáveis para todos os momentos festivos em família. Não é apenas um vídeo! É uma experiência emocionante! Proporcione essa emoção!"
 
 ---
 
@@ -55,7 +55,7 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 **Personagem / Apresentador:** Iasis (Agente IA)  
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
 **Texto de Narração:**
-> "Escolha a estrutura ideal para eternizar a sua homenagem com planos que variam em tempo e capacidade narrativa que garantem a mesma dedicação técnica e sensibilidade artística para criar um registro sonoro e visual inestimável capazes de emocionar a todos os presentes."
+> "Escolha a estrutura ideal para eternizar a sua homenagem com planos que variam em tempo e capacidade narrativa. Seja em um, dois ou três minutos, com formato horizontal ou vertical, todos garantem o mesmo rigor técnico na restauração da foto, clonagem da voz e animação realista, criando um registro inestimável e pronto para emocionar a todos. Faça a sua homenagem!"
 
 ---
 
@@ -63,4 +63,4 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 **Personagem / Apresentador:** Iasis (Agente IA)  
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
 **Texto de Narração:**
-> "Reunimos as dúvidas e perguntas mais comuns de quem deseja eternizar uma memória com máximo respeito, cuidado técnico e sensibilidade afetiva, mas caso ainda tenha algum outro questionamento, nossa equipe dedicada está sempre pronta para ajudar, atender e acolher suas solicitações."
+> "Reunimos as dúvidas e perguntas mais comuns de quem deseja eternizar uma memória com máximo respeito, cuidado técnico e sensibilidade afetiva, mas caso ainda tenha algum outro questionamento, nossa equipe dedicada está sempre pronta para ajudar, atender e acolher suas solicitações. Nos chame no whatsapp, tire suas dúvidas e reviva suas memórias! Seja para você mesmo ou para alguém especial, é um presente exclusivo e inesquecível!"
