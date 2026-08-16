@@ -3491,6 +3491,17 @@ span.section-tag.handwritten-title {
     display: none !important;
 }
 
+@keyframes faqAnswerFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* ==========================================================================
    Galeria de Acordeão Interativa (AccordionGallery) no Hero
    ========================================================================== */

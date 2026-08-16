@@ -989,8 +989,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openFaqModal(questionText, answerText) {
         if (!faqModalBackdrop || !faqModalQuestion || !faqModalAnswer) return;
+        
         faqModalQuestion.textContent = questionText;
         faqModalAnswer.textContent = answerText;
+        
+        // Reinicia e dispara a animação manuscrita da tag "Dúvidas Frequentes"
+        const badge = faqModalBackdrop.querySelector('.faq-modal-badge');
+        if (badge) {
+            badge.style.animation = 'none';
+            badge.offsetHeight; // Força reflow para reiniciar o keyframe
+            badge.style.animation = 'revealStaticText 1.2s linear forwards';
+        }
+
+        // Animação de revelação/desfoque do título da pergunta selecionada
+        faqModalQuestion.style.animation = 'none';
+        faqModalQuestion.offsetHeight; // Reflow
+        faqModalQuestion.style.animation = 'blurFadeIn 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards';
+
+        // Animação de slide e fade-in suave do texto da resposta
+        faqModalAnswer.style.animation = 'none';
+        faqModalAnswer.offsetHeight; // Reflow
+        faqModalAnswer.style.animation = 'faqAnswerFadeIn 0.5s ease-out forwards';
+
         faqModalBackdrop.classList.add('active');
         document.body.classList.add('faq-modal-open');
     }
@@ -999,6 +1019,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!faqModalBackdrop) return;
         faqModalBackdrop.classList.remove('active');
         document.body.classList.remove('faq-modal-open');
+
+        // Reseta o estado da tag para a próxima pergunta
+        const badge = faqModalBackdrop.querySelector('.faq-modal-badge');
+        if (badge) {
+            badge.style.animation = 'none';
+            badge.style.clipPath = 'inset(0 100% 0 0)';
+        }
     }
 
     document.querySelectorAll('.faq-question').forEach(button => {
