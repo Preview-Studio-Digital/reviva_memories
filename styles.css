@@ -3245,81 +3245,21 @@ span.section-tag.handwritten-title {
     }
 }
 
-/* FAQ Accordion Styles - Encaixe e Distribuição Vertical Perfeita em Qualquer Dispositivo */
+/* FAQ Accordion Styles - Encaixe Perfeito no Espaço Padrão entre Título e Ações */
 .faq-section {
     background: transparent;
-    height: 100vh !important;
-    height: 100dvh !important;
-    max-height: 100vh !important;
-    max-height: 100dvh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    scroll-snap-align: start !important;
-    scroll-snap-stop: always !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-    padding: 0 !important;
-}
-
-.faq-section .slide-layout-container {
-    height: 100vh !important;
-    height: 100dvh !important;
-    max-height: 100vh !important;
-    max-height: 100dvh !important;
-    width: 100% !important;
-    max-width: 1200px !important;
-    margin: 0 auto !important;
-    padding: clamp(48px, 6vh, 60px) clamp(12px, 2.5vw, 24px) clamp(14px, 2.5vh, 28px) clamp(12px, 2.5vw, 24px) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    box-sizing: border-box !important;
-    overflow: visible !important;
-}
-
-.faq-section .section-tag {
-    flex-shrink: 0 !important;
-    margin-bottom: clamp(2px, 0.6vh, 6px) !important;
-}
-
-.faq-section .hero-center-wrap {
-    flex-shrink: 0 !important;
-    margin: 0 0 clamp(4px, 1.2vh, 12px) 0 !important;
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-}
-
-.faq-section .hero-center-wrap .hero-title {
-    margin: 0 !important;
-    font-size: clamp(1.1rem, 2.2vh + 0.4vw, 2.2rem) !important;
-    line-height: 1.15 !important;
-}
-
-.faq-section .hero-bottom-wrap {
-    flex-shrink: 0 !important;
-    width: 100% !important;
-    margin-top: clamp(4px, 1.2vh, 12px) !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
 }
 
 .faq-accordion {
-    width: 100% !important;
-    max-width: 1100px !important;
-    margin: 0 auto !important;
+    width: 100%;
+    max-width: 1100px;
+    margin: 20px auto 14px auto !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
-    gap: clamp(3px, 0.8vh, 10px) !important;
-    flex: 1 1 0 !important;
-    min-height: 0 !important;
-    max-height: none !important;
+    gap: 6px !important;
+    flex: 1 1 auto !important;
+    max-height: 520px !important;
     box-sizing: border-box !important;
     position: relative !important;
 }
@@ -3335,28 +3275,16 @@ span.section-tag.handwritten-title {
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
-    flex: 1 1 0 !important;
-    min-height: 0 !important;
-    height: 100% !important;
+    height: 38px !important;
+    min-height: 30px !important;
+    max-height: 44px !important;
     position: relative !important;
 }
 
 .faq-item:hover {
     border-color: rgba(197, 160, 89, 0.45) !important;
     background: rgba(46, 33, 24, 0.38) !important;
-}
-
-.faq-item.active {
-    z-index: 60 !important;
-    border-color: #e5c378 !important;
-    background: rgba(46, 33, 24, 0.95) !important;
-    box-shadow: 0 0 20px rgba(229, 195, 120, 0.5), 0 0 35px rgba(156, 114, 71, 0.3) !important;
-}
-
-.faq-item.active .faq-question,
-.faq-item.active .faq-question span {
-    color: #e5c378 !important;
-    text-shadow: 0 0 10px rgba(229, 195, 120, 0.75), 0 0 20px rgba(229, 195, 120, 0.35) !important;
+    box-shadow: 0 0 15px rgba(229, 195, 120, 0.2) !important;
 }
 
 .faq-question {
@@ -3364,20 +3292,18 @@ span.section-tag.handwritten-title {
     height: 100% !important;
     background: transparent !important;
     border: none !important;
-    padding: 0 clamp(10px, 1.5vw, 18px) !important;
+    padding: 0 18px !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
     color: var(--text-primary) !important;
-    font-size: clamp(0.68rem, 0.92vh + 0.3vw, 0.88rem) !important;
+    font-size: 0.86rem !important;
     font-weight: 500 !important;
     text-align: left !important;
     cursor: pointer !important;
-    gap: clamp(6px, 1vw, 12px) !important;
-    line-height: 1.25 !important;
+    gap: 12px !important;
+    line-height: 1.2 !important;
     box-sizing: border-box !important;
-    min-height: 0 !important;
-    flex: 1 1 auto !important;
 }
 
 .faq-question span {
@@ -3387,27 +3313,49 @@ span.section-tag.handwritten-title {
     text-overflow: ellipsis !important;
 }
 
-@media (max-width: 600px) {
-    .faq-question span {
-        white-space: normal !important;
-        display: -webkit-box !important;
-        -webkit-line-clamp: 1 !important;
-        -webkit-box-orient: vertical !important;
-    }
-}
-
 .faq-question svg {
     color: var(--brand-gold) !important;
     transition: transform 0.3s ease !important;
-    width: clamp(11px, 1.3vh, 14px) !important;
-    height: clamp(11px, 1.3vh, 14px) !important;
+    width: 14px !important;
+    height: 14px !important;
     flex-shrink: 0 !important;
 }
 
-.faq-item.active .faq-question svg {
+.faq-item:hover .faq-question svg {
     color: #e5c378 !important;
     filter: drop-shadow(0 0 6px rgba(229, 195, 120, 0.8)) !important;
-    transform: rotate(180deg) !important;
+}
+
+@media (max-height: 780px) {
+    .faq-accordion {
+        margin: 12px auto 8px auto !important;
+        gap: 4px !important;
+        max-height: 440px !important;
+    }
+    .faq-item {
+        height: 32px !important;
+        min-height: 26px !important;
+    }
+    .faq-question {
+        padding: 0 14px !important;
+        font-size: 0.80rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .faq-accordion {
+        margin: 14px auto 10px auto !important;
+        gap: 5px !important;
+        max-height: 480px !important;
+    }
+    .faq-item {
+        height: 34px !important;
+        min-height: 28px !important;
+    }
+    .faq-question {
+        padding: 0 12px !important;
+        font-size: 0.78rem !important;
+    }
 }
 
 /* FAQ Central Spotlight Modal (Pergunta e Resposta em Destaque Central com Fundo Desfocado) */
