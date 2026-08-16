@@ -1,6 +1,13 @@
 # Roteiros e Textos Descritivos - Reviva Memories
 
-Este arquivo contém todos os textos descritivos das seções (slides) que foram ocultados do site, servindo como roteiro para as narrações em vídeo de cada respectiva seção.
+Este arquivo contém todos os roteiros e textos de narração dos vídeos de cada seção/slide do projeto **Reviva Memories**.
+
+---
+
+## 🎥 Slide 1: Apresentação (Intro Section / #intro)
+**Personagem / Apresentador:** Iasis (Agente IA)
+**Texto de Narração:**
+> "Olá! Eu sou o Iasis, o agente de IA da Reviva Memories. Meu nome significava cura e restabelecimento na Grécia antiga. Hoje, através da Inteligência Artificial, serei o seu guia nessa jornada e o curador das suas lembranças mais preciosas. Nosso propósito é unir a inovação ao mais puro afeto, trazendo de volta o olhar, a voz e a presença de quem tanto amamos, mas que já se foram... Vamos reviver essas memórias juntos?"
 
 ---
 
