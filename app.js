@@ -1567,23 +1567,40 @@ void main() {
                 if (!video) return;
 
                 if (i === activeIdx) {
-                    // Quando o card de vídeo fica ativo: toca um trecho expressivo do meio em loop sem som
+                    // Quando o card de vídeo fica ativo: toca um trecho de exatamente 10 segundos do meio (sem fades)
                     if (video.dataset.playingWithAudio !== 'true') {
                         video.muted = true;
                         
-                        // Define o ponto de início no meio do vídeo (~35% a 40% da duração total)
-                        const startPreviewTime = video.duration ? (video.duration * 0.38) : 10;
-                        const endPreviewTime = video.duration ? (video.duration * 0.65) : 18;
+                        const dur = video.duration || 60;
+                        // Centraliza uma janela de 10s exatamente no meio do vídeo (longe dos fades de início e fim)
+                        const startPreviewTime = Math.max(5, (dur / 2) - 5);
+                        const endPreviewTime = startPreviewTime + 10;
 
-                        if (video.currentTime < startPreviewTime || video.currentTime > endPreviewTime) {
+                        if (video.currentTime < startPreviewTime || video.currentTime >= endPreviewTime) {
                             video.currentTime = startPreviewTime;
                         }
 
-                        // Loop contínuo apenas no trecho do meio durante o hover
+                        // Monitora o tempo: ao atingir os 10s exatos do meio, avança para o próximo vídeo da galeria
                         video.ontimeupdate = () => {
                             if (video.dataset.playingWithAudio !== 'true') {
-                                if (video.currentTime >= endPreviewTime || video.currentTime < startPreviewTime) {
-                                    video.currentTime = startPreviewTime;
+                                if (video.currentTime >= endPreviewTime) {
+                                    video.ontimeupdate = null;
+                                    video.pause();
+
+                                    // Localiza o próximo painel de vídeo na galeria
+                                    let nextVideoIndex = -1;
+                                    for (let step = 1; step < count; step++) {
+                                        const candidateIdx = (i + step) % count;
+                                        if (panels[candidateIdx].dataset.type === 'video') {
+                                            nextVideoIndex = candidateIdx;
+                                            break;
+                                        }
+                                    }
+
+                                    if (nextVideoIndex !== -1 && nextVideoIndex !== i) {
+                                        activeIndex = nextVideoIndex;
+                                        applyLayout(true);
+                                    }
                                 }
                             }
                         };
@@ -1605,6 +1622,7 @@ void main() {
                         fadeAudioVolume(originalVolume, 1000);
                     }
                     video.ontimeupdate = null;
+                    video.onended = null;
                     video.pause();
                     video.currentTime = 0;
                 }
