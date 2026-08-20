@@ -243,6 +243,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         title.style.animation = 'revealStaticText 1.5s linear forwards';
                     }
 
+                    // Se estiver no slide 1, anima o desenho manuscrito do 'Comece aqui' e da seta sequencialmente
+                    const startGuideText = entry.target.querySelector('.start-here-text');
+                    const arrowLine = entry.target.querySelector('.start-here-arrow path.arrow-line');
+                    const arrowHead = entry.target.querySelector('.start-here-arrow path.arrow-head');
+                    if (startGuideText && arrowLine && arrowHead) {
+                        startGuideText.style.animation = 'none';
+                        arrowLine.style.animation = 'none';
+                        arrowHead.style.animation = 'none';
+                        startGuideText.offsetHeight; // Reflow
+                        startGuideText.style.animation = 'revealStaticText 1.2s cubic-bezier(0.25, 1, 0.5, 1) 0.3s forwards';
+                        arrowLine.style.animation = 'drawHandwrittenLine 0.9s ease-out 1.2s forwards';
+                        arrowHead.style.animation = 'drawHandwrittenHead 0.5s ease-out 2.0s forwards';
+                    }
+
                     // Dispara a animação direcional dos cards da seção que entrou
                     animateSectionCards(entry.target, currentScrollDirection);
 
@@ -253,6 +267,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (title) {
                         title.style.animation = 'none';
                         title.style.clipPath = 'inset(0 100% 0 0)';
+                    }
+                    const startGuideText = entry.target.querySelector('.start-here-text');
+                    const arrowLine = entry.target.querySelector('.start-here-arrow path.arrow-line');
+                    const arrowHead = entry.target.querySelector('.start-here-arrow path.arrow-head');
+                    if (startGuideText && arrowLine && arrowHead) {
+                        startGuideText.style.animation = 'none';
+                        arrowLine.style.animation = 'none';
+                        arrowHead.style.animation = 'none';
+                        startGuideText.style.clipPath = 'inset(0 100% 0 0)';
+                        arrowLine.style.strokeDashoffset = '90';
+                        arrowHead.style.strokeDashoffset = '40';
                     }
 
                     // Reseta os cards dos slides que saíram da tela
@@ -401,21 +426,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startVideoFadeOut() {
         if (!localVideoPlayer) return;
-        
-        // Pausar o áudio do vídeo imediatamente ao fechar, sem delay
-        localVideoPlayer.pause();
 
-        // Desvanecer o modal visualmente (mantendo o fade out de 3s no CSS)
+        // Desvanecer o modal visualmente com transição suave (3s)
         videoModal.classList.remove('active');
         document.body.classList.remove('video-active');
         
-        // Restaurar volume da música de fundo imediatamente
-        const bgAudio = document.getElementById('bgAudio');
-        if (bgAudio) {
-            bgAudio.volume = originalVolume;
-        }
+        // Restaurar o volume da música de fundo gradualmente ao longo dos 3 segundos
+        fadeAudioVolume(originalVolume, 3000);
 
-        // Aguardar o término do fade visual (3s) para remover e resetar o src do vídeo
+        // Aguardar o término do fade visual (3s) para remover e resetar o vídeo
         setTimeout(() => {
             stopVideos();
         }, 3000);
@@ -426,12 +445,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (bgAudio) {
             if (!bgAudio.paused) {
                 originalVolume = bgAudio.volume || 1;
-                bgAudio.volume = 0.25;
             } else {
                 originalVolume = 1;
-                bgAudio.volume = 0.25;
+                bgAudio.volume = 1;
                 bgAudio.play().catch(err => console.log("Audio play failed on video modal open:", err));
             }
+            // Reduz o volume da música gradualmente ao longo de 3 segundos na entrada do vídeo
+            fadeAudioVolume(0.25, 3000);
         }
 
         stopVideos();
@@ -453,17 +473,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 };
                 
-                // Monitorar o fim real do vídeo para acionar o fechamento
+                // Monitorar a reprodução para acionar o fade out suave antes do vídeo congelar no fim
                 let autoFadeTriggered = false;
+
+                const handleTimeUpdate = () => {
+                    if (!localVideoPlayer.duration) return;
+                    
+                    const timeLeft = localVideoPlayer.duration - localVideoPlayer.currentTime;
+                    // Dispara o fade out suave nos últimos 2.5 segundos de vídeo (com o avatar ainda em movimento suave)
+                    if (timeLeft <= 2.5 && !autoFadeTriggered) {
+                        autoFadeTriggered = true;
+                        startVideoFadeOut();
+                    }
+                };
 
                 const handleEnded = () => {
                     if (!autoFadeTriggered) {
                         autoFadeTriggered = true;
                         startVideoFadeOut();
                     }
+                    localVideoPlayer.removeEventListener('timeupdate', handleTimeUpdate);
                     localVideoPlayer.removeEventListener('ended', handleEnded);
                 };
 
+                localVideoPlayer.addEventListener('timeupdate', handleTimeUpdate);
                 localVideoPlayer.addEventListener('ended', handleEnded);
             }
         } else {
@@ -1457,38 +1490,49 @@ void main() {
         const gallery = document.getElementById('heroAccordion');
         if (!gallery) return;
 
-        // Imagens do usuário comprimidas com seus respectivos títulos e ocasiões fixas
+        // Imagens e Vídeos com seus respectivos títulos e ocasiões fixas
         const imagePool = [
-            { src: 'gallery_homem_01.jpg', label: 'Pai - Homenagem para Aniversário' },
-            { src: 'gallery_homem_02.jpg', label: 'Avô - Homenagem para Formatura' },
-            { src: 'gallery_homem_03.jpg', label: 'Irmão - Homenagem para Casamento' },
-            { src: 'gallery_homem_04.jpg', label: 'Filho - Homenagem para Aniversário' },
-            { src: 'gallery_mulher_01.jpg', label: 'Mãe - Homenagem para Aniversário' },
-            { src: 'gallery_mulher_02.jpg', label: 'Mãe - Homenagem para Formatura' },
-            { src: 'gallery_mulher_03.jpg', label: 'Tia - Homenagem Especial' },
-            { src: 'gallery_mulher_04.jpg', label: 'Avó - Homenagem para Batizado' }
+            { src: 'gallery_homem_01.jpg', label: 'Pai - Homenagem para Aniversário', type: 'image' },
+            { src: 'gallery_homem_02.jpg', label: 'Avô - Homenagem para Formatura', type: 'image' },
+            { src: 'gallery_homem_03.jpg', label: 'Irmão - Homenagem para Casamento', type: 'image' },
+            { src: 'gallery_homem_04.jpg', label: 'Filho - Homenagem para Aniversário', type: 'image' },
+            { src: 'gallery_mae_aniversario.webm', poster: 'gallery_mulher_02.jpg', label: 'ASSISTIR: MÃE - HOMENAGEM PARA ANIVERSÁRIO', type: 'video' },
+            { src: 'gallery_mulher_03.jpg', label: 'Tia - Homenagem Especial', type: 'image' },
+            { src: 'gallery_mulher_04.jpg', label: 'Avó - Homenagem para Batizado', type: 'image' }
         ];
 
-        // Embaralha a pool de imagens (cada uma carrega seu próprio vínculo fixo de texto)
+        // Embaralha a pool garantindo a diversidade visual
         const shuffledImages = [...imagePool].sort(() => Math.random() - 0.5);
 
-        // Preenche o acordeão com as imagens aleatórias antes de aplicar o GSAP
+        // Preenche o acordeão com as mídias antes de aplicar o GSAP
         const tempPanels = gallery.querySelectorAll('.ag-panel');
 
         tempPanels.forEach((panel, index) => {
             if (index < shuffledImages.length) {
-                const imgData = shuffledImages[index];
-                const imgEl = panel.querySelector('.ag-panel__media img');
+                const itemData = shuffledImages[index];
+                const mediaContainer = panel.querySelector('.ag-panel__media');
                 const labelTextEl = panel.querySelector('.ag-panel__text');
+                const existingBtn = panel.querySelector('.ag-panel-video-btn');
+                if (existingBtn) existingBtn.remove();
                 
-                if (imgEl) {
-                    imgEl.src = imgData.src;
-                    imgEl.alt = imgData.label;
+                if (mediaContainer) {
+                    if (itemData.type === 'video') {
+                        mediaContainer.innerHTML = `
+                            <img class="ag-card-poster" src="${itemData.poster || 'gallery_mulher_02.jpg'}" alt="${itemData.label}" draggable="false">
+                            <video class="ag-card-video" src="${itemData.src}" poster="${itemData.poster || 'gallery_mulher_02.jpg'}" playsinline loop muted preload="auto"></video>
+                        `;
+                    } else {
+                        mediaContainer.innerHTML = `
+                            <img src="${itemData.src}" alt="${itemData.label}" draggable="false">
+                        `;
+                    }
                 }
+
                 if (labelTextEl) {
-                    labelTextEl.textContent = imgData.label;
+                    labelTextEl.textContent = itemData.label;
                 }
-                panel.setAttribute('aria-label', imgData.label);
+                panel.setAttribute('aria-label', itemData.label);
+                panel.dataset.type = itemData.type;
             }
         });
 
@@ -1508,6 +1552,53 @@ void main() {
 
         let mediaSize = 320;
         let tl = null;
+
+        function updateCardVideos(activeIdx) {
+            panels.forEach((panel, i) => {
+                const video = panel.querySelector('video.ag-card-video');
+                const labelTextEl = panel.querySelector('.ag-panel__text');
+                if (!video) return;
+
+                if (i === activeIdx) {
+                    // Quando o card de vídeo fica ativo: toca um trecho expressivo do meio em loop sem som
+                    if (video.dataset.playingWithAudio !== 'true') {
+                        video.muted = true;
+                        
+                        // Define o ponto de início no meio do vídeo (~35% a 40% da duração total)
+                        const startPreviewTime = video.duration ? (video.duration * 0.38) : 10;
+                        const endPreviewTime = video.duration ? (video.duration * 0.65) : 18;
+
+                        if (video.currentTime < startPreviewTime || video.currentTime > endPreviewTime) {
+                            video.currentTime = startPreviewTime;
+                        }
+
+                        // Loop contínuo apenas no trecho do meio durante o hover
+                        video.ontimeupdate = () => {
+                            if (video.dataset.playingWithAudio !== 'true') {
+                                if (video.currentTime >= endPreviewTime || video.currentTime < startPreviewTime) {
+                                    video.currentTime = startPreviewTime;
+                                }
+                            }
+                        };
+
+                        video.play().catch(() => {});
+                    }
+                } else {
+                    // Quando o card de vídeo perde o foco: pausa, reseta posição, áudio e restaura música de fundo
+                    if (video.dataset.playingWithAudio === 'true') {
+                        video.dataset.playingWithAudio = 'false';
+                        video.muted = true;
+                        if (labelTextEl) {
+                            labelTextEl.textContent = 'ASSISTIR: MÃE - HOMENAGEM PARA ANIVERSÁRIO';
+                        }
+                        fadeAudioVolume(originalVolume, 1000);
+                    }
+                    video.ontimeupdate = null;
+                    video.pause();
+                    video.currentTime = 0;
+                }
+            });
+        }
 
         function applyLayout(animate = true) {
             if (!panels.length) return;
@@ -1544,13 +1635,12 @@ void main() {
                     panel.classList.remove('ag-panel--active');
                 }
 
-                // Anima a imagem interna (efeito paralaxe, escala e escala de cinza)
+                // Anima a imagem/vídeo interna (efeito paralaxe, escala e escala de cinza)
                 if (media) {
                     const drift = Math.max(-1.5, Math.min(1.5, activeIndex - i));
                     const shift = drift * parallax * mediaSize * 0.06;
                     const gray = grayscale ? (isActive ? 0 : 1) : 0;
                     
-                    // Aplicamos a animação direta da propriedade de filtro CSS
                     const filterVal = `grayscale(${gray}) brightness(${isActive ? 1 : 0.65})`;
                     
                     tl.to(media, {
@@ -1589,10 +1679,12 @@ void main() {
                             x: -14, 
                             duration: dur * 0.6, 
                             ease: ease 
-                        }, 0);
+                         }, 0);
                     }
                 }
             });
+
+            updateCardVideos(activeIndex);
         }
 
         function measure() {
@@ -1607,7 +1699,7 @@ void main() {
         window.addEventListener('resize', measure);
         measure();
 
-        // Eventos de mouse e teclado
+        // Eventos de mouse, teclado e clique no título para tocar com áudio
         panels.forEach((panel, i) => {
             panel.addEventListener('mouseenter', () => {
                 activeIndex = i;
@@ -1618,6 +1710,52 @@ void main() {
                 applyLayout(true);
             });
             panel.addEventListener('click', (e) => {
+                const labelClick = e.target.closest('.ag-panel__label');
+                
+                // Se clicou no título/label do vídeo ativo
+                if (labelClick && panel.dataset.type === 'video') {
+                    e.stopPropagation();
+                    const video = panel.querySelector('video.ag-card-video');
+                    const labelTextEl = panel.querySelector('.ag-panel__text');
+                    if (video) {
+                        if (video.dataset.playingWithAudio === 'true') {
+                            // Pausa e volta para mudo
+                            video.dataset.playingWithAudio = 'false';
+                            video.muted = true;
+                            if (labelTextEl) {
+                                labelTextEl.textContent = 'ASSISTIR: MÃE - HOMENAGEM PARA ANIVERSÁRIO';
+                            }
+                            fadeAudioVolume(originalVolume, 800);
+                        } else {
+                            // Toca do zero COM SOM dentro do próprio card
+                            video.dataset.playingWithAudio = 'true';
+                            video.currentTime = 0;
+                            video.muted = false;
+                            video.volume = 1;
+                            video.play().catch(() => {});
+                            
+                            if (labelTextEl) {
+                                labelTextEl.textContent = 'PAUSAR: MÃE - HOMENAGEM PARA ANIVERSÁRIO';
+                            }
+                            
+                            // Diminui a música de fundo do site para destacar a voz da mãe
+                            fadeAudioVolume(0.15, 800);
+
+                            // Ao terminar o vídeo com som, restaura o estado inicial e o volume
+                            video.onended = () => {
+                                video.dataset.playingWithAudio = 'false';
+                                video.muted = true;
+                                video.play().catch(() => {});
+                                if (labelTextEl) {
+                                    labelTextEl.textContent = 'ASSISTIR: MÃE - HOMENAGEM PARA ANIVERSÁRIO';
+                                }
+                                fadeAudioVolume(originalVolume, 1200);
+                            };
+                        }
+                    }
+                    return;
+                }
+
                 if (i !== activeIndex) {
                     e.preventDefault();
                     activeIndex = i;
@@ -1794,4 +1932,123 @@ void main() {
     }
 
     initBlurText();
+
+    // -------------------------------------------------------------
+    // DEPOIMENTOS DINÂMICOS & ALEATÓRIOS (Pool de 12 Depoimentos)
+    // -------------------------------------------------------------
+    function initDynamicTestimonials() {
+        const testimonialsContainer = document.querySelector('.testimonials-row');
+        if (!testimonialsContainer) return;
+
+        const testimonialsPool = [
+            {
+                text: "Ouvir de surpresa a voz da minha avó abençoando o nascimento do meu filho durante o batizado fez toda a nossa família se emocionar profundamente. Foi, sem dúvidas, o momento mais inesquecível das nossas vidas e uma recordação eterna.",
+                name: "Camila M.",
+                event: "Batizado",
+                location: "Campinas, SP",
+                avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80"
+            },
+            {
+                text: "No meu aniversário de 15 anos, assistir à mensagem do meu querido avô me desejando felicidades foi um momento absolutamente mágico e emocionante. Todo mundo na festa chorou e sentiu a presença dele nos abençoando naquela noite especial.",
+                name: "Beatriz R.",
+                event: "Aniversário de 15 Anos",
+                location: "Rio de Janeiro, RJ",
+                avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80"
+            },
+            {
+                text: "Receber esse vídeo de surpresa na minha formatura com a voz da minha avó foi o presente mais inestimável que ganhei dos meus pais. Sentir a presença e o carinho dela naquele dia tão importante para mim foi emocionante demais.",
+                name: "Júlia C.",
+                event: "Formatura de Medicina",
+                location: "Curitiba, PR",
+                avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80"
+            },
+            {
+                text: "Quando a mensagem surpresa do meu pai passou no telão antes de eu entrar na igreja, não houve uma única pessoa que não tenha chorado de emoção. Parecia que ele estava ali fisicamente, segurando a minha mão e me levando ao altar.",
+                name: "Mariana S.",
+                event: "Casamento",
+                location: "São Paulo, SP",
+                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+            },
+            {
+                text: "Quando a voz do meu pai ecoou no auditório durante a colação, falando do orgulho que tinha de me ver formado, o tempo parou. Foi o abraço que eu mais precisei e que nunca mais vou esquecer na minha vida.",
+                name: "Lucas T.",
+                event: "Formatura de Engenharia",
+                location: "Belo Horizonte, MG",
+                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+            },
+            {
+                text: "Ver minha mãe no telão abençoando as nossas bodas como se estivesse conosco foi indescritível. A delicadeza da voz e o olhar dela trouxeram uma paz que confortou o coração de toda a família.",
+                name: "Renata P.",
+                event: "Bodas de Prata",
+                location: "Porto Alegre, RS",
+                avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80"
+            },
+            {
+                text: "Ouvir meu avô dando as boas-vindas ao meu filho recém-nascido foi a experiência mais linda que já vivi. É uma ponte de amor eterno que meu filho guardará para sempre como um tesouro de família.",
+                name: "Gustavo M.",
+                event: "Nascimento do Filho",
+                location: "Brasília, DF",
+                avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
+            },
+            {
+                text: "Foi a surpresa mais emocionante de toda a minha festa de 50 anos. Ver meu pai falando comigo com aquele carinho de sempre fez parecer que a distância física não existia. Uma emoção indescritível.",
+                name: "Cláudia F.",
+                event: "Aniversário de 50 Anos",
+                location: "Salvador, BA",
+                avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80"
+            },
+            {
+                text: "A mensagem da minha mãe durante o nosso noivado emocionou até quem achava que não iria chorar. A naturalidade da voz e das palavras parecia uma bênção vinda direto do coração dela para nós dois.",
+                name: "Thiago A.",
+                event: "Noivado",
+                location: "Florianópolis, SC",
+                avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=150&q=80"
+            },
+            {
+                text: "Reunimos os irmãos no almoço de Dia das Mães e colocamos o vídeo da nossa mãe. Foi um momento de pura comunhão, lágrimas de amor e muitas lembranças boas. Um verdadeiro bálsamo para a nossa saudade.",
+                name: "Patrícia L.",
+                event: "Dia das Mães",
+                location: "Goiânia, GO",
+                avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=150&q=80"
+            },
+            {
+                text: "Meu avô sempre sonhou em me ver advogada. Ouvir os conselhos dele no dia da minha formatura, com aquele jeito manso e sábio, foi o maior presente que a minha família poderia ter me proporcionado.",
+                name: "Fernanda B.",
+                event: "Formatura de Direito",
+                location: "Recife, PE",
+                avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=150&q=80"
+            },
+            {
+                text: "Ganhei esse vídeo nos meus 18 anos com uma mensagem do meu pai. Sentir a voz dele me orientando para a vida adulta foi emocionante demais. É uma lembrança que vou levar no peito para o resto da vida.",
+                name: "Gabriel V.",
+                event: "Aniversário de 18 Anos",
+                location: "Vitória, ES",
+                avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80"
+            }
+        ];
+
+        // Sorteia 4 depoimentos aleatórios sem repetição
+        const shuffled = [...testimonialsPool].sort(() => Math.random() - 0.5);
+        const selected = shuffled.slice(0, 4);
+
+        // Renderiza os cards mantendo a estrutura original
+        testimonialsContainer.innerHTML = selected.map(item => `
+            <div class="testimonial-card">
+                <div class="quote-icon">“</div>
+                <p class="testimonial-text">
+                    "${item.text}"
+                </p>
+                <div class="testimonial-user">
+                    <div class="user-avatar" style="background-image: url('${item.avatar}');"></div>
+                    <div>
+                        <h4>${item.name}</h4>
+                        <span>${item.event}</span>
+                        <span>${item.location}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    initDynamicTestimonials();
 });

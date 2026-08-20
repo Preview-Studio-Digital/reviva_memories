@@ -64,3 +64,65 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
 **Texto de Narração:**
 > "Reunimos as dúvidas e perguntas mais comuns de quem deseja eternizar uma memória com máximo respeito, cuidado técnico e sensibilidade afetiva, mas caso ainda tenha algum outro questionamento, nossa equipe dedicada está sempre pronta para ajudar, atender e acolher suas solicitações. Nos chame no whatsapp, tire suas dúvidas e reviva suas memórias! Seja para você mesmo ou para alguém especial, é um presente exclusivo e inesquecível!"
+
+---
+
+# 🕊️ Roteiros de Homenagem (Exemplos da Galeria)
+
+## 🎬 Exemplo 1: Formatura (Pai para Filha "Maricota")
+* **Plano:** Affectus (1 Minuto / ~117 palavras)
+* **Personagem:** Pai Carlos (Avatar Masculino / Galeria)
+* **Ocasião:** Formatura Universitária
+* **Texto de Narração:**
+> "É, Maricota…
+>
+> Quem diria, hein?
+> Você formada...
+> Você realizou um sonho seu… e realizou um sonho meu também.
+> Agora vai.
+> Constrói a sua história.
+> Cuida das pessoas do jeito que eu sempre te ensinei.
+> Nunca deixe de estudar.
+> Nunca deixe de ser humilde.
+> E nunca esqueça que o valor de uma pessoa não está no dinheiro que ela tem, nem no diploma que ela carrega, mas no coração que ela leva.
+> Eu queria muito poder te dar um abraço hoje.
+> Mas, como não posso, imagina que esse abraço está chegando aí agora.
+> Eu te amo, minha filha.
+> Muito obrigado por ter sido a melhor filha que eu poderia ter.
+> Agora eu vou deixar você viver esse momento.
+> Vai receber o seu diploma.
+> Vai sorrir.
+> E quando olhar para o céu, não fique triste por mim.
+> Eu estarei orgulhoso de você… hoje e para sempre.
+> Fica com Deus, Maricota.
+> O pai te ama.
+> Até a gente se encontrar de novo."
+
+---
+
+## 🎬 Exemplo 2: Aniversário (Mãe para Filho "Gegê")
+* **Plano:** Affectus (1 Minuto / ~124 palavras)
+* **Personagem:** Mãe (Avatar Feminino na montanha / `gallery_mulher_01.jpg` / `gallery_mulher_02.jpg`)
+* **Ocasião:** Aniversário do Filho
+* **Texto de Narração:**
+> "Meu amor… meu Gegê…
+>
+> Olha pra você hoje… como está lindo, meu filho!
+>
+> Mais um ano de vida… e o meu coração continua aqui… batendo juntinho com o seu.
+>
+> Eu sei que a saudade aperta às vezes… 
+> Mas olha em volta, sente o sol no rosto, o vento… 
+> Eu nunca fui embora de verdade, e você sabe disso!
+>
+> Continue sendo esse homem do coração bom… que cuida de todo mundo e espalha luz por onde passa. 
+> Não tenha medo de sonhar alto… e nunca perca esse sorriso que sempre iluminou os meus dias.
+>
+> Feche os olhos um instante… sente o abraço apertado da mãe te envolvendo agora.
+>
+> Dá um beijo bem carinhoso no seu pai e nos seus irmãos por mim.
+>
+> Eu te amo pra sempre… 
+>
+> Feliz Aniversário, Gegê!"
+

@@ -2047,7 +2047,7 @@ body.video-active .global-galaxy-bg {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
+    transition: opacity 3s ease-in-out, visibility 3s ease-in-out !important;
 }
 
 .video-modal.active {
@@ -2070,7 +2070,7 @@ body.video-active .global-galaxy-bg {
     align-items: center;
     justify-content: flex-start;
     transform: scale(0.98);
-    transition: transform 0.5s ease;
+    transition: transform 3s ease-in-out !important;
 }
 
 .video-modal.active .video-modal-content {
@@ -2186,7 +2186,7 @@ body.video-active .audio-player-widget {
     opacity: 0;
     transform: translateZ(0);
     will-change: opacity, transform;
-    transition: opacity 0.6s ease-in-out;
+    transition: opacity 3s ease-in-out !important;
 }
 
 .video-modal.active .video-container video,
@@ -2196,7 +2196,7 @@ body.video-active .audio-player-widget {
 
 .video-container video.video-fading-out {
     opacity: 0 !important;
-    transition: opacity 0.6s ease-in-out !important;
+    transition: opacity 3s ease-in-out !important;
 }
 
 /* -------------------------------------------------------------
@@ -2750,6 +2750,88 @@ span.section-tag.handwritten-title {
     margin-bottom: 6px !important;
     text-shadow: 0 0 8px rgba(229, 195, 120, 0.6), 0 0 16px rgba(229, 195, 120, 0.3) !important;
     line-height: 1.2 !important;
+}
+
+/* ==========================================================================
+   Guia Manuscrito "Comece aqui" com Efeito de Desenho Progressivo à Mão
+   ========================================================================== */
+.start-here-guide {
+    position: absolute;
+    top: -46px;
+    left: -86px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    pointer-events: none;
+    z-index: 12;
+}
+
+.start-here-text {
+    font-family: var(--font-handwriting), 'Allura', cursive;
+    font-size: 1.45rem;
+    color: #e5c378;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 8px rgba(229, 195, 120, 0.6), 0 2px 4px rgba(0, 0, 0, 0.8);
+    transform: rotate(-10deg);
+    white-space: nowrap;
+    user-select: none;
+    line-height: 1;
+    display: inline-block;
+    
+    /* Efeito de escrita sendo desenhada da esquerda para a direita */
+    clip-path: inset(0 100% 0 0);
+    animation: revealStaticText 1.2s cubic-bezier(0.25, 1, 0.5, 1) 0.3s forwards;
+}
+
+.start-here-arrow {
+    width: 62px;
+    height: 38px;
+    margin-top: -4px;
+    margin-right: -12px;
+    transform: rotate(6deg);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+    overflow: visible;
+}
+
+/* 1. Traço longo da seta desenhado primeiro */
+.start-here-arrow path.arrow-line {
+    stroke-dasharray: 90;
+    stroke-dashoffset: 90;
+    animation: drawHandwrittenLine 0.9s ease-out 1.2s forwards;
+}
+
+/* 2. Ponta da seta desenhada logo após a linha terminar */
+.start-here-arrow path.arrow-head {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: drawHandwrittenHead 0.5s ease-out 2.0s forwards;
+}
+
+@keyframes drawHandwrittenLine {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes drawHandwrittenHead {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .start-here-guide {
+        top: -40px;
+        left: -68px;
+        transform: scale(0.85);
+    }
+    .start-here-text {
+        font-size: 1.25rem;
+    }
+    .start-here-arrow {
+        width: 50px;
+        height: 30px;
+    }
 }
 
 
@@ -3653,12 +3735,28 @@ span.section-tag.handwritten-title {
 
 .ag-panel__media img,
 .ag-panel__media video {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+.ag-panel__media video {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.ag-panel.ag-panel--active .ag-panel__media video {
+  opacity: 1;
+}
+
+.ag-panel.ag-panel--active .ag-panel__media img.ag-card-poster {
+  opacity: 0;
 }
 
 .ag-panel__overlay {
@@ -3678,8 +3776,13 @@ span.section-tag.handwritten-title {
   display: flex;
   align-items: center;
   gap: 10px;
+  z-index: 10;
   pointer-events: none;
-  z-index: 2;
+}
+
+.ag-panel.ag-panel--active[data-type="video"] .ag-panel__label {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .ag-panel__bar {
@@ -3704,6 +3807,72 @@ span.section-tag.handwritten-title {
   text-overflow: ellipsis;
   opacity: 0;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
+  transition: color var(--transition-fast);
+}
+
+.ag-panel.ag-panel--active[data-type="video"] .ag-panel__label:hover .ag-panel__text {
+  color: #e5c378;
+  text-shadow: 0 0 12px rgba(229, 195, 120, 0.7);
+}
+.ag-panel-video-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  z-index: 10;
+  background: rgba(11, 11, 12, 0.75);
+  border: 1.5px solid #e5c378;
+  color: #e5c378;
+  padding: 10px 18px;
+  border-radius: 30px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(229, 195, 120, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.ag-panel-video-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: #e5c378;
+  fill: rgba(229, 195, 120, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.ag-panel.ag-panel--active .ag-panel-video-btn {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.ag-panel.ag-panel--active .ag-panel-video-btn:hover {
+  background: #e5c378;
+  color: #111112;
+  box-shadow: 0 0 25px #e5c378, 0 0 50px rgba(229, 195, 120, 0.8);
+  transform: translate(-50%, -50%) scale(1.06);
+}
+
+.ag-panel.ag-panel--active .ag-panel-video-btn:hover svg {
+  stroke: #111112;
+  fill: #111112;
+  transform: scale(1.15);
+}
+
+/* Indicador de reprodução com áudio ativo */
+.ag-panel-video-btn.playing {
+  background: rgba(229, 195, 120, 0.2);
+  border-color: #e5c378;
+  color: #ffffff;
 }
 
 @media (max-width: 768px) {
