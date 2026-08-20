@@ -126,3 +126,77 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 >
 > Feliz Aniversário, Gegê!"
 
+---
+
+## 🎬 Exemplo 3: Aniversário (Irmã para Irmã "Nandinha")
+* **Plano:** Affectus (1 Minuto / ~128 palavras)
+* **Personagem:** Irmã (Avatar Feminino / `gallery_mulher_01.jpg`)
+* **Ocasião:** Aniversário da Irmã
+* **Texto de Narração com Tags de Expressão (ElevenLabs):**
+> "[sighs] Oi, Nandinha… minha irmã linda!
+> 
+> [happy] Hoje é seu dia e gostaria muito de te abraçar agora! [risos]
+> 
+> [inhales deeply] Mas respira fundo… e escuta com o coração, tá?
+> 
+> [thoughtful] Eu vejo o quanto você ainda carrega esse peso no peito… Mas olha pra mim: não se sinta culpada por nada, viu? Você foi gigante. Fez absolutamente tudo o que podia… e me deu o amor mais lindo desse mundo.
+> Deus decide todas as coisas e confiar nele é a salvação!
+> 
+> [chuckles] Guarda só as nossas risadas, as conversas infinitas… e tudo de bom que a gente construiu juntas. Aqui tá tudo em paz… leve… e cheio de luz.
+> 
+> [happy] Continua cuidando dessa família linda e dê um beijo no Gael e na Julia por mim e fala que a tia ama muito eles. 
+> 
+> [excited] Vive a sua vida com alegria pois você merece ser feliz demais!
+> 
+> [excited] Eu tô sempre com você, minha irmã!
+> 
+> [happy] Feliz aniversário, Nandinha! [risos]"
+
+---
+
+## 🎬 Exemplo 4: Formatura em Medicina (Mãe para Filho "Jorginho")
+* **Plano:** Affectus (1 Minuto / ~116 palavras)
+* **Personagem:** Mãe (Avatar Feminino / `gallery_mulher_03.jpg` / `gallery_mulher_03.webm`)
+* **Ocasião:** Formatura em Medicina do Filho
+* **Horário de Início:** `18:28:20` | **Horário de Publicação no Ar:** `19:24:00`
+* **Tempo Líquido Total de Produção:** **29 minutos e 49 segundos** (descontados os 25m37s de pausa externa da plataforma).
+  - *Criação, lapidação e aprovação do roteiro + tags:* **2 min e 53s**
+  - *Geração de voz, vídeo HeyGen, edição e publicação no ar:* **26 min e 56s**
+
+### 📄 Texto Limpo Aprovado:
+> "Meu filho… meu Jorginho… que orgulho!
+> 
+> Doutor Jorge… Olha onde você chegou!
+> 
+> Eu lembro de cada lágrima, de cada noite em claro e de todas as dificuldades que a gente enfrentou juntos…
+> 
+> Você sempre me dizia que estudava pra ser médico e me salvar… Mas olha pra mim, meu amor: você me salvou todos os dias com o seu amor.
+> 
+> A mãe tá muito bem, em paz, num lugar lindo… e transbordando de orgulho de ver esse homem íntegro e iluminado que você se tornou.
+> 
+> Dá um abraço apertado no João e no Antônio por mim… fala que a mãe sente muitas saudades de todos vocês.
+> 
+> Vai com tudo, meu doutor! A mãe te ama pra sempre!"
+
+---
+
+### 🎙️ Texto Técnico para ElevenLabs (com Audio Prompts):
+> "[sighs] Meu filho… meu Jorginho… [happy] que orgulho! [risos]
+> 
+> [emotional voice] Doutor Jorge… Olha onde você chegou, meu príncipe! [risos]
+> 
+> [inhales deeply] Eu lembro de cada lágrima e de cada noite em claro e de todas as dificuldades que a gente enfrentou juntos…
+> 
+> [tenderly] Você sempre me dizia que estudava pra ser médico e me salvar e olha pra mim, meu amor: você me salvou todos os dias com o seu amor. O amor mais puro que uma mãe pode ter! 
+> 
+> [peaceful] A mãe tá muito bem, em paz, num lugar lindo e transbordando de orgulho de ver esse homem íntegro e iluminado que você se tornou.
+> 
+> [warmly] Dá um abraço apertado no João e no Antônio por mim e fala que a mãe sente muitas saudades de todos vocês.
+> 
+> [happy] Vai com tudo, meu doutor! [voice breaking slightly] A mãe te ama pra sempre! [sighs]"
+
+
+
+
+
+

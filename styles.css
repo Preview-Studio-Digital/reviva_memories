@@ -575,11 +575,12 @@ body.video-active .global-galaxy-bg {
 
 .hero-title {
     font-family: 'Poiret One', cursive, sans-serif;
-    font-size: clamp(1.8rem, 3.2vw, 3.4rem);
+    font-size: clamp(1.5rem, 2.5vw, 2.7rem);
     font-weight: 400;
-    line-height: 1.25;
+    line-height: 1.15;
     letter-spacing: 1.2px;
-    margin-bottom: 4px;
+    margin-bottom: 0;
+    margin-top: 0;
     text-align: center;
     width: 100%;
     max-width: 100%;
@@ -591,6 +592,11 @@ body.video-active .global-galaxy-bg {
     transform: translateY(4px);
     animation: blurFadeIn 1.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     animation-delay: 0.2s; /* Atraso leve para dar elegância ao carregar */
+}
+
+/* Mantém o título do Slide 1 (Abertura / Apresentação) com tamanho original de destaque */
+.intro-title {
+    font-size: clamp(1.8rem, 3.2vw, 3.4rem) !important;
 }
 
 .hero-title .title-line-1 {
@@ -686,7 +692,7 @@ body.video-active .global-galaxy-bg {
     justify-content: center;
     flex: 0 0 auto;
     width: 100%;
-    margin: -8px 0 0 0; /* Ajuste para subir o título ligeiramente sem mover a galeria */
+    margin: 0 auto;
     text-align: center;
 }
 
@@ -900,7 +906,7 @@ body.video-active .global-galaxy-bg {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     width: 100%;
-    margin: 24px auto 10px auto; /* Afasta do título e aproxima do rodapé, igual ao slide 1 */
+    margin: 10px auto 8px auto; /* Equalizado rigorosamente com o respiro da galeria */
     flex: 1 1 auto !important; /* Mesma altura flexível */
     min-height: 220px;
     max-height: 580px;
@@ -993,7 +999,7 @@ body.video-active .global-galaxy-bg {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     width: 100%;
-    margin: 24px auto 10px auto; /* Afasta do título e aproxima do rodapé, igual ao slide 1 */
+    margin: 10px auto 8px auto; /* Afasta do título e aproxima do rodapé, igual ao slide 1 */
     flex: 1 1 auto !important; /* Mesma altura flexível */
     min-height: 220px;
     max-height: 580px;
@@ -1097,7 +1103,7 @@ body.video-active .global-galaxy-bg {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     width: 100%;
-    margin: 24px auto 10px auto; /* Afasta do título e aproxima do rodapé, igual ao slide 1 */
+    margin: 10px auto 8px auto; /* Equalizado rigorosamente com o respiro dos outros slides */
     flex: 1 1 auto !important; /* Mesma altura flexível */
     min-height: 220px;
     max-height: 580px;
@@ -2738,7 +2744,7 @@ span.section-tag.handwritten-title {
     margin-left: auto !important;
     margin-right: auto !important;
     text-align: center !important;
-    font-size: clamp(1.8rem, 2.8vw, 2.5rem) !important;
+    font-size: clamp(1.45rem, 2.2vw, 2.05rem) !important;
     font-family: var(--font-handwriting) !important;
     text-transform: none !important;
     padding: 0 !important;
@@ -2749,7 +2755,7 @@ span.section-tag.handwritten-title {
     margin-top: 0 !important;
     margin-bottom: 6px !important;
     text-shadow: 0 0 8px rgba(229, 195, 120, 0.6), 0 0 16px rgba(229, 195, 120, 0.3) !important;
-    line-height: 1.2 !important;
+    line-height: 1 !important;
 }
 
 /* ==========================================================================
@@ -2757,8 +2763,8 @@ span.section-tag.handwritten-title {
    ========================================================================== */
 .start-here-guide {
     position: absolute;
-    top: -46px;
-    left: -86px;
+    top: -44px;
+    left: -88px;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -2784,11 +2790,11 @@ span.section-tag.handwritten-title {
 }
 
 .start-here-arrow {
-    width: 62px;
-    height: 38px;
-    margin-top: -4px;
-    margin-right: -12px;
-    transform: rotate(6deg);
+    width: 58px;
+    height: 35px;
+    margin-top: -3px;
+    margin-right: -4px;
+    transform: rotate(4deg);
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
     overflow: visible;
 }
@@ -3382,13 +3388,13 @@ span.section-tag.handwritten-title {
 .faq-accordion {
     width: 100%;
     max-width: 1100px;
-    margin: 20px auto 14px auto !important;
+    margin: 26px auto 14px auto !important; /* Afasta o bloco de perguntas para igualar com o topo */
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
     gap: 6px !important;
     flex: 1 1 auto !important;
-    max-height: 520px !important;
+    height: auto !important;
     box-sizing: border-box !important;
     position: relative !important;
 }
@@ -3404,9 +3410,9 @@ span.section-tag.handwritten-title {
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
-    height: 38px !important;
-    min-height: 30px !important;
-    max-height: 44px !important;
+    flex: 1 1 0 !important; /* Cada item ocupa fração idêntica preenchendo o espaço */
+    min-height: 34px !important;
+    max-height: 46px !important;
     position: relative !important;
 }
 
@@ -3640,20 +3646,20 @@ span.section-tag.handwritten-title {
   --ag-text: #ffffff;
   --ag-gap: 10px;
   --ag-radius: 12px;
-  --ag-media-size: 320px;
+  --ag-media-size: 340px;
 
   display: flex;
   flex-direction: row;
   gap: var(--ag-gap);
   width: 100%;
   max-width: 1350px; /* Alinhado perfeitamente com a largura máxima do subtítulo e margens do site */
-  margin: 24px auto 10px auto; /* Aumentado de 4px para 24px para abaixar a galeria e o texto explicativo */
+  margin: 10px auto 8px auto; /* Espaçamento rigorosamente igual ao respiro superior */
   perspective: 1400px;
   perspective-origin: 50% 50%;
   flex: 1 1 auto !important; /* Cresce dinamicamente para ocupar todo o espaço vertical disponível */
   height: auto !important; /* Desativa a altura física fixa */
-  min-height: 220px; /* Garante tamanho mínimo em telas muito compactas */
-  max-height: 580px; /* Aumentado de 480px para 580px para preencher mais o espaço vertical em telas grandes */
+  min-height: 240px; /* Garante tamanho mínimo em telas muito compactas */
+  max-height: 640px; /* Aumentado para 640px para expandir a dimensão vertical da galeria */
   z-index: 5;
   position: relative;
 }
@@ -3810,69 +3816,63 @@ span.section-tag.handwritten-title {
   transition: color var(--transition-fast);
 }
 
-.ag-panel.ag-panel--active[data-type="video"] .ag-panel__label:hover .ag-panel__text {
-  color: #e5c378;
-  text-shadow: 0 0 12px rgba(229, 195, 120, 0.7);
-}
-.ag-panel-video-btn {
+/* Botão Circular Minimalista de Play na Base do Card de Vídeo */
+.ag-panel-play-btn {
   position: absolute;
-  top: 50%;
+  bottom: 24px;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.9);
-  z-index: 10;
-  background: rgba(11, 11, 12, 0.75);
+  transform: translateX(-50%) scale(0.85);
+  z-index: 15;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: transparent;
   border: 1.5px solid #e5c378;
   color: #e5c378;
-  padding: 10px 18px;
-  border-radius: 30px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
   cursor: pointer;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(229, 195, 120, 0.4);
+  box-shadow: 0 0 15px rgba(229, 195, 120, 0.4), 0 2px 10px rgba(0, 0, 0, 0.6);
   opacity: 0;
   pointer-events: none;
   transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  padding: 0;
 }
 
-.ag-panel-video-btn svg {
-  width: 16px;
-  height: 16px;
-  stroke: #e5c378;
-  fill: rgba(229, 195, 120, 0.2);
-  transition: transform 0.2s ease;
+.ag-panel-play-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: #e5c378;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+  transition: transform 0.2s ease, fill 0.2s ease;
 }
 
-.ag-panel.ag-panel--active .ag-panel-video-btn {
+.ag-panel-play-btn .icon-play {
+  margin-left: 2px; /* Ajuste óptico de centralização do triângulo */
+}
+
+.ag-panel.ag-panel--active .ag-panel-play-btn {
   opacity: 1;
   pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1);
+  transform: translateX(-50%) scale(1);
 }
 
-.ag-panel.ag-panel--active .ag-panel-video-btn:hover {
+.ag-panel.ag-panel--active .ag-panel-play-btn:hover {
   background: #e5c378;
-  color: #111112;
-  box-shadow: 0 0 25px #e5c378, 0 0 50px rgba(229, 195, 120, 0.8);
-  transform: translate(-50%, -50%) scale(1.06);
+  box-shadow: 0 0 25px #e5c378, 0 0 45px rgba(229, 195, 120, 0.8);
+  transform: translateX(-50%) scale(1.12);
 }
 
-.ag-panel.ag-panel--active .ag-panel-video-btn:hover svg {
-  stroke: #111112;
+.ag-panel.ag-panel--active .ag-panel-play-btn:hover svg {
   fill: #111112;
-  transform: scale(1.15);
+  filter: none;
 }
 
-/* Indicador de reprodução com áudio ativo */
-.ag-panel-video-btn.playing {
-  background: rgba(229, 195, 120, 0.2);
+.ag-panel-play-btn.playing {
+  background: rgba(229, 195, 120, 0.15);
   border-color: #e5c378;
-  color: #ffffff;
+  box-shadow: 0 0 20px rgba(229, 195, 120, 0.6);
 }
 
 @media (max-width: 768px) {

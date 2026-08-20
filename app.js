@@ -1497,7 +1497,8 @@ void main() {
             { src: 'gallery_homem_03.jpg', label: 'Irmão - Homenagem para Casamento', type: 'image' },
             { src: 'gallery_homem_04.jpg', label: 'Filho - Homenagem para Aniversário', type: 'image' },
             { src: 'gallery_mae_aniversario.webm', poster: 'gallery_mulher_02.jpg', label: 'ASSISTIR: MÃE - HOMENAGEM PARA ANIVERSÁRIO', type: 'video' },
-            { src: 'gallery_mulher_03.jpg', label: 'Tia - Homenagem Especial', type: 'image' },
+            { src: 'gallery_mulher_01.webm', poster: 'gallery_mulher_01.jpg', label: 'ASSISTIR: IRMÃ - HOMENAGEM PARA ANIVERSÁRIO', type: 'video' },
+            { src: 'gallery_mulher_03.webm', poster: 'gallery_mulher_03.jpg', label: 'ASSISTIR: MÃE - HOMENAGEM PARA FORMATURA', type: 'video' },
             { src: 'gallery_mulher_04.jpg', label: 'Avó - Homenagem para Batizado', type: 'image' }
         ];
 
@@ -1512,15 +1513,21 @@ void main() {
                 const itemData = shuffledImages[index];
                 const mediaContainer = panel.querySelector('.ag-panel__media');
                 const labelTextEl = panel.querySelector('.ag-panel__text');
-                const existingBtn = panel.querySelector('.ag-panel-video-btn');
-                if (existingBtn) existingBtn.remove();
-                
                 if (mediaContainer) {
                     if (itemData.type === 'video') {
                         mediaContainer.innerHTML = `
-                            <img class="ag-card-poster" src="${itemData.poster || 'gallery_mulher_02.jpg'}" alt="${itemData.label}" draggable="false">
-                            <video class="ag-card-video" src="${itemData.src}" poster="${itemData.poster || 'gallery_mulher_02.jpg'}" playsinline loop muted preload="auto"></video>
+                            <img class="ag-card-poster" src="${itemData.poster || ''}" alt="" draggable="false">
+                            <video class="ag-card-video" src="${itemData.src}" poster="${itemData.poster || ''}" playsinline loop muted preload="auto"></video>
                         `;
+                        // Cria botão de play circular sem texto na base do vídeo
+                        const playBtn = document.createElement('button');
+                        playBtn.className = 'ag-panel-play-btn';
+                        playBtn.setAttribute('aria-label', 'Reproduzir homenagem com som');
+                        playBtn.innerHTML = `
+                            <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                            <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                        `;
+                        panel.appendChild(playBtn);
                     } else {
                         mediaContainer.innerHTML = `
                             <img src="${itemData.src}" alt="${itemData.label}" draggable="false">
@@ -1529,9 +1536,9 @@ void main() {
                 }
 
                 if (labelTextEl) {
-                    labelTextEl.textContent = itemData.label;
+                    labelTextEl.textContent = itemData.type === 'video' ? '' : itemData.label;
                 }
-                panel.setAttribute('aria-label', itemData.label);
+                panel.setAttribute('aria-label', itemData.label || 'Vídeo de homenagem');
                 panel.dataset.type = itemData.type;
             }
         });
@@ -1556,7 +1563,7 @@ void main() {
         function updateCardVideos(activeIdx) {
             panels.forEach((panel, i) => {
                 const video = panel.querySelector('video.ag-card-video');
-                const labelTextEl = panel.querySelector('.ag-panel__text');
+                const playBtn = panel.querySelector('.ag-panel-play-btn');
                 if (!video) return;
 
                 if (i === activeIdx) {
@@ -1588,8 +1595,12 @@ void main() {
                     if (video.dataset.playingWithAudio === 'true') {
                         video.dataset.playingWithAudio = 'false';
                         video.muted = true;
-                        if (labelTextEl) {
-                            labelTextEl.textContent = 'ASSISTIR: MÃE - HOMENAGEM PARA ANIVERSÁRIO';
+                        if (playBtn) {
+                            playBtn.classList.remove('playing');
+                            const iconPlay = playBtn.querySelector('.icon-play');
+                            const iconPause = playBtn.querySelector('.icon-pause');
+                            if (iconPlay) iconPlay.style.display = 'block';
+                            if (iconPause) iconPause.style.display = 'none';
                         }
                         fadeAudioVolume(originalVolume, 1000);
                     }
@@ -1663,9 +1674,9 @@ void main() {
                     }
                 }
 
-                // Anima as etiquetas (barra lateral e texto do painel ativo)
+                // Anima as etiquetas apenas para fotos (painéis que têm texto)
                 if (showLabels && bar && text) {
-                    if (isActive) {
+                    if (isActive && text.textContent.trim() !== '') {
                         tl.to([bar, text], { 
                             opacity: 1, 
                             x: 0, 
@@ -1699,7 +1710,7 @@ void main() {
         window.addEventListener('resize', measure);
         measure();
 
-        // Eventos de mouse, teclado e clique no título para tocar com áudio
+        // Eventos de mouse, teclado e clique no botão de play na base do vídeo
         panels.forEach((panel, i) => {
             panel.addEventListener('mouseenter', () => {
                 activeIndex = i;
@@ -1710,21 +1721,23 @@ void main() {
                 applyLayout(true);
             });
             panel.addEventListener('click', (e) => {
-                const labelClick = e.target.closest('.ag-panel__label');
+                const playBtnClick = e.target.closest('.ag-panel-play-btn');
                 
-                // Se clicou no título/label do vídeo ativo
-                if (labelClick && panel.dataset.type === 'video') {
+                // Se clicou no botão de play circular na base do vídeo
+                if (playBtnClick && panel.dataset.type === 'video') {
                     e.stopPropagation();
                     const video = panel.querySelector('video.ag-card-video');
-                    const labelTextEl = panel.querySelector('.ag-panel__text');
+                    const iconPlay = playBtnClick.querySelector('.icon-play');
+                    const iconPause = playBtnClick.querySelector('.icon-pause');
+
                     if (video) {
                         if (video.dataset.playingWithAudio === 'true') {
                             // Pausa e volta para mudo
                             video.dataset.playingWithAudio = 'false';
                             video.muted = true;
-                            if (labelTextEl) {
-                                labelTextEl.textContent = 'ASSISTIR: MÃE - HOMENAGEM PARA ANIVERSÁRIO';
-                            }
+                            playBtnClick.classList.remove('playing');
+                            if (iconPlay) iconPlay.style.display = 'block';
+                            if (iconPause) iconPause.style.display = 'none';
                             fadeAudioVolume(originalVolume, 800);
                         } else {
                             // Toca do zero COM SOM dentro do próprio card
@@ -1734,22 +1747,63 @@ void main() {
                             video.volume = 1;
                             video.play().catch(() => {});
                             
-                            if (labelTextEl) {
-                                labelTextEl.textContent = 'PAUSAR: MÃE - HOMENAGEM PARA ANIVERSÁRIO';
-                            }
+                            playBtnClick.classList.add('playing');
+                            if (iconPlay) iconPlay.style.display = 'none';
+                            if (iconPause) iconPause.style.display = 'block';
                             
-                            // Diminui a música de fundo do site para destacar a voz da mãe
+                            // Diminui a música de fundo do site para destacar a voz
                             fadeAudioVolume(0.15, 800);
 
-                            // Ao terminar o vídeo com som, restaura o estado inicial e o volume
+                            // Ao terminar o vídeo com som, avança automaticamente para o próximo vídeo da galeria
                             video.onended = () => {
                                 video.dataset.playingWithAudio = 'false';
                                 video.muted = true;
-                                video.play().catch(() => {});
-                                if (labelTextEl) {
-                                    labelTextEl.textContent = 'ASSISTIR: MÃE - HOMENAGEM PARA ANIVERSÁRIO';
+                                video.pause();
+                                video.currentTime = 0;
+                                playBtnClick.classList.remove('playing');
+                                if (iconPlay) iconPlay.style.display = 'block';
+                                if (iconPause) iconPause.style.display = 'none';
+
+                                // Localiza o próximo painel do tipo 'video' na galeria
+                                let nextVideoIndex = -1;
+                                for (let step = 1; step < count; step++) {
+                                    const candidateIdx = (i + step) % count;
+                                    if (panels[candidateIdx].dataset.type === 'video') {
+                                        nextVideoIndex = candidateIdx;
+                                        break;
+                                    }
                                 }
-                                fadeAudioVolume(originalVolume, 1200);
+
+                                if (nextVideoIndex !== -1 && nextVideoIndex !== i) {
+                                    // Move o foco do acordeão suavemente para o novo card de vídeo
+                                    activeIndex = nextVideoIndex;
+                                    applyLayout(true);
+
+                                    const nextPanel = panels[nextVideoIndex];
+                                    const nextVideo = nextPanel.querySelector('video.ag-card-video');
+                                    const nextPlayBtn = nextPanel.querySelector('.ag-panel-play-btn');
+
+                                    if (nextVideo) {
+                                        setTimeout(() => {
+                                            nextVideo.dataset.playingWithAudio = 'true';
+                                            nextVideo.currentTime = 0;
+                                            nextVideo.muted = false;
+                                            nextVideo.volume = 1;
+                                            nextVideo.play().catch(() => {});
+
+                                            if (nextPlayBtn) {
+                                                nextPlayBtn.classList.add('playing');
+                                                const nPlay = nextPlayBtn.querySelector('.icon-play');
+                                                const nPause = nextPlayBtn.querySelector('.icon-pause');
+                                                if (nPlay) nPlay.style.display = 'none';
+                                                if (nPause) nPause.style.display = 'block';
+                                            }
+                                        }, 450);
+                                    }
+                                } else {
+                                    // Se não houver outro vídeo, restaura a música de fundo
+                                    fadeAudioVolume(originalVolume, 1200);
+                                }
                             };
                         }
                     }

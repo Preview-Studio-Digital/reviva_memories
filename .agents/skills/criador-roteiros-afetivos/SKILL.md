@@ -15,13 +15,47 @@ Esta habilidade orienta a coleta de informações (briefing com perguntas guiada
 
 ---
 
-## 🎙️ Regras Gerais de Cadência e TTS (Síntese de Voz)
+## 🎙️ Regras Gerais de Cadência e TTS (Síntese de Voz & Audio Prompting)
 
+- **Fluxo de Aprovação em 2 Etapas (Mandatório):**
+  - **Etapa 1 (Criação & Lapidação):** Apresentar **sempre o texto puro e limpo**, sem tags de áudio, facilitando a leitura, ajustes, contagem de palavras e aprovação humana.
+  - **Etapa 2 (Vocalização ElevenLabs):** Somente **após o usuário aprovar o roteiro final**, gerar e entregar a versão técnica formatada com as tags de interpretação vocal (`[sighs]`, `[emotional voice]`, etc.).
+- **Inovação e Variedade nas Aberturas:**
+  - Nunca começar sempre do mesmo jeito (evitar o padrão repetitivo "Meu amor...", "Meu filho...", "Meu querido...").
+  - Variar as aberturas com reações espontâneas, exclamações, perguntas reflexivas, quebras de silêncio ou frases diretas (ex: *"Doutor Jorge... Olha só onde você chegou!"*, *"Você achou que eu ia perder esse dia?"*, *"Olha pra você... que emoção ver tudo isso acontecer!"*, *"Se você pudesse me ver agora, saberia o tamanho do meu sorriso..."*).
+- **Tags de Expressão no Meio e ao Final das Frases (Margem de Silêncio e Respiro):**
+  - Além de tags no início de parágrafos, inserir tags de fechamento expressivo ao final das frases (ex: `[risos]`, `[chuckles]`, `[sighs]`, `[voice breaking slightly]`), permitindo que a risada, o suspiro de alívio ou o fôlego saiam exatamente ao terminar a ideia falada.
+  - **Dica de Ouro de Edição (Final do Roteiro):** Inserir obrigatoriamente uma tag de respiro/suspiro como `[sighs]` ou `[exhales softly]` **ao final da última frase**. Isso faz a IA gerar um tempo extra de silêncio, respiração e olhar sereno no vídeo do avatar após a última fala, essencial para o editor aplicar o fade out suave sem cortar o áudio ou a boca do personagem abruptamente.
 - **Ritmo Sereno:** A fala gerada por IA precisa de espaço para respiração. Nunca ultrapasse a contagem máxima de palavras por minuto (~110-120 palavras/minuto).
 - **Pontuação Expressiva:**
-  - `...` (reticências): Criam pausas dramáticas e de emoção contida.
-  - Quebras de linha e parágrafos curtos: Dão ritmo compassado para a leitura do avatar.
-  - Frases simples e diretas: Soam mais humanas, naturais e fáceis de assimilar pelo coração de quem assiste.
+  - `...` (reticências): Criam pausas dramáticas, de hesitação e de emoção contida.
+  - Quebras de linha duplas: Dão ritmo compassado para a leitura do avatar e descanso do fôlego.
+  - `—` (travessão): Introduz quebras de tom acolhedoras e intimistas.
+
+---
+
+## 🎭 Dicionário Oficial de Audio Prompts & Emoções (ElevenLabs / Turbo v2)
+
+Para garantir que a IA não leia o texto de forma fria ou linear, os roteiros devem conter **diretrizes de interpretação vocal** usando as tags de áudio reconhecidas e refinadas pelo ElevenLabs:
+
+### 1. Respiração & Fôlego Orgânico (Humanização Máxima)
+- `[sighs]` / `[deep sigh]`: Suspiro de alívio, saudade ou emoção antes de uma frase profunda.
+- `[inhales deeply]` / `[takes a deep breath]`: Inspiração perceptível para criar solenidade e transição de pensamento.
+- `[exhales softly]`: Expiração suave de relaxamento e acolhimento.
+
+### 2. Afeto, Ternura & Comoção (Momentos de Alento)
+- `[warmly]` / `[gentle whisper]`: Entonação doce, aveludada e materna/paterna.
+- `[thoughtful]` / `[tenderly]`: Pausa reflexiva e fala calma de quem aconselha com amor.
+- `[emotional voice]` / `[voice breaking slightly]`: Leve tremor na voz de emoção contida (ideal ao dizer "Eu te amo" ou "Você foi gigante").
+
+### 3. Sorrisos, Risadas & Celebração
+- `[chuckles]` / `[soft laugh]`: Risadinha de canto de boca lembrando de um momento engraçado ou ao chamar pelo apelido.
+- `[giggles]` / `[risos]`: Risada afetuosa e descontraída em datas festivas (aniversários).
+- `[happy]` / `[excited]` / `[triumphant]`: Energia vibrante de orgulho e celebração (formaturas e casamentos).
+
+### 4. Bênção, Despedida & Paz Sublime
+- `[peaceful]` / `[serene whisper]`: Tom de serenidade absoluta, bênção e alento espiritual.
+- `[solemn]` / `[with conviction]`: Afirmações de fé e conselhos fundamentais (ex: "Deus decide todas as coisas").
 
 ---
 
