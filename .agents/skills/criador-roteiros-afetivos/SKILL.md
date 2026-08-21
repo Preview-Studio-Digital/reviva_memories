@@ -18,14 +18,17 @@ Esta habilidade orienta a coleta de informações (briefing com perguntas guiada
 ## 🎙️ Regras Gerais de Cadência e TTS (Síntese de Voz & Audio Prompting)
 
 - **Fluxo de Aprovação em 2 Etapas (Mandatório):**
-  - **Etapa 1 (Criação & Lapidação):** Apresentar **sempre o texto puro e limpo**, sem tags de áudio, facilitando a leitura, ajustes, contagem de palavras e aprovação humana.
-  - **Etapa 2 (Vocalização ElevenLabs):** Somente **após o usuário aprovar o roteiro final**, gerar e entregar a versão técnica formatada com as tags de interpretação vocal (`[sighs]`, `[emotional voice]`, etc.).
+  - **Etapa 1 (Criação & Lapidação):** Apresentar **sempre o texto puro e limpo**, sem tags de áudio e sem palavras técnicas, facilitando a leitura, ajustes, contagem de palavras e aprovação humana.
+  - **Etapa 2 (Vocalização ElevenLabs com Emoções):** Somente **após o usuário aprovar o roteiro final**, gerar a versão técnica formatada com as tags de interpretação vocal (`[sighs]`, `[emotional voice]`, etc.) e aplicar o **Protocolo de Margem de Edição (Gravando / Corta)**.
+- **Protocolo de Margem de Edição (Gravando / Corta - Exclusivo da Etapa de Emoções):**
+  - **Início:** Inserir a palavra isolada `Gravando...` antes da primeira fala/tag do roteiro (ex: `Gravando... [sighs] Minha princesinha...`). Isso força a IA a iniciar o áudio sem cortar a respiração ou o primeiro ataque vocal, dando margem perfeita para o editor de vídeo.
+  - **Fim:** Inserir a palavra `corta.` logo após a tag de suspiro/respiro final da última frase (ex: `...O pai te ama pra sempre! [sighs] corta.`). Isso garante que a IA mantenha o olhar, respiração e silêncio final do personagem, permitindo fade out suave sem corte abrupto no vídeo ou no áudio.
 - **Inovação e Variedade nas Aberturas:**
   - Nunca começar sempre do mesmo jeito (evitar o padrão repetitivo "Meu amor...", "Meu filho...", "Meu querido...").
   - Variar as aberturas com reações espontâneas, exclamações, perguntas reflexivas, quebras de silêncio ou frases diretas (ex: *"Doutor Jorge... Olha só onde você chegou!"*, *"Você achou que eu ia perder esse dia?"*, *"Olha pra você... que emoção ver tudo isso acontecer!"*, *"Se você pudesse me ver agora, saberia o tamanho do meu sorriso..."*).
 - **Tags de Expressão no Meio e ao Final das Frases (Margem de Silêncio e Respiro):**
-  - Além de tags no início de parágrafos, inserir tags de fechamento expressivo ao final das frases (ex: `[risos]`, `[chuckles]`, `[sighs]`, `[voice breaking slightly]`), permitindo que a risada, o suspiro de alívio ou o fôlego saiam exatamente ao terminar a ideia falada.
-  - **Dica de Ouro de Edição (Final do Roteiro):** Inserir obrigatoriamente uma tag de respiro/suspiro como `[sighs]` ou `[exhales softly]` **ao final da última frase**. Isso faz a IA gerar um tempo extra de silêncio, respiração e olhar sereno no vídeo do avatar após a última fala, essencial para o editor aplicar o fade out suave sem cortar o áudio ou a boca do personagem abruptamente.
+  - Além de tags no início de parágrafos, inserir tags de fechamento expressivo ao final das frases (ex: `[chuckles]`, `[giggles]`, `[sighs]`, `[voice breaking slightly]`), permitindo que a risada, o suspiro de alívio ou o fôlego saiam exatamente ao terminar a ideia falada.
+  - **Fechamento Obrigatório:** Inserir sempre uma tag como `[sighs]` ou `[exhales softly]` seguida de `corta.` ao final.
 - **Ritmo Sereno:** A fala gerada por IA precisa de espaço para respiração. Nunca ultrapasse a contagem máxima de palavras por minuto (~110-120 palavras/minuto).
 - **Pontuação Expressiva:**
   - `...` (reticências): Criam pausas dramáticas, de hesitação e de emoção contida.
@@ -34,9 +37,9 @@ Esta habilidade orienta a coleta de informações (briefing com perguntas guiada
 
 ---
 
-## 🎭 Dicionário Oficial de Audio Prompts & Emoções (ElevenLabs / Turbo v2)
+## 🎭 Dicionário Oficial de Audio Prompts & Emoções (ElevenLabs / Turbo v2 - 100% em Inglês)
 
-Para garantir que a IA não leia o texto de forma fria ou linear, os roteiros devem conter **diretrizes de interpretação vocal** usando as tags de áudio reconhecidas e refinadas pelo ElevenLabs:
+Para garantir máxima fidelidade e interpretação vocal precisa no ElevenLabs, todas as diretrizes de áudio devem utilizar **exclusivamente tags em inglês**:
 
 ### 1. Respiração & Fôlego Orgânico (Humanização Máxima)
 - `[sighs]` / `[deep sigh]`: Suspiro de alívio, saudade ou emoção antes de uma frase profunda.
@@ -48,9 +51,16 @@ Para garantir que a IA não leia o texto de forma fria ou linear, os roteiros de
 - `[thoughtful]` / `[tenderly]`: Pausa reflexiva e fala calma de quem aconselha com amor.
 - `[emotional voice]` / `[voice breaking slightly]`: Leve tremor na voz de emoção contida (ideal ao dizer "Eu te amo" ou "Você foi gigante").
 
-### 3. Sorrisos, Risadas & Celebração
-- `[chuckles]` / `[soft laugh]`: Risadinha de canto de boca lembrando de um momento engraçado ou ao chamar pelo apelido.
-- `[giggles]` / `[risos]`: Risada afetuosa e descontraída em datas festivas (aniversários).
+### 3. Sorrisos, Risadas, Gargalhadas & Celebração
+- `[chuckles]` / `[soft laugh]`: Risadinha sutil de canto de boca ou nostalgia afetuosa.
+- `[giggles]`: Risada leve, espontânea e sorridente no meio ou final da frase.
+- `[laughing]` / `[speaks while laughing]`: Falar já dando risada, misturando as palavras com o riso.
+- `[bursts out laughing]` / `[loud laughter]`: Gargalhada aberta e solta logo antes ou depois de uma frase engraçada.
+- **Técnica Mista (Tags em Inglês + Onomatopeias Fonéticas):** 
+  - Para risadas mais longas, sonoras e soltas no ElevenLabs, combinar a tag com onomatopeia escrita:
+  - Ex: `[bursts out laughing] Hahaha… ai ai… olha só pra você!`
+  - Ex: `[laughing] Quem diria, hein? Hahaha!`
+  - Ex: `[chuckles] Ai, ai… que saudade dessa sua cara! [loud laughter] Hahaha!`
 - `[happy]` / `[excited]` / `[triumphant]`: Energia vibrante de orgulho e celebração (formaturas e casamentos).
 
 ### 4. Bênção, Despedida & Paz Sublime

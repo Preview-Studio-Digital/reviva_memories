@@ -447,8 +447,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 originalVolume = bgAudio.volume || 1;
             } else {
                 originalVolume = 1;
-                bgAudio.volume = 1;
-                bgAudio.play().catch(err => console.log("Audio play failed on video modal open:", err));
+                bgAudio.volume = 0.25;
+                bgAudio.play().then(() => {
+                    document.querySelectorAll('.music-wave-toggle').forEach(w => w.classList.add('playing'));
+                }).catch(err => console.log("Audio play failed on video modal open:", err));
             }
             // Reduz o volume da música gradualmente ao longo de 3 segundos na entrada do vídeo
             fadeAudioVolume(0.25, 3000);
@@ -1492,10 +1494,10 @@ void main() {
 
         // Imagens e Vídeos com seus respectivos títulos e ocasiões fixas
         const imagePool = [
-            { src: 'gallery_homem_01.jpg', label: 'Pai - Homenagem para Aniversário', type: 'image' },
-            { src: 'gallery_homem_02.jpg', label: 'Avô - Homenagem para Formatura', type: 'image' },
-            { src: 'gallery_homem_03.jpg', label: 'Irmão - Homenagem para Casamento', type: 'image' },
-            { src: 'gallery_homem_04.jpg', label: 'Filho - Homenagem para Aniversário', type: 'image' },
+            { src: 'gallery_homem_01.webm', poster: 'gallery_homem_01.jpg', label: 'ASSISTIR: VOVÔ - CHÁ REVELAÇÃO', type: 'video' },
+            { src: 'gallery_homem_02.webm', poster: 'gallery_homem_02.jpg', label: 'ASSISTIR: PAI - HOMENAGEM DE 50 ANOS', type: 'video' },
+            { src: 'gallery_homem_03.webm', poster: 'gallery_homem_03.jpg', label: 'ASSISTIR: PAI - HOMENAGEM PARA CASAMENTO', type: 'video' },
+            { src: 'gallery_homem_04.webm', poster: 'gallery_homem_04.jpg', label: 'ASSISTIR: IRMÃO - HOMENAGEM DE 15 ANOS', type: 'video' },
             { src: 'gallery_mae_aniversario.webm', poster: 'gallery_mulher_02.jpg', label: 'ASSISTIR: MÃE - HOMENAGEM PARA ANIVERSÁRIO', type: 'video' },
             { src: 'gallery_mulher_01.webm', poster: 'gallery_mulher_01.jpg', label: 'ASSISTIR: IRMÃ - HOMENAGEM PARA ANIVERSÁRIO', type: 'video' },
             { src: 'gallery_mulher_03.webm', poster: 'gallery_mulher_03.jpg', label: 'ASSISTIR: MÃE - HOMENAGEM PARA FORMATURA', type: 'video' },
@@ -1517,7 +1519,7 @@ void main() {
                     if (itemData.type === 'video') {
                         mediaContainer.innerHTML = `
                             <img class="ag-card-poster" src="${itemData.poster || ''}" alt="" draggable="false">
-                            <video class="ag-card-video" src="${itemData.src}" poster="${itemData.poster || ''}" playsinline loop muted preload="auto"></video>
+                            <video class="ag-card-video" src="${itemData.src}" poster="${itemData.poster || ''}" playsinline muted preload="auto"></video>
                         `;
                         // Cria botão de play circular sem texto na base do vídeo
                         const playBtn = document.createElement('button');
@@ -1769,10 +1771,20 @@ void main() {
                             if (iconPlay) iconPlay.style.display = 'none';
                             if (iconPause) iconPause.style.display = 'block';
                             
-                            // Diminui a música de fundo do site para destacar a voz
-                            fadeAudioVolume(0.15, 800);
+                            // Aciona a música de fundo caso ainda não esteja tocando
+                            const bgAudio = document.getElementById('bgAudio');
+                            if (bgAudio) {
+                                if (bgAudio.paused) {
+                                    bgAudio.volume = 0.15;
+                                    bgAudio.play().then(() => {
+                                        document.querySelectorAll('.music-wave-toggle').forEach(w => w.classList.add('playing'));
+                                    }).catch(() => {});
+                                } else {
+                                    fadeAudioVolume(0.15, 800);
+                                }
+                            }
 
-                            // Ao terminar o vídeo com som, avança automaticamente para o próximo vídeo da galeria
+                            // Ao terminar o vídeo com som, avança o foco para o próximo vídeo sem tocar sozinho
                             video.onended = () => {
                                 video.dataset.playingWithAudio = 'false';
                                 video.muted = true;
@@ -1781,6 +1793,9 @@ void main() {
                                 playBtnClick.classList.remove('playing');
                                 if (iconPlay) iconPlay.style.display = 'block';
                                 if (iconPause) iconPause.style.display = 'none';
+
+                                // Restaura o volume original da música de fundo do site
+                                fadeAudioVolume(originalVolume, 1000);
 
                                 // Localiza o próximo painel do tipo 'video' na galeria
                                 let nextVideoIndex = -1;
@@ -1793,34 +1808,15 @@ void main() {
                                 }
 
                                 if (nextVideoIndex !== -1 && nextVideoIndex !== i) {
-                                    // Move o foco do acordeão suavemente para o novo card de vídeo
+                                    // Move suavemente o foco do acordeão para o próximo card de vídeo
                                     activeIndex = nextVideoIndex;
                                     applyLayout(true);
 
                                     const nextPanel = panels[nextVideoIndex];
-                                    const nextVideo = nextPanel.querySelector('video.ag-card-video');
-                                    const nextPlayBtn = nextPanel.querySelector('.ag-panel-play-btn');
-
-                                    if (nextVideo) {
-                                        setTimeout(() => {
-                                            nextVideo.dataset.playingWithAudio = 'true';
-                                            nextVideo.currentTime = 0;
-                                            nextVideo.muted = false;
-                                            nextVideo.volume = 1;
-                                            nextVideo.play().catch(() => {});
-
-                                            if (nextPlayBtn) {
-                                                nextPlayBtn.classList.add('playing');
-                                                const nPlay = nextPlayBtn.querySelector('.icon-play');
-                                                const nPause = nextPlayBtn.querySelector('.icon-pause');
-                                                if (nPlay) nPlay.style.display = 'none';
-                                                if (nPause) nPause.style.display = 'block';
-                                            }
-                                        }, 450);
+                                    if (nextPanel) {
+                                        nextPanel.focus();
+                                        nextPanel.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
                                     }
-                                } else {
-                                    // Se não houver outro vídeo, restaura a música de fundo
-                                    fadeAudioVolume(originalVolume, 1200);
                                 }
                             };
                         }
