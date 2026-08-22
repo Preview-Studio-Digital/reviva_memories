@@ -1373,7 +1373,8 @@ body.video-active .global-galaxy-bg {
     scroll-snap-stop: normal;
     height: 100%; /* Estica para ocupar toda a célula do grid */
     box-sizing: border-box;
-    transition: var(--transition-smooth) !important;
+    transition: border-color 0.35s ease, box-shadow 0.35s ease;
+    will-change: transform, opacity, filter;
 }
 
 .testimonial-card:hover {

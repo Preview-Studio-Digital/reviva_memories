@@ -36,8 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
             "Quando o amor ultrapassa o tempo em celebrações únicas"
         ],
         'depoimentos': [
+            "Histórias reais de quem sentiu o reencontro",
             "A emoção de quem já viveu essa experiência",
-            "Histórias reais de quem sentiu o reencontro na pele",
             "Lágrimas de afeto e corações acolhidos pela saudade",
             "O que dizem as famílias que reviveram esses momentos",
             "Relatos verdadeiros de quem transformou saudade em consolo"
@@ -2213,6 +2213,20 @@ void main() {
             }
 
             function resetTitle(tEl) {
+                const sectionEl = tEl.closest('section');
+                const sectionId = sectionEl ? sectionEl.id : null;
+                if (sectionId && slidePhrases[sectionId]) {
+                    slideCurrentIndices[sectionId] = (slideCurrentIndices[sectionId] + 1) % slidePhrases[sectionId].length;
+                    const nextPhrase = slidePhrases[sectionId][slideCurrentIndices[sectionId]];
+                    const line = tEl.querySelector('.title-line-1');
+                    if (line) {
+                        splitIntoBlurSpans(line, nextPhrase);
+                    }
+                    if (sectionId === 'depoimentos' && window.rotateDynamicTestimonials) {
+                        window.rotateDynamicTestimonials(false);
+                    }
+                }
+
                 const wordsList = tEl.querySelectorAll('.blur-word');
                 gsap.killTweensOf(wordsList);
                 gsap.set(wordsList, {
@@ -2263,6 +2277,11 @@ void main() {
                         if (line) {
                             splitIntoBlurSpans(line, nextPhrase);
                         }
+
+                        // Sincroniza a mudança dos depoimentos junto com o novo título
+                        if (sectionId === 'depoimentos' && window.rotateDynamicTestimonials) {
+                            window.rotateDynamicTestimonials(true);
+                        }
                     }
                     const newWordsList = tEl.querySelectorAll('.blur-word');
                     gsap.killTweensOf(newWordsList);
@@ -2308,121 +2327,170 @@ void main() {
     initBlurText();
 
     // -------------------------------------------------------------
-    // DEPOIMENTOS DINÂMICOS & ALEATÓRIOS (Pool de 12 Depoimentos)
+    // DEPOIMENTOS DINÂMICOS & SINCRONIZADOS COM A TROCA DE TÍTULO
     // -------------------------------------------------------------
-    function initDynamicTestimonials() {
+    const testimonialsPool = [
+        {
+            text: "Ouvir de surpresa a voz da minha avó abençoando o nascimento do meu filho durante o batizado fez toda a nossa família se emocionar profundamente. Foi, sem dúvidas, o momento mais inesquecível das nossas vidas e uma recordação eterna.",
+            name: "Camila M.",
+            event: "Batizado",
+            location: "Campinas, SP",
+            avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+            text: "No meu aniversário de 15 anos, assistir à mensagem do meu querido avô me desejando felicidades foi um momento absolutamente mágico e emocionante. Todo mundo na festa chorou e sentiu a presença dele nos abençoando naquela noite especial.",
+            name: "Beatriz R.",
+            event: "Aniversário de 15 Anos",
+            location: "Rio de Janeiro, RJ",
+            avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+            text: "Receber esse vídeo de surpresa na minha formatura com a voz da minha avó foi o presente mais inestimável que ganhei dos meus pais. Sentir a presença e o carinho dela naquele dia tão importante para mim foi emocionante demais.",
+            name: "Júlia C.",
+            event: "Formatura de Medicina",
+            location: "Curitiba, PR",
+            avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+            text: "Quando a mensagem surpresa do meu pai passou no telão antes de eu entrar na igreja, não houve uma única pessoa que não tenha chorado de emoção. Parecia que ele estava ali fisicamente, segurando a minha mão e me levando ao altar.",
+            name: "Mariana S.",
+            event: "Casamento",
+            location: "São Paulo, SP",
+            avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+            text: "Quando a voz do meu pai ecoou no auditório durante a colação, falando do orgulho que tinha de me ver formado, o tempo parou. Foi o abraço que eu mais precisei e que nunca mais vou esquecer na minha vida.",
+            name: "Lucas T.",
+            event: "Formatura de Engenharia",
+            location: "Belo Horizonte, MG",
+            avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+            text: "Ver minha mãe no telão abençoando as nossas bodas como se estivesse conosco foi indescritível. A delicadeza da voz e o olhar dela trouxeram uma paz que confortou o coração de toda a família.",
+            name: "Renata P.",
+            event: "Bodas de Prata",
+            location: "Porto Alegre, RS",
+            avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+            text: "Ouvir meu avô dando as boas-vindas ao meu filho recém-nascido foi a experiência mais linda que já vivi. É uma ponte de amor eterno que meu filho guardará para sempre como um tesouro de família.",
+            name: "Gustavo M.",
+            event: "Nascimento do Filho",
+            location: "Brasília, DF",
+            avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+            text: "Foi a surpresa mais emocionante de toda a minha festa de 50 anos. Ver meu pai falando comigo com aquele carinho de sempre fez parecer que a distância física não existia. Uma emoção indescritível.",
+            name: "Cláudia F.",
+            event: "Aniversário de 50 Anos",
+            location: "Salvador, BA",
+            avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+            text: "A mensagem da minha mãe durante o nosso noivado emocionou até quem achava que não iria chorar. A naturalidade da voz e das palavras parecia uma bênção vinda direto do coração dela para nós dois.",
+            name: "Thiago A.",
+            event: "Noivado",
+            location: "Florianópolis, SC",
+            avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+            text: "Reunimos os irmãos no almoço de Dia das Mães e colocamos o vídeo da nossa mãe. Foi um momento de pura comunhão, lágrimas de amor e muitas lembranças boas. Um verdadeiro bálsamo para a nossa saudade.",
+            name: "Patrícia L.",
+            event: "Dia das Mães",
+            location: "Goiânia, GO",
+            avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+            text: "Meu avô sempre sonhou em me ver advogada. Ouvir os conselhos dele no dia da minha formatura, com aquele jeito manso e sábio, foi o maior presente que a minha família poderia ter me proporcionado.",
+            name: "Fernanda B.",
+            event: "Formatura de Direito",
+            location: "Recife, PE",
+            avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+            text: "Ganhei esse vídeo nos meus 18 anos com uma mensagem do meu pai. Sentir a voz dele me orientando para a vida adulta foi emocionante demais. É uma lembrança que vou levar no peito para o resto da vida.",
+            name: "Gabriel V.",
+            event: "Aniversário de 18 Anos",
+            location: "Vitória, ES",
+            avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80"
+        }
+    ];
+
+    let currentTestimonialBatch = 0;
+
+    function updateTestimonialCardData(card, data) {
+        if (!card || !data) return;
+        const textEl = card.querySelector('.testimonial-text');
+        const avatarEl = card.querySelector('.user-avatar');
+        const nameEl = card.querySelector('.testimonial-user h4');
+        const spans = card.querySelectorAll('.testimonial-user span');
+
+        if (textEl) textEl.textContent = `"${data.text}"`;
+        if (avatarEl) avatarEl.style.backgroundImage = `url('${data.avatar}')`;
+        if (nameEl) nameEl.textContent = data.name;
+        if (spans.length >= 2) {
+            spans[0].textContent = data.event;
+            spans[1].textContent = data.location;
+        }
+    }
+
+    function rotateDynamicTestimonials(withAnimation = true) {
         const testimonialsContainer = document.querySelector('.testimonials-row');
         if (!testimonialsContainer) return;
 
-        const testimonialsPool = [
-            {
-                text: "Ouvir de surpresa a voz da minha avó abençoando o nascimento do meu filho durante o batizado fez toda a nossa família se emocionar profundamente. Foi, sem dúvidas, o momento mais inesquecível das nossas vidas e uma recordação eterna.",
-                name: "Camila M.",
-                event: "Batizado",
-                location: "Campinas, SP",
-                avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80"
-            },
-            {
-                text: "No meu aniversário de 15 anos, assistir à mensagem do meu querido avô me desejando felicidades foi um momento absolutamente mágico e emocionante. Todo mundo na festa chorou e sentiu a presença dele nos abençoando naquela noite especial.",
-                name: "Beatriz R.",
-                event: "Aniversário de 15 Anos",
-                location: "Rio de Janeiro, RJ",
-                avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80"
-            },
-            {
-                text: "Receber esse vídeo de surpresa na minha formatura com a voz da minha avó foi o presente mais inestimável que ganhei dos meus pais. Sentir a presença e o carinho dela naquele dia tão importante para mim foi emocionante demais.",
-                name: "Júlia C.",
-                event: "Formatura de Medicina",
-                location: "Curitiba, PR",
-                avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80"
-            },
-            {
-                text: "Quando a mensagem surpresa do meu pai passou no telão antes de eu entrar na igreja, não houve uma única pessoa que não tenha chorado de emoção. Parecia que ele estava ali fisicamente, segurando a minha mão e me levando ao altar.",
-                name: "Mariana S.",
-                event: "Casamento",
-                location: "São Paulo, SP",
-                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
-            },
-            {
-                text: "Quando a voz do meu pai ecoou no auditório durante a colação, falando do orgulho que tinha de me ver formado, o tempo parou. Foi o abraço que eu mais precisei e que nunca mais vou esquecer na minha vida.",
-                name: "Lucas T.",
-                event: "Formatura de Engenharia",
-                location: "Belo Horizonte, MG",
-                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
-            },
-            {
-                text: "Ver minha mãe no telão abençoando as nossas bodas como se estivesse conosco foi indescritível. A delicadeza da voz e o olhar dela trouxeram uma paz que confortou o coração de toda a família.",
-                name: "Renata P.",
-                event: "Bodas de Prata",
-                location: "Porto Alegre, RS",
-                avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80"
-            },
-            {
-                text: "Ouvir meu avô dando as boas-vindas ao meu filho recém-nascido foi a experiência mais linda que já vivi. É uma ponte de amor eterno que meu filho guardará para sempre como um tesouro de família.",
-                name: "Gustavo M.",
-                event: "Nascimento do Filho",
-                location: "Brasília, DF",
-                avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
-            },
-            {
-                text: "Foi a surpresa mais emocionante de toda a minha festa de 50 anos. Ver meu pai falando comigo com aquele carinho de sempre fez parecer que a distância física não existia. Uma emoção indescritível.",
-                name: "Cláudia F.",
-                event: "Aniversário de 50 Anos",
-                location: "Salvador, BA",
-                avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80"
-            },
-            {
-                text: "A mensagem da minha mãe durante o nosso noivado emocionou até quem achava que não iria chorar. A naturalidade da voz e das palavras parecia uma bênção vinda direto do coração dela para nós dois.",
-                name: "Thiago A.",
-                event: "Noivado",
-                location: "Florianópolis, SC",
-                avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=150&q=80"
-            },
-            {
-                text: "Reunimos os irmãos no almoço de Dia das Mães e colocamos o vídeo da nossa mãe. Foi um momento de pura comunhão, lágrimas de amor e muitas lembranças boas. Um verdadeiro bálsamo para a nossa saudade.",
-                name: "Patrícia L.",
-                event: "Dia das Mães",
-                location: "Goiânia, GO",
-                avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=150&q=80"
-            },
-            {
-                text: "Meu avô sempre sonhou em me ver advogada. Ouvir os conselhos dele no dia da minha formatura, com aquele jeito manso e sábio, foi o maior presente que a minha família poderia ter me proporcionado.",
-                name: "Fernanda B.",
-                event: "Formatura de Direito",
-                location: "Recife, PE",
-                avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=150&q=80"
-            },
-            {
-                text: "Ganhei esse vídeo nos meus 18 anos com uma mensagem do meu pai. Sentir a voz dele me orientando para a vida adulta foi emocionante demais. É uma lembrança que vou levar no peito para o resto da vida.",
-                name: "Gabriel V.",
-                event: "Aniversário de 18 Anos",
-                location: "Vitória, ES",
-                avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80"
-            }
-        ];
+        currentTestimonialBatch = (currentTestimonialBatch + 1) % 3; // 3 lotes de 4 depoimentos
+        const startIdx = currentTestimonialBatch * 4;
+        const selected = testimonialsPool.slice(startIdx, startIdx + 4);
 
-        // Sorteia 4 depoimentos aleatórios sem repetição
-        const shuffled = [...testimonialsPool].sort(() => Math.random() - 0.5);
-        const selected = shuffled.slice(0, 4);
+        const cards = testimonialsContainer.querySelectorAll('.testimonial-card');
 
-        // Renderiza os cards mantendo a estrutura original
-        testimonialsContainer.innerHTML = selected.map(item => `
-            <div class="testimonial-card">
-                <div class="quote-icon">“</div>
-                <p class="testimonial-text">
-                    "${item.text}"
-                </p>
-                <div class="testimonial-user">
-                    <div class="user-avatar" style="background-image: url('${item.avatar}');"></div>
-                    <div>
-                        <h4>${item.name}</h4>
-                        <span>${item.event}</span>
-                        <span>${item.location}</span>
-                    </div>
-                </div>
-            </div>
-        `).join('');
+        if (cards.length === 0) {
+            renderTestimonialsCards(testimonialsContainer, selected);
+            return;
+        }
+
+        if (withAnimation && window.gsap) {
+            gsap.killTweensOf(cards);
+            gsap.timeline()
+                .to(cards, {
+                    opacity: 0,
+                    y: -18,
+                    duration: 0.32,
+                    stagger: 0.05,
+                    ease: 'power2.in',
+                    onComplete: () => {
+                        cards.forEach((card, idx) => {
+                            if (selected[idx]) {
+                                updateTestimonialCardData(card, selected[idx]);
+                            }
+                        });
+                    }
+                })
+                .fromTo(cards,
+                    { opacity: 0, y: 18 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.48,
+                        stagger: 0.07,
+                        ease: 'power2.out',
+                        clearProps: 'transform,opacity'
+                    }
+                );
+        } else {
+            cards.forEach((card, idx) => {
+                if (selected[idx]) {
+                    updateTestimonialCardData(card, selected[idx]);
+                }
+            });
+        }
     }
+    window.rotateDynamicTestimonials = rotateDynamicTestimonials;
 
-    initDynamicTestimonials();
+    // Inicialização do primeiro lote na carga da página
+    const initialContainer = document.querySelector('.testimonials-row');
+    if (initialContainer) {
+        const initialSelected = testimonialsPool.slice(0, 4);
+        renderTestimonialsCards(initialContainer, initialSelected);
+    }
 });
