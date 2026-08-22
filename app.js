@@ -451,10 +451,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalBottomBtn = document.getElementById('closeModalBottomBtn');
     let originalVolume = 1;
     let fadeInterval = null;
+    window.isPropositoVideoPlaying = false;
+
+    function getTargetBgVolume() {
+        if (window.isPropositoVideoPlaying || document.body.classList.contains('proposito-video-playing')) {
+            return 0;
+        }
+        if (document.body.classList.contains('video-active')) {
+            return 0.25;
+        }
+        return originalVolume || 0.5;
+    }
+    window.getTargetBgVolume = getTargetBgVolume;
 
     function fadeAudioVolume(targetVolume, duration = 400) {
         const bgAudio = document.getElementById('bgAudio');
         if (!bgAudio) return;
+
+        // Se o vídeo de Propósito estiver tocando com áudio, o som de fundo deve ser rigorosamente 0
+        if ((window.isPropositoVideoPlaying || document.body.classList.contains('proposito-video-playing')) && targetVolume > 0) {
+            targetVolume = 0;
+        }
 
         if (fadeInterval) clearInterval(fadeInterval);
         
@@ -931,13 +948,12 @@ document.addEventListener('DOMContentLoaded', () => {
         bgAudio.addEventListener('play', () => updateAudioUI(true));
         bgAudio.addEventListener('pause', () => updateAudioUI(false));
         
-        // Quando a música atual acabar, escolhe uma música DIFERENTE da atual e toca automaticamente
+        // Quando a música atual acabar, escolhe uma música DIFERENTE da atual e toca respeitando o volume atual do site/vídeo
         bgAudio.addEventListener('ended', () => {
             currentTrack = getNextRandomTrack();
             bgAudio.src = currentTrack;
             bgAudio.load();
-            const isVideoActive = document.body.classList.contains('video-active');
-            bgAudio.volume = isVideoActive ? 0.25 : 1.0;
+            bgAudio.volume = typeof getTargetBgVolume === 'function' ? getTargetBgVolume() : 0.5;
             bgAudio.play().then(() => {
                 updateAudioUI(true);
             }).catch(err => {
@@ -960,8 +976,7 @@ document.addEventListener('DOMContentLoaded', () => {
             wave.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (bgAudio.paused) {
-                    const isVideoActive = document.body.classList.contains('video-active');
-                    bgAudio.volume = isVideoActive ? 0.25 : 1.0;
+                    bgAudio.volume = typeof getTargetBgVolume === 'function' ? getTargetBgVolume() : 0.5;
                     bgAudio.play().then(() => {
                         updateAudioUI(true);
                     }).catch(err => {
@@ -977,8 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function playMusic() {
             if (bgAudio.paused) {
-                const isVideoActive = document.body.classList.contains('video-active');
-                bgAudio.volume = isVideoActive ? 0.25 : 1.0;
+                bgAudio.volume = typeof getTargetBgVolume === 'function' ? getTargetBgVolume() : 0.5;
                 bgAudio.play().then(() => {
                     updateAudioUI(true);
                 }).catch(err => {
@@ -1228,21 +1242,26 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateBiblicalQuote(activeSection) {
         if (!biblicalQuoteFooter || !biblicalQuoteText) return;
 
-        // Identifica se a seção ativa é o primeiro slide (Intro / #intro) ou o último slide (Perguntas / #perguntas)
         const currentSec = activeSection || (sections && sections[currentIdx] ? sections[currentIdx] : document.querySelector('.intro-section'));
-        const isExcludedSlide = currentSec && (
-            currentSec.classList.contains('intro-section') || 
-            currentSec.id === 'intro' || 
-            currentSec.classList.contains('faq-section') || 
-            currentSec.id === 'perguntas'
-        );
-
-        if (isExcludedSlide) {
+        
+        // No primeiro slide (Intro), mantém oculto
+        if (currentSec && (currentSec.classList.contains('intro-section') || currentSec.id === 'intro')) {
             biblicalQuoteFooter.classList.add('hidden');
             return;
         }
 
-        // Nos demais slides (2 a 6), exibe o rodapé e atualiza o versículo suavemente
+        // No último slide (Perguntas / #perguntas), exibe o crédito da Preview Studio Digital
+        if (currentSec && (currentSec.classList.contains('faq-section') || currentSec.id === 'perguntas' || currentSec.id === 'faq')) {
+            biblicalQuoteFooter.classList.remove('hidden');
+            biblicalQuoteText.classList.add('fade-out');
+            setTimeout(() => {
+                biblicalQuoteText.innerHTML = '<a href="https://www.previewstudio.com.br" target="_blank" rel="noopener noreferrer" class="preview-studio-link">Desenvolvido por Preview Studio Digital</a>';
+                biblicalQuoteText.classList.remove('fade-out');
+            }, 300);
+            return;
+        }
+
+        // Nos demais slides (Homenagens, Experiência, Ocasiões, Depoimentos, Propósito, Planos), exibe as passagens bíblicas
         biblicalQuoteFooter.classList.remove('hidden');
         biblicalQuoteText.classList.add('fade-out');
         setTimeout(() => {
@@ -1251,19 +1270,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 400);
     }
 
-    // Inicialização da passagem bíblica aleatória no carregamento (oculta se estiver no slide 1 ou FAQ)
-    if (biblicalQuoteText) {
-        biblicalQuoteText.textContent = getRandomBiblicalPassage();
-    }
+    // Inicialização no carregamento
     const initialSec = sections && sections[currentIdx] ? sections[currentIdx] : document.querySelector('.intro-section');
-    if (initialSec && (
-        initialSec.classList.contains('intro-section') || 
-        initialSec.id === 'intro' || 
-        initialSec.classList.contains('faq-section') || 
-        initialSec.id === 'faq'
-    )) {
-        if (biblicalQuoteFooter) biblicalQuoteFooter.classList.add('hidden');
-    }
+    updateBiblicalQuote(initialSec);
 
 
     // Inicialização do Fundo de Galáxia WebGL (OGL) adaptado do @omnedia/ngx-galaxy
@@ -1993,6 +2002,8 @@ void main() {
             if (isPlayingWithAudio) {
                 // Pausar reprodução do vídeo completo e restaurar o preview
                 isPlayingWithAudio = false;
+                window.isPropositoVideoPlaying = false;
+                document.body.classList.remove('proposito-video-playing');
                 endingFadeTriggered = false;
 
                 triggerWhiteFadeIn(400);
@@ -2022,6 +2033,8 @@ void main() {
             } else {
                 // Inicia a reprodução do vídeo COMPLETO de homenagem com som do início em cores reais
                 isPlayingWithAudio = true;
+                window.isPropositoVideoPlaying = true;
+                document.body.classList.add('proposito-video-playing');
                 endingFadeTriggered = false;
 
                 // 1. Aplica tela branca imediata (respiro visual)
@@ -2082,6 +2095,8 @@ void main() {
 
                     // Mantém em tela branca por 1 segundo após o término do vídeo
                     setTimeout(() => {
+                        window.isPropositoVideoPlaying = false;
+                        document.body.classList.remove('proposito-video-playing');
                         video.classList.remove('full-color');
                         // Restaura a música do site ao longo de 3.0s de forma acolhedora
                         if (window.fadeAudioVolume) {
