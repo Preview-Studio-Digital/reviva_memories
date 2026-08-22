@@ -45,9 +45,11 @@ Para garantir máxima fidelidade e interpretação vocal precisa no ElevenLabs, 
 - `[sighs]` / `[deep sigh]`: Suspiro de alívio, saudade ou emoção antes de uma frase profunda.
 - `[inhales deeply]` / `[takes a deep breath]`: Inspiração perceptível para criar solenidade e transição de pensamento.
 - `[exhales softly]`: Expiração suave de relaxamento e acolhimento.
+- `[breath]`: Respiração curta, fôlego de transição e humanização do ritmo vocal.
+- `[short pause]`: Micro-pausa precisa para respiração e suspense emocional antes do encerramento.
 
 ### 2. Afeto, Ternura & Comoção (Momentos de Alento)
-- `[warmly]` / `[gentle whisper]`: Entonação doce, aveludada e materna/paterna.
+- `[warmly]` / `[gentle whisper]` / `[softly]`: Entonação doce, suave, aveludada e materna/paterna.
 - `[thoughtful]` / `[tenderly]`: Pausa reflexiva e fala calma de quem aconselha com amor.
 - `[emotional voice]` / `[voice breaking slightly]`: Leve tremor na voz de emoção contida (ideal ao dizer "Eu te amo" ou "Você foi gigante").
 

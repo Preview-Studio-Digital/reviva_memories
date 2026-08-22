@@ -19,7 +19,7 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 
 ---
 
-## 🎥 Slide 2: Homenagens Inesquecíveis (Hero Section / #topo)
+## 🎥 Slide 2: Homenagens Inesquecíveis (Hero Section / #homenagens)
 **Personagem / Apresentador:** Iasis (Agente IA)  
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
 **Texto de Narração:**
@@ -35,7 +35,7 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 
 ---
 
-## 🎥 Slide 4: Ocasiões Especiais (Casos de Uso / #casos-de-uso)
+## 🎥 Slide 4: Ocasiões Especiais (Casos de Uso / #ocasioes)
 **Personagem / Apresentador:** Iasis (Agente IA)  
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
 **Texto de Narração:**
@@ -51,7 +51,21 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 
 ---
 
-## 🎥 Slide 6: Planos & Investimento (Planos / #planos)
+## 🎥 Slide 6: Propósito Sublime (Propósito / #proposito)
+**Personagem / Apresentador:** Iasis (Agente IA)  
+**Duração Estimada:** ~32 segundos (~71 palavras)  
+**Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso acolhedor e olhar afetuoso.  
+**Tom de Voz:** Sereno, acolhedor, solene, empático e seguro.  
+
+### 📝 Versão Limpa (Texto Oficial Aprovado):
+> "Por trás da tecnologia que usamos e da sensibilidade que aplicamos, existe uma equipe dedicada a cuidar da sua história com o mais profundo afeto. A nossa sensibilidade artística já ultrapassou fronteiras ao emocionar mais de 10 milhões de pessoas em homenagens de repercussão nacional. Aqui, cada foto, voz e memória é tratada com carinho e respeito, pois trata-se de pessoas que já se foram e que queremos sempre em nossos corações. Conheça o nosso propósito e emocione-se!"
+
+### 🎙️ Versão Técnica ElevenLabs (Com Tags de Emoção & Protocolo Gravando / Corta):
+> `Gravando... [warmly] Por trás da tecnologia que usamos e da sensibilidade que aplicamos, [peaceful] existe uma equipe dedicada a cuidar da sua história com o mais profundo afeto. [inhales deeply] A nossa sensibilidade artística já ultrapassou fronteiras ao emocionar mais de 10 milhões de pessoas em homenagens de repercussão nacional. [thoughtful] Aqui, cada foto, voz e memória é tratada com carinho e respeito, [tenderly] pois trata-se de pessoas que já se foram e que queremos sempre em nossos corações. [warmly] Conheça o nosso propósito e emocione-se! [exhales softly] corta.`
+
+---
+
+## 🎥 Slide 7: Planos & Investimento (Planos / #planos)
 **Personagem / Apresentador:** Iasis (Agente IA)  
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
 **Texto de Narração:**
@@ -59,7 +73,7 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 
 ---
 
-## 🎥 Slide 7: Perguntas Frequentes (FAQ Section / #faq)
+## 🎥 Slide 8: Perguntas Frequentes (FAQ Section / #perguntas)
 **Personagem / Apresentador:** Iasis (Agente IA)  
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
 **Texto de Narração:**
@@ -364,6 +378,52 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 > [laughing] E ó: tô de olho em você aqui de cima, viu? [giggles] O ciúme de irmão continua firme e forte! [bursts out laughing] Hahaha! Não tô online, mas tô te vigiando em tempo real! [laughing] Hahaha!
 >
 > [warmly] Brilha muito, Gisa! [peaceful] O seu irmão te ama infinito! [sighs] corta.
+
+---
+
+## 🎬 Exemplo 9: 18 Anos Gêmeas (Mãe para "Bia e Babi")
+* **Plano:** Affectus (1 Minuto / ~125 palavras)
+* **Personagem:** Mãe (Avatar Feminino / `gallery_mulher_04.jpg` / `gallery_mulher_04.webm`)
+* **Ocasião:** Aniversário de 18 Anos das Filhas Gêmeas (Bia e Babi)
+* **Horário de Início:** `09:07:12` | **Horário de Publicação no Ar:** `10:00:00`
+* **Tempo Total de Produção:** **52 minutos e 48 segundos**
+  - *Criação, lapidação e aprovação do roteiro + tags ElevenLabs:* **14 min e 19s**
+  - *Geração de áudio, geração de avatar em vídeo, pós-produção/compressão e integração na galeria:* **38 min e 29s**
+
+### 📄 Texto Limpo Aprovado:
+> "Minhas gêmeas bravinhas!  
+> Bia e Babi agora maiores de idade, hein?
+> 
+> Parece que foi ontem que eu segurava essas duas ao mesmo tempo no colo... Sinto até saudade das dores nas costas! Hahaha!
+> 
+> Olha... Eu sei que a minha passagem doeu demais.  
+> Foi difícil ver o sofrimento de vocês, mas Deus quis que fosse assim... talvez pra deixar vocês mais fortes pra vida...
+> 
+> Mas hoje eu quero que vocês guardem uma certeza no coração:  
+> Aqui não existe dor, não tem remédio e não há sofrimento... e tudo o que a doença apagou voltou pra mim!  
+> Cada memória... cada sorriso de vocês... está guardado no fundo da minha alma.
+> 
+> Brilhem muito, vivam com alegria e nunca se separem!  
+> Feliz aniversário, meus amores...  
+> A mãe ama vocês além da eternidade!"
+
+---
+
+### 🎙️ Texto Técnico para ElevenLabs (com Audio Prompts & Margens de Edição):
+> Gravando... [excited] Minhas gêmeas bravinhas! [happy] Bia e Babi agora maiores de idade, hein?
+> 
+> [warmly] Parece que foi ontem que eu segurava essas duas ao mesmo tempo no colo... [chuckles] Sinto até saudade das dores nas costas! [bursts out laughing] Hahaha!
+> 
+> [thoughtful] Olha... [sighs] Eu sei que a minha passagem doeu demais.  
+> [gentle whisper] Foi difícil ver o sofrimento de vocês, mas Deus quis que fosse assim... [softly] talvez pra deixar vocês mais fortes pra vida...
+> 
+> [inhales deeply] [peaceful] Mas hoje eu quero que vocês guardem uma certeza no coração:  
+> Aqui não existe dor, não tem remédio e não há sofrimento... [warmly] e tudo o que a doença apagou voltou pra mim! [sighs] Cada memória... cada sorriso de vocês... está guardado no fundo da minha alma.
+> 
+> [solemn] [tenderly] Brilhem muito, vivam com alegria e nunca se separem!  
+> [emotional voice] Feliz aniversário, meus amores...  
+> [voice breaking slightly] A mãe ama vocês além da eternidade! [breath] [short pause] corta.
+
 
 
 

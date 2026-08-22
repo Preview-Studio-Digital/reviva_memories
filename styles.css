@@ -154,7 +154,10 @@ img, video {
 .hero-section,
 .how-it-works, 
 .use-cases, 
-.testimonials {
+.testimonials,
+.about-section,
+.contrate-section,
+.faq-section {
     height: 100vh;
     padding: 0;
     display: flex;
@@ -1109,6 +1112,249 @@ body.video-active .global-galaxy-bg {
     max-height: 580px;
 }
 
+/* Dobra 5: QUEM SOMOS / AUTORIDADE & PROPÓSITO (Grid Balanceado) */
+.about-section {
+    background: transparent;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+}
+
+.about-grid-balanced {
+    display: grid;
+    grid-template-columns: 1fr 0.9fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 1160px;
+    margin: 6px auto 8px auto; /* Afastamento de 6px simétrico à tag animada */
+    flex: 1 1 auto !important;
+    min-height: 220px;
+    max-height: 580px;
+    box-sizing: border-box;
+    align-items: center;
+}
+
+/* Colunas Laterais Flutuantes (Sem caixas de card) */
+.about-col-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 14px;
+    height: 100%;
+}
+
+.about-feature-item {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-sizing: border-box;
+    transition: var(--transition-smooth) !important;
+}
+
+.about-item-left {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.about-item-right {
+    justify-content: flex-start;
+    text-align: left;
+}
+
+.about-feature-item .stat-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-full);
+    background: rgba(197, 160, 89, 0.12);
+    border: 1.5px solid rgba(197, 160, 89, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e5c378;
+    box-shadow: 0 0 10px rgba(197, 160, 89, 0.15);
+    flex-shrink: 0;
+}
+
+.about-feature-item .stat-icon i {
+    width: 18px;
+    height: 18px;
+}
+
+.about-feature-item .stat-data {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.about-feature-item .stat-data strong {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #e5c378; /* Linha de destaque dourada */
+    line-height: 1.2;
+    white-space: nowrap;
+    text-shadow: 0 0 8px rgba(229, 195, 120, 0.3);
+}
+
+.about-feature-item .stat-data span {
+    font-size: 0.72rem;
+    color: #e8d5b7; /* Bege na cor do título do slide */
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    font-weight: 500;
+    white-space: nowrap;
+    line-height: 1.3;
+    opacity: 0.88;
+}
+
+/* Coluna Central: Card de Vídeo */
+.about-card-media-central {
+    background: rgba(34, 24, 18, 0.32);
+    backdrop-filter: blur(24px);
+    border: 1.5px solid rgba(197, 160, 89, 0.28) !important;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    transition: var(--transition-smooth) !important;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    padding: 0;
+}
+
+.about-card-media-central:hover {
+    transform: translateY(-5px) !important;
+    border-color: #e5c378 !important;
+    border-width: 2.5px !important;
+    box-shadow: 0 0 20px rgba(229, 195, 120, 0.6), 0 0 40px rgba(156, 114, 71, 0.4), 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(229, 195, 120, 0.35) !important;
+}
+
+.about-video-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+}
+
+.about-card-poster {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    transition: opacity 0.5s ease;
+}
+
+.about-card-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+    transition: opacity 0.8s ease-in-out, filter 0.8s ease-in-out;
+    opacity: 1;
+    will-change: opacity, filter;
+    /* Filtro elegante sépia em tons marrom e dourado que harmoniza com a identidade visual */
+    filter: sepia(0.65) saturate(1.15) brightness(0.92) contrast(1.08) hue-rotate(-10deg);
+}
+
+.about-card-video.full-color {
+    filter: none !important;
+}
+
+/* Camada de Fade Branco (1 segundo partindo do branco) */
+.about-video-white-flash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    z-index: 3;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.about-card-media-central .about-viral-badge {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    bottom: auto;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(11, 11, 12, 0.92);
+    backdrop-filter: blur(10px);
+    color: #e5c378;
+    border: 1px solid var(--border-gold);
+    padding: 5px 14px;
+    border-radius: var(--radius-full);
+    font-size: 0.76rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    z-index: 4;
+}
+
+.about-play-btn {
+    position: absolute !important;
+    bottom: 14px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 5 !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Quando o mouse passa no card (frame do vídeo), o botão play brilha harmonizado com as bordas */
+.about-card-media-central:hover .about-play-btn {
+    background: rgba(34, 24, 18, 0.65) !important;
+    border-color: #e5c378 !important;
+    box-shadow: 0 0 20px rgba(229, 195, 120, 0.75), 0 0 35px rgba(156, 114, 71, 0.5) !important;
+}
+
+.about-card-media-central:hover .about-play-btn svg {
+    fill: #e5c378 !important;
+    filter: drop-shadow(0 0 8px rgba(229, 195, 120, 0.8)) !important;
+}
+
+/* Quando o mouse passa diretamente em cima do botão play */
+.about-play-btn:hover,
+.about-card-media-central .about-play-btn:hover {
+    background: #e5c378 !important;
+    border-color: #e5c378 !important;
+    box-shadow: 0 0 25px #e5c378, 0 0 45px rgba(229, 195, 120, 0.9) !important;
+    transform: translateX(-50%) scale(1.12) !important;
+}
+
+.about-play-btn:hover svg,
+.about-card-media-central .about-play-btn:hover svg {
+    fill: #111112 !important;
+    filter: none !important;
+}
+
 .testimonial-card {
     background: rgba(34, 24, 18, 0.28);
     backdrop-filter: blur(20px);
@@ -1387,8 +1633,51 @@ body.video-active .global-galaxy-bg {
         height: 32px;
     }
 
-    .testimonial-user h4 {
-        font-size: 0.8rem;
+    /* Quem Somos Mobile (Grid Balanceado) */
+    .about-grid-balanced {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin: 6px auto 10px auto;
+        overflow-y: auto;
+        max-height: 480px;
+    }
+
+    .about-col-side {
+        gap: 8px;
+    }
+
+    .about-feature-item {
+        padding: 4px 0;
+        gap: 10px;
+    }
+
+    .about-item-left {
+        justify-content: flex-start;
+        text-align: left;
+        flex-direction: row-reverse;
+    }
+
+    .about-feature-item .stat-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .about-feature-item .stat-icon i {
+        width: 16px;
+        height: 16px;
+    }
+
+    .about-feature-item .stat-data strong {
+        font-size: 0.88rem;
+    }
+
+    .about-feature-item .stat-data span {
+        font-size: 0.65rem;
+    }
+
+    .about-card-media-central {
+        height: 220px;
+        min-height: 220px;
     }
 }
 
@@ -2045,7 +2334,8 @@ body.video-active .global-galaxy-bg {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(11, 11, 12, 0.90);
+    background: rgba(11, 11, 12, 0.45); /* Fundo suave translúcido deixando os efeitos de galáxia 100% visíveis */
+    backdrop-filter: blur(8px);
     z-index: 100000;
     display: flex;
     align-items: center;
@@ -2053,7 +2343,7 @@ body.video-active .global-galaxy-bg {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 3s ease-in-out, visibility 3s ease-in-out !important;
+    transition: opacity 2s ease-in-out, visibility 2s ease-in-out !important;
 }
 
 .video-modal.active {
@@ -2074,9 +2364,9 @@ body.video-active .global-galaxy-bg {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     transform: scale(0.98);
-    transition: transform 3s ease-in-out !important;
+    transition: transform 2s ease-in-out !important;
 }
 
 .video-modal.active .video-modal-content {
@@ -2091,7 +2381,7 @@ body.video-active .global-galaxy-bg {
     right: 0;
     width: 100%;
     z-index: 100020;
-    background: linear-gradient(to bottom, rgba(11, 11, 12, 0.9) 0%, rgba(11, 11, 12, 0.5) 70%, transparent 100%);
+    background: linear-gradient(to bottom, rgba(11, 11, 12, 0.85) 0%, rgba(11, 11, 12, 0.4) 60%, transparent 100%);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     padding: 16px 0;
 }
@@ -2164,7 +2454,9 @@ body.video-active .audio-player-widget {
     transition: opacity 0.4s ease, transform 0.4s ease !important;
 }
 
-/* Container do Vídeo: Ocupa 100% da tela para que o cabeçalho sobreponha o player de forma transparente */
+/* -------------------------------------------------------------
+   CONTAINER DE VÍDEO PADRÃO (Vídeos do Iasis - Tela Cheia Total)
+------------------------------------------------------------- */
 .video-container {
     position: absolute;
     top: 0;
@@ -2174,25 +2466,26 @@ body.video-active .audio-player-widget {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    z-index: 2 !important; /* Acima da galáxia de fundo */
+    z-index: 2 !important;
 }
 
-/* Efeito Vinheta Cinematográfica (Sombreamento radial escuro suave nas bordas) */
+/* Efeito Vinheta Cinematográfica */
 .video-vignette-overlay {
     display: none !important;
 }
 
 .video-container video,
 .video-container iframe {
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
     object-fit: cover !important;
     object-position: center top !important;
     border: none;
+    border-radius: 0;
     opacity: 0;
     transform: translateZ(0);
     will-change: opacity, transform;
-    transition: opacity 3s ease-in-out !important;
+    transition: opacity 2s ease-in-out !important;
 }
 
 .video-modal.active .video-container video,
@@ -2202,24 +2495,21 @@ body.video-active .audio-player-widget {
 
 .video-container video.video-fading-out {
     opacity: 0 !important;
-    transition: opacity 3s ease-in-out !important;
+    transition: opacity 1.5s ease-in-out !important;
 }
 
-/* -------------------------------------------------------------
-   CONTROLES CUSTOMIZADOS DE VÍDEO (Dourado & Marrom)
-   Posicionado com precisão para que o botão Fechar fique em bottom: 50px
-------------------------------------------------------------- */
+/* Controles Customizados Padrão para Vídeos do Iasis */
 .custom-video-controls {
     position: absolute;
-    bottom: 38px; /* 38px + 12px de padding = 50px exatos na base do botão Fechar */
+    bottom: 38px;
     left: 50%;
     transform: translateX(-50%);
     width: calc(100% - 48px);
     max-width: 880px;
-    background: linear-gradient(135deg, rgba(30, 20, 15, 0.92) 0%, rgba(15, 12, 10, 0.96) 100%);
+    background: linear-gradient(135deg, rgba(30, 20, 15, 0.94) 0%, rgba(15, 12, 10, 0.98) 100%);
     border: 1px solid rgba(197, 160, 89, 0.35);
     border-radius: var(--radius-md);
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 0 25px rgba(156, 114, 71, 0.3);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85), 0 0 25px rgba(156, 114, 71, 0.3);
     padding: 8px 18px 12px 18px;
     z-index: 100015;
     opacity: 1;
@@ -2227,6 +2517,17 @@ body.video-active .audio-player-widget {
     transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
     box-sizing: border-box;
     display: none;
+}
+
+.custom-video-controls.visible {
+    display: block !important;
+}
+
+.custom-video-controls.idle {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateX(-50%) translateY(10px) !important;
+    pointer-events: none !important;
 }
 
 .custom-video-controls.visible {
@@ -4061,6 +4362,7 @@ span.section-tag.handwritten-title {
     .steps-grid,
     .cases-grid,
     .testimonials-grid,
+    .about-grid-balanced,
     .plans-grid {
         max-height: 640px !important;
         margin-top: 32px !important;

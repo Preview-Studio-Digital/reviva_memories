@@ -33,12 +33,13 @@
                 <img src="logo.png" alt="re.viva memories logo" class="logo-img">
             </a>
             <nav class="nav-links" id="navLinks">
-                <a href="#topo">HOMENAGENS</a>
+                <a href="#homenagens">HOMENAGENS</a>
                 <a href="#experiencia">EXPERIÊNCIA</a>
-                <a href="#casos-de-uso">OCASIÕES</a>
+                <a href="#ocasioes">OCASIÕES</a>
                 <a href="#depoimentos">DEPOIMENTOS</a>
+                <a href="#proposito">PROPÓSITO</a>
                 <a href="#planos">PLANOS</a>
-                <a href="#faq">PERGUNTAS</a>
+                <a href="#perguntas">PERGUNTAS</a>
             </nav>
 
             <!-- Botão Hambúrguer Mobile -->
@@ -122,7 +123,7 @@
     </section>
 
     <!-- Dobra 1: Hero Section -->
-    <section class="hero-section" id="topo">
+    <section class="hero-section" id="homenagens">
 
         <div class="container slide-layout-container hero-content">
             <!-- Tag no Topo -->
@@ -383,7 +384,7 @@
         </div>
     </section>
  
-    <section class="section use-cases" id="casos-de-uso">
+    <section class="section use-cases" id="ocasioes">
         <div class="container slide-layout-container">
             <!-- Tag no Topo -->
             <span class="section-tag handwritten-title">Ocasiões Especiais</span>
@@ -589,6 +590,147 @@
                         <span class="video-new-badge" data-video-id="video-depoimentos">NOVO</span>
                         <button class="btn btn-primary watch-video-btn" data-video-url="video_05.webm" data-video-id="video-depoimentos">
                             <i data-lucide="play"></i> DEPOIMENTOS
+                        </button>
+                    </div>
+                    <div class="music-wave-toggle right-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dobra 5: PROPÓSITO / AUTORIDADE & PROPÓSITO -->
+    <section class="section about-section" id="proposito">
+        <div class="container slide-layout-container">
+            <!-- Tag no Topo -->
+            <span class="section-tag handwritten-title">Propósito Sublime</span>
+            
+            <!-- Título -->
+            <div class="hero-center-wrap">
+                <h2 class="hero-title">
+                    <span class="title-line-1">O respeito por trás de cada homenagem</span>
+                </h2>
+            </div>
+            
+            <!-- Layout Foco: Itens Flutuantes Simétricos | Vídeo Central -->
+            <div class="about-grid-balanced">
+                <!-- Coluna Esquerda: Textos à esquerda e Ícones voltados para o centro -->
+                <div class="about-col-side about-col-left">
+                    <div class="about-feature-item about-item-left">
+                        <div class="stat-data">
+                            <strong>10 Milhões</strong>
+                            <span>Visualizações</span>
+                        </div>
+                        <div class="stat-icon"><i data-lucide="eye"></i></div>
+                    </div>
+                    <div class="about-feature-item about-item-left">
+                        <div class="stat-data">
+                            <strong>500 Mil</strong>
+                            <span>Curtidas</span>
+                        </div>
+                        <div class="stat-icon"><i data-lucide="heart"></i></div>
+                    </div>
+                    <div class="about-feature-item about-item-left">
+                        <div class="stat-data">
+                            <strong>200 Mil</strong>
+                            <span>Compartilhamentos</span>
+                        </div>
+                        <div class="stat-icon"><i data-lucide="share-2"></i></div>
+                    </div>
+                    <div class="about-feature-item about-item-left">
+                        <div class="stat-data">
+                            <strong>20 Mil</strong>
+                            <span>Comentários</span>
+                        </div>
+                        <div class="stat-icon"><i data-lucide="message-circle"></i></div>
+                    </div>
+                </div>
+
+                <!-- Coluna Central: Card de Vídeo com Proporção 9:16 -->
+                <div class="about-card about-card-media-central" id="aboutMaderiteCard">
+                    <div class="about-video-container">
+                        <video class="about-card-video" id="aboutMaderiteVideo" src="about_maderite_preview.webm" autoplay playsinline muted loop preload="auto"></video>
+                        <div class="about-video-white-flash" id="aboutVideoWhiteFlash"></div>
+                        <button class="ag-panel-play-btn about-play-btn" id="aboutMaderitePlayBtn" aria-label="Reproduzir vídeo com som">
+                            <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                            <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Coluna Direita: Ícones voltados para o centro e Textos à direita -->
+                <div class="about-col-side about-col-right">
+                    <div class="about-feature-item about-item-right">
+                        <div class="stat-icon"><i data-lucide="award"></i></div>
+                        <div class="stat-data">
+                            <strong>Autoridade Reconhecida</strong>
+                            <span>Alcance Nacional</span>
+                        </div>
+                    </div>
+                    <div class="about-feature-item about-item-right">
+                        <div class="stat-icon"><i data-lucide="heart-handshake"></i></div>
+                        <div class="stat-data">
+                            <strong>Respeito Absoluto</strong>
+                            <span>Sensibilidade ao Luto</span>
+                        </div>
+                    </div>
+                    <div class="about-feature-item about-item-right">
+                        <div class="stat-icon"><i data-lucide="shield-check"></i></div>
+                        <div class="stat-data">
+                            <strong>Excelência & Sigilo</strong>
+                            <span>Privacidade Garantida</span>
+                        </div>
+                    </div>
+                    <div class="about-feature-item about-item-right">
+                        <div class="stat-icon"><i data-lucide="sparkles"></i></div>
+                        <div class="stat-data">
+                            <strong>Arte & Humanização</strong>
+                            <span>PRODUÇÃO DIGITAL</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subtítulo e Botão de Ação na Base -->
+            <div class="hero-bottom-wrap">
+                <p class="hero-subtitle">Conheça o compromisso ético e a sensibilidade artística que guiam a re.viva memories, unindo tecnologia de ponta e cuidado artesanal para criar homenagens que tocam profundamente o coração e eternizam legados de amor inestimáveis.</p>
+                <div class="slide-actions">
+                    <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo">
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                        <span class="stroke"></span>
+                    </div>
+                    <div class="video-badge-wrapper">
+                        <span class="video-new-badge" data-video-id="video-proposito">NOVO</span>
+                        <button class="btn btn-primary watch-video-btn" data-video-url="video_06.webm" data-video-id="video-proposito">
+                            <i data-lucide="play"></i> PROPÓSITO
                         </button>
                     </div>
                     <div class="music-wave-toggle right-wave" aria-label="Controlar Música de Fundo">
@@ -844,7 +986,7 @@
     </section>
 
     <!-- Dobra 6: PERGUNTAS FREQUENTES (FAQ) -->
-    <section class="section faq-section" id="faq">
+    <section class="section faq-section" id="perguntas">
         <div class="container slide-layout-container">
             <!-- Tag no Topo -->
             <span class="section-tag handwritten-title">Perguntas Frequentes</span>
@@ -1041,7 +1183,7 @@
             <div class="video-container" id="videoContainerWrapper">
                 <div class="video-vignette-overlay"></div>
                 <iframe id="videoPlayer" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="display: none;"></iframe>
-                <video id="localVideoPlayer" playsinline style="display: none; width: 100%; height: 100%; object-fit: contain; cursor: pointer;"></video>
+                <video id="localVideoPlayer" playsinline style="display: none;"></video>
                 
                 <!-- Controles Customizados em Ouro & Marrom -->
                 <div class="custom-video-controls" id="customVideoControls">

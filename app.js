@@ -1,8 +1,8 @@
 // Inicialização dos Ícones Lucide e Interações Dinâmicas
 document.addEventListener('DOMContentLoaded', () => {
-    // Renderizar Ícones Lucide
+    // Renderizar Ícones Lucide imediatamente
     if (window.lucide) {
-        lucide.createIcons();
+        window.lucide.createIcons();
     }
 
     // Dicionário de Frases Dinâmicas para Todos os Slides
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "E se o amor eterno falasse de novo?",
             "Como seria ouvir a voz da saudade?"
         ],
-        'topo': [
+        'homenagens': [
             "Reviva o olhar de quem sempre te amou.",
             "Eternize a voz e a presença que o tempo levou.",
             "Sinta a emoção de ouvir quem te amou.",
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "Do resgate ao reencontro em 4 etapas transparentes",
             "Cada detalhe das etapas que dão vida à sua homenagem"
         ],
-        'casos-de-uso': [
+        'ocasioes': [
             "Onde o presente ganha o maior significado",
             "Momentos inesquecíveis abençoados por quem você ama",
             "A presença mais esperada nas grandes celebrações da vida",
@@ -42,6 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
             "O que dizem as famílias que reviveram esses momentos",
             "Relatos verdadeiros de quem transformou saudade em consolo"
         ],
+        'proposito': [
+            "O respeito por trás de cada homenagem",
+            "A arte que une tecnologia e profundo respeito",
+            "Sensibilidade humana unida à tecnologia",
+            "Nosso propósito com foco e respeito",
+            "Nossa história e compromisso com o seu legado familiar"
+        ],
         'planos': [
             "A homenagem perfeita para eternizar suas memórias",
             "Escolha a dimensão ideal para a sua homenagem",
@@ -49,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "Diferentes formas de eternizar uma história inesquecível",
             "O tributo que a trajetória de quem você ama merece"
         ],
-        'faq': [
+        'perguntas': [
             "Esclareça todas as suas dúvidas!",
             "Tudo o que você precisa saber",
             "Clareza e segurança em cada detalhe",
@@ -150,6 +157,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para animar exclusivamente os cards do slide conforme a direção
     function animateSectionCards(section, direction = currentScrollDirection) {
         if (!section) return;
+
+        // Animação especial para o slide Propósito (Itens saem do centro para as laterais)
+        if (section.id === 'proposito' || section.id === 'quem-somos') {
+            const leftItems = section.querySelectorAll('.about-item-left');
+            const rightItems = section.querySelectorAll('.about-item-right');
+            const centerVideo = section.querySelector('.about-card-media-central');
+
+            if (window.gsap) {
+                if (leftItems.length > 0) {
+                    gsap.killTweensOf(leftItems);
+                    gsap.fromTo(leftItems,
+                        { x: 90, opacity: 0 },
+                        { x: 0, opacity: 1, duration: 0.85, stagger: 0.08, ease: 'power3.out', clearProps: 'transform' }
+                    );
+                }
+                if (rightItems.length > 0) {
+                    gsap.killTweensOf(rightItems);
+                    gsap.fromTo(rightItems,
+                        { x: -90, opacity: 0 },
+                        { x: 0, opacity: 1, duration: 0.85, stagger: 0.08, ease: 'power3.out', clearProps: 'transform' }
+                    );
+                }
+                if (centerVideo) {
+                    gsap.killTweensOf(centerVideo);
+                    gsap.fromTo(centerVideo,
+                        { scale: 0.92, opacity: 0 },
+                        { scale: 1, opacity: 1, duration: 0.85, ease: 'power3.out', clearProps: 'transform' }
+                    );
+                }
+            }
+            return;
+        }
+
         const cards = section.querySelectorAll('.step-card, .case-card, .testimonial-card, .plan-card');
         if (!cards || cards.length === 0) return;
 
@@ -179,6 +219,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para resetar o estado dos cards quando o slide sai da visão
     function resetSectionCards(section) {
         if (!section) return;
+
+        if (section.id === 'proposito' || section.id === 'quem-somos') {
+            const items = section.querySelectorAll('.about-item-left, .about-item-right, .about-card-media-central');
+            if (items && items.length > 0 && window.gsap) {
+                gsap.killTweensOf(items);
+                gsap.set(items, { opacity: 0 });
+            }
+            return;
+        }
+
         const cards = section.querySelectorAll('.step-card, .case-card, .testimonial-card, .plan-card');
         if (!cards || cards.length === 0) return;
 
@@ -198,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
             observer.disconnect();
         }
 
-        sections = document.querySelectorAll('.intro-section, .hero-section, .how-it-works, .use-cases, .testimonials, .contrate-section, .faq-section');
+        sections = document.querySelectorAll('.intro-section, .hero-section, .how-it-works, .use-cases, .testimonials, .about-section, .contrate-section, .faq-section');
 
         // Sincroniza dinamicamente a classe active no cabeçalho
         function updateActiveNavLink(sectionId) {
@@ -423,37 +473,70 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, stepTime);
     }
+    window.fadeAudioVolume = fadeAudioVolume;
+
+    let videoFadeInterval = null;
+
+    function fadeVideoAudio(videoEl, targetVolume, duration = 1200) {
+        if (!videoEl) return;
+        if (videoFadeInterval) clearInterval(videoFadeInterval);
+        
+        const startVolume = videoEl.volume;
+        const steps = 20;
+        const stepTime = duration / steps;
+        const volDiff = targetVolume - startVolume;
+        let currentStep = 0;
+
+        videoFadeInterval = setInterval(() => {
+            currentStep++;
+            videoEl.volume = Math.max(0, Math.min(1, startVolume + (volDiff * (currentStep / steps))));
+            if (currentStep >= steps) {
+                clearInterval(videoFadeInterval);
+                videoFadeInterval = null;
+            }
+        }, stepTime);
+    }
 
     function startVideoFadeOut() {
         if (!localVideoPlayer) return;
 
-        // Desvanecer o modal visualmente com transição suave (3s)
+        // Desvanecer o modal visualmente com transição suave (2s)
         videoModal.classList.remove('active');
         document.body.classList.remove('video-active');
         
-        // Restaurar o volume da música de fundo gradualmente ao longo dos 3 segundos
-        fadeAudioVolume(originalVolume, 3000);
-
-        // Aguardar o término do fade visual (3s) para remover e resetar o vídeo
-        setTimeout(() => {
-            stopVideos();
-        }, 3000);
-    }
-
-    function openVideoModal(videoUrl) {
+        // Restaurar o volume da música de fundo gradualmente ao longo dos 2 segundos
         const bgAudio = document.getElementById('bgAudio');
         if (bgAudio) {
+            if (bgAudio.paused) {
+                bgAudio.volume = 0;
+                bgAudio.play().then(() => {
+                    document.querySelectorAll('.music-wave-toggle').forEach(w => w.classList.add('playing'));
+                }).catch(() => {});
+            }
+            fadeAudioVolume(originalVolume || 0.5, 2000);
+        }
+
+        // Aguardar o término do fade visual (2s) para remover e resetar o vídeo
+        setTimeout(() => {
+            stopVideos();
+        }, 2000);
+    }
+
+    function openVideoModal(videoUrl, options = {}) {
+        const bgAudio = document.getElementById('bgAudio');
+
+        if (bgAudio) {
             if (!bgAudio.paused) {
-                originalVolume = bgAudio.volume || 1;
+                originalVolume = bgAudio.volume || 0.5;
             } else {
-                originalVolume = 1;
+                originalVolume = 0.5;
                 bgAudio.volume = 0.25;
                 bgAudio.play().then(() => {
                     document.querySelectorAll('.music-wave-toggle').forEach(w => w.classList.add('playing'));
                 }).catch(err => console.log("Audio play failed on video modal open:", err));
             }
-            // Reduz o volume da música gradualmente ao longo de 3 segundos na entrada do vídeo
-            fadeAudioVolume(0.25, 3000);
+            // Reduz o volume da música gradualmente ao longo de 2s para os vídeos do Iasis
+            fadeAudioVolume(0.25, 2000);
         }
 
         stopVideos();
@@ -482,8 +565,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!localVideoPlayer.duration) return;
                     
                     const timeLeft = localVideoPlayer.duration - localVideoPlayer.currentTime;
-                    // Dispara o fade out suave nos últimos 2.5 segundos de vídeo (com o avatar ainda em movimento suave)
-                    if (timeLeft <= 2.5 && !autoFadeTriggered) {
+                    // Dispara o fade out suave nos últimos 2.0 segundos de vídeo (com o avatar ainda em movimento suave)
+                    if (timeLeft <= 2.0 && !autoFadeTriggered) {
                         autoFadeTriggered = true;
                         startVideoFadeOut();
                     }
@@ -522,6 +605,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function stopVideos() {
+        videoModal.classList.remove('vertical-focus-mode');
+        document.body.classList.remove('vertical-focus-active');
         if (customVideoControls) {
             customVideoControls.classList.remove('visible', 'idle');
         }
@@ -744,11 +829,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Fechar ao clicar no fundo escuro do Modal
+        // Fechar ao clicar fora do vídeo (nas laterais ou fundo do Modo Foco)
         videoModal.addEventListener('click', (e) => {
-            if (e.target === videoModal) {
-                closeVideoModal();
+            if (e.target.closest('#customVideoControls') || 
+                e.target.closest('.video-modal-navbar') || 
+                e.target === localVideoPlayer || 
+                e.target === videoPlayer) {
+                return;
             }
+            closeVideoModal();
         });
 
         // Fechar com a Tecla ESC (Escape) - Escuta global no window
@@ -1139,13 +1228,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateBiblicalQuote(activeSection) {
         if (!biblicalQuoteFooter || !biblicalQuoteText) return;
 
-        // Identifica se a seção ativa é o primeiro slide (Intro / #intro) ou o último slide (FAQ / #faq)
+        // Identifica se a seção ativa é o primeiro slide (Intro / #intro) ou o último slide (Perguntas / #perguntas)
         const currentSec = activeSection || (sections && sections[currentIdx] ? sections[currentIdx] : document.querySelector('.intro-section'));
         const isExcludedSlide = currentSec && (
             currentSec.classList.contains('intro-section') || 
             currentSec.id === 'intro' || 
             currentSec.classList.contains('faq-section') || 
-            currentSec.id === 'faq'
+            currentSec.id === 'perguntas'
         );
 
         if (isExcludedSlide) {
@@ -1501,7 +1590,7 @@ void main() {
             { src: 'gallery_mae_aniversario.webm', poster: 'gallery_mulher_02.jpg', label: 'ASSISTIR: MÃE - HOMENAGEM PARA ANIVERSÁRIO', type: 'video' },
             { src: 'gallery_mulher_01.webm', poster: 'gallery_mulher_01.jpg', label: 'ASSISTIR: IRMÃ - HOMENAGEM PARA ANIVERSÁRIO', type: 'video' },
             { src: 'gallery_mulher_03.webm', poster: 'gallery_mulher_03.jpg', label: 'ASSISTIR: MÃE - HOMENAGEM PARA FORMATURA', type: 'video' },
-            { src: 'gallery_mulher_04.jpg', label: 'Avó - Homenagem para Batizado', type: 'image' }
+            { src: 'gallery_mulher_04.webm', poster: 'gallery_mulher_04.jpg', label: 'ASSISTIR: MÃE - HOMENAGEM 18 ANOS GÊMEAS', type: 'video' }
         ];
 
         // Embaralha a pool garantindo a diversidade visual
@@ -1836,6 +1925,223 @@ void main() {
     }
 
     initAccordionGallery();
+
+    // Controle do Vídeo do Maderite na seção Propósito (Preview Mudo com Cortes + Play Completo Oficial)
+    function initAboutMaderiteVideo() {
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+
+        const aboutCard = document.getElementById('aboutMaderiteCard');
+        const video = document.getElementById('aboutMaderiteVideo') || document.getElementById('aboutMaderiteVideoA');
+        const playBtn = document.getElementById('aboutMaderitePlayBtn');
+        const whiteFlash = document.getElementById('aboutVideoWhiteFlash');
+        const bgAudio = document.getElementById('bgAudio');
+        const originalVolume = 0.5;
+
+        const VIDEO_PREVIEW_SRC = 'about_maderite_preview.webm';
+        const VIDEO_FULL_SRC = 'about_maderite_full.webm';
+
+        if (!video) return;
+
+        let isPlayingWithAudio = false;
+        let endingFadeTriggered = false;
+
+        function triggerWhiteFadeIn(duration = 1000) {
+            if (!whiteFlash) return;
+            whiteFlash.style.transition = `opacity ${duration}ms cubic-bezier(0.4, 0, 0.2, 1)`;
+            whiteFlash.style.opacity = '1';
+        }
+
+        function triggerWhiteFadeOut(duration = 1000) {
+            if (!whiteFlash) return;
+            whiteFlash.style.transition = `opacity ${duration}ms cubic-bezier(0.4, 0, 0.2, 1)`;
+            whiteFlash.style.opacity = '0';
+        }
+
+        // Inicia o preview mudo em loop contínuo (usando o vídeo com os cortes editados e filtro sépia/marrom)
+        function startMutedPreview() {
+            if (isPlayingWithAudio) return;
+            video.classList.remove('full-color');
+            if (!video.src.includes(VIDEO_PREVIEW_SRC)) {
+                video.src = VIDEO_PREVIEW_SRC;
+                video.load();
+            }
+            video.muted = true;
+            video.playsInline = true;
+            video.loop = true;
+            if (whiteFlash) whiteFlash.style.opacity = '0';
+            
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => {});
+            }
+        }
+
+        function stopPreview() {
+            if (isPlayingWithAudio) return;
+            video.pause();
+        }
+
+        // Alterna a reprodução com som diretamente dentro do card no slide
+        function toggleAudioPlay(e) {
+            if (e) e.stopPropagation();
+
+            const iconPlay = playBtn ? playBtn.querySelector('.icon-play') : null;
+            const iconPause = playBtn ? playBtn.querySelector('.icon-pause') : null;
+
+            if (isPlayingWithAudio) {
+                // Pausar reprodução do vídeo completo e restaurar o preview
+                isPlayingWithAudio = false;
+                endingFadeTriggered = false;
+
+                triggerWhiteFadeIn(400);
+
+                setTimeout(() => {
+                    video.classList.remove('full-color');
+                    video.muted = true;
+                    video.pause();
+
+                    if (playBtn) playBtn.classList.remove('playing');
+                    if (iconPlay) iconPlay.style.display = 'block';
+                    if (iconPause) iconPause.style.display = 'none';
+
+                    // Restaura música ambiente do site com fade suave de 2.8s
+                    if (window.fadeAudioVolume) {
+                        window.fadeAudioVolume(originalVolume, 2800);
+                    } else if (bgAudio) {
+                        bgAudio.volume = originalVolume;
+                    }
+
+                    // Volta para o preview mudo em loop com o vídeo de cortes
+                    startMutedPreview();
+                    setTimeout(() => {
+                        triggerWhiteFadeOut(600);
+                    }, 50);
+                }, 400);
+            } else {
+                // Inicia a reprodução do vídeo COMPLETO de homenagem com som do início em cores reais
+                isPlayingWithAudio = true;
+                endingFadeTriggered = false;
+
+                // 1. Aplica tela branca imediata (respiro visual)
+                if (whiteFlash) {
+                    whiteFlash.style.transition = 'none';
+                    whiteFlash.style.opacity = '1';
+                }
+
+                // 2. Carrega o vídeo completo pausado no segundo 0 com áudio pleno e cores reais
+                video.classList.add('full-color');
+                video.src = VIDEO_FULL_SRC;
+                video.load();
+                video.loop = false;
+                video.muted = false;
+                video.volume = 1.0;
+                video.currentTime = 0;
+                video.pause();
+
+                // 3. Abaixa e zera a música de fundo do site de forma gradual
+                if (window.fadeAudioVolume) {
+                    window.fadeAudioVolume(0, 1500);
+                } else if (bgAudio) {
+                    bgAudio.volume = 0;
+                }
+
+                if (playBtn) playBtn.classList.add('playing');
+                if (iconPlay) iconPlay.style.display = 'none';
+                if (iconPause) iconPause.style.display = 'block';
+
+                // 4. Delay de 1 segundo em tela branca ANTES de iniciar a reprodução do vídeo
+                setTimeout(() => {
+                    if (!isPlayingWithAudio) return;
+
+                    // Desvanece a tela branca revelando o primeiro frame
+                    triggerWhiteFadeOut(500);
+
+                    // Inicia a reprodução exatamente a partir do segundo 0 sem cortar nada
+                    video.currentTime = 0;
+                    const playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(() => {});
+                    }
+                }, 1000);
+
+                // 5. O vídeo toca 100% até o fim - nenhum corte antes do término
+                video.ontimeupdate = null;
+
+                video.onended = () => {
+                    isPlayingWithAudio = false;
+                    endingFadeTriggered = false;
+
+                    if (playBtn) playBtn.classList.remove('playing');
+                    if (iconPlay) iconPlay.style.display = 'block';
+                    if (iconPause) iconPause.style.display = 'none';
+
+                    // Ao terminar o vídeo por completo: fade para o branco
+                    triggerWhiteFadeIn(800);
+
+                    // Mantém em tela branca por 1 segundo após o término do vídeo
+                    setTimeout(() => {
+                        video.classList.remove('full-color');
+                        // Restaura a música do site ao longo de 3.0s de forma acolhedora
+                        if (window.fadeAudioVolume) {
+                            window.fadeAudioVolume(originalVolume, 3000);
+                        }
+
+                        // Reinicia o preview mudo em loop com o vídeo de cortes
+                        startMutedPreview();
+                        setTimeout(() => {
+                            triggerWhiteFadeOut(800);
+                        }, 50);
+                    }, 1000);
+                };
+            }
+        }
+
+        // Observer para rodar o preview mudo quando o usuário estiver no slide Propósito
+        const aboutSection = document.getElementById('proposito') || document.getElementById('quem-somos');
+        if (aboutSection) {
+            const aboutObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (!isPlayingWithAudio) {
+                            startMutedPreview();
+                        }
+                    } else {
+                        if (isPlayingWithAudio) {
+                            toggleAudioPlay();
+                        }
+                        stopPreview();
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            aboutObserver.observe(aboutSection);
+        }
+
+        // Eventos de clique no botão de play e no card para tocar direto no slide
+        if (playBtn) {
+            playBtn.addEventListener('click', toggleAudioPlay);
+        }
+
+        if (aboutCard) {
+            aboutCard.addEventListener('click', (e) => {
+                if (!e.target.closest('#aboutMaderitePlayBtn')) {
+                    toggleAudioPlay(e);
+                }
+            });
+        }
+
+        // Clicar fora do vídeo faz com que ele encerre a reprodução com som e a música de fundo volte a tocar
+        document.addEventListener('click', (e) => {
+            if (!isPlayingWithAudio) return;
+            if (aboutCard && !aboutCard.contains(e.target)) {
+                toggleAudioPlay();
+            }
+        });
+    }
+
+    initAboutMaderiteVideo();
 
     // Efeito BlurText para os títulos dos slides (idêntico ao componente React BlurText)
     function initBlurText() {
