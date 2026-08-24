@@ -5,13 +5,42 @@ description: Criação e aprimoramento de roteiros de homenagens afetivas em ví
 
 # 🕊️ Criador de Roteiros Afetivos - Reviva Memories
 
-Esta habilidade orienta a coleta de informações (briefing com perguntas guiadas) e a escrita/lapidação de roteiros falados sob medida para os planos oficiais da **Reviva Memories**:
+Esta habilidade orienta a coleta de informações (conversa guiada pelo Iasis) e a escrita/lapidação de roteiros falados sob medida para os planos oficiais da **Reviva Memories**:
 
-| Plano | Duração | Palavras Recomendadas (com pausas) | Foco Narrativo |
-| :--- | :---: | :---: | :--- |
-| **Affectus** | **1 minuto** (60s) | **105 a 125 palavras** | Mensagem direta de afeto, saudade, orgulho e bênção/alento. |
-| **Legatum** | **2 minutos** (120s) | **210 a 245 palavras** | Trajetória, histórias marcantes, menções nominais a familiares e conselhos profundos. |
-| **Tributum** | **3 minutos** (180s) | **315 a 360 palavras** | Experiência imersiva e completa: memórias ricas, legado, mensagens personalizadas a múltiplos familiares e despedida sublime. |
+| Plano | Duração Contratada | Palavras Mínimas Obrigatórias (Margem de Segurança) | Limite Máximo de Caracteres | Foco Narrativo |
+| :--- | :---: | :---: | :---: | :--- |
+| **Affectus** | **1 minuto** (60s) | **120 a 135 palavras** | **850 caracteres** | Abertura alegre, mensagem direta de orgulho, conselho central e bênção/despedida extremamente emocionante. |
+| **Legatum** | **2 minutos** (120s) | **240 a 265 palavras** | **1.700 caracteres** | Abertura empolgada, histórias marcantes da convivência, conselhos profundos e recados personalizados para familiares. |
+| **Tributum** | **3 minutos** (180s) | **360 a 395 palavras** | **2.550 caracteres** | Experiência imersiva: abertura vibrante, memórias ricas (hábitos/risadas), legado moral, recados individuais para parentes e encerramento sublime. |
+
+---
+
+## ⏱️ Regra de Ouro do Tempo e Extensão (Nunca Faltar Palavras)
+
+> [!IMPORTANT]
+> **COMPROMISSO INEGOCIÁVEL DE TEMPO:**
+> - O cliente que contrata **1 minuto** nunca aceitará um vídeo de 55 segundos.
+> - O cliente que contrata **2 minutos** nunca aceitará 1,9 minutos.
+> - O cliente que contrata **3 minutos** nunca aceitará menos que o tempo integral.
+>
+> **Diretriz:** A quantidade de palavras **deve preencher e exceder ligeiramente o tempo**, garantindo que a locução com pausas afetivas, respirações e cadência atinja ou ultrapasse com folga a minutagem contratada. **Nunca economize palavras!**
+
+---
+
+## 🎭 Regra da Cadência Dramática e Emocional (Todos os Roteiros)
+
+1. **Abertura (Empolgação, Surpresa & Alegria):**
+   - **Sempre comece vibrante e comemorativo.** Sorriso na voz, entusiasmo por estar presente nessa data especial e quebra imediata da distância.
+   - *Exemplos:* *"Olha só pra você!", "Quem diria, hein?!", "Você achou mesmo que eu ia perder esse dia?", "Olha que orgulho imenso ver você chegar até aqui!"*
+2. **Desenvolvimento (Intimismo, Histórias & Conselhos):**
+   - A energia festiva transiciona suavemente para o afeto profundo.
+   - Recordação de lembranças inesquecíveis, histórias marcantes de convivência e conselhos que ficam como guia de vida.
+3. **Recados Familiares Personalizados (Especialmente nos Planos Legatum e Tributum):**
+   - **Nunca faça apenas saudações genéricas ou listas frias de nomes.**
+   - Dedique frases afetuosas e mensagens específicas para cada familiar mencionado (mãe, pai, irmãos, filhos, cônjuge).
+4. **Clímax & Despedida (Extremamente Emocionante e Sublime):**
+   - **O final e a despedida devem ser profundamente comoventes, poéticos e tocantes.**
+   - Transmita a certeza do amor eterno, o abraço espiritual que vence a distância, a presença que continua viva no coração e a bênção de paz e luz.
 
 ---
 
@@ -71,66 +100,51 @@ Para garantir máxima fidelidade e interpretação vocal precisa no ElevenLabs, 
 
 ---
 
-## 📋 1. Questionário de Atendimento / Briefing ao Cliente
+## 📋 1. Questionário de Atendimento / Briefing ao Cliente (Conduzido pelo Iasis)
 
-Quando o cliente não enviar um roteiro completo ou enviar um pré-roteiro para lapidação, faça as seguintes perguntas guiadas:
+Quando o cliente interage com o Iasis no Painel do Cliente, as perguntas são conduzidas uma a uma com escuta ativa e acolhimento:
 
-### ⏱️ Pergunta 0: Plano Contratado / Duração do Vídeo
-> *"Qual plano você escolheu ou qual é a duração desejada para o vídeo?"*
-> 1. **Plano Affectus (1 Minuto)** – Focado em uma mensagem direta, emocionante e inesquecível.
-> 2. **Plano Legatum (2 Minutos)** – Espaço para narrar memórias específicas e citar familiares.
-> 3. **Plano Tributum (3 Minutos)** – Narrativa rica e completa, com múltiplos recados e legado de vida.
-
----
-
-### 💬 Perguntas Essenciais de Conteúdo:
-
-1. **Quem é o Ente Querido e Quem é o Homenageado?**
-   - Nome de quem está partindo a mensagem (ex: *Pai José, Vovó Nilza*) e grau de parentesco.
-   - Nome de quem vai receber a homenagem e apelido carinhoso como era chamado em vida (ex: *Mariana -> "Maricota", Lucas -> "Meu Campeão"*).
-
-2. **Qual é a Ocasião da Homenagem?**
-   - Ex: Formatura, Casamento, Aniversário (15 anos, 18 anos, 50 anos, etc.), Nascimento de filho/neto, Dia das Mães/Pais, ou uma mensagem de puro conforto e saudade.
-
-3. **Memórias Afetivas, Frases Marcantes e Valores:**
-   - O que essa pessoa sempre dizia ou ensinava? (Ex: *"o valor de uma pessoa está no coração"*, *"nunca deixe de ser humilde"*).
-   - Há alguma lembrança específica juntos? (Ex: *o café da manhã de domingo, as viagens de férias, um abraço apertado*).
-
-4. **Menções a Outros Familiares (Regra de Ouro em Todos os Planos):**
-   - Quais pessoas próximas ele(a) deve abraçar ou abençoar na despedida? (Ex: *"Dá um beijo no seu pai/sua mãe por mim"*, *"Cuida dos seus irmãos"*, *"Um abraço apertado no seu irmãozinho"*).
-   - A menção aos entes queridos na reta final ancora a homenagem na realidade da família e potencializa a comoção.
-
-5. **Tom Emocional Desejado:**
-   - Mais alegre e comemorativo (orgulho, festa, risos) ou mais sereno e reconfortante (alento, paz, carinho e bênção)?
+1. **Boas-Vindas & Abertura:** Acolhimento afetuoso e convite para iniciar.
+2. **Nome do Ente Querido:** Nome de quem apresentará a mensagem com imagem e voz clonada.
+3. **Destinatário da Homenagem:** Se a surpresa é para o próprio cliente ou se ele vai presentear alguém.
+4. **Laço Afetivo / Parentesco:** *(Pergunta individual)* Grau de parentesco ou laço (ex: Pai e Filha, Avó e Neto).
+5. **Forma de Tratamento / Apelido Carinhoso:** *(Pergunta individual)* Como ele(a) costumava chamá-la(o) carinhosamente.
+6. **Ocasião Especial:** *(Sempre após o laço e apelido)* Aniversário, formatura, casamento, homenagem de conforto/saudade, etc.
+7. **Acontecimento Marcante / Histórias:**
+   - *1 Minuto (Affectus):* Frase de impacto ou acontecimento marcante.
+   - *2 ou 3 Minutos (Legatum / Tributum):* Histórias inesquecíveis, momentos marcantes de convivência, hábitos ou viagens.
+8. **Conselhos, Valores & Ensinamentos:** Palavras de incentivo, coragem e sabedoria que ele(a) daria para a vida.
+9. **Recados Familiares & Bênçãos:**
+   - *1 Minuto (Affectus):* Bênção afetuosa e abraço à família no fechamento.
+   - *2 ou 3 Minutos (Legatum / Tributum):* **Recados personalizados e carinhosos dedicados a cada familiar próximo** (mãe, pai, irmãos, filhos, cônjuge).
 
 ---
 
 ## 🏛️ 2. Estrutura Padrão dos Roteiros por Duração
 
-### A. Estrutura 1 Minuto (Plano Affectus ~ 110-125 palavras)
-1. **Saudação Afetuosa com Apelido (0-10s):** Cumprimento caloroso e imediato reconhecimento da data.
-2. **Orgulho e Reconhecimento (10-25s):** Celebração da conquista ou do dia especial.
-3. **Conselho Central & Memória (25-40s):** A maior lição de vida ou lembrança afetiva.
-4. **Alento e Abraço Simbólico (40-48s):** Transmissão do abraço e presença sentida.
-5. **Menção Familiar & Despedida Sublime (48-60s):** Recado afetuoso para a família (pai/mãe/irmãos), amor eterno e bênção final.
+### A. Estrutura 1 Minuto (Plano Affectus ~ 120 a 135 palavras • Máx 850 carac)
+1. **Abertura Vibrante com Apelido (0-15s):** Saudação calorosa, empolgada, surpresa e reconhecimento alegre da data.
+2. **Orgulho & Celebração (15-30s):** Vibração pelo momento e sentimento de presença.
+3. **Conselho do Coração & Memória (30-45s):** O maior conselho ou lembrança marcante.
+4. **Alento, Recado Familiar & Despedida Sublime (45-60s+):** Mensagem de amor eterno, abraço espiritual à família e fechamento extremamente emocionante.
 
 ---
 
-### B. Estrutura 2 Minutos (Plano Legatum ~ 210-245 palavras)
-1. **Abertura Emocionante (0-20s):** Saudação íntima, reação à data e sentimento de presença.
-2. **Recordação Afetiva & Trajetória (20-50s):** Lembrança de um momento específico da infância/vida juntos e o caminho percorrido até aqui.
-3. **Legado & Conselhos de Vida (50-80s):** Valores essenciais, ética, persistência e carinho.
-4. **Recado aos Familiares & Alento (80-105s):** Mensagem de carinho citando mãe/pai/irmãos/cônjuge e o abraço espiritual.
-5. **Menção Familiar Específica & Despedida Sublime (105-120s):** Fechamento reconfortante, celebração do futuro e certeza do reencontro.
+### B. Estrutura 2 Minutos (Plano Legatum ~ 240 a 265 palavras • Máx 1.700 carac)
+1. **Abertura Empolgada e Festiva (0-25s):** Saudação íntima cheia de energia, quebra da barreira do tempo e alegria contagiante.
+2. **Trajetória & Recordações Marcantes (25-65s):** Lembrança de momentos vividos juntos e orgulho pelo caminho percorrido.
+3. **Legado & Conselhos de Vida (65-95s):** Valores fundamentais e palavras de incentivo.
+4. **Recados Personalizados aos Familiares (95-125s):** Mensagens carinhosas dedicadas a entes queridos próximos (mãe, pai, irmãos, etc.).
+5. **Clímax & Despedida Sublime (125-140s+):** Certeza da presença espiritual, abraço que vence o tempo e bênção de paz eterna.
 
 ---
 
-### C. Estrutura 3 Minutos (Plano Tributum ~ 315-360 palavras)
-1. **Abertura & Conexão Sublime (0-30s):** Saudação profunda, comoção pela data e quebra da barreira do tempo.
-2. **Capítulo 1: As Lembranças Inesquecíveis (30-75s):** Narrativa detalhada de memórias, hábitos, risadas e momentos marcantes do convívio.
-3. **Capítulo 2: Os Ensinamentos & Valores (75-120s):** O grande testamento moral e afetivo para a vida do homenageado.
-4. **Capítulo 3: Mensagens Individuais aos Parentes (120-155s):** Recados direcionados e personalizados para pai, mãe, irmãos, filhos e cônjuge.
-5. **Encerramento Triunfal & Bênção Eterna (155-180s):** O abraço que transcende a ausência, o pedido para sorrirem e a bênção final cheia de luz.
+### C. Estrutura 3 Minutos (Plano Tributum ~ 360 a 395 palavras • Máx 2.550 carac)
+1. **Abertura Triunfal & Vibrante (0-30s):** Saudação expansiva, emoção viva e comemoração exuberante da ocasião.
+2. **Capítulo 1: As Lembranças e Histórias Inesquecíveis (30-85s):** Histórias detalhadas, hábitos, risadas e momentos de ouro da convivência.
+3. **Capítulo 2: Os Ensinamentos & Legado Moral (85-135s):** O grande testamento afetivo e ético.
+4. **Capítulo 3: Múltiplos Recados Personalizados para a Família (135-180s):** Mensagens individuais e detalhadas para cada membro familiar.
+5. **Encerramento Celestial & Bênção Eterna (180-200s+):** O abraço que transcende a ausência, o pedido para sorrirem e a despedida sublime e inesquecível.
 
 ---
 
