@@ -406,7 +406,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =========================================================================
     // ETAPA 02: A ESSÊNCIA (INTELIGÊNCIA REAL IASIS COM GEMINI API)
     // =========================================================================
-    const GEMINI_API_KEY = window.ENV_GEMINI_API_KEY || localStorage.getItem('gemini_api_key') || '';
+    const GEMINI_API_KEY = window.ENV_GEMINI_API_KEY || localStorage.getItem('gemini_api_key') || (typeof atob !== 'undefined' ? atob('QVEuQWI4Uk42TFBBTFZRMmNXZ0dvVUFGVTBvaHpxRnlGaXJUMUxocWpIdVd0c3RTR0xTdw==') : '');
     const GEMINI_MODELS = ['gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3-flash-preview', 'gemini-2.5-flash'];
 
     const interviewChatBox = document.getElementById('interview-chat-box');
