@@ -906,8 +906,8 @@ body.video-active .global-galaxy-bg {
 
 .steps-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
     width: 100%;
     margin: 10px auto 8px auto; /* Equalizado rigorosamente com o respiro da galeria */
     flex: 1 1 auto !important; /* Mesma altura flexível */
@@ -920,7 +920,7 @@ body.video-active .global-galaxy-bg {
     backdrop-filter: blur(16px);
     border: 2px solid rgba(197, 160, 89, 0.25) !important;
     border-radius: var(--radius-lg);
-    padding: 30px 22px;
+    padding: 24px 16px;
     position: relative;
     transition: var(--transition-smooth);
     margin: 0;
@@ -940,23 +940,23 @@ body.video-active .global-galaxy-bg {
 
 .step-number {
     position: absolute;
-    top: 30px;
-    right: 30px;
-    font-size: 2.5rem;
+    top: 20px;
+    right: 18px;
+    font-size: 2.1rem;
     font-weight: 800;
     color: rgba(229, 195, 120, 0.15); /* Dourado suave a 15% para melhor visibilidade e elegância */
 }
 
 .step-icon {
-    width: 60px;
-    height: 60px;
+    width: 48px;
+    height: 48px;
     border-radius: var(--radius-md);
     background: rgba(197, 160, 89, 0.1);
     color: var(--brand-gold);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
 .steps-subtitle {
@@ -969,17 +969,17 @@ body.video-active .global-galaxy-bg {
 }
 
 .step-card h3 {
-    font-size: 1.4rem;
+    font-size: 1.22rem;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     color: #e5c378; /* Titulo dourado */
     text-shadow: 0 0 8px rgba(229, 195, 120, 0.4); /* Efeito glow sutil */
 }
 
 .step-card p {
     color: var(--text-secondary);
-    font-size: 0.92rem;
-    line-height: 1.6;
+    font-size: 0.84rem;
+    line-height: 1.55;
     text-align: justify;
 }
 

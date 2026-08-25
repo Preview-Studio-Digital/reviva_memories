@@ -107,8 +107,8 @@
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, #c5a059 0%, #e5c378 50%, #f6e3c5 100%);
-            box-shadow: 0 0 8px rgba(229, 195, 120, 0.6);
-            transition: width 0.4s ease;
+            box-shadow: 0 0 12px rgba(229, 195, 120, 0.8), 0 0 4px #ffffff;
+            transition: width 0.75s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .step-item {
@@ -121,6 +121,7 @@
             cursor: pointer;
             flex-shrink: 0;
             min-width: 85px;
+            user-select: none;
         }
 
         .step-bubble {
@@ -135,7 +136,7 @@
             font-weight: 600;
             font-size: 0.78rem;
             color: var(--text-secondary);
-            transition: var(--transition-smooth);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             box-sizing: border-box;
         }
 
@@ -147,10 +148,25 @@
                 color: #e5c378;
             }
             50% {
-                transform: scale(1.06);
+                transform: scale(1.08);
                 box-shadow: 0 0 22px rgba(229, 195, 120, 0.95), 0 0 45px rgba(229, 195, 120, 0.65), inset 0 0 14px rgba(229, 195, 120, 0.45);
                 border-color: #fcebd0;
                 color: #fcebd0;
+            }
+        }
+
+        @keyframes stepCompletedBurst {
+            0% {
+                transform: scale(0.9);
+                box-shadow: 0 0 0 rgba(229, 195, 120, 0);
+            }
+            50% {
+                transform: scale(1.25);
+                box-shadow: 0 0 24px rgba(229, 195, 120, 1), inset 0 0 12px rgba(229, 195, 120, 0.6);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(197, 160, 89, 0.4);
             }
         }
 
@@ -174,9 +190,10 @@
         }
 
         .step-item.completed .step-bubble {
-            background: transparent;
-            border-color: #c5a059;
-            color: #c5a059;
+            background: rgba(197, 160, 89, 0.18);
+            border-color: #e5c378;
+            color: #e5c378;
+            animation: stepCompletedBurst 0.65s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .step-label {
@@ -193,6 +210,139 @@
             font-weight: 700;
             color: #e5c378;
             animation: stepLabelPulse 2.5s infinite ease-in-out;
+        }
+
+        @keyframes stepSectionEnter {
+            0% {
+                opacity: 0;
+                transform: translateY(22px) scale(0.985);
+                filter: blur(4px);
+            }
+            60% {
+                filter: blur(0);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .step-section.active-entering {
+            animation: stepSectionEnter 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .fullscreen-stage-curtain {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 50% 50%, rgba(22, 14, 8, 0.90) 0%, rgba(5, 3, 2, 0.97) 100%);
+            backdrop-filter: blur(18px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .fullscreen-stage-curtain.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .stage-curtain-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(229, 195, 120, 0.30) 0%, rgba(197, 160, 89, 0.10) 45%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(45px);
+            animation: cosmicGlowPulse 3s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes cosmicGlowPulse {
+            0%, 100% { transform: scale(1); opacity: 0.75; }
+            50% { transform: scale(1.18); opacity: 1; }
+        }
+
+        .stage-curtain-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transform: scale(0.92) translateY(18px);
+            opacity: 0;
+            transition: transform 1.5s ease-out, opacity 1.5s ease-in-out;
+        }
+
+        .fullscreen-stage-curtain.active .stage-curtain-content {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .stage-curtain-badge {
+            background: rgba(197, 160, 89, 0.15);
+            border: 1px solid rgba(197, 160, 89, 0.6);
+            border-radius: 30px;
+            padding: 6px 22px;
+            color: #e5c378;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            box-shadow: 0 0 16px rgba(229, 195, 120, 0.35);
+        }
+
+        .stage-curtain-title {
+            font-family: var(--font-serif);
+            font-size: clamp(2.8rem, 6vw, 4.8rem);
+            font-weight: 700;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            margin: 8px 0 4px 0;
+            background: linear-gradient(135deg, #ffffff 0%, #fae8ca 30%, #e5c378 65%, #a87932 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 35px rgba(229, 195, 120, 0.75));
+            line-height: 1.1;
+        }
+
+        .stage-curtain-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 260px;
+            margin: 4px 0 8px 0;
+        }
+
+        .stage-curtain-divider::before,
+        .stage-curtain-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e5c378, transparent);
+        }
+
+        .divider-diamond {
+            color: #e5c378;
+            font-size: 0.75rem;
+            filter: drop-shadow(0 0 6px #e5c378);
+        }
+
+        .stage-curtain-sub {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: #f1dfc9;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+            margin: 0;
         }
 
         /* Card Central Principal sem Moldura (Cards de Fotos e Paisagens Flutuando no Fundo) */
@@ -611,10 +761,133 @@
             transition: var(--transition-fast) !important;
         }
 
-        /* ================= ETAPAS 2 A 4: ESTRUTURAS EM GRID & COMPONENTES NOBRES ================= */
+        /* Botões de Decisão (Aprovar / Reprovar na Etapa 4) */
+        .btn-decision-reject {
+            background: rgba(239, 68, 68, 0.08) !important;
+            border: 1.5px solid rgba(239, 68, 68, 0.35) !important;
+            color: #fca5a5 !important;
+            box-shadow: none !important;
+            transition: all 0.25s ease !important;
+            cursor: pointer !important;
+            opacity: 0.85;
+        }
+        .btn-decision-reject svg {
+            stroke: #fca5a5 !important;
+            transition: var(--transition-fast) !important;
+        }
+        .btn-decision-reject:hover {
+            background: rgba(239, 68, 68, 0.22) !important;
+            border-color: #ef4444 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 14px rgba(239, 68, 68, 0.45) !important;
+            opacity: 1 !important;
+            transform: translateY(-1px) !important;
+        }
+        .btn-decision-reject:hover svg {
+            stroke: #ffffff !important;
+        }
+        .btn-decision-reject.is-selected {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            border-color: #f87171 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.7), 0 4px 14px rgba(239, 68, 68, 0.4) !important;
+            opacity: 1 !important;
+            font-weight: 700;
+        }
+        .btn-decision-reject.is-selected svg {
+            stroke: #ffffff !important;
+        }
+
+        .btn-decision-approve {
+            background: rgba(34, 197, 94, 0.08) !important;
+            border: 1.5px solid rgba(34, 197, 94, 0.35) !important;
+            color: #86efac !important;
+            box-shadow: none !important;
+            transition: all 0.25s ease !important;
+            cursor: pointer !important;
+            opacity: 0.85;
+        }
+        .btn-decision-approve svg {
+            stroke: #86efac !important;
+            transition: var(--transition-fast) !important;
+        }
+        .btn-decision-approve:hover {
+            background: rgba(34, 197, 94, 0.22) !important;
+            border-color: #22c55e !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 14px rgba(34, 197, 94, 0.45) !important;
+            opacity: 1 !important;
+            transform: translateY(-1px) !important;
+        }
+        .btn-decision-approve:hover svg {
+            stroke: #ffffff !important;
+        }
+        .btn-decision-approve.is-selected {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+            border-color: #4ade80 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 18px rgba(34, 197, 94, 0.7), 0 4px 14px rgba(34, 197, 94, 0.4) !important;
+            opacity: 1 !important;
+            font-weight: 700;
+        }
+        .btn-decision-approve.is-selected svg {
+            stroke: #ffffff !important;
+        }
+
+        .btn-chat-approve-script {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+            border: 1.5px solid #22c55e !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .btn-chat-approve-script svg {
+            stroke: #ffffff !important;
+            transition: var(--transition-fast) !important;
+        }
+        .btn-chat-approve-script:hover {
+            background: transparent !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+            box-shadow: 0 0 20px #22c55e, 0 0 45px rgba(34, 197, 94, 0.8) !important;
+            transform: translateY(-2px) !important;
+        }
+        .btn-chat-approve-script:hover svg {
+            stroke: #4ade80 !important;
+        }
+
+        .sample-play-btn-center {
+            cursor: pointer;
+            background: transparent !important;
+            border: 2px solid #e5c378 !important;
+            color: #e5c378 !important;
+            box-shadow: 0 0 20px rgba(229, 195, 120, 0.3), inset 0 0 15px rgba(229, 195, 120, 0.15) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sample-play-btn-center svg {
+            stroke: #e5c378 !important;
+            transition: var(--transition-fast);
+        }
+
+        .sample-play-btn-center:hover {
+            transform: scale(1.08) !important;
+            background: rgba(229, 195, 120, 0.1) !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 30px rgba(229, 195, 120, 0.7), 0 0 50px rgba(197, 160, 89, 0.4) !important;
+        }
+
+        .sample-play-btn-center:hover svg {
+            stroke: #ffffff !important;
+            filter: drop-shadow(0 0 8px #e5c378);
+        }
+
+        /* ================= ETAPAS 1 A 5: ESTRUTURAS EM GRID & COMPONENTES NOBRES ================= */
+        .step1-grid,
         .step2-grid,
         .step3-grid,
-        .step4-grid {
+        .step4-grid,
+        .step5-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr;
@@ -715,22 +988,42 @@
         }
 
         .chat-avatar-circle {
-            width: 42px;
-            height: 42px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             object-fit: cover;
-            border: 1.5px solid #e5c378;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), 0 0 8px rgba(229, 195, 120, 0.3);
+            border: 2px solid #e5c378;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.85), 0 0 12px rgba(229, 195, 120, 0.4);
             flex-shrink: 0;
-            margin-top: 1px;
+            margin-top: 2px;
+        }
+
+        .chat-user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e5c378 0%, #a27b38 100%);
+            color: #120b08;
+            font-weight: 700;
+            font-family: var(--font-serif);
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid #f6e3c5;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 10px rgba(229, 195, 120, 0.35);
+            flex-shrink: 0;
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .chat-bubble-compact {
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 12px;
-            font-size: 0.80rem;
-            line-height: 1.4;
-            max-width: 85%;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            max-width: calc(100% - 70px);
             word-break: break-word;
         }
 
@@ -1741,10 +2034,12 @@
                 justify-content: center !important;
             }
 
-            /* Responsive grids for steps 2, 3, 4 on mobile */
+            /* Responsive grids for steps 1, 2, 3, 4, 5 on mobile */
+            .step1-grid,
             .step2-grid,
             .step3-grid,
-            .step4-grid {
+            .step4-grid,
+            .step5-grid {
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 6px !important;
@@ -1753,9 +2048,11 @@
                 overflow: hidden !important;
             }
 
+            .step1-grid > div,
             .step2-grid > div,
             .step3-grid > div,
-            .step4-grid > div {
+            .step4-grid > div,
+            .step5-grid > div {
                 flex: 1 1 0% !important;
                 min-height: 0 !important;
                 padding: 8px 10px !important;
@@ -1811,7 +2108,7 @@
             </div>
         </header>
 
-        <!-- Stepper: As 4 Etapas Oficiais do Site com Fios de Ouro Nobres -->
+        <!-- Stepper: As 5 Etapas Oficiais com Fios de Ouro Nobres -->
         <div class="stepper-container" id="stepper">
             <div class="step-item active" data-step="1">
                 <div class="step-bubble">01</div>
@@ -1829,13 +2126,20 @@
             </div>
             <div class="step-item" data-step="3">
                 <div class="step-bubble">03</div>
-                <div class="step-label">A Lapidação</div>
+                <div class="step-label">A Harmonização</div>
             </div>
             <div class="stepper-line" id="stepper-line-3">
                 <div class="stepper-line-fill" id="stepper-fill-3"></div>
             </div>
             <div class="step-item" data-step="4">
                 <div class="step-bubble">04</div>
+                <div class="step-label">A Lapidação</div>
+            </div>
+            <div class="stepper-line" id="stepper-line-4">
+                <div class="stepper-line-fill" id="stepper-fill-4"></div>
+            </div>
+            <div class="step-item" data-step="5">
+                <div class="step-bubble">05</div>
                 <div class="step-label">O Reencontro</div>
             </div>
         </div>
@@ -1843,84 +2147,201 @@
         <!-- Card Principal Central -->
         <main class="painel-card-main">
 
-            <!-- ================= ETAPA 1: O RESGATE (FOTOS + CENÁRIO) ================= -->
+            <!-- ================= ETAPA 1: O RESGATE (FOTOS E GRAVAÇÕES DE ÁUDIO) ================= -->
             <div class="step-section" id="step-1">
-                <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 0;">
                     
-                    <!-- Grid Unificado Perfeito: Alinhamento Físico Absoluto no Desktop e Mobile -->
-                    <div id="background-list" style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; gap: 8px 20px; flex: 1; min-height: 0;">
+                    <!-- Card Geral Unificado Centralizado (Largura Padrão 1040px) -->
+                    <div class="upload-wrapper-card" style="width: 100%; max-width: 1040px; height: 100%; min-height: 0; background: rgba(8, 5, 3, 0.55); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: var(--radius-md); padding: 12px 16px; box-sizing: border-box; backdrop-filter: blur(12px); display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
                         
-                        <!-- Coluna 1 (Esquerda): 2 Dropzones (Fotos no topo, Áudios embaixo) -->
-                        <div style="grid-column: 1; grid-row: 1; display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0;">
-                            
-                            <!-- Card Superior: Dropzone de Fotos (Card Vermelho) -->
-                            <div class="upload-zone-compact" id="photo-dropzone">
-                                
-                                <div class="photo-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
-                                    <i data-lucide="image-plus" style="width: 24px; height: 24px; color: #e5c378; margin-bottom: 3px;"></i>
-                                    <h4 style="color: #f6e3c5; font-size: 0.88rem; margin: 0; font-weight: 600;">Clique ou arraste as fotos aqui</h4>
-                                </div>
-
-                                <div class="dropzone-tips-rotator" id="dropzoneTipsRotator">
-                                    <div class="dropzone-tip-slide active">
-                                        <i data-lucide="camera"></i>
-                                        <span>Até 3 fotografias</span>
-                                    </div>
-                                    <div class="dropzone-tip-slide">
-                                        <i data-lucide="user-check"></i>
-                                        <span>Fotos Individuais</span>
-                                    </div>
-                                    <div class="dropzone-tip-slide">
-                                        <i data-lucide="sun-medium"></i>
-                                        <span>Boa iluminação</span>
-                                    </div>
-                                    <div class="dropzone-tip-slide">
-                                        <i data-lucide="scan-face"></i>
-                                        <span>Alta Nitidez</span>
-                                    </div>
-                                    <div class="dropzone-tip-slide">
-                                        <i data-lucide="sparkles"></i>
-                                        <span>Expressão natural</span>
-                                    </div>
-                                </div>
-
-                                <input type="file" id="photo-input" multiple accept="image/*" style="display: none;">
+                        <!-- Badge Nobre do Termo de Responsabilidade Assinado -->
+                        <div id="badge-termo-signed" style="display: none; align-items: center; justify-content: space-between; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 6px; padding: 4px 10px; font-size: 0.70rem; color: #4ade80;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="shield-check" style="width: 13px; height: 13px;"></i>
+                                <span id="badge-termo-signed-text">Termo de Responsabilidade & Consentimento Assinado Digitalmente</span>
                             </div>
-
-                            <!-- Card Inferior: Dropzone de Áudios (Card Azul) -->
-                            <div class="upload-zone-compact" id="audio-dropzone">
-                                
-                                <div class="audio-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
-                                    <i data-lucide="mic" style="width: 24px; height: 24px; color: #e5c378; margin-bottom: 3px;"></i>
-                                    <h4 style="color: #f6e3c5; font-size: 0.88rem; margin: 0; font-weight: 600;">Clique ou arraste os áudios com a voz original aqui</h4>
-                                </div>
-
-                                <div class="dropzone-tips-rotator" id="audioTipsRotator">
-                                    <div class="dropzone-tip-slide active">
-                                        <i data-lucide="message-square"></i>
-                                        <span>Áudios de WhatsApp ou vídeos</span>
-                                    </div>
-                                    <div class="dropzone-tip-slide">
-                                        <i data-lucide="volume-2"></i>
-                                        <span>Voz clara e sem ruídos</span>
-                                    </div>
-                                    <div class="dropzone-tip-slide">
-                                        <i data-lucide="clock"></i>
-                                        <span>Até 3 minutos de gravação</span>
-                                    </div>
-                                    <div class="dropzone-tip-slide">
-                                        <i data-lucide="sparkles"></i>
-                                        <span>Gravações espontâneas em vida</span>
-                                    </div>
-                                </div>
-
-                                <input type="file" id="audio-input" multiple accept="audio/*,video/*" style="display: none;">
-                            </div>
-
+                            <button type="button" onclick="openTermoModal(true)" style="background: none; border: none; color: #e5c378; cursor: pointer; text-decoration: underline; font-size: 0.68rem;">Ver Termo</button>
                         </div>
 
-                        <!-- Coluna 2 (Direita): Lista de Cenários com Selecionado no Topo -->
-                        <div class="scenarios-vertical-container" id="scenariosContainer" style="grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0;">
+                        <!-- Card de Cima: Dropzone de Fotos -->
+                        <div class="upload-zone-compact" id="photo-dropzone" style="flex: 1; min-height: 0; width: 100%;">
+                            <div class="photo-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
+                                <i data-lucide="image-plus" style="width: 24px; height: 24px; color: #e5c378; margin-bottom: 3px;"></i>
+                                <h4 style="color: #f6e3c5; font-size: 0.88rem; margin: 0; font-weight: 600;">Clique ou arraste as fotos aqui</h4>
+                            </div>
+
+                            <div class="dropzone-tips-rotator" id="dropzoneTipsRotator">
+                                <div class="dropzone-tip-slide active">
+                                    <i data-lucide="camera"></i>
+                                    <span>Até 3 fotografias</span>
+                                </div>
+                                <div class="dropzone-tip-slide">
+                                    <i data-lucide="user-check"></i>
+                                    <span>Fotos Individuais</span>
+                                </div>
+                                <div class="dropzone-tip-slide">
+                                    <i data-lucide="sun-medium"></i>
+                                    <span>Boa iluminação</span>
+                                </div>
+                                <div class="dropzone-tip-slide">
+                                    <i data-lucide="scan-face"></i>
+                                    <span>Alta Nitidez</span>
+                                </div>
+                                <div class="dropzone-tip-slide">
+                                    <i data-lucide="sparkles"></i>
+                                    <span>Expressão natural</span>
+                                </div>
+                            </div>
+
+                            <input type="file" id="photo-input" multiple accept="image/*" style="display: none;">
+                        </div>
+
+                        <!-- Card de Baixo: Dropzone de Áudios -->
+                        <div class="upload-zone-compact" id="audio-dropzone" style="flex: 1; min-height: 0; width: 100%;">
+                            <div class="audio-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
+                                <i data-lucide="mic" style="width: 24px; height: 24px; color: #e5c378; margin-bottom: 3px;"></i>
+                                <h4 style="color: #f6e3c5; font-size: 0.88rem; margin: 0; font-weight: 600;">Clique ou arraste áudios com a voz original aqui</h4>
+                            </div>
+
+                            <div class="dropzone-tips-rotator" id="audioTipsRotator">
+                                <div class="dropzone-tip-slide active">
+                                    <i data-lucide="message-square"></i>
+                                    <span>Áudios de WhatsApp ou vídeos</span>
+                                </div>
+                                <div class="dropzone-tip-slide">
+                                    <i data-lucide="volume-2"></i>
+                                    <span>Voz clara e sem ruídos</span>
+                                </div>
+                                <div class="dropzone-tip-slide">
+                                    <i data-lucide="clock"></i>
+                                    <span>Até 3 minutos de gravação</span>
+                                </div>
+                                <div class="dropzone-tip-slide">
+                                    <i data-lucide="sparkles"></i>
+                                    <span>Gravações espontâneas em vida</span>
+                                </div>
+                            </div>
+
+                            <input type="file" id="audio-input" multiple accept="audio/*,video/*" style="display: none;">
+                        </div>
+
+                        <!-- Botão Avançar no mesmo card geral -->
+                        <button class="btn btn-primary" id="btn-next-step-1" style="width: 100%; height: 38px !important; font-size: 0.82rem !important; letter-spacing: 0.8px; font-weight: 600; flex-shrink: 0;">
+                            <span id="btn-next-step-1-text">AVANÇAR</span>
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ================= ETAPA 2: A ESSÊNCIA (ENTREVISTA + ROTEIRO NO PRÓPRIO CHAT) ================= -->
+            <div class="step-section" id="step-2" style="display: none;">
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 0;">
+                    
+                    <!-- Card Geral do Chat com a mesma largura padrão de todas as etapas (max-width: 1040px) -->
+                    <div class="interview-chat-card" id="chat-card-panel" style="width: 100%; max-width: 1040px; height: 100%; min-height: 0; background: rgba(8, 5, 3, 0.55); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: var(--radius-md); padding: 12px 16px; box-sizing: border-box; backdrop-filter: blur(12px); display: flex; flex-direction: column; justify-content: space-between;">
+                        <div class="chat-card-header" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid rgba(197, 160, 89, 0.25); padding-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="message-square" style="width: 15px; height: 15px; color: #e5c378;"></i>
+                                <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">DESENVOLVIMENTO DO ROTEIRO</span>
+                            </div>
+                            <div id="chat-header-plan-badge" style="background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 2px 8px; color: #e5c378; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase;">
+                                PLANO AFFECTUS • 1 MINUTO
+                            </div>
+                        </div>
+
+                        <!-- Caixa de Mensagens com Scroll Suave -->
+                        <div class="interview-chat-compact" id="interview-chat-box" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 4px;"></div>
+
+                        <!-- Indicador: Iasis está digitando... -->
+                        <div class="chat-typing-indicator" id="chat-typing-indicator" style="display: none;">
+                            <div class="chat-typing-dots">
+                                <span class="chat-typing-dot"></span>
+                                <span class="chat-typing-dot"></span>
+                                <span class="chat-typing-dot"></span>
+                            </div>
+                            <span id="chat-typing-text">Iasis está lapidando as palavras...</span>
+                        </div>
+
+                        <!-- Barra de Input Flutuante Padronizada -->
+                        <div class="chat-input-bar" style="margin-top: 8px;">
+                            <input type="text" id="chat-input" placeholder="Escreva sua resposta..." autocomplete="off">
+                            <button class="btn btn-primary" id="btn-send-chat" style="padding: 0 16px !important; height: 38px !important;">
+                                <i data-lucide="send" style="width: 14px; height: 14px;"></i> ENVIAR
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ================= ETAPA 3: A HARMONIZAÇÃO (TRILHA SONORA & PAISAGEM DE FUNDO) ================= -->
+            <div class="step-section" id="step-3" style="display: none;">
+                <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+                    <div class="step3-grid" id="step3-grid-container">
+                        
+                        <!-- Coluna 1 (Esquerda): Lista de Trilhas Sonoras (Mesmo Formato e Animação das Paisagens) -->
+                        <div class="scenarios-vertical-container" id="musicContainer" style="display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0;">
+                            <!-- Trilha 1 -->
+                            <div class="scenario-card-full selected" data-music="piano_emocao" data-title="Piano Emocionante">
+                                <img src="https://images.unsplash.com/photo-1513883049090-d0b7439799bf?w=800&auto=format&fit=crop&q=80" alt="Piano" class="scenario-full-bg-img">
+                                <div class="scenario-full-bg-scrim"></div>
+                                <div class="scenario-card-inner-content">
+                                    <div class="scenario-details">
+                                        <span class="scenario-badge-label">TRILHA SONORA</span>
+                                        <div class="scenario-name">Piano Emocionante</div>
+                                        <div class="scenario-subtitle">Teclas suaves e melodia comovente e profunda</div>
+                                    </div>
+                                    <div class="scenario-radio-check">✓</div>
+                                </div>
+                            </div>
+
+                            <!-- Trilha 2 -->
+                            <div class="scenario-card-full" data-music="cordas_paz" data-title="Cordas & Harmonia">
+                                <img src="https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&auto=format&fit=crop&q=80" alt="Cordas" class="scenario-full-bg-img">
+                                <div class="scenario-full-bg-scrim"></div>
+                                <div class="scenario-card-inner-content">
+                                    <div class="scenario-details">
+                                        <span class="scenario-badge-label">TRILHA SONORA</span>
+                                        <div class="scenario-name">Cordas & Harmonia</div>
+                                        <div class="scenario-subtitle">Violinos e violoncelos em tom sereno e acolhedor</div>
+                                    </div>
+                                    <div class="scenario-radio-check">✓</div>
+                                </div>
+                            </div>
+
+                            <!-- Trilha 3 -->
+                            <div class="scenario-card-full" data-music="serenidade" data-title="Serenidade Celeste">
+                                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80" alt="Serenidade" class="scenario-full-bg-img">
+                                <div class="scenario-full-bg-scrim"></div>
+                                <div class="scenario-card-inner-content">
+                                    <div class="scenario-details">
+                                        <span class="scenario-badge-label">TRILHA SONORA</span>
+                                        <div class="scenario-name">Serenidade Celeste</div>
+                                        <div class="scenario-subtitle">Ambiência transcendental com tons etéreos e de paz</div>
+                                    </div>
+                                    <div class="scenario-radio-check">✓</div>
+                                </div>
+                            </div>
+
+                            <!-- Trilha 4 -->
+                            <div class="scenario-card-full" data-music="sem_musica" data-title="Voz Pura (Sem Trilha)">
+                                <img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800&auto=format&fit=crop&q=80" alt="Voz Pura" class="scenario-full-bg-img">
+                                <div class="scenario-full-bg-scrim"></div>
+                                <div class="scenario-card-inner-content">
+                                    <div class="scenario-details">
+                                        <span class="scenario-badge-label">TRILHA SONORA</span>
+                                        <div class="scenario-name">Voz Pura (Sem Trilha)</div>
+                                        <div class="scenario-subtitle">Destaque absoluto e intimista apenas para a voz</div>
+                                    </div>
+                                    <div class="scenario-radio-check">✓</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Coluna 2 (Direita): Lista de Cenários / Paisagens de Fundo -->
+                        <div class="scenarios-vertical-container" id="scenariosContainer" style="display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0;">
                             <!-- Cenário 1 -->
                             <div class="scenario-card-full selected" data-bg="nuvens" data-preview-src="bg_nuvens.jpg" data-title="Nuvens" data-desc="Céu límpido e celestial, com nuvens suaves e iluminação etérea e brilhante.">
                                 <img src="bg_nuvens.jpg" alt="Nuvens" class="scenario-full-bg-img">
@@ -1928,7 +2349,7 @@
                                 <div class="scenario-card-inner-content">
                                     <div class="scenario-details">
                                         <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
-                                        <div class="scenario-name">Nuvens</div>
+                                        <div class="scenario-name">Nuvens Celestes</div>
                                         <div class="scenario-subtitle">Céu claro com nuvens suaves e etéreas</div>
                                     </div>
                                     <div class="scenario-radio-check">✓</div>
@@ -1942,7 +2363,7 @@
                                 <div class="scenario-card-inner-content">
                                     <div class="scenario-details">
                                         <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
-                                        <div class="scenario-name">Montanhas</div>
+                                        <div class="scenario-name">Montanhas Serenas</div>
                                         <div class="scenario-subtitle">Picos serenos e horizontes imponentes</div>
                                     </div>
                                     <div class="scenario-radio-check">✓</div>
@@ -1956,7 +2377,7 @@
                                 <div class="scenario-card-inner-content">
                                     <div class="scenario-details">
                                         <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
-                                        <div class="scenario-name">Floresta</div>
+                                        <div class="scenario-name">Floresta Encantada</div>
                                         <div class="scenario-subtitle">Natureza viva, folhas verdes e luz filtrada</div>
                                     </div>
                                     <div class="scenario-radio-check">✓</div>
@@ -1964,14 +2385,14 @@
                             </div>
 
                             <!-- Cenário 4 -->
-                            <div class="scenario-card-full" data-bg="dunas" data-preview-src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=1200&auto=format&fit=crop&q=90" data-title="Dunas" data-desc="Areias onduladas e douradas sob a brisa morna do fim de tarde.">
-                                <img src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800&auto=format&fit=crop&q=80" alt="Dunas" class="scenario-full-bg-img">
+                            <div class="scenario-card-full" data-bg="oceano" data-preview-src="bg_oceano.png" data-title="Oceano" data-desc="Horizontes infinitos do mar azul, brisa serena e reflexos dourados sobre as águas.">
+                                <img src="bg_oceano.png" alt="Oceano" class="scenario-full-bg-img">
                                 <div class="scenario-full-bg-scrim"></div>
                                 <div class="scenario-card-inner-content">
                                     <div class="scenario-details">
                                         <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
-                                        <div class="scenario-name">Dunas</div>
-                                        <div class="scenario-subtitle">Areias suaves e calor de fim de tarde</div>
+                                        <div class="scenario-name">Oceano Infinito</div>
+                                        <div class="scenario-subtitle">Horizontes calmos do mar e brisa serena</div>
                                     </div>
                                     <div class="scenario-radio-check">✓</div>
                                 </div>
@@ -1982,167 +2403,109 @@
                 </div>
             </div>
 
-            <!-- ================= ETAPA 2: A ESSÊNCIA (ENTREVISTA + ROTEIRO EM TEMPO REAL) ================= -->
-            <div class="step-section" id="step-2" style="display: none;">
+            <!-- ================= ETAPA 4: A LAPIDAÇÃO (APROVAÇÃO DA NOVA IMAGEM + VOZ CLONADA) ================= -->
+            <div class="step-section" id="step-4" style="display: none;">
                 <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
-                    <div class="step2-grid" id="step2-grid-container">
+                    <div class="step4-grid" id="step4-grid-container">
                         
-                        <!-- Coluna 1 (Esquerda): Chat Afetivo com o Guia Iasis -->
-                        <div class="interview-chat-card" id="chat-card-panel">
-                            <div class="chat-card-header">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <i data-lucide="message-square" style="width: 15px; height: 15px; color: #e5c378;"></i>
-                                    <span id="chat-header-plan-title" style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">DESENVOLVIMENTO DO ROTEIRO - PLANO AFFECTUS: 1 MINUTO</span>
-                                </div>
-                            </div>
-
-                            <!-- Caixa de Mensagens com Scroll Suave -->
-                            <div class="interview-chat-compact" id="interview-chat-box"></div>
-
-                            <!-- Indicador: Iasis está digitando... -->
-                            <div class="chat-typing-indicator" id="chat-typing-indicator" style="display: none;">
-                                <div class="chat-typing-dots">
-                                    <span class="chat-typing-dot"></span>
-                                    <span class="chat-typing-dot"></span>
-                                    <span class="chat-typing-dot"></span>
-                                </div>
-                                <span>Iasis está digitando...</span>
-                            </div>
-
-                            <!-- Barra de Input Flutuante Padronizada -->
-                            <div class="chat-input-bar">
-                                <input type="text" id="chat-input" placeholder="Escreva sua resposta..." autocomplete="off">
-                                <button class="btn btn-primary" id="btn-send-chat" style="padding: 0 16px !important;">
-                                    <i data-lucide="send" style="width: 14px; height: 14px;"></i> ENVIAR
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Coluna 2 (Direita): Editor / Visualizador do Roteiro em Tempo Real -->
-                        <div class="script-live-card" id="script-card-panel">
-                            <div class="script-card-header">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <i data-lucide="file-text" style="width: 15px; height: 15px; color: #e5c378;"></i>
-                                    <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600;">ROTEIRO DA HOMENAGEM</span>
-                                </div>
-                                <span style="color: #e5c378; font-size: 0.72rem; font-weight: 600; background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 12px; padding: 2px 8px;" id="script-stats">0 palavras • ~0 min</span>
-                            </div>
-
-                            <div class="script-editor-container">
-                                <textarea id="script-editor" class="script-editor-textarea" placeholder="O roteiro oficial da homenagem será gerado aqui assim que concluirmos nossa conversa com o Iasis..."></textarea>
-                                
-                                <!-- Overlay de Espera Poética -->
-                                <div class="script-poetic-loading" id="script-loading-state" style="display: none;">
-                                    <div style="font-size: 2rem; margin-bottom: 8px; animation: stepBubblePulse 2.5s infinite ease-in-out;">🕊️</div>
-                                    <div id="poetic-phrase" style="font-family: var(--font-serif); font-size: 1.15rem; font-style: italic; color: #f6e3c5; min-height: 38px; line-height: 1.4;">
-                                        "Buscando a essência da voz nos ecos da memória..."
-                                    </div>
-                                    <p style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 6px;">Lapidando as palavras com respeito absoluto ao tempo do plano.</p>
-                                </div>
-                            </div>
-
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px solid rgba(197, 160, 89, 0.2); font-size: 0.70rem; color: var(--text-secondary);">
-                                <span>Edição manual liberada a qualquer momento</span>
-                                <span style="color: #e5c378;" id="script-plan-badge">Plano Affectus (1 Minuto)</span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- ================= ETAPA 3: A LAPIDAÇÃO (APROVAÇÃO DA NOVA IMAGEM + ÁUDIO COM VOZ CLONADA + TRILHA) ================= -->
-            <div class="step-section" id="step-3" style="display: none;">
-                <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
-                    <div class="step3-grid" id="step3-grid-container">
-                        
-                        <!-- Coluna 1 (Esquerda): Seletor de Trilha Sonora + Parâmetros Artísticos -->
-                        <div class="audio-upload-wrapper" style="display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0;">
-                            
-                            <!-- Card de Detalhes Artísticos da Produção -->
-                            <div style="flex: 1; min-height: 0; border: 1.5px solid rgba(197, 160, 89, 0.45); background: rgba(8, 5, 3, 0.55); border-radius: var(--radius-md); padding: 12px 16px; box-sizing: border-box; backdrop-filter: blur(12px); display: flex; flex-direction: column; justify-content: space-evenly;">
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                                    <i data-lucide="sparkles" style="width: 18px; height: 18px; color: #e5c378;"></i>
-                                    <h4 style="color: #f6e3c5; font-size: 0.88rem; margin: 0; font-weight: 600;">Parâmetros da Lapidação</h4>
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.72rem; color: var(--text-secondary);">
-                                    <div style="display: flex; align-items: center; gap: 6px;">
-                                        <span style="color: #e5c378; font-weight: 600;">✓</span>
-                                        <span>Nova imagem gerada com restauração facial e iluminação 4K</span>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 6px;">
-                                        <span style="color: #e5c378; font-weight: 600;">✓</span>
-                                        <span>Paisagem de fundo perfeitamente integrada ao horizonte</span>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 6px;">
-                                        <span style="color: #e5c378; font-weight: 600;">✓</span>
-                                        <span>Clonagem vocal acústica do roteiro com afeto e emoção</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Seletor de Trilha de Fundo -->
-                            <div class="music-selector-box" id="music-selector-box">
-                                <div class="music-selector-title">
-                                    <span>Trilha Sonora de Fundo:</span>
-                                    <span style="font-size: 0.65rem; color: #e5c378;">Harmonizada</span>
-                                </div>
-                                <div class="music-options-grid" id="music-grid">
-                                    <div class="music-option-card selected" data-music="piano_emocao">
-                                        <span>🎹 Piano Emocionante</span>
-                                        <span style="font-size: 0.65rem; color: #e5c378;">✓</span>
-                                    </div>
-                                    <div class="music-option-card" data-music="cordas_paz">
-                                        <span>🎻 Cordas & Paz</span>
-                                        <span style="font-size: 0.65rem; color: #e5c378; display: none;">✓</span>
-                                    </div>
-                                    <div class="music-option-card" data-music="serenidade">
-                                        <span>✨ Serenidade Celeste</span>
-                                        <span style="font-size: 0.65rem; color: #e5c378; display: none;">✓</span>
-                                    </div>
-                                    <div class="music-option-card" data-music="sem_musica">
-                                        <span>🎙️ Voz Pura (Sem Trilha)</span>
-                                        <span style="font-size: 0.65rem; color: #e5c378; display: none;">✓</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <!-- Coluna 2 (Direita): Prévia da Nova Imagem & Player da Voz Clonada Narrando o Roteiro -->
+                        <!-- Coluna 1 (Esquerda): Prévia da Imagem com o Fundo Escolhido -->
                         <div class="preview-watermark-card" id="preview-card-panel">
                             <div class="chat-card-header" style="margin-bottom: 4px;">
                                 <div style="display: flex; align-items: center; gap: 6px;">
                                     <i data-lucide="sparkles" style="width: 15px; height: 15px; color: #e5c378;"></i>
-                                    <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600;">NOVA IMAGEM & VOZ CLONADA</span>
+                                    <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600;">FOTOGRAFIA</span>
                                 </div>
-                                <span style="color: #e5c378; font-size: 0.65rem; font-weight: 600; text-transform: uppercase;">QUALIDADE 4K</span>
                             </div>
 
-                            <div class="preview-media-frame">
-                                <img src="gallery_homem_01.jpg" alt="Prévia Restaurada" id="preview-avatar-img">
-                                <span class="watermark-badge">PRÉVIA DA NOVA IMAGEM GERADA</span>
+                            <div class="preview-media-frame" style="position: relative; overflow: hidden; border-radius: var(--radius-sm); border: 1.5px solid var(--border-gold); background: #000; min-height: 200px;">
+                                <img src="gallery_homem_02.jpg" alt="Prévia Restaurada" id="preview-avatar-img" style="width: 100%; height: 100%; min-height: 200px; object-fit: cover; display: block;">
+                                
+                                <!-- Logo Reviva Memories Centralizada na Base da Imagem (Marca D'água Transparente) -->
+                                <div class="image-watermark-logo" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; pointer-events: none; z-index: 5;">
+                                    <img src="logo.png" alt="Reviva Memories" style="height: 32px; width: auto; object-fit: contain; opacity: 0.88; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.85)) drop-shadow(0 0 12px rgba(229,195,120,0.35));">
+                                </div>
                             </div>
 
-                            <!-- Mini Player de Voz Clonada Customizado -->
-                            <div class="voice-sample-player-bar">
-                                <button class="sample-play-btn" id="btnPlayVoiceSample" title="Ouvir Amostra da Voz Narrando o Roteiro">
-                                    <i data-lucide="play" style="width: 12px; height: 12px;"></i>
-                                </button>
-                                <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.70rem; color: #f6e3c5; font-weight: 600;">
-                                        <span>Narração do Roteiro na Voz Clonada</span>
-                                        <span id="voiceSampleTime" style="color: #e5c378; font-size: 0.68rem;">00:08</span>
+                            <!-- Ações de Aprovação e Reprovação da Imagem -->
+                            <div class="photo-actions-container" style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
+                                <!-- Botões de Aprovação e Reprovação -->
+                                <div id="photo-approval-buttons-row" style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+                                    <button type="button" class="btn btn-decision-reject" id="btn-reject-photo-modal" style="flex: 1; height: 34px !important; font-size: 0.74rem !important; display: flex; align-items: center; justify-content: center;">
+                                        <span id="btn-reject-photo-modal-text">REPROVAR</span>
+                                    </button>
+                                    <button type="button" class="btn btn-decision-approve" id="btn-approve-photo-status" style="flex: 1; height: 34px !important; font-size: 0.74rem !important; display: flex; align-items: center; justify-content: center;">
+                                        <span id="btn-approve-photo-status-text">APROVAR</span>
+                                    </button>
+                                </div>
+
+                                <!-- Caixa de Feedback de Reprovação (Abre ao clicar em Reprovar) -->
+                                <div id="photo-rejection-box" style="display: none; flex-direction: column; gap: 6px; background: rgba(14, 9, 6, 0.85); border: 1px solid rgba(239, 68, 68, 0.45); border-radius: var(--radius-sm); padding: 8px 10px; margin-top: 2px;">
+                                    <div style="display: flex; align-items: center;">
+                                        <span style="font-size: 0.70rem; color: #fca5a5; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                            <i data-lucide="message-square-warning" style="width: 13px; height: 13px;"></i>
+                                            Descreva o que tem de errado na imagem.
+                                        </span>
                                     </div>
-                                    <div style="width: 100%; height: 3px; background: rgba(197, 160, 89, 0.25); border-radius: 2px; position: relative; overflow: hidden;">
-                                        <div id="voiceSampleProgress" style="width: 0%; height: 100%; background: #e5c378; transition: width 0.1s linear;"></div>
+                                    <textarea id="photo-rejection-feedback" rows="2" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 4px; padding: 6px 8px; color: #f6e3c5; font-size: 0.72rem; resize: none; font-family: inherit; outline: none;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Coluna 2 (Direita): Player da Voz e Roteiro + Ações de Aprovação -->
+                        <div class="preview-watermark-card" id="preview-voice-card-panel">
+                            <div class="chat-card-header" style="margin-bottom: 4px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i data-lucide="volume-2" style="width: 15px; height: 15px; color: #e5c378;"></i>
+                                    <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600;">VOZ & ROTEIRO</span>
+                                </div>
+                            </div>
+
+                            <!-- Showcase Central da Voz com Botão de Play Central -->
+                            <div class="preview-media-frame" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(197, 160, 89, 0.12) 0%, rgba(8, 5, 3, 0.95) 75%); border: 1.5px solid var(--border-gold); border-radius: var(--radius-sm); padding: 24px 16px; gap: 14px; min-height: 200px;">
+                                
+                                <!-- Botão de Play Central Circular Vazado sem Preenchimento -->
+                                <button type="button" class="sample-play-btn-center" id="btnPlayVoiceSampleCenter" title="Ouvir Amostra da Voz Narrando o Roteiro" style="width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i data-lucide="play" id="icon-voice-play-center" style="width: 24px; height: 24px; stroke: #e5c378; margin-left: 3px;"></i>
+                                </button>
+
+                                <div style="width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 6px; text-align: center;">
+                                    <div style="font-family: var(--font-serif); font-size: 0.88rem; color: var(--gold-bright); font-weight: 700; letter-spacing: 0.5px;">
+                                        Narração Oficial do Roteiro
+                                    </div>
+                                    
+                                    <!-- Barra de Progresso com Tempo -->
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span id="voiceSampleCurrentTime" style="font-size: 0.70rem; color: var(--text-secondary); font-family: var(--font-mono);">00:00</span>
+                                        <div style="flex: 1; height: 5px; background: rgba(197, 160, 89, 0.25); border-radius: 3px; position: relative; overflow: hidden; cursor: pointer;">
+                                            <div id="voiceSampleProgress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #c5a059, #e5c378); transition: width 0.1s linear;"></div>
+                                        </div>
+                                        <span id="voiceSampleTime" style="font-size: 0.70rem; color: var(--gold-primary); font-family: var(--font-mono); font-weight: 600;">00:08</span>
                                     </div>
                                 </div>
                                 <audio id="voiceSampleAudio" src="bg_music.mp3" preload="metadata" style="display: none;"></audio>
                             </div>
 
-                            <div style="font-size: 0.68rem; color: var(--text-secondary); text-align: center; margin-top: 4px;">
-                                Confira e aprove a nova imagem gerada e a narração com a voz clonada antes da renderização final.
+                            <!-- Ações de Aprovação e Reprovação do Áudio (Idênticas à Imagem) -->
+                            <div class="voice-actions-container" style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
+                                <div id="voice-approval-buttons-row" style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+                                    <button type="button" class="btn btn-decision-reject" id="btn-reject-voice-modal" style="flex: 1; height: 34px !important; font-size: 0.74rem !important; display: flex; align-items: center; justify-content: center;">
+                                        <span id="btn-reject-voice-modal-text">REPROVAR</span>
+                                    </button>
+                                    <button type="button" class="btn btn-decision-approve" id="btn-approve-voice-status" style="flex: 1; height: 34px !important; font-size: 0.74rem !important; display: flex; align-items: center; justify-content: center;">
+                                        <span id="btn-approve-voice-status-text">APROVAR</span>
+                                    </button>
+                                </div>
+
+                                <!-- Caixa de Feedback de Reprovação do Áudio -->
+                                <div id="voice-rejection-box" style="display: none; flex-direction: column; gap: 6px; background: rgba(14, 9, 6, 0.85); border: 1px solid rgba(239, 68, 68, 0.45); border-radius: var(--radius-sm); padding: 8px 10px; margin-top: 2px;">
+                                    <div style="display: flex; align-items: center;">
+                                        <span style="font-size: 0.70rem; color: #fca5a5; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                            <i data-lucide="message-square-warning" style="width: 13px; height: 13px;"></i>
+                                            Descreva o que tem de errado no áudio.
+                                        </span>
+                                    </div>
+                                    <textarea id="voice-rejection-feedback" rows="2" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 4px; padding: 6px 8px; color: #f6e3c5; font-size: 0.72rem; resize: none; font-family: inherit; outline: none;"></textarea>
+                                </div>
                             </div>
                         </div>
 
@@ -2150,10 +2513,10 @@
                 </div>
             </div>
 
-            <!-- ================= ETAPA 4: O REENCONTRO (VÍDEO FINAL & SALA DE REVELAÇÃO) ================= -->
-            <div class="step-section" id="step-4" style="display: none;">
+            <!-- ================= ETAPA 5: O REENCONTRO (VÍDEO FINAL & SALA DE REVELAÇÃO) ================= -->
+            <div class="step-section" id="step-5" style="display: none;">
                 <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
-                    <div class="step4-grid" id="step4-grid-container">
+                    <div class="step5-grid" id="step5-grid-container">
                         
                         <!-- Coluna 1 (Esquerda): Showcase do Vídeo Final em Alta Resolução -->
                         <div class="final-video-showcase">
@@ -2175,7 +2538,7 @@
 
                             <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; font-size: 0.72rem; color: #f6e3c5;">
                                 <span><strong>Homenageado:</strong> Mariana</span>
-                                <span style="color: #e5c378;">Duração: 01:00 min</span>
+                                <span style="color: #e5c378;" id="final-video-duration">Duração: 01:00 min</span>
                             </div>
                         </div>
 
@@ -2221,10 +2584,7 @@
         <footer class="painel-footer-actions" id="painelFooterActions">
             
             <!-- Ações Etapa 1 -->
-            <div class="footer-step-actions" id="footer-step-1">
-                <button class="btn btn-primary" id="btn-next-step-1">
-                    <span id="btn-next-step-1-text">AVANÇAR</span>
-                </button>
+            <div class="footer-step-actions" id="footer-step-1" style="justify-content: center;">
                 <div class="slide-actions-panel">
                     <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo"></div>
                     <div class="video-badge-wrapper" style="position: relative; display: inline-flex;">
@@ -2238,13 +2598,7 @@
             </div>
 
             <!-- Ações Etapa 2 (A Essência / Roteiro) -->
-            <div class="footer-step-actions" id="footer-step-2" style="display: none;">
-                <div class="footer-action-buttons-row">
-                    <button class="btn btn-secondary" id="btn-back-step-2">VOLTAR</button>
-                    <button class="btn btn-primary" id="btn-approve-script">
-                        AVANÇAR / APROVAR ROTEIRO
-                    </button>
-                </div>
+            <div class="footer-step-actions" id="footer-step-2" style="display: none; justify-content: center;">
                 <div class="slide-actions-panel">
                     <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo"></div>
                     <div class="video-badge-wrapper" style="position: relative; display: inline-flex;">
@@ -2257,12 +2611,11 @@
                 </div>
             </div>
 
-            <!-- Ações Etapa 3 (A Lapidação / Detalhes Artísticos) -->
+            <!-- Ações Etapa 3 (A Harmonização / Trilha & Fundo) -->
             <div class="footer-step-actions" id="footer-step-3" style="display: none;">
                 <div class="footer-action-buttons-row">
-                    <button class="btn btn-secondary" id="btn-back-step-3">VOLTAR</button>
-                    <button class="btn btn-primary" id="btn-approve-lapidacao">
-                        AVANÇAR / APROVAR DETALHES ARTÍSTICOS
+                    <button class="btn btn-primary" id="btn-approve-harmonizacao" style="width: 100%; max-width: 380px;">
+                        AVANÇAR / CONFIRMAR AMBIENTAÇÃO
                     </button>
                 </div>
                 <div class="slide-actions-panel">
@@ -2277,11 +2630,11 @@
                 </div>
             </div>
 
-            <!-- Ações Etapa 4 -->
+            <!-- Ações Etapa 4 (A Lapidação / Aprovações) -->
             <div class="footer-step-actions" id="footer-step-4" style="display: none;">
                 <div class="footer-action-buttons-row">
-                    <button class="btn btn-secondary" id="btn-back-step-4" onclick="goToStep(1)">
-                        ← VOLTAR AO INÍCIO
+                    <button class="btn btn-primary" id="btn-approve-lapidacao" style="width: 100%; max-width: 380px;">
+                        PRODUZIR HOMENAGEM
                     </button>
                 </div>
                 <div class="slide-actions-panel">
@@ -2295,7 +2648,34 @@
                     <div class="music-wave-toggle right-wave" aria-label="Controlar Música de Fundo"></div>
                 </div>
             </div>
+
+            <!-- Ações Etapa 5 (O Reencontro) -->
+            <div class="footer-step-actions" id="footer-step-5" style="display: none; justify-content: center;">
+                <div class="slide-actions-panel">
+                    <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo"></div>
+                    <div class="video-badge-wrapper" style="position: relative; display: inline-flex;">
+                        <button class="btn btn-primary watch-video-btn" data-video="video_03.webm" data-video-id="video-painel-step5">
+                            <i data-lucide="play"></i> APRESENTAÇÃO
+                        </button>
+                        <span class="video-new-badge" data-video-id="video-painel-step5">NOVO</span>
+                    </div>
+                    <div class="music-wave-toggle right-wave" aria-label="Controlar Música de Fundo"></div>
+                </div>
+            </div>
         </footer>
+    </div>
+
+    <!-- Cortina Cinematográfica de Transição em Tela Cheia (Fundo Galáxia & Letras Garrafais) -->
+    <div id="fullscreen-stage-curtain" class="fullscreen-stage-curtain">
+        <div class="stage-curtain-glow"></div>
+        <div class="stage-curtain-content">
+            <div class="stage-curtain-badge" id="stageCurtainBadge">ETAPA 02</div>
+            <h1 class="stage-curtain-title" id="stageCurtainTitle">A ESSÊNCIA</h1>
+            <div class="stage-curtain-divider">
+                <span class="divider-diamond">◆</span>
+            </div>
+            <p class="stage-curtain-sub" id="stageCurtainSub">Desenvolvimento Afetivo do Roteiro Oficial</p>
+        </div>
     </div>
 
     <!-- Modal de Vídeo do Iasis -->
@@ -2372,7 +2752,7 @@
             </h3>
             
             <p style="color: #d8c7b0; font-size: 0.88rem; line-height: 1.6; text-align: center; margin: 0 0 22px 0;">
-                Para resgatar a fisionomia e criar a homenagem com fidelidade absoluta, anexe pelo menos <strong>1 fotografia</strong> do seu ente querido antes de prosseguir.
+                Para resgatar a fisionomia e criar a homenagem com fidelidade absoluta, anexe pelo menos <strong>1 fotografia</strong> da pessoa homenageada antes de prosseguir.
             </p>
             
             <div style="display: flex; justify-content: center; gap: 12px; width: 100%;">
@@ -2726,7 +3106,63 @@
             requestAnimationFrame(loop);
         }
 
-        window.addEventListener('load', initGalaxyBg);
-    </script>
+    <!-- ================= MODAL DO TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO ================= -->
+    <div id="modal-termo-responsabilidade" style="position: fixed; inset: 0; background: rgba(5, 3, 2, 0.92); backdrop-filter: blur(16px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
+        <div style="width: 100%; max-width: 640px; background: rgba(14, 9, 6, 0.96); border: 1.5px solid var(--border-gold); border-radius: var(--radius-md); padding: 24px 28px; box-shadow: 0 0 50px rgba(0,0,0,0.95), 0 0 25px rgba(229,195,120,0.25); max-height: 90vh; display: flex; flex-direction: column; gap: 14px; overflow-y: auto;">
+            
+            <div style="text-align: center; border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 12px; position: relative;">
+                <img src="logo.png" alt="Reviva Memories" style="height: 36px; margin-bottom: 6px;">
+                <h3 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--gold-bright); letter-spacing: 1px; margin-bottom: 4px;">TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO</h3>
+                <p style="font-size: 0.74rem; color: var(--text-secondary);">Autorização Formal e Declaração de Titularidade para Recriação Afetiva com IA</p>
+                <button type="button" id="btn-close-termo-view" onclick="closeTermoModal()" style="display: none; position: absolute; top: 0; right: 0; background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; padding: 4px;">✕</button>
+            </div>
+
+            <!-- Caixa de Texto Fundamentada do Termo Legal -->
+            <div style="background: rgba(8, 5, 3, 0.85); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 0.74rem; color: #ede3d2; line-height: 1.6; max-height: 180px; overflow-y: auto; text-align: justify;">
+                <p style="margin-bottom: 8px;"><strong>1. FINALIDADE ESTATUTÁRIA E AFETIVA:</strong> As homenagens produzidas pela <em>Reviva Memories</em> destinam-se exclusivamente à preservação de memórias familiares, homenagens em vida ou póstumas e celebração de vínculos afetivos em âmbito estritamente privado.</p>
+                
+                <p style="margin-bottom: 8px;"><strong>2. DECLARAÇÃO DE LEGITIMIDADE:</strong> O(a) CONTRATANTE declara, sob as penas da lei (Art. 299 do Código Penal Brasileiro), possuir legítima relação familiar ou autorização expressa do ente homenageado para fornecimento e tratamento das fotografias e gravações de áudio originais.</p>
+                
+                <p style="margin-bottom: 8px;"><strong>3. SIGILO E CONFORMIDADE LGPD:</strong> Em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), todos os dados biométricos, fotos e amostras de voz são processados sob sigilo absoluto, ambiente encriptado e utilizados unicamente para a confecção da homenagem solicitada.</p>
+                
+                <p style="margin-bottom: 0;"><strong>4. VEDAÇÃO DE USO ILÍCITO:</strong> É expressamente proibida a utilização deste serviço para difamação, simulação fraudulenta, fins eleitorais ou comerciais não autorizados, assumindo o CONTRATANTE integral responsabilidade civil e criminal por eventuais usos indevidos dos arquivos finais.</p>
+            </div>
+
+            <!-- Formulário de Identificação do Responsável Legal -->
+            <form id="form-termo-responsabilidade" onsubmit="handleSignTermo(event)" style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">NOME COMPLETO DO RESPONSÁVEL *</label>
+                        <input type="text" id="term-signer-name" required placeholder="Ex: Mariana Silva Santos" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">CPF DO RESPONSÁVEL *</label>
+                        <input type="text" id="term-signer-cpf" required placeholder="000.000.000-00" maxlength="14" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">GRAU DE PARENTESCO / VÍNCULO COM O HOMENAGEADO *</label>
+                    <select id="term-signer-relation" required style="width: 100%; box-sizing: border-box; background: rgba(14, 9, 6, 0.95); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                        <option value="Filho(a)">Filho(a)</option>
+                        <option value="Cônjuge / Parceiro(a)">Cônjuge / Parceiro(a)</option>
+                        <option value="Pai / Mãe">Pai / Mãe</option>
+                        <option value="Irmão / Irmã">Irmão / Irmã</option>
+                        <option value="Neto(a)">Neto(a)</option>
+                        <option value="Outro Familiar Direto">Outro Familiar Direto</option>
+                    </select>
+                </div>
+
+                <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.70rem; color: #f6e3c5; cursor: pointer; background: rgba(197, 160, 89, 0.1); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 4px; padding: 8px 10px; margin-top: 4px;">
+                    <input type="checkbox" id="chk-term-accept" required style="accent-color: #e5c378; width: 15px; height: 15px; margin-top: 1px;">
+                    <span style="line-height: 1.4;">Declaro que li, compreendi e aceito integralmente os termos deste documento, assumindo total responsabilidade legal sobre os materiais fornecidos.</span>
+                </label>
+
+                <button type="submit" id="btn-submit-term" class="btn-gold" style="height: 42px; font-size: 0.82rem; margin-top: 6px;">
+                    <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i> ASSINAR TERMO & LIBERAR ENVIO DE MÍDIAS
+                </button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

@@ -22,10 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
             "Guarde para sempre as palavras sublimes."
         ],
         'experiencia': [
-            "Como produzimos essa emoção em 4 etapas",
-            "As 4 fases que transformam uma fotografia em pura emoção",
-            "As 4 fases de um processo sensível e humanizado",
-            "Do resgate ao reencontro em 4 etapas transparentes",
+            "Como produzimos essa emoção em 5 passos",
+            "As 5 fases que transformam uma fotografia em pura emoção",
+            "As 5 etapas de um processo sensível e humanizado",
+            "Do resgate ao reencontro em 5 etapas transparentes",
             "Cada detalhe das etapas que dão vida à sua homenagem"
         ],
         'ocasioes': [

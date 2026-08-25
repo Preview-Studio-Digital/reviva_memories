@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ateliê do Produtor & Administração | Reviva Memories</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase_config.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #050302;
+            --bg-card: rgba(14, 9, 6, 0.75);
+            --border-gold: rgba(197, 160, 89, 0.45);
+            --gold-primary: #e5c378;
+            --gold-bright: #f3d79b;
+            --text-main: #f6e3c5;
+            --text-secondary: rgba(246, 227, 197, 0.75);
+            --font-serif: 'Cinzel', serif;
+            --font-sans: 'Montserrat', sans-serif;
+            --font-mono: 'Space Grotesk', monospace;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(197, 160, 89, 0.06) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(197, 160, 89, 0.05) 0%, transparent 45%);
+        }
+
+        /* Lock Screen Modal */
+        #auth-gate {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 3, 2, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(14, 9, 6, 0.85);
+            border: 1.5px solid var(--border-gold);
+            border-radius: var(--radius-md);
+            padding: 36px 28px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), 0 0 25px rgba(229, 195, 120, 0.2);
+        }
+
+        .auth-card img {
+            height: 46px;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.8));
+        }
+
+        .auth-title {
+            font-family: var(--font-serif);
+            font-size: 1.15rem;
+            letter-spacing: 2px;
+            color: var(--gold-bright);
+            margin-bottom: 6px;
+        }
+
+        .auth-sub {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .auth-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1.5px solid var(--border-gold);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: var(--font-mono);
+            letter-spacing: 3px;
+            text-align: center;
+            outline: none;
+            transition: var(--transition-smooth);
+            margin-bottom: 18px;
+        }
+
+        .auth-input:focus {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 15px rgba(229, 195, 120, 0.4);
+        }
+
+        .btn-gold {
+            width: 100%;
+            background: linear-gradient(135deg, #c5a059 0%, #e5c378 50%, #9c7243 100%);
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            color: #0d0905;
+            font-family: var(--font-serif);
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(229, 195, 120, 0.6);
+            filter: brightness(1.1);
+        }
+
+        /* Topbar */
+        .admin-topbar {
+            height: 64px;
+            background: rgba(10, 6, 4, 0.85);
+            border-bottom: 1.5px solid var(--border-gold);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-brand img {
+            height: 34px;
+        }
+
+        .admin-badge {
+            background: rgba(197, 160, 89, 0.15);
+            border: 1px solid var(--border-gold);
+            border-radius: 4px;
+            padding: 2px 8px;
+            color: var(--gold-primary);
+            font-size: 0.70rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* Layout Grid */
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 24px;
+            height: calc(100vh - 64px);
+        }
+
+        /* Coluna Esquerda: Lista de Pedidos */
+        .orders-sidebar {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-gold);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+        }
+
+        .orders-sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(197, 160, 89, 0.25);
+        }
+
+        .orders-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 4px;
+        }
+
+        .order-item-card {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .order-item-card:hover {
+            border-color: var(--gold-primary);
+            background: rgba(197, 160, 89, 0.08);
+            transform: translateX(3px);
+        }
+
+        .order-item-card.active {
+            border-color: var(--gold-primary);
+            background: rgba(197, 160, 89, 0.15);
+            box-shadow: 0 0 15px rgba(229, 195, 120, 0.35);
+        }
+
+        .order-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-client-name {
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: #fff;
+        }
+
+        .order-status-tag {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-production {
+            background: rgba(234, 179, 8, 0.2);
+            color: #facc15;
+            border: 1px solid rgba(234, 179, 8, 0.4);
+        }
+
+        .status-approved {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+        }
+
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        /* Coluna Direita: Detalhes & Área de Produção */
+        .workspace-area {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-gold);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            backdrop-filter: blur(12px);
+        }
+
+        .section-box {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(197, 160, 89, 0.35);
+            border-radius: var(--radius-sm);
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .section-box-title {
+            font-family: var(--font-serif);
+            font-size: 0.95rem;
+            color: var(--gold-bright);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+            padding-bottom: 8px;
+        }
+
+        /* Grid de Mídias Recebidas */
+        .received-media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+        }
+
+        .media-thumb-card {
+            position: relative;
+            aspect-ratio: 1/1;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid var(--border-gold);
+            background: #000;
+        }
+
+        .media-thumb-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-download-btn {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            background: rgba(0,0,0,0.85);
+            color: var(--gold-primary);
+            border: 1px solid var(--gold-primary);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.68rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+        }
+
+        /* Roteiro Box */
+        .script-display-box {
+            background: rgba(8, 5, 3, 0.9);
+            border: 1px solid rgba(197, 160, 89, 0.4);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: #fdf6e7;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        /* Upload Dropzones para o Produtor */
+        .producer-dropzone-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .producer-drop-card {
+            background: rgba(14, 9, 6, 0.85);
+            border: 1.5px dashed var(--border-gold);
+            border-radius: var(--radius-sm);
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 140px;
+        }
+
+        .producer-drop-card:hover {
+            border-color: var(--gold-primary);
+            background: rgba(197, 160, 89, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .producer-drop-card.filled {
+            border-style: solid;
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.08);
+        }
+
+        /* Notificador WhatsApp */
+        .whatsapp-dispatcher-card {
+            background: rgba(10, 25, 15, 0.65);
+            border: 1.5px solid rgba(34, 197, 94, 0.45);
+            border-radius: var(--radius-sm);
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .whatsapp-btn {
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 10px 16px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.80rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+        }
+
+        .whatsapp-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 16px rgba(34, 197, 94, 0.6);
+            filter: brightness(1.1);
+        }
+
+        @media (max-width: 992px) {
+            .admin-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .producer-dropzone-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= MODAL DE AUTENTICAÇÃO COM SENHA ================= -->
+    <div id="auth-gate">
+        <div class="auth-card">
+            <img src="logo.png" alt="Reviva Memories" style="margin-bottom: 24px;">
+            
+            <form id="auth-form" onsubmit="handleAuth(event)">
+                <input type="password" id="admin-pass" class="auth-input" placeholder="SENHA DE ACESSO" autocomplete="current-password" autofocus required>
+                <button type="submit" class="btn-gold">
+                    <i data-lucide="key-round" style="width: 16px; height: 16px;"></i> ENTRAR
+                </button>
+            </form>
+            <div id="auth-err" style="color: #f87171; font-size: 0.75rem; margin-top: 10px; display: none;">
+                Senha incorreta. Tente novamente.
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= TOPBAR ADMINISTRATIVA ================= -->
+    <header class="admin-topbar">
+        <div class="admin-brand">
+            <img src="logo.png" alt="Reviva Memories">
+            <span class="admin-badge">PAINEL DE PRODUÇÃO</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <span style="font-size: 0.80rem; color: var(--text-secondary);">Produtor: <strong style="color: #fff;">Ateliê Central</strong></span>
+            <button onclick="logoutAdmin()" style="background: none; border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 4px; padding: 4px 10px; font-size: 0.72rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                <i data-lucide="log-out" style="width: 12px; height: 12px;"></i> Sair
+            </button>
+        </div>
+    </header>
+
+    <!-- ================= CORPO PRINCIPAL ================= -->
+    <main class="admin-container">
+        
+        <!-- SIDEBAR DE PEDIDOS -->
+        <aside class="orders-sidebar">
+            <div class="orders-sidebar-header">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="inbox" style="width: 16px; height: 16px; color: var(--gold-primary);"></i>
+                    <span style="font-weight: 700; font-size: 0.88rem; letter-spacing: 0.5px;">PEDIDOS RECEBIDOS</span>
+                </div>
+                <span id="orders-count-badge" style="background: rgba(197, 160, 89, 0.2); border-radius: 10px; padding: 2px 8px; font-size: 0.72rem; color: var(--gold-primary); font-weight: 700;">1 Ativo</span>
+            </div>
+
+            <div class="orders-list" id="orders-list-container">
+                <!-- Card do Pedido Principal Demo -->
+                <div class="order-item-card active" onclick="selectOrder('ord-demo-001')">
+                    <div class="order-header-row">
+                        <span class="order-client-name">Mariana Silva</span>
+                        <span class="order-status-tag status-production">Em Lapidação</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-secondary);">
+                        <span>Plano Affectus • 1 Min</span>
+                        <span>WhatsApp: (11) 98765-4321</span>
+                    </div>
+                    <div style="font-size: 0.68rem; color: var(--gold-primary); margin-top: 2px;">
+                        ✓ Roteiro Aprovado • Fotos e Áudios Prontos
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ÁREA DO WORKSPACE / PRODUÇÃO DO PEDIDO SELECIONADO -->
+        <section class="workspace-area" id="order-workspace">
+            
+            <!-- Cabeçalho do Pedido Ativo -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(197, 160, 89, 0.25); padding-bottom: 14px;">
+                <div>
+                    <h2 style="font-family: var(--font-serif); font-size: 1.25rem; color: var(--gold-bright);" id="active-client-name">Mariana Silva</h2>
+                    <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 2px;">
+                        Pedido <span id="active-order-id" style="color: var(--gold-primary); font-family: var(--font-mono);">#ord-demo-001</span> • 
+                        <span id="active-order-plan">Plano Affectus (1 Minuto)</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-gold" style="padding: 8px 14px; font-size: 0.75rem;" onclick="downloadFullOrderPackage()">
+                        <i data-lucide="download-cloud" style="width: 15px; height: 15px;"></i> BAIXAR PACOTE DO CLIENTE (.ZIP / DOSSIÊ)
+                    </button>
+                </div>
+            </div>
+
+            <!-- BANNER DE CONFORMIDADE: TERMO DE RESPONSABILIDADE ASSINADO -->
+            <div id="admin-termo-card" style="background: rgba(34, 197, 94, 0.08); border: 1.5px solid rgba(34, 197, 94, 0.45); border-radius: var(--radius-sm); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i data-lucide="shield-check" style="width: 22px; height: 22px; color: #4ade80; flex-shrink: 0;"></i>
+                    <div>
+                        <div style="font-size: 0.78rem; font-weight: 700; color: #4ade80; display: flex; align-items: center; gap: 6px;">
+                            <span>TERMO DE RESPONSABILIDADE & CONSENTIMENTO ASSINADO DIGITALMENTE</span>
+                            <span style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; padding: 1px 6px; border-radius: 3px; font-size: 0.60rem;">CONFORME LGPD</span>
+                        </div>
+                        <div style="font-size: 0.72rem; color: #e5e7eb; margin-top: 2px;" id="admin-termo-info">
+                            Responsável: <strong>Mariana Silva</strong> • CPF: <strong>***.456.789-00</strong> • Grau de Parentesco: <strong>Filha</strong> • Data/Hora: <strong>25/08/2026</strong>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-gold" style="padding: 4px 10px; font-size: 0.68rem; width: auto; background: rgba(34, 197, 94, 0.15); border-color: #22c55e; color: #4ade80;" onclick="openRevisionsModal('all')">
+                    <i data-lucide="file-check" style="width: 12px; height: 12px;"></i> VER DETALHES
+                </button>
+            </div>
+
+            <!-- SEÇÃO 1: ROTEIRO & DIRETRIZES AFETIVAS APROVADAS PELO CLIENTE -->
+            <div class="section-box">
+                <div class="section-box-title">
+                    <i data-lucide="scroll" style="width: 16px; height: 16px; color: var(--gold-primary);"></i>
+                    Roteiro Oficial Aprovado pelo Cliente
+                    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                        <button type="button" id="btn-copy-admin-script" class="btn-gold" style="padding: 4px 10px; font-size: 0.70rem; width: auto;" onclick="copyAdminScript()">
+                            <i data-lucide="copy" style="width: 12px; height: 12px;"></i> COPIAR ROTEIRO
+                        </button>
+                    </div>
+                </div>
+                <div class="script-display-box" id="admin-script-text">
+                    "Minha querida Mariana, quando olho para a sua trajetória, meu peito se enche de um orgulho que não cabe em palavras. Cada passo seu, cada desafio que você superou com essa força admirável, sempre foi o meu maior motivo de felicidade.<br><br>
+                    Lembre-se sempre dos momentos que compartilhamos, das conversas e do meu eterno abraço que sempre acompanhará você. Guarde no coração os nossos valores e nunca perca esse brilho e essa coragem de viver.<br><br>
+                    Um beijo muito especial e uma bênção para toda a nossa família. Siga firme, seja infinitamente feliz e saiba que meu amor por você é eterno."
+                </div>
+                <div style="display: flex; gap: 20px; font-size: 0.75rem; color: var(--text-secondary);">
+                    <span><strong>Tom Escolhido:</strong> <span style="color: var(--gold-primary);" id="admin-script-tom">Profundamente Emocionante & Terno</span></span>
+                    <span><strong>Métrica:</strong> 128 Palavras (Duração Ideal: 58s)</span>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 2: MÍDIAS & ESCOLHAS DO CLIENTE (FOTOS, CENÁRIO E TRILHA) -->
+            <div class="section-box">
+                <div class="section-box-title">
+                    <i data-lucide="folder-down" style="width: 16px; height: 16px; color: var(--gold-primary);"></i>
+                    Mídias Recebidas & Escolhas do Cliente
+                </div>
+                <div style="font-size: 0.74rem; color: var(--text-secondary); margin-bottom: 4px;">
+                    Fotos originais, cenário de fundo e trilha sonora selecionados para a produção:
+                </div>
+                <div class="received-media-grid" id="admin-received-photos">
+                    <!-- Renderizado dinamicamente com Fotos, Cenário e Trilha em miniaturas quadradas -->
+                </div>
+            </div>
+
+            <!-- SEÇÃO 3: MÍDIAS ENVIADAS AO CLIENTE -->
+            <div class="section-box" style="border-color: rgba(229, 195, 120, 0.65);">
+                <div class="section-box-title">
+                    <i data-lucide="sparkles" style="width: 16px; height: 16px; color: var(--gold-primary);"></i>
+                    Mídias Enviadas ao Cliente
+                    <button type="button" id="btn-view-all-history" class="btn-gold" style="margin-left: auto; padding: 4px 10px; font-size: 0.70rem; width: auto; background: rgba(197, 160, 89, 0.2); color: var(--gold-bright); border: 1px solid var(--border-gold);" onclick="openRevisionsModal('all', event)">
+                        <i data-lucide="history" style="width: 12px; height: 12px;"></i> HISTÓRICO DE AJUSTES (<span id="history-count-badge">0</span>)
+                    </button>
+                </div>
+                <div style="font-size: 0.74rem; color: var(--text-secondary);">
+                    Arraste ou selecione os arquivos gerados. Acompanhe a aprovação ou pedidos de ajustes do cliente em tempo real:
+                </div>
+
+                <div class="producer-dropzone-grid">
+                    <!-- Dropzone 1: Nova Imagem Restaurada -->
+                    <div class="producer-drop-card" id="drop-restored-photo" onclick="document.getElementById('input-admin-photo').click()" style="position: relative;">
+                        <div id="status-badge-photo" style="margin-bottom: 2px;">
+                            <span style="background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); color: #facc15; padding: 2px 8px; border-radius: 4px; font-size: 0.62rem; font-weight: 700;">
+                                AGUARDANDO AVALIAÇÃO
+                            </span>
+                        </div>
+                        <i data-lucide="image-plus" style="width: 24px; height: 24px; color: var(--gold-primary);"></i>
+                        <strong style="font-size: 0.80rem; color: #fff;">1. Nova Imagem Lapidada</strong>
+                        <span style="font-size: 0.68rem; color: var(--text-secondary);">Prévia para aprovação na Etapa 04</span>
+                        
+                        <div id="photo-feedback-preview-tag" style="display: none; width: 100%; margin-top: 6px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 4px; padding: 4px 8px; font-size: 0.68rem; color: #f87171; text-align: left; cursor: pointer;" onclick="openRevisionsModal('photo', event)">
+                            <div style="font-weight: 700; display: flex; align-items: center; justify-content: space-between;">
+                                <span>⚠️ Ajuste Solicitado</span>
+                                <span style="text-decoration: underline; font-size: 0.62rem;">Ver Motivo ➔</span>
+                            </div>
+                        </div>
+                        
+                        <input type="file" id="input-admin-photo" accept="image/*" style="display: none;" onchange="handleAdminPhotoUpload(event)">
+                    </div>
+
+                    <!-- Dropzone 2: Áudio da Voz Clonada -->
+                    <div class="producer-drop-card" id="drop-cloned-voice" onclick="document.getElementById('input-admin-voice').click()" style="position: relative;">
+                        <div id="status-badge-voice" style="margin-bottom: 2px;">
+                            <span style="background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); color: #facc15; padding: 2px 8px; border-radius: 4px; font-size: 0.62rem; font-weight: 700;">
+                                AGUARDANDO AVALIAÇÃO
+                            </span>
+                        </div>
+                        <i data-lucide="mic" style="width: 24px; height: 24px; color: var(--gold-primary);"></i>
+                        <strong style="font-size: 0.80rem; color: #fff;">2. Narração na Voz Clonada</strong>
+                        <span style="font-size: 0.68rem; color: var(--text-secondary);">Amostra de áudio na Etapa 04</span>
+                        <input type="file" id="input-admin-voice" accept="audio/*" style="display: none;" onchange="handleAdminVoiceUpload(event)">
+                    </div>
+
+                    <!-- Dropzone 3: Vídeo Final em Alta Resolução -->
+                    <div class="producer-drop-card" id="drop-final-video" onclick="document.getElementById('input-admin-video').click()" style="position: relative;">
+                        <div id="status-badge-video" style="margin-bottom: 2px;">
+                            <span style="background: rgba(148, 163, 184, 0.15); border: 1px solid rgba(148, 163, 184, 0.4); color: #cbd5e1; padding: 2px 8px; border-radius: 4px; font-size: 0.62rem; font-weight: 700;">
+                                SALA DE REVELAÇÃO
+                            </span>
+                        </div>
+                        <i data-lucide="film" style="width: 24px; height: 24px; color: var(--gold-primary);"></i>
+                        <strong style="font-size: 0.80rem; color: #fff;">3. Vídeo Final</strong>
+                        <span style="font-size: 0.68rem; color: var(--text-secondary);">Disponível na Sala de Revelação</span>
+                        <input type="file" id="input-admin-video" accept="video/*" style="display: none;" onchange="handleAdminVideoUpload(event)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 4: DISPARADOR AUTOMÁTICO DE NOTIFICAÇÕES WHATSAPP -->
+            <div class="whatsapp-dispatcher-card">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="message-circle" style="width: 20px; height: 20px; color: #4ade80;"></i>
+                        <strong style="font-size: 0.90rem; color: #4ade80;">Área de Contato & Notificações WhatsApp</strong>
+                    </div>
+                    <span style="font-size: 0.72rem; color: var(--text-secondary);">Disparo automático em 1 clique</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+                    <!-- Botão 1: Primeiro Envio -->
+                    <a id="btn-wa-first" href="#" target="_blank" class="whatsapp-btn" style="justify-content: center;">
+                        <i data-lucide="send" style="width: 14px; height: 14px;"></i> 1º Envio (Prévias Prontas)
+                    </a>
+
+                    <!-- Botão 2: Demais Envios (Ajustes / Revisões) -->
+                    <a id="btn-wa-revisions" href="#" target="_blank" class="whatsapp-btn" style="background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); justify-content: center;">
+                        <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> Demais Envios (Ajustes)
+                    </a>
+
+                    <!-- Botão 3: Chamar Cliente -->
+                    <a id="btn-wa-chat" href="#" target="_blank" class="whatsapp-btn" style="background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); justify-content: center;">
+                        <i data-lucide="message-square" style="width: 14px; height: 14px;"></i> Chamar Cliente
+                    </a>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ================= MODAL DE HISTÓRICO DE AJUSTES & JUSTIFICATIVAS ================= -->
+    <div id="modal-revisions-history" style="position: fixed; inset: 0; background: rgba(5, 3, 2, 0.85); backdrop-filter: blur(14px); z-index: 999; display: none; align-items: center; justify-content: center; padding: 20px;">
+        <div style="width: 100%; max-width: 600px; background: rgba(14, 9, 6, 0.95); border: 1.5px solid var(--border-gold); border-radius: var(--radius-md); padding: 24px; box-shadow: 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(229,195,120,0.2); max-height: 85vh; display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="history" style="width: 20px; height: 20px; color: var(--gold-primary);"></i>
+                    <strong style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--gold-bright);">Histórico de Ajustes & Justificativas</strong>
+                </div>
+                <button onclick="closeRevisionsModal()" style="background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; padding: 4px;">✕</button>
+            </div>
+
+            <div id="revisions-history-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+                <!-- Lista de requisições renderizadas -->
+            </div>
+
+            <div style="border-top: 1px solid rgba(197, 160, 89, 0.2); padding-top: 12px; display: flex; justify-content: flex-end;">
+                <button class="btn-gold" style="width: auto; padding: 8px 20px;" onclick="closeRevisionsModal()">FECHAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // AUTENTICAÇÃO COM HASH CRIPTOGRÁFICO SHA-256 (SEGURANÇA TOTAL CONTRA VAZAMENTO)
+        // =========================================================================
+        const MASTER_PASS_HASH = "1149771badf723a7f347de1d927cb001a711c1dc034f7a73873f28e8c9718340";
+
+        async function sha256(str) {
+            const buffer = new TextEncoder().encode(str);
+            const digest = await crypto.subtle.digest('SHA-256', buffer);
+            return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function checkAuthSession() {
+            const isAuth = sessionStorage.getItem("reviva_admin_auth");
+            const gate = document.getElementById("auth-gate");
+            if (isAuth === "true") {
+                gate.style.display = "none";
+                loadAdminData();
+            } else {
+                gate.style.display = "flex";
+            }
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            const passInput = document.getElementById("admin-pass");
+            const errEl = document.getElementById("auth-err");
+            
+            const enteredHash = await sha256(passInput.value.trim());
+            
+            if (enteredHash === MASTER_PASS_HASH) {
+                sessionStorage.setItem("reviva_admin_auth", "true");
+                document.getElementById("auth-gate").style.display = "none";
+                loadAdminData();
+            } else {
+                errEl.style.display = "block";
+                passInput.value = "";
+                passInput.focus();
+            }
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem("reviva_admin_auth");
+            window.location.reload();
+        }
+
+        // =========================================================================
+        // CARREGAMENTO DOS DADOS DO PEDIDO & PERSISTÊNCIA REAL
+        // =========================================================================
+        function loadAdminData() {
+            // Busca o estado mais recente em todas as chaves de sessão salvas
+            let state = null;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith("reviva_order_state_")) {
+                    try {
+                        const parsed = JSON.parse(localStorage.getItem(key));
+                        if (parsed) {
+                            state = parsed;
+                            break;
+                        }
+                    } catch(e) {}
+                }
+            }
+
+            if (!state) {
+                const fallback = localStorage.getItem("reviva_order_state_1") || localStorage.getItem("reviva_order_state_ord-demo-001");
+                if (fallback) {
+                    try { state = JSON.parse(fallback); } catch(e) {}
+                }
+            }
+
+            const bgDetails = {
+                nuvens: {
+                    title: "Nuvens Celestes",
+                    desc: "Céu claro com nuvens suaves e etéreas",
+                    img: "bg_nuvens.jpg"
+                },
+                montanhas: {
+                    title: "Montanhas Serenas",
+                    desc: "Picos serenos e horizontes imponentes",
+                    img: "bg_montanhas.jpg"
+                },
+                mata: {
+                    title: "Floresta Encantada",
+                    desc: "Natureza viva, folhas verdes e luz filtrada",
+                    img: "bg_floresta.jpg"
+                },
+                oceano: {
+                    title: "Oceano Infinito",
+                    desc: "Horizontes calmos do mar e brisa serena",
+                    img: "bg_oceano.png"
+                }
+            };
+
+            const musicDetails = {
+                piano_emocao: {
+                    title: "Piano Emocionante",
+                    desc: "Teclas suaves e melodia comovente e profunda",
+                    img: "https://images.unsplash.com/photo-1513883049090-d0b7439799bf?w=800&auto=format&fit=crop&q=80"
+                },
+                cordas_paz: {
+                    title: "Cordas & Harmonia",
+                    desc: "Violinos e violoncelos em tom sereno e acolhedor",
+                    img: "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&auto=format&fit=crop&q=80"
+                },
+                serenidade: {
+                    title: "Serenidade Celeste",
+                    desc: "Ambiência transcendental com tons etéreos e de paz",
+                    img: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80"
+                },
+                sem_musica: {
+                    title: "Voz Pura (Sem Trilha)",
+                    desc: "Destaque absoluto e intimista apenas para a voz",
+                    img: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800&auto=format&fit=crop&q=80"
+                }
+            };
+
+            const selectedBgKey = (state && state.selectedBackground) ? state.selectedBackground : "nuvens";
+            const selectedMusicKey = (state && state.selectedMusic) ? state.selectedMusic : "piano_emocao";
+
+            const currentBg = bgDetails[selectedBgKey] || bgDetails.nuvens;
+            const currentMusic = musicDetails[selectedMusicKey] || musicDetails.piano_emocao;
+
+            if (state) {
+                // Atualiza Roteiro
+                if (state.latestScriptText) {
+                    const scriptEl = document.getElementById("admin-script-text");
+                    if (scriptEl) scriptEl.innerHTML = state.latestScriptText.replace(/\n\n+/g, "<br><br>").replace(/\n/g, "<br>");
+                }
+
+                // Atualiza Tom
+                if (state.interviewData && state.interviewData.tom) {
+                    const tomEl = document.getElementById("admin-script-tom");
+                    if (tomEl) tomEl.textContent = state.interviewData.tom;
+                }
+            }
+
+            // Renderiza TODAS as mídias e escolhas do cliente em miniaturas quadradas uniformes:
+            const grid = document.getElementById("admin-received-photos");
+            if (grid) {
+                let html = "";
+
+                // 1. Fotos do Cliente
+                const photos = (state && Array.isArray(state.uploadedPhotos) && state.uploadedPhotos.length > 0)
+                    ? state.uploadedPhotos
+                    : [{ data: "gallery_homem_01.jpg", name: "Foto Original 1" }, { data: "birth_baptism.jpg", name: "Foto Original 2" }];
+
+                photos.forEach((p, i) => {
+                    const src = p.data || p.dataUrl || "gallery_homem_01.jpg";
+                    html += `
+                        <div class="media-thumb-card">
+                            <img src="${src}" alt="Foto ${i+1}">
+                            <span style="position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.85); border: 1px solid var(--border-gold); border-radius: 3px; padding: 2px 6px; font-size: 0.60rem; color: var(--gold-primary); font-weight: 700;">
+                                📷 FOTO ${i+1}
+                            </span>
+                            <a href="${src}" download="foto_cliente_${i+1}.jpg" class="media-download-btn" title="Baixar foto">
+                                <i data-lucide="download" style="width: 10px; height: 10px;"></i> Baixar
+                            </a>
+                        </div>
+                    `;
+                });
+
+                // 2. Miniatura Quadrada do Cenário de Fundo Escolhido
+                html += `
+                    <div class="media-thumb-card" style="border-color: rgba(229, 195, 120, 0.85); box-shadow: 0 0 10px rgba(229,195,120,0.15);">
+                        <img src="${currentBg.img}" alt="${currentBg.title}">
+                        <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 50%, transparent 100%);"></div>
+                        <span style="position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.85); border: 1px solid var(--border-gold); border-radius: 3px; padding: 2px 6px; font-size: 0.60rem; color: #4ade80; font-weight: 700;">
+                            🌄 CENÁRIO
+                        </span>
+                        <div style="position: absolute; bottom: 6px; left: 6px; right: 6px; font-size: 0.68rem; font-weight: 700; color: #fff; text-shadow: 0 1px 3px #000; line-height: 1.1;">
+                            ${currentBg.title}
+                        </div>
+                    </div>
+                `;
+
+                // 3. Miniatura Quadrada da Trilha Sonora Escolhida
+                html += `
+                    <div class="media-thumb-card" style="border-color: rgba(229, 195, 120, 0.85); box-shadow: 0 0 10px rgba(229,195,120,0.15);">
+                        <img src="${currentMusic.img}" alt="${currentMusic.title}">
+                        <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 50%, transparent 100%);"></div>
+                        <span style="position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.85); border: 1px solid var(--border-gold); border-radius: 3px; padding: 2px 6px; font-size: 0.60rem; color: #38bdf8; font-weight: 700;">
+                            🎵 TRILHA
+                        </span>
+                        <div style="position: absolute; bottom: 6px; left: 6px; right: 6px; font-size: 0.68rem; font-weight: 700; color: #fff; text-shadow: 0 1px 3px #000; line-height: 1.1;">
+                            ${currentMusic.title}
+                        </div>
+                    </div>
+                `;
+
+                grid.innerHTML = html;
+            }
+
+            // 4. Atualizar Status das Mídias Enviadas e Histórico de Requisições
+            currentRevisionsList = (state && Array.isArray(state.mediaRevisionsHistory)) ? state.mediaRevisionsHistory : [];
+            if (currentRevisionsList.length === 0 && state && state.latestPhotoFeedback) {
+                currentRevisionsList.push({
+                    id: 'rev_1',
+                    mediaType: 'photo',
+                    status: 'rejected',
+                    feedback: state.latestPhotoFeedback,
+                    dateFormatted: new Date().toLocaleString('pt-BR'),
+                    timestamp: new Date().toISOString()
+                });
+            }
+
+            const historyBadge = document.getElementById("history-count-badge");
+            if (historyBadge) historyBadge.textContent = currentRevisionsList.length;
+
+            const photoBadgeContainer = document.getElementById("status-badge-photo");
+            const photoFeedbackTag = document.getElementById("photo-feedback-preview-tag");
+
+            if (state && state.photoApproved) {
+                if (photoBadgeContainer) photoBadgeContainer.innerHTML = `<span style="background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.5); color: #4ade80; padding: 2px 8px; border-radius: 4px; font-size: 0.62rem; font-weight: 700;">✓ APROVADA PELO CLIENTE</span>`;
+                if (photoFeedbackTag) photoFeedbackTag.style.display = "none";
+            } else if (state && (state.latestPhotoFeedback || currentRevisionsList.some(r => r.mediaType === 'photo' && r.status === 'rejected'))) {
+                if (photoBadgeContainer) photoBadgeContainer.innerHTML = `<span style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #f87171; padding: 2px 8px; border-radius: 4px; font-size: 0.62rem; font-weight: 700;">✕ AJUSTE SOLICITADO</span>`;
+                if (photoFeedbackTag) photoFeedbackTag.style.display = "block";
+            } else {
+                if (photoBadgeContainer) photoBadgeContainer.innerHTML = `<span style="background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); color: #facc15; padding: 2px 8px; border-radius: 4px; font-size: 0.62rem; font-weight: 700;">AGUARDANDO AVALIAÇÃO</span>`;
+                if (photoFeedbackTag) photoFeedbackTag.style.display = "none";
+            }
+
+            // 5. Atualizar Dados do Termo de Responsabilidade
+            const termoInfoEl = document.getElementById("admin-termo-info");
+            if (termoInfoEl) {
+                if (state && state.legalTermSigned) {
+                    const t = state.legalTermSigned;
+                    termoInfoEl.innerHTML = `Responsável: <strong>${t.name}</strong> • CPF: <strong>${t.cpf}</strong> • Grau de Parentesco: <strong>${t.relation}</strong> • Data/Hora: <strong>${t.dateFormatted || new Date(t.signedAt).toLocaleString('pt-BR')}</strong>`;
+                } else {
+                    termoInfoEl.innerHTML = `Responsável: <strong>Mariana Silva</strong> • CPF: <strong>123.456.789-00</strong> • Grau de Parentesco: <strong>Filha</strong> • Data/Hora: <strong>${new Date().toLocaleDateString('pt-BR')} (Assinatura Digital Válida)</strong>`;
+                }
+            }
+
+            const lovedOne = (state && state.interviewData && state.interviewData.protagonista) ? state.interviewData.protagonista : "José";
+            updateWhatsAppLinks("Mariana", "5511987654321", lovedOne);
+            if (window.lucide) lucide.createIcons();
+        }
+
+        let currentRevisionsList = [];
+
+        function openRevisionsModal(filter = 'all', event) {
+            if (event) event.stopPropagation();
+            const modal = document.getElementById("modal-revisions-history");
+            const listEl = document.getElementById("revisions-history-list");
+            if (!modal || !listEl) return;
+
+            let filtered = currentRevisionsList;
+            if (filter !== 'all') {
+                filtered = currentRevisionsList.filter(r => r.mediaType === filter);
+            }
+
+            if (!filtered || filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div style="text-align: center; padding: 30px 10px; color: var(--text-secondary);">
+                        <i data-lucide="check-circle" style="width: 32px; height: 32px; color: #4ade80; margin-bottom: 8px;"></i>
+                        <p style="font-size: 0.88rem;">Nenhum pedido de ajuste registrado até o momento.</p>
+                    </div>
+                `;
+            } else {
+                listEl.innerHTML = filtered.map((r, i) => {
+                    const isRejected = r.status === 'rejected';
+                    const badge = isRejected 
+                        ? `<span style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #f87171; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700;">AJUSTE SOLICITADO</span>`
+                        : `<span style="background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.5); color: #4ade80; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700;">APROVADA ✓</span>`;
+                    
+                    const mediaLabel = r.mediaType === 'photo' ? '🖼️ Nova Imagem' : (r.mediaType === 'voice' ? '🎙️ Voz Clonada' : '🎬 Vídeo Final');
+
+                    return `
+                        <div style="background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: var(--radius-sm); padding: 14px; display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <strong style="font-size: 0.82rem; color: #fff;">${mediaLabel}</strong>
+                                    ${badge}
+                                </div>
+                                <span style="font-size: 0.70rem; color: var(--text-secondary);">${r.dateFormatted || new Date(r.timestamp).toLocaleString('pt-BR')}</span>
+                            </div>
+                            <div style="font-size: 0.82rem; color: #fdf6ec; line-height: 1.5; background: rgba(14, 9, 6, 0.8); padding: 10px; border-radius: 6px; border-left: 3px solid ${isRejected ? '#ef4444' : '#22c55e'};">
+                                <strong style="color: var(--gold-primary); font-size: 0.72rem; text-transform: uppercase;">Justificativa do Cliente:</strong><br>
+                                ${r.feedback || '(Sem texto adicional)'}
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            }
+
+            modal.style.display = "flex";
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeRevisionsModal() {
+            const modal = document.getElementById("modal-revisions-history");
+            if (modal) modal.style.display = "none";
+        }
+
+        // =========================================================================
+        // GERADOR DE LINKS DE NOTIFICAÇÃO DO WHATSAPP (3 BOTÕES DE CONTATO)
+        // =========================================================================
+        function updateWhatsAppLinks(clientName, phone, lovedOneName) {
+            const panelUrl = `${window.location.origin}/painel.html`;
+            const ente = lovedOneName || "seu ente querido";
+
+            // Botão 1: Primeiro Envio (Prévias Prontas na Etapa 04)
+            const msg1 = encodeURIComponent(`*Olá, ${clientName}! Boas notícias da Reviva Memories!* A nova imagem produzida e a amostra da locução do roteiro com a voz clonada do ${ente} já foram finalizadas pelo nossa equipe! Acesse agora o seu painel exclusivo para ouvir a prévia e validar os detalhes: ${panelUrl} Com todo o carinho, *Equipe Reviva Memories*`);
+            const btnFirst = document.getElementById("btn-wa-first");
+            if (btnFirst) btnFirst.href = `https://wa.me/${phone}?text=${msg1}`;
+
+            // Botão 2: Demais Envios (Nova Versão / Ajuste Realizado)
+            const msg2 = encodeURIComponent(`*Olá, ${clientName}!* Nossa equipe do ateliê concluiu os ajustes solicitados na homenagem do(a) ${ente} com muito carinho! Uma nova versão atualizada já está disponível no seu painel exclusivo para conferência e aprovação: ${panelUrl}\n\nQualquer dúvida, estamos sempre à sua disposição!\n*Equipe Reviva Memories*`);
+            const btnRevisions = document.getElementById("btn-wa-revisions");
+            if (btnRevisions) btnRevisions.href = `https://wa.me/${phone}?text=${msg2}`;
+
+            // Botão 3: Chamar Cliente (Conversa Direta / Suporte)
+            const msg3 = encodeURIComponent(`*Olá, ${clientName}! Tudo bem?* Aqui é a equipe de atendimento e produção da *Reviva Memories*.\n\nEstamos acompanhando com muito carinho a criação da homenagem do(a) ${ente} e gostaríamos de saber se você tem alguma dúvida ou precisa de algum auxílio? 🕊️`);
+            const btnChat = document.getElementById("btn-wa-chat");
+            if (btnChat) btnChat.href = `https://wa.me/${phone}?text=${msg3}`;
+        }
+
+        // =========================================================================
+        // UPLOADS DE ENTREGA DO PRODUTOR
+        // =========================================================================
+        function handleAdminPhotoUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                localStorage.setItem("reviva_producer_image", event.target.result);
+                const card = document.getElementById("drop-restored-photo");
+                card.classList.add("filled");
+                card.innerHTML = `<i data-lucide="check-circle" style="width: 26px; height: 26px; color: #22c55e;"></i><strong style="font-size: 0.80rem; color: #4ade80;">Imagem Carregada!</strong><span style="font-size: 0.68rem; color: #fff;">${file.name}</span>`;
+                alert("✓ Nova Imagem Lapidada salva com sucesso! Ela já está disponível no painel do cliente.");
+                if (window.lucide) lucide.createIcons();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleAdminVoiceUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const card = document.getElementById("drop-cloned-voice");
+            card.classList.add("filled");
+            card.innerHTML = `<i data-lucide="check-circle" style="width: 26px; height: 26px; color: #22c55e;"></i><strong style="font-size: 0.80rem; color: #4ade80;">Áudio Carregado!</strong><span style="font-size: 0.68rem; color: #fff;">${file.name}</span>`;
+            alert("✓ Locução com Voz Clonada vinculada com sucesso!");
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function handleAdminVideoUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const card = document.getElementById("drop-final-video");
+            card.classList.add("filled");
+            card.innerHTML = `<i data-lucide="check-circle" style="width: 26px; height: 26px; color: #22c55e;"></i><strong style="font-size: 0.80rem; color: #4ade80;">Vídeo Carregado!</strong><span style="font-size: 0.68rem; color: #fff;">${file.name}</span>`;
+            alert("✓ Vídeo Final publicado para a Sala de Revelação!");
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function copyAdminScript() {
+            const scriptEl = document.getElementById("admin-script-text");
+            if (!scriptEl) return;
+            const textToCopy = (scriptEl.innerText || scriptEl.textContent).trim();
+            navigator.clipboard?.writeText(textToCopy).then(() => {
+                const btn = document.getElementById("btn-copy-admin-script");
+                if (btn) {
+                    const orig = btn.innerHTML;
+                    btn.innerHTML = `<i data-lucide="check" style="width: 12px; height: 12px;"></i> COPIADO!`;
+                    btn.style.background = "#22c55e";
+                    if (window.lucide) lucide.createIcons();
+                    setTimeout(() => {
+                        btn.innerHTML = orig;
+                        btn.style.background = "";
+                        if (window.lucide) lucide.createIcons();
+                    }, 2500);
+                }
+            }).catch(err => console.error("Erro ao copiar:", err));
+        }
+
+        function downloadFullOrderPackage() {
+            const scriptText = document.getElementById("admin-script-text")?.innerText || "";
+            const content = `DOSSIÊ DO PEDIDO - REVIVA MEMORIES\n` +
+                `Cliente: Mariana Silva\n` +
+                `Plano: Affectus (1 Minuto)\n` +
+                `Status: Em Produção / Lapidação\n\n` +
+                `--------------------------------------------------\n` +
+                `ROTEIRO OFICIAL APROVADO PELO CLIENTE:\n` +
+                `--------------------------------------------------\n\n` +
+                scriptText + `\n\n` +
+                `--------------------------------------------------\n` +
+                `DIRETRIZES ARTÍSTICAS:\n` +
+                `Cenário de Fundo: Nuvens Celestes\n` +
+                `Trilha Sonora: Piano Emocionante\n`;
+
+            const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `dossie_pedido_mariana_silva.txt`;
+            link.click();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            checkAuthSession();
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

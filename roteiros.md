@@ -31,7 +31,7 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 **Personagem / Apresentador:** Iasis (Agente IA)  
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
 **Texto de Narração:**
-> "A experiência tem 4 etapas onde você participa ativamente aprovando a imagem, roteiro e voz num processo simples, cuidadoso e profundamente humanizado, focado no respeito absoluto à memória de quem você ama utilizando tecnologia de inteligência artificial de ponta e a máxima sensibilidade afetiva e artística para lapidar registros e criar um reencontro inesquecível, repleto de afeto e carinho. Experimente!"
+> "A experiência tem 5 etapas onde você participa ativamente escolhendo cenários, trilhas e aprovando imagem e voz num processo simples, cuidadoso e profundamente humanizado, focado no respeito absoluto à memória de quem você ama utilizando tecnologia de inteligência artificial de ponta e a máxima sensibilidade afetiva e artística para lapidar registros e criar um reencontro inesquecível, repleto de afeto e carinho. Experimente!"
 
 ---
 
