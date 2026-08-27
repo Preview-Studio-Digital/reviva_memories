@@ -28,11 +28,57 @@ class RevivaDataService {
             const { data: { user } } = await this.supabase.auth.getUser();
             return user;
         }
+
+        // 1. Tentar ler do Termo Assinado
+        try {
+            const rawTerm = localStorage.getItem('reviva_legal_term');
+            if (rawTerm) {
+                const term = JSON.parse(rawTerm);
+                if (term?.name && term.name.trim().length > 0) {
+                    return {
+                        id: 'user-' + (term.cpf || '123'),
+                        email: 'cliente@exemplo.com',
+                        user_metadata: { full_name: term.name.trim() }
+                    };
+                }
+            }
+        } catch(e) {}
+
+        // 2. Tentar ler do Pedido de Compra
+        try {
+            const rawOrder = localStorage.getItem('reviva_order_data');
+            if (rawOrder) {
+                const order = JSON.parse(rawOrder);
+                if (order?.customer_name && order.customer_name.trim().length > 0) {
+                    return {
+                        id: 'user-' + (order.customer_cpf || '123'),
+                        email: order.customer_email || 'cliente@exemplo.com',
+                        user_metadata: { full_name: order.customer_name.trim() }
+                    };
+                }
+            }
+        } catch(e) {}
+
+        // 3. Tentar ler da Sessão do Usuário
+        try {
+            const rawUser = localStorage.getItem('reviva_session_user');
+            if (rawUser) {
+                const u = JSON.parse(rawUser);
+                if (u?.name && u.name.trim().length > 0) {
+                    return {
+                        id: 'user-' + (u.cpf || '123'),
+                        email: u.email || 'cliente@exemplo.com',
+                        user_metadata: { full_name: u.name.trim() }
+                    };
+                }
+            }
+        } catch(e) {}
+
         const saved = localStorage.getItem('reviva_mock_user');
         return saved ? JSON.parse(saved) : {
             id: 'mock-user-123',
             email: 'cliente@exemplo.com',
-            user_metadata: { full_name: 'Mariana Silva' }
+            user_metadata: { full_name: 'Mariana Silva Santos' }
         };
     }
 
@@ -79,7 +125,7 @@ class RevivaDataService {
             plan_name: 'affectus', // 1 minuto (Padrão Oficial de Testes)
             status: 'onboarding',
             background_choice: 'jardim',
-            music_choice: 'piano_emocao',
+            music_choice: 'sem_musica',
             public_token: 'reviva_token_exemplo_777',
             photos: [],
             audios: [],

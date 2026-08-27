@@ -545,9 +545,11 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" class="btn-gold" style="padding: 4px 10px; font-size: 0.68rem; width: auto; background: rgba(34, 197, 94, 0.15); border-color: #22c55e; color: #4ade80;" onclick="openRevisionsModal('all')">
-                    <i data-lucide="file-check" style="width: 12px; height: 12px;"></i> VER DETALHES
-                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn-gold" style="padding: 4px 10px; font-size: 0.68rem; width: auto; background: rgba(34, 197, 94, 0.15); border-color: #22c55e; color: #4ade80;" onclick="downloadTermoAdmin()">
+                        <i data-lucide="download" style="width: 12px; height: 12px;"></i> BAIXAR TERMO
+                    </button>
+                </div>
             </div>
 
             <!-- SEÇÃO 1: ROTEIRO & DIRETRIZES AFETIVAS APROVADAS PELO CLIENTE -->
@@ -798,33 +800,49 @@
             };
 
             const musicDetails = {
+                sem_musica: {
+                    title: "Sem Trilha",
+                    desc: "Voz destacada com efeitos sonoros e ambiência natural",
+                    img: "trilha_sem_trilha.jpg"
+                },
+                piano: {
+                    title: "Piano",
+                    desc: "Teclas suaves e melodia comovente e profunda",
+                    img: "trilha_piano.jpg"
+                },
+                violino: {
+                    title: "Violino",
+                    desc: "Cordas clássicas em tom sereno e acolhedor",
+                    img: "trilha_violino.jpg"
+                },
+                violao: {
+                    title: "Violão",
+                    desc: "Acordes acústicos intimistas, afeto e delicadeza",
+                    img: "trilha_violao.jpg"
+                },
+                // Aliases de compatibilidade legada
                 piano_emocao: {
-                    title: "Piano Emocionante",
+                    title: "Piano",
                     desc: "Teclas suaves e melodia comovente e profunda",
                     img: "https://images.unsplash.com/photo-1513883049090-d0b7439799bf?w=800&auto=format&fit=crop&q=80"
                 },
                 cordas_paz: {
-                    title: "Cordas & Harmonia",
-                    desc: "Violinos e violoncelos em tom sereno e acolhedor",
-                    img: "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&auto=format&fit=crop&q=80"
+                    title: "Violino",
+                    desc: "Cordas clássicas em tom sereno e acolhedor",
+                    img: "https://images.unsplash.com/photo-1612225330812-01a9c6b355ec?w=800&auto=format&fit=crop&q=80"
                 },
                 serenidade: {
-                    title: "Serenidade Celeste",
-                    desc: "Ambiência transcendental com tons etéreos e de paz",
-                    img: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80"
-                },
-                sem_musica: {
-                    title: "Voz Pura (Sem Trilha)",
-                    desc: "Destaque absoluto e intimista apenas para a voz",
-                    img: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800&auto=format&fit=crop&q=80"
+                    title: "Violão",
+                    desc: "Acordes acústicos intimistas, afeto e delicadeza",
+                    img: "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=800&auto=format&fit=crop&q=80"
                 }
             };
 
             const selectedBgKey = (state && state.selectedBackground) ? state.selectedBackground : "nuvens";
-            const selectedMusicKey = (state && state.selectedMusic) ? state.selectedMusic : "piano_emocao";
+            const selectedMusicKey = (state && state.selectedMusic) ? state.selectedMusic : "sem_musica";
 
             const currentBg = bgDetails[selectedBgKey] || bgDetails.nuvens;
-            const currentMusic = musicDetails[selectedMusicKey] || musicDetails.piano_emocao;
+            const currentMusic = musicDetails[selectedMusicKey] || musicDetails.sem_musica;
 
             if (state) {
                 // Atualiza Roteiro
@@ -927,19 +945,80 @@
             }
 
             // 5. Atualizar Dados do Termo de Responsabilidade
+            const rawOrder = localStorage.getItem("reviva_order_data");
+            const orderData = rawOrder ? JSON.parse(rawOrder) : null;
+            const clientNameAdmin = state?.legalTermSigned?.name || orderData?.customer_name || state?.clientName || "Mariana Silva";
+            const clientCpfAdmin = state?.legalTermSigned?.cpf || orderData?.customer_cpf || state?.clientCpf || "123.456.789-00";
+            const clientPhoneAdmin = orderData?.customer_phone || "5511987654321";
+
+            document.querySelectorAll(".order-client-name, #active-client-name").forEach(el => el.textContent = clientNameAdmin);
+
             const termoInfoEl = document.getElementById("admin-termo-info");
             if (termoInfoEl) {
                 if (state && state.legalTermSigned) {
                     const t = state.legalTermSigned;
-                    termoInfoEl.innerHTML = `Responsável: <strong>${t.name}</strong> • CPF: <strong>${t.cpf}</strong> • Grau de Parentesco: <strong>${t.relation}</strong> • Data/Hora: <strong>${t.dateFormatted || new Date(t.signedAt).toLocaleString('pt-BR')}</strong>`;
+                    const relNarrator = t.relationNarrator || t.relation || 'Filho(a)';
+                    const relRecipient = t.relationRecipient || 'Próprio cliente';
+                    termoInfoEl.innerHTML = `Responsável: <strong>${t.name}</strong> • CPF: <strong>${t.cpf}</strong> • Laço com Falecido: <strong>${relNarrator}</strong> • Laço com Homenageado: <strong>${relRecipient}</strong> • Data: <strong>${t.dateFormatted || new Date(t.signedAt).toLocaleString('pt-BR')}</strong>`;
                 } else {
-                    termoInfoEl.innerHTML = `Responsável: <strong>Mariana Silva</strong> • CPF: <strong>123.456.789-00</strong> • Grau de Parentesco: <strong>Filha</strong> • Data/Hora: <strong>${new Date().toLocaleDateString('pt-BR')} (Assinatura Digital Válida)</strong>`;
+                    termoInfoEl.innerHTML = `Responsável: <strong>${clientNameAdmin}</strong> • CPF: <strong>${clientCpfAdmin}</strong> • Laço com Falecido: <strong>Filho(a)</strong> • Laço com Homenageado: <strong>Próprio cliente</strong> • Data: <strong>${new Date().toLocaleDateString('pt-BR')} (Assinatura Digital Válida)</strong>`;
                 }
             }
 
             const lovedOne = (state && state.interviewData && state.interviewData.protagonista) ? state.interviewData.protagonista : "José";
-            updateWhatsAppLinks("Mariana", "5511987654321", lovedOne);
+            updateWhatsAppLinks(clientNameAdmin, clientPhoneAdmin, lovedOne);
             if (window.lucide) lucide.createIcons();
+        }
+
+        function downloadTermoAdmin() {
+            const rawSession = localStorage.getItem("reviva_full_session_state");
+            const state = rawSession ? JSON.parse(rawSession) : null;
+            const rawOrder = localStorage.getItem("reviva_order_data");
+            const orderData = rawOrder ? JSON.parse(rawOrder) : null;
+            const t = (state && state.legalTermSigned) ? state.legalTermSigned : {
+                name: orderData?.customer_name || "Mariana Silva Santos",
+                cpf: orderData?.customer_cpf || "123.456.789-00",
+                relationNarrator: "Filha",
+                relationRecipient: "Sou eu mesma",
+                signedAt: new Date().toISOString(),
+                dateFormatted: new Date().toLocaleString('pt-BR'),
+                authHash: "REVIVA-AUTH-4F8A9B2C1E7D3F6A5B8C9D0E1F2A3B4C"
+            };
+
+            const docContent = `================================================================================
+                    REVIVA MEMORIES - COMPROVANTE OFICIAL
+            TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO (LGPD)
+================================================================================
+
+1. IDENTIFICAÇÃO DO CONTRATANTE RESPONSÁVEL:
+--------------------------------------------------------------------------------
+Nome Completo: ${t.name}
+CPF: ${t.cpf}
+Laço com a Pessoa Falecida (Narrador): ${t.relationNarrator || t.relation || 'Não especificado'}
+Laço com a Pessoa Homenageada (Destinatário): ${t.relationRecipient || 'Não especificado'}
+Data e Hora da Assinatura: ${t.dateFormatted || new Date(t.signedAt).toLocaleString('pt-BR')}
+Protocolo de Autenticidade Digital: ${t.authHash || 'REVIVA-AUTH-OFFICIAL-' + Date.now()}
+
+2. DECLARAÇÃO E CLÁUSULAS ACEITAS INTEGRALMENTE:
+--------------------------------------------------------------------------------
+- Finalidade Afetiva e Privada (Art. 186 Código Civil)
+- Declaração de Titularidade e Consentimento Expresso (Art. 299 Código Penal)
+- Tratamento Seguro e Sigiloso de Biometria / Imagem / Voz (Lei 13.709/2018 - LGPD)
+- Vedação Absoluta de Usos Restritivos, Difamatórios, Ilícitos ou Deepfakes
+- Responsabilidade Civil e Criminal Exclusiva do Contratante com Isenção da Plataforma
+
+Status: ASSINADO DIGITALMENTE E ARQUIVADO JUNTO AO PEDIDO
+================================================================================`;
+
+            const blob = new Blob([docContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Termo_Responsabilidade_${t.name.replace(/\s+/g, '_')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         let currentRevisionsList = [];

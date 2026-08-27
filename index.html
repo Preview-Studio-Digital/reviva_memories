@@ -1263,6 +1263,79 @@
         <div class="audio-footer-right desktop-only"></div>
     </div>
 
-    <script src="app.js?v=1.3.9"></script>
+    <!-- ================= MODAL DE CHECKOUT SIMULADO (AMBIENTE DE TESTE INTEGRADO) ================= -->
+    <div id="modal-checkout-simulado" style="position: fixed; inset: 0; background: rgba(5, 3, 2, 0.92); backdrop-filter: blur(16px); z-index: 100000; display: none; align-items: center; justify-content: center; padding: 16px;">
+        <div style="width: 100%; max-width: 580px; background: rgba(14, 9, 6, 0.98); border: 1.5px solid var(--border-gold); border-radius: var(--radius-md); padding: 26px 30px; box-shadow: 0 0 60px rgba(0,0,0,0.95), 0 0 30px rgba(229,195,120,0.22); max-height: 92vh; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; position: relative;">
+            
+            <button type="button" onclick="closeCheckoutModal()" style="position: absolute; top: 16px; right: 18px; background: none; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer; padding: 4px;">✕</button>
+
+            <div style="text-align: center; border-bottom: 1px solid rgba(197, 160, 89, 0.25); padding-bottom: 12px;">
+                <img src="logo.png" alt="Reviva Memories" style="height: 38px; margin: 0 auto 6px auto; display: block;">
+                <div style="display: inline-block; background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); color: #facc15; font-size: 0.62rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
+                    SIMULADOR DE CHECKOUT & PAGAMENTO
+                </div>
+                <h3 style="font-family: var(--font-serif); font-size: 1.25rem; color: var(--gold-bright); letter-spacing: 1px; margin-bottom: 2px;">FINALIZAR CONTRATAÇÃO</h3>
+                <p style="font-size: 0.76rem; color: var(--text-secondary);">Simule uma compra aprovada para testar o fluxo de ponta a ponta</p>
+            </div>
+
+            <!-- Resumo do Pedido Selecionado -->
+            <div id="checkout-summary-box" style="background: rgba(197, 160, 89, 0.08); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: var(--radius-sm); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div>
+                    <div style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Plano Selecionado</div>
+                    <div id="chk-plan-name" style="font-family: var(--font-serif); font-size: 1.05rem; color: var(--gold-bright); font-weight: 700;">Plano Legatum</div>
+                    <div id="chk-plan-details" style="font-size: 0.72rem; color: #e2e8f0; margin-top: 2px;">2 Minutos • Formato Horizontal</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase;">Valor Total</div>
+                    <div id="chk-plan-price" style="font-size: 1.25rem; color: #4ade80; font-weight: 800;">R$ 897,00</div>
+                </div>
+            </div>
+
+            <!-- Formulário de Identificação do Cliente -->
+            <form id="form-checkout-simulado" onsubmit="handleSimulateCheckout(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.74rem; color: var(--gold-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Dados do Contratante</span>
+                    <button type="button" onclick="preencherDadosTesteCheckout()" style="background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); color: var(--gold-bright); font-size: 0.65rem; padding: 3px 8px; border-radius: 4px; cursor: pointer;">
+                        ✨ Preencher Dados de Teste
+                    </button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">NOME COMPLETO *</label>
+                        <input type="text" id="chk-input-name" required placeholder="Ex: Mariana Silva Santos" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">CPF *</label>
+                        <input type="text" id="chk-input-cpf" required placeholder="000.000.000-00" maxlength="14" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">E-MAIL *</label>
+                        <input type="email" id="chk-input-email" required placeholder="exemplo@email.com" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">WHATSAPP *</label>
+                        <input type="tel" id="chk-input-phone" required placeholder="(11) 98765-4321" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                    </div>
+                </div>
+
+                <div style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.72rem; color: #cbd5e1; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="shield-check" style="width: 18px; height: 18px; color: #4ade80; flex-shrink: 0;"></i>
+                    <span>Ao simular o pagamento, os dados serão vinculados ao Termo de Responsabilidade e você será redirecionado para a etapa inicial do Painel.</span>
+                </div>
+
+                <button type="submit" id="btn-submit-checkout-simulado" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 0.85rem; font-weight: 700; margin-top: 4px; background: linear-gradient(135deg, #22c55e, #16a34a); border-color: #4ade80; color: #fff; box-shadow: 0 0 20px rgba(34, 197, 94, 0.35);">
+                    <i data-lucide="credit-card"></i>
+                    <span>SIMULAR PAGAMENTO APROVADO & AVANÇAR</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js?v=1.4.0"></script>
 </body>
 </html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termo de Responsabilidade & Consentimento Ético | Reviva Memories</title>
+    <link rel="icon" type="image/x-icon" href="logo.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-deep: #050302;
+            --bg-card: rgba(14, 9, 6, 0.94);
+            --border-gold: rgba(197, 160, 89, 0.45);
+            --border-gold-bright: rgba(229, 195, 120, 0.85);
+            --gold-primary: #c5a059;
+            --gold-bright: #e5c378;
+            --gold-light: #f6e3c5;
+            --text-primary: #ffffff;
+            --text-secondary: #ede3d2;
+            --text-muted: #a39585;
+            --font-serif: 'Playfair Display', serif;
+            --font-title: 'Cormorant Garamond', serif;
+            --font-sans: 'Montserrat', sans-serif;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(197, 160, 89, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 80% 100%, rgba(197, 160, 89, 0.08) 0%, transparent 50%),
+                linear-gradient(to bottom, #050302 0%, #0a0604 100%);
+            background-attachment: fixed;
+        }
+
+        .termo-container {
+            width: 100%;
+            max-width: 760px;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-gold);
+            border-radius: var(--radius-md);
+            padding: 32px 36px;
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 195, 120, 0.18);
+            backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+        }
+
+        .termo-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-bottom: 1px solid rgba(197, 160, 89, 0.3);
+            padding-bottom: 18px;
+            width: 100%;
+        }
+
+        .termo-logo {
+            height: 44px;
+            width: auto;
+            margin: 0 auto 10px auto;
+            display: block;
+            filter: drop-shadow(0 2px 10px rgba(0,0,0,0.8));
+        }
+
+        .termo-title {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            color: var(--gold-bright);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .termo-subtitle {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        /* Caixa de Texto Jurídico */
+        .termo-legal-box {
+            background: rgba(8, 5, 3, 0.88);
+            border: 1px solid rgba(197, 160, 89, 0.35);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            font-size: 0.76rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-height: 240px;
+            overflow-y: auto;
+            text-align: justify;
+        }
+
+        .termo-legal-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        .termo-legal-box::-webkit-scrollbar-thumb {
+            background: rgba(197, 160, 89, 0.4);
+            border-radius: 3px;
+        }
+
+        .termo-legal-box p {
+            margin-bottom: 12px;
+        }
+        .termo-legal-box p:last-child {
+            margin-bottom: 0;
+        }
+        .termo-legal-box strong {
+            color: var(--gold-light);
+            font-weight: 600;
+        }
+
+        /* Formulário */
+        .termo-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 640px) {
+            .termo-container {
+                padding: 22px 18px;
+            }
+            .form-grid-2 {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-label {
+            font-size: 0.70rem;
+            color: var(--gold-bright);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.65);
+            border: 1px solid rgba(197, 160, 89, 0.45);
+            border-radius: var(--radius-sm);
+            padding: 9px 12px;
+            color: #ffffff;
+            font-size: 0.82rem;
+            font-family: var(--font-sans);
+            outline: none;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--gold-bright);
+            box-shadow: 0 0 12px rgba(229, 195, 120, 0.35);
+        }
+
+        .form-input::placeholder {
+            color: #64748b;
+            opacity: 1;
+            transition: color 0.2s ease;
+        }
+
+        .form-input:focus::placeholder {
+            color: transparent;
+        }
+
+        .form-select option {
+            background-color: #0e0906;
+            color: #ffffff;
+        }
+
+        /* Checkbox de Aceite */
+        .accept-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.74rem;
+            color: var(--gold-light);
+            cursor: pointer;
+            background: rgba(197, 160, 89, 0.08);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            margin-top: 4px;
+            line-height: 1.5;
+            transition: background 0.2s ease;
+        }
+        .accept-box:hover {
+            background: rgba(197, 160, 89, 0.14);
+        }
+        .accept-box input {
+            accent-color: var(--gold-bright);
+            width: 16px;
+            height: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        /* Botão Dourado */
+        .btn-confirm-termo {
+            width: 100%;
+            height: 44px;
+            background: linear-gradient(135deg, #d4af37 0%, #aa771c 100%);
+            border: 1px solid var(--gold-bright);
+            border-radius: var(--radius-sm);
+            color: #050302;
+            font-family: var(--font-sans);
+            font-size: 0.84rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 16px rgba(212, 175, 55, 0.4);
+            transition: all 0.3s ease;
+            margin-top: 6px;
+        }
+        .btn-confirm-termo:hover {
+            background: linear-gradient(135deg, #f3e5ab 0%, #c5a059 100%);
+            box-shadow: 0 4px 22px rgba(229, 195, 120, 0.6);
+            transform: translateY(-1px);
+        }
+
+        /* Comprovante de Assinatura */
+        .receipt-card {
+            display: none;
+            background: rgba(34, 197, 94, 0.08);
+            border: 1.5px solid rgba(34, 197, 94, 0.5);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            margin-top: 14px;
+            box-shadow: 0 0 25px rgba(34, 197, 94, 0.15);
+        }
+
+        .receipt-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #4ade80;
+            font-size: 0.92rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.25);
+            padding-bottom: 8px;
+        }
+
+        .receipt-data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.74rem;
+            color: #e2e8f0;
+        }
+
+        .receipt-item {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .receipt-item-label {
+            font-size: 0.64rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .receipt-item-val {
+            color: #f8fafc;
+            font-weight: 600;
+        }
+
+        .receipt-hash {
+            grid-column: 1 / -1;
+            font-family: monospace;
+            font-size: 0.68rem;
+            color: #4ade80;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            word-break: break-all;
+        }
+
+        .btn-to-painel {
+            width: 100%;
+            height: 42px;
+            background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+            border: 1px solid #4ade80;
+            border-radius: var(--radius-sm);
+            color: #ffffff;
+            font-family: var(--font-sans);
+            font-size: 0.84rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 14px;
+            text-decoration: none;
+            box-shadow: 0 4px 16px rgba(34, 197, 94, 0.35);
+            transition: all 0.25s ease;
+        }
+        .btn-to-painel:hover {
+            background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="termo-container">
+        
+        <!-- Topo da Empresa e Título -->
+        <header class="termo-header">
+            <img src="logo.png" alt="Reviva Memories" class="termo-logo">
+            <h1 class="termo-title">Termo de Responsabilidade & Consentimento Ético</h1>
+            <p class="termo-subtitle">Declaração de Titularidade, Vínculo e Autorização de Uso de Imagem & Voz com Inteligência Artificial</p>
+        </header>
+
+        <!-- Texto Fundamentado dos Termos Legais -->
+        <section class="termo-legal-box">
+            <p><strong>1. FINALIDADE AFETIVA E ESTRITAMENTE PESSOAL:</strong> As homenagens produzidas pela <em>Reviva Memories</em> destinam-se exclusivamente à preservação de memórias familiares, celebração em vida ou póstuma de vínculos afetivos e exibição em âmbito privado, residencial ou em solenidades familiares restritas.</p>
+            
+            <p><strong>2. DECLARAÇÃO DE TITULARIDADE E CONSENTIMENTO EXPRESSO:</strong> O(a) CONTRATANTE declara, sob as penas da lei (especialmente o Art. 299 do Código Penal Brasileiro - Falsidade Ideológica, e Art. 186 do Código Civil Brasileiro), possuir legítimo vínculo, posse dos direitos ou consentimento da família da pessoa cuja imagem e voz serão restauradas e recriadas.</p>
+            
+            <p><strong>3. CONFORMIDADE COM A LGPD (LEI Nº 13.709/2018):</strong> Todos os dados biométricos, fotos e amostras sonoras fornecidas são processados sob sigilo absoluto em ambiente seguro e encriptado, sendo utilizados exclusivamente para a confecção da homenagem solicitada e descartados conforme nossa política de privacidade.</p>
+            
+            <p><strong>4. VEDAÇÃO ABSOLUTA DE USOS RESTRITIVOS, FRAUDULENTOS OU ILÍCITOS:</strong> É expressamente proibida a contratação deste serviço para a criação de deepfakes difamatórias, simulações financeiras ou fraudulentas, fins políticos/eleitorais, peças comerciais sem anuência, atos vexatórios ou qualquer violação da honra de terceiros.</p>
+            
+            <p><strong>5. RESPONSABILIDADE CIVIL, PENAL E ISENÇÃO DA PLATAFORMA:</strong> O(a) CONTRATANTE assume responsabilidade civil e criminal exclusiva e integral por eventuais danos causados a terceiros decorrentes do fornecimento indevido de mídias ou de má-fé nas declarações prestadas, isentando a plataforma <em>Reviva Memories</em> e seus operadores técnicos de qualquer responsabilidade perante terceiros.</p>
+        </section>
+
+        <!-- Formulário de Aceite e Vínculos -->
+        <form id="formTermoAvaliacao" class="termo-form" onsubmit="processarAceite(event)">
+            
+            <!-- Linha 1: Nome e CPF -->
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label" for="iptNome" style="white-space: nowrap;">NOME DO RESPONSÁVEL</label>
+                    <input type="text" id="iptNome" class="form-input" required readonly value="Mariana Silva Santos" style="background: rgba(255,255,255,0.06); color: var(--gold-bright); border-color: rgba(197, 160, 89, 0.25); cursor: not-allowed; font-weight: 600;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="iptCpf" style="white-space: nowrap;">CPF DO RESPONSÁVEL</label>
+                    <input type="text" id="iptCpf" class="form-input" required readonly value="123.456.789-00" style="background: rgba(255,255,255,0.06); color: var(--gold-bright); border-color: rgba(197, 160, 89, 0.25); cursor: not-allowed; font-weight: 600;">
+                </div>
+            </div>
+
+            <!-- Linha 2: Os Dois Laços Obrigatórios (Campos Abertos) -->
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label" for="iptNarrador" style="white-space: nowrap;">SEU LAÇO COM A PESSOA FALECIDA *</label>
+                    <input type="text" id="iptNarrador" class="form-input" required placeholder="Ex: Sou filho da pessoa falecida, Sou neto da pessoa falecida, Não cheguei a conhecer a pessoa falecida...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="iptDestinatario" style="white-space: nowrap;">SEU LAÇO COM A PESSOA HOMENAGEADA *</label>
+                    <input type="text" id="iptDestinatario" class="form-input" required placeholder="Ex: Eu mesmo(a) serei o homenageado(a), Meu namorado será o homenageado, Minha irmã será a homenageada...">
+                </div>
+            </div>
+
+            <!-- Checkbox de Aceite Formal -->
+            <label class="accept-box" for="chkConcordo">
+                <input type="checkbox" id="chkConcordo" required>
+                <span>Declaro que li, compreendi e concordo integralmente com as cláusulas deste Termo de Responsabilidade & Consentimento Ético, assumindo total responsabilidade legal sobre os materiais fornecidos e atestando a veracidade de todas as informações.</span>
+            </label>
+
+            <!-- Botão de Confirmação -->
+            <button type="submit" id="btnSubmitTermo" class="btn-confirm-termo">
+                <i data-lucide="shield-check"></i>
+                <span>Confirmar Termo & Registrar Aceite Eletrônico</span>
+            </button>
+        </form>
+
+        <!-- Comprovante Gerado Após o Aceite -->
+        <div id="receiptResult" class="receipt-card">
+            <div class="receipt-header">
+                <i data-lucide="badge-check" style="width: 22px; height: 22px;"></i>
+                <span>Aceite Eletrônico Registrado com Sucesso</span>
+            </div>
+            <div class="receipt-data-grid">
+                <div class="receipt-item">
+                    <div class="receipt-item-label">Responsável Legal</div>
+                    <div class="receipt-item-val" id="recNome">-</div>
+                </div>
+                <div class="receipt-item">
+                    <div class="receipt-item-label">CPF</div>
+                    <div class="receipt-item-val" id="recCpf">-</div>
+                </div>
+                <div class="receipt-item">
+                    <div class="receipt-item-label">Laço com o Narrador</div>
+                    <div class="receipt-item-val" id="recNarrador">-</div>
+                </div>
+                <div class="receipt-item">
+                    <div class="receipt-item-label">Laço com o Homenageado</div>
+                    <div class="receipt-item-val" id="recDestinatario">-</div>
+                </div>
+                <div class="receipt-item" style="grid-column: 1 / -1;">
+                    <div class="receipt-item-label">Data e Hora do Registro (Timestamp)</div>
+                    <div class="receipt-item-val" id="recDataHora">-</div>
+                </div>
+                <div class="receipt-hash" id="recHash">
+                    HASH DE AUTENTICIDADE: Carregando...
+                </div>
+            </div>
+
+            <a href="painel.html" class="btn-to-painel">
+                <i data-lucide="arrow-right-circle"></i>
+                <span>Acessar Painel do Cliente (Etapa 01: O Resgate)</span>
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        if (window.lucide) lucide.createIcons();
+
+        // Algoritmo Oficial da Receita Federal para Validação de CPF (Módulo 11)
+        function validarCPF(cpf) {
+            if (!cpf || typeof cpf !== 'string') return false;
+            const limpo = cpf.replace(/\D/g, '');
+            if (limpo.length !== 11) return false;
+            
+            // Rejeita sequências de dígitos iguais (ex: 111.111.111-11, 000.000.000-00, etc.)
+            if (/^(\d)\1{10}$/.test(limpo)) return false;
+
+            // Validação do 1º Dígito Verificador
+            let soma = 0;
+            for (let i = 0; i < 9; i++) {
+                soma += parseInt(limpo.charAt(i), 10) * (10 - i);
+            }
+            let resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(limpo.charAt(9), 10)) return false;
+
+            // Validação do 2º Dígito Verificador
+            soma = 0;
+            for (let i = 0; i < 10; i++) {
+                soma += parseInt(limpo.charAt(i), 10) * (11 - i);
+            }
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(limpo.charAt(10), 10)) return false;
+
+            return true;
+        }
+
+        // Validação de Nome Completo (Pelo menos 2 palavras com 2+ caracteres cada)
+        function validarNomeCompleto(nome) {
+            if (!nome || typeof nome !== 'string') return false;
+            const partes = nome.trim().split(/\s+/).filter(p => p.length >= 2);
+            return partes.length >= 2;
+        }
+
+        // Máscara e Validação em Tempo Real para o CPF
+        const cpfInput = document.getElementById('iptCpf');
+        const errCpf = document.getElementById('errCpf');
+
+        function checarCpfVisual() {
+            const raw = cpfInput.value;
+            const digitos = raw.replace(/\D/g, '');
+            if (digitos.length === 11) {
+                const valido = validarCPF(raw);
+                if (valido) {
+                    cpfInput.style.borderColor = '#22c55e';
+                    cpfInput.style.boxShadow = '0 0 10px rgba(34, 197, 94, 0.35)';
+                    if (errCpf) errCpf.style.display = 'none';
+                    return true;
+                } else {
+                    cpfInput.style.borderColor = '#ef4444';
+                    cpfInput.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.35)';
+                    if (errCpf) errCpf.style.display = 'block';
+                    return false;
+                }
+            } else {
+                cpfInput.style.borderColor = 'rgba(197, 160, 89, 0.45)';
+                cpfInput.style.boxShadow = 'none';
+                if (errCpf) errCpf.style.display = 'none';
+                return false;
+            }
+        }
+
+        cpfInput?.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+            else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+            else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+            e.target.value = v;
+            checarCpfVisual();
+        });
+
+        cpfInput?.addEventListener('blur', function() {
+            const raw = cpfInput.value;
+            const digitos = raw.replace(/\D/g, '');
+            if (digitos.length > 0 && !validarCPF(raw)) {
+                cpfInput.style.borderColor = '#ef4444';
+                if (errCpf) errCpf.style.display = 'block';
+            }
+        });
+
+        // Validação em Tempo Real para o Nome
+        const nomeInput = document.getElementById('iptNome');
+        const errNome = document.getElementById('errNome');
+
+        nomeInput?.addEventListener('blur', function() {
+            if (nomeInput.value.trim().length > 0 && !validarNomeCompleto(nomeInput.value)) {
+                nomeInput.style.borderColor = '#ef4444';
+                if (errNome) errNome.style.display = 'block';
+            } else if (validarNomeCompleto(nomeInput.value)) {
+                nomeInput.style.borderColor = '#22c55e';
+                if (errNome) errNome.style.display = 'none';
+            }
+        });
+
+        function processarAceite(e) {
+            e.preventDefault();
+            const nome = document.getElementById('iptNome').value.trim();
+            const cpf = document.getElementById('iptCpf').value.trim();
+            const narrador = document.getElementById('iptNarrador').value.trim();
+            const destinatario = document.getElementById('iptDestinatario').value.trim();
+            const concordo = document.getElementById('chkConcordo').checked;
+
+            // Validação de Nome
+            if (!validarNomeCompleto(nome)) {
+                if (errNome) errNome.style.display = 'block';
+                nomeInput.focus();
+                alert('Por favor, informe seu nome e sobrenome completos.');
+                return;
+            } else {
+                if (errNome) errNome.style.display = 'none';
+            }
+
+            // Validação de CPF
+            if (!validarCPF(cpf)) {
+                if (errCpf) errCpf.style.display = 'block';
+                cpfInput.focus();
+                alert('O CPF digitado é inválido. Por favor, digite um CPF real com dígitos verificadores válidos.');
+                return;
+            } else {
+                if (errCpf) errCpf.style.display = 'none';
+            }
+
+            if (!narrador || !destinatario || !concordo) {
+                alert('Por favor, preencha todos os campos e confirme a declaração.');
+                return;
+            }
+
+            const now = new Date();
+            const dataHoraStr = now.toLocaleString('pt-BR') + ' (UTC' + (now.getTimezoneOffset() / -60) + ')';
+            
+            // Gerador de hash de autenticidade (Simulação SHA-256)
+            const pseudoHash = 'REVIVA-AUTH-' + Array.from({length: 32}, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
+
+            // Salvar no localStorage para que o painel.html reconheça como assinado
+            const legalTermSigned = {
+                signed: true,
+                name: nome,
+                cpf: cpf,
+                relationNarrator: narrador,
+                relationRecipient: destinatario,
+                signedAt: now.toISOString(),
+                dateFormatted: now.toLocaleString('pt-BR'),
+                authHash: pseudoHash
+            };
+            localStorage.setItem('reviva_legal_term', JSON.stringify(legalTermSigned));
+
+            // Sincronizar com o estado mestre do painel
+            try {
+                let fullState = {};
+                const rawFull = localStorage.getItem('reviva_full_session_state');
+                if (rawFull) fullState = JSON.parse(rawFull);
+                fullState.legalTermSigned = legalTermSigned;
+                fullState.clientName = nome;
+                fullState.clientCpf = cpf;
+                localStorage.setItem('reviva_full_session_state', JSON.stringify(fullState));
+            } catch(err) {}
+
+            // Preencher comprovante
+            document.getElementById('recNome').textContent = nome;
+            document.getElementById('recCpf').textContent = cpf;
+            document.getElementById('recNarrador').textContent = narrador;
+            document.getElementById('recDestinatario').textContent = destinatario;
+            document.getElementById('recDataHora').textContent = dataHoraStr;
+            document.getElementById('recHash').textContent = 'PROTOCOLO DIGITAL: ' + pseudoHash + ' • STATUS: REGISTRADO & VÁLIDO';
+
+            document.getElementById('formTermoAvaliacao').style.display = 'none';
+            document.getElementById('receiptResult').style.display = 'block';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // Carregar dados da compra simulada ao abrir
+        window.addEventListener('DOMContentLoaded', () => {
+            try {
+                const rawOrder = localStorage.getItem('reviva_order_data');
+                if (rawOrder) {
+                    const order = JSON.parse(rawOrder);
+                    if (order.customer_name && document.getElementById('iptNome')) {
+                        document.getElementById('iptNome').value = order.customer_name;
+                    }
+                    if (order.customer_cpf && document.getElementById('iptCpf')) {
+                        document.getElementById('iptCpf').value = order.customer_cpf;
+                    }
+                }
+            } catch(e) {}
+        });
+    </script>
+</body>
+</html>

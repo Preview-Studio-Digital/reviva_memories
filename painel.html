@@ -30,9 +30,38 @@
             overflow: hidden !important;
             margin: 0;
             padding: 0;
-            background: transparent !important;
+            background: #000000 !important;
             color: var(--text-primary);
             font-family: var(--font-primary);
+        }
+
+        /* Imagem de Fundo 100% Idêntica ao Site Oficial */
+        .global-bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('bg_01.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(10px);
+            transform: scale(1.04);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 1;
+        }
+
+        .global-galaxy-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+            mix-blend-mode: screen;
         }
 
         .painel-viewport {
@@ -44,6 +73,7 @@
             z-index: 10;
             padding: 8px 24px;
             box-sizing: border-box;
+            background: transparent !important;
         }
 
         /* Topbar Nobre Flutuante 100% Transparente */
@@ -122,6 +152,21 @@
             flex-shrink: 0;
             min-width: 85px;
             user-select: none;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+
+        .step-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .step-item:hover .step-bubble {
+            border-color: #e5c378;
+            color: #fcebd0;
+            box-shadow: 0 0 12px rgba(229, 195, 120, 0.4);
+        }
+
+        .step-item:hover .step-label {
+            color: #fcebd0;
         }
 
         .step-bubble {
@@ -372,7 +417,181 @@
             overflow: visible;
         }
 
-        /* Rotador de Dicas com Fade In / Out dentro do Card de Envio (Ícone Acima do Texto) */
+        /* Dicas de Upload Visíveis nos Cards */
+        .upload-tips-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+            max-width: 360px;
+            margin: 6px auto;
+        }
+
+        .upload-tip-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 0.76rem;
+            color: #f6e3c5;
+            background: rgba(197, 160, 89, 0.08);
+            border: 1px solid rgba(197, 160, 89, 0.22);
+            border-radius: 6px;
+            padding: 5px 10px;
+            text-align: left;
+            box-sizing: border-box;
+            transition: all 0.25s ease;
+        }
+
+        .upload-tip-item:hover {
+            background: rgba(197, 160, 89, 0.16);
+            border-color: #e5c378;
+        }
+
+        .upload-tip-item i,
+        .upload-tip-item svg {
+            width: 15px !important;
+            height: 15px !important;
+            color: #e5c378 !important;
+            flex-shrink: 0;
+        }
+
+        /* Grid das 5 Dicas em Posições Marcadas (Layout 2-1-2 / Quincunx - Sem caixas/molduras, posicionadas na base) */
+        .tips-die-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 8px 16px;
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto 4px auto;
+            box-sizing: border-box;
+        }
+
+        .upload-tip-die-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4px 6px;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            box-sizing: border-box;
+            transition: all 0.25s ease;
+        }
+
+        .upload-tip-die-item:hover {
+            background: transparent !important;
+            transform: translateY(-2px);
+        }
+
+        .upload-tip-die-item i,
+        .upload-tip-die-item svg {
+            width: 24px !important;
+            height: 24px !important;
+            color: #e5c378 !important;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 0 6px rgba(229, 195, 120, 0.45));
+            transition: transform 0.25s ease, color 0.25s ease;
+        }
+
+        .upload-tip-die-item:hover i,
+        .upload-tip-die-item:hover svg {
+            transform: scale(1.15);
+            color: #f6e3c5 !important;
+        }
+
+        .upload-tip-die-item span {
+            font-size: 0.72rem;
+            color: #f6e3c5;
+            font-weight: 500;
+            line-height: 1.25;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Espaços/Slots Fixos para os Envios (3 Slots Lado a Lado Centralizados no Espaço Intermediário) */
+        .upload-slots-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin: auto 0;
+            box-sizing: border-box;
+        }
+
+        .upload-slot-empty {
+            width: 84px;
+            height: 84px;
+            border-radius: 10px;
+            border: 1.5px dashed rgba(197, 160, 89, 0.45);
+            background: rgba(12, 8, 5, 0.55);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        .upload-slot-empty:hover {
+            border-color: #e5c378;
+            border-style: solid;
+            background: rgba(197, 160, 89, 0.16);
+            transform: translateY(-2px);
+            box-shadow: 0 0 14px rgba(229, 195, 120, 0.4);
+        }
+
+        .upload-slot-empty i,
+        .upload-slot-empty svg {
+            width: 20px !important;
+            height: 20px !important;
+            color: rgba(229, 195, 120, 0.85) !important;
+        }
+
+        .upload-slot-empty span {
+            font-size: 0.62rem;
+            color: rgba(246, 227, 197, 0.7);
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+
+        .upload-slot-filled {
+            position: relative;
+            width: 84px;
+            height: 84px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1.5px solid #e5c378;
+            flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.7);
+            background: #000;
+            box-sizing: border-box;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .upload-slot-audio-filled {
+            position: relative;
+            width: 84px;
+            height: 84px;
+            border-radius: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        /* Rotador de Dicas legado caso utilizado */
         .dropzone-tips-rotator {
             position: relative;
             width: 100%;
@@ -431,13 +650,16 @@
             cursor: pointer;
             display: flex;
             flex-direction: column;
-            justify-content: space-evenly;
+            justify-content: flex-start;
             align-items: center;
             padding: 10px 14px;
             box-sizing: border-box;
             backdrop-filter: blur(12px);
             transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(197, 160, 89, 0.3) transparent;
         }
 
         .upload-zone-compact:hover {
@@ -447,6 +669,33 @@
             box-shadow: 0 0 20px rgba(229, 195, 120, 0.6), 0 0 40px rgba(156, 114, 71, 0.4), 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(229, 195, 120, 0.3);
             transform: translateY(-2px);
             background: rgba(14, 9, 6, 0.75);
+        }
+
+        /* Estados Visuais dos Cards de Upload: Vermelho Leve (Vazio) / Verde Leve (Preenchido) */
+        .upload-zone-compact.zone-empty {
+            border: 1.5px solid rgba(239, 68, 68, 0.45) !important;
+            background: rgba(36, 12, 10, 0.55) !important;
+            box-shadow: 0 0 14px rgba(239, 68, 68, 0.15) !important;
+        }
+
+        .upload-zone-compact.zone-empty:hover {
+            border-color: rgba(248, 113, 113, 0.85) !important;
+            border-width: 2px !important;
+            box-shadow: 0 0 22px rgba(239, 68, 68, 0.4), inset 0 0 12px rgba(239, 68, 68, 0.2) !important;
+            background: rgba(48, 16, 14, 0.72) !important;
+        }
+
+        .upload-zone-compact.zone-filled {
+            border: 1.5px solid rgba(34, 197, 94, 0.50) !important;
+            background: rgba(10, 32, 16, 0.55) !important;
+            box-shadow: 0 0 16px rgba(34, 197, 94, 0.2) !important;
+        }
+
+        .upload-zone-compact.zone-filled:hover {
+            border-color: rgba(74, 222, 128, 0.9) !important;
+            border-width: 2px !important;
+            box-shadow: 0 0 22px rgba(34, 197, 94, 0.45), inset 0 0 14px rgba(34, 197, 94, 0.25) !important;
+            background: rgba(14, 42, 22, 0.75) !important;
         }
 
         .upload-zone-compact:hover .photo-dropzone-header h4,
@@ -460,6 +709,21 @@
             filter: drop-shadow(0 0 8px rgba(229, 195, 120, 0.8));
             transform: scale(1.08);
             transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        /* Estilo do Botão Avançar Desabilitado (Etapa 1 e Etapa 4) */
+        #btn-next-step-1:disabled,
+        #btn-next-step-1.btn-disabled,
+        #btn-approve-lapidacao:disabled,
+        #btn-approve-lapidacao.btn-disabled {
+            opacity: 0.38 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+            border-color: rgba(197, 160, 89, 0.2) !important;
+            background: rgba(22, 15, 10, 0.6) !important;
+            box-shadow: none !important;
+            color: rgba(246, 227, 197, 0.45) !important;
+            transform: none !important;
         }
 
         /* Lista de Cenários: Paisagem Selecionada Ocupa Metade Exata da Altura (50%) */
@@ -1239,17 +1503,58 @@
         }
 
         .preview-watermark-card {
-            background: rgba(8, 5, 3, 0.55);
-            border: 1.5px solid rgba(197, 160, 89, 0.45);
+            background: rgba(14, 9, 6, 0.65);
+            border: 1.5px solid rgba(197, 160, 89, 0.4);
             border-radius: var(--radius-md);
             backdrop-filter: blur(12px);
             display: flex;
             flex-direction: column;
             height: 100%;
             min-height: 0;
-            padding: 12px 16px;
+            padding: 10px 14px;
             box-sizing: border-box;
             justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .preview-watermark-card:hover {
+            border-color: #e5c378;
+            box-shadow: 0 0 20px rgba(229, 195, 120, 0.5), 0 10px 30px rgba(0, 0, 0, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Estados Visuais dos Cards da Etapa 4: Idênticos à Etapa 1 (Verde = Aprovado / Vermelho = Reprovado) */
+        .preview-watermark-card.card-approved,
+        .preview-watermark-card.zone-filled {
+            border: 1.5px solid rgba(34, 197, 94, 0.50) !important;
+            background: rgba(10, 32, 16, 0.55) !important;
+            box-shadow: 0 0 16px rgba(34, 197, 94, 0.2) !important;
+        }
+
+        .preview-watermark-card.card-approved:hover,
+        .preview-watermark-card.zone-filled:hover {
+            border-color: rgba(74, 222, 128, 0.9) !important;
+            border-width: 2px !important;
+            box-shadow: 0 0 22px rgba(34, 197, 94, 0.45), inset 0 0 14px rgba(34, 197, 94, 0.25) !important;
+            background: rgba(14, 42, 22, 0.75) !important;
+        }
+
+        .preview-watermark-card.card-rejected,
+        .preview-watermark-card.zone-empty {
+            border: 1.5px solid rgba(239, 68, 68, 0.45) !important;
+            background: rgba(36, 12, 10, 0.55) !important;
+            box-shadow: 0 0 14px rgba(239, 68, 68, 0.15) !important;
+        }
+
+        .preview-watermark-card.card-rejected:hover,
+        .preview-watermark-card.zone-empty:hover {
+            border-color: rgba(248, 113, 113, 0.85) !important;
+            border-width: 2px !important;
+            box-shadow: 0 0 22px rgba(239, 68, 68, 0.4), inset 0 0 12px rgba(239, 68, 68, 0.2) !important;
+            background: rgba(48, 16, 14, 0.72) !important;
         }
 
         .preview-media-frame {
@@ -1339,24 +1644,23 @@
             min-height: 0;
             border-radius: var(--radius-sm);
             overflow: hidden;
-            border: 1.5px solid #e5c378;
+            border: 1.5px solid rgba(197, 160, 89, 0.45);
             background: #000;
-            box-shadow: 0 0 25px rgba(229, 195, 120, 0.35);
-            cursor: pointer;
+            box-shadow: 0 0 25px rgba(229, 195, 120, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .final-video-poster img {
+        .final-video-poster video {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            filter: brightness(0.85);
-            transition: transform 0.5s ease;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
             display: block;
-        }
-
-        .final-video-poster:hover img {
-            transform: scale(1.03);
-            filter: brightness(0.95);
+            background: #000;
+            border-radius: calc(var(--radius-sm) - 1px);
         }
 
         .final-play-overlay-btn {
@@ -1781,22 +2085,16 @@
                 display: contents !important;
             }
 
-            /* 1. Card de Envio de Fotos (Reduzido para ~44% para abrir espaço para o botão AVANÇAR) */
-            #photo-dropzone {
-                display: flex !important;
-                flex: 0 0 calc(44% - 2px) !important;
-                height: calc(44% - 2px) !important;
-                min-height: calc(44% - 2px) !important;
-                max-height: calc(44% - 2px) !important;
-                margin-bottom: 4px !important;
+            /* Linha dos Dropzones na Etapa 1 */
+            .upload-zones-row {
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+
+            .upload-zone-compact {
+                flex: 1 1 0% !important;
+                min-height: 0 !important;
                 padding: 6px 10px !important;
-                border-radius: var(--radius-md) !important;
-                justify-content: space-evenly !important;
-                align-items: center !important;
-                order: 1 !important;
-                border: 1.5px solid rgba(197, 160, 89, 0.5) !important;
-                background: rgba(12, 8, 5, 0.45) !important;
-                box-sizing: border-box !important;
             }
 
             .photo-dropzone-header {
@@ -2082,6 +2380,9 @@
 </head>
 <body>
 
+    <!-- Imagem de Fundo Oficial Idêntica ao Site (bg_01.jpeg) -->
+    <div class="global-bg-image"></div>
+
     <!-- Galáxia WebGL Global Idêntica ao Site -->
     <div id="galaxyBg" class="global-galaxy-bg"></div>
 
@@ -2089,9 +2390,9 @@
 
         <!-- Topbar -->
         <header class="painel-topbar">
-            <!-- Esquerda: Apenas a Logo Oficial Flutuante -->
-            <div style="display: flex; align-items: center;">
-                <img src="logo.png" alt="Reviva Memories" style="height: 42px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7)); cursor: pointer;">
+            <!-- Esquerda: Apenas a Logo Oficial Flutuante (Não clicável no painel) -->
+            <div style="display: flex; align-items: center; user-select: none;">
+                <img src="logo.png" alt="Reviva Memories" style="height: 42px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7)); cursor: default; pointer-events: none;">
             </div>
 
             <!-- Centro: Painel do Cliente (Fonte nobre dos títulos) -->
@@ -2154,81 +2455,136 @@
                     <!-- Card Geral Unificado Centralizado (Largura Padrão 1040px) -->
                     <div class="upload-wrapper-card" style="width: 100%; max-width: 1040px; height: 100%; min-height: 0; background: rgba(8, 5, 3, 0.55); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: var(--radius-md); padding: 12px 16px; box-sizing: border-box; backdrop-filter: blur(12px); display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
                         
-                        <!-- Badge Nobre do Termo de Responsabilidade Assinado -->
-                        <div id="badge-termo-signed" style="display: none; align-items: center; justify-content: space-between; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 6px; padding: 4px 10px; font-size: 0.70rem; color: #4ade80;">
+                        <!-- Cabeçalho Superior Padronizado do Card -->
+                        <div class="chat-card-header" style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid rgba(197, 160, 89, 0.25); padding-bottom: 6px; flex-shrink: 0;">
                             <div style="display: flex; align-items: center; gap: 6px;">
-                                <i data-lucide="shield-check" style="width: 13px; height: 13px;"></i>
-                                <span id="badge-termo-signed-text">Termo de Responsabilidade & Consentimento Assinado Digitalmente</span>
+                                <i data-lucide="folder-heart" style="width: 15px; height: 15px; color: #e5c378;"></i>
+                                <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">O RESGATE • ENVIO DE FOTOS E ÁUDIOS</span>
                             </div>
-                            <button type="button" onclick="openTermoModal(true)" style="background: none; border: none; color: #e5c378; cursor: pointer; text-decoration: underline; font-size: 0.68rem;">Ver Termo</button>
+                            <div class="step-card-header-badge step-plan-badge" style="background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 2px 8px; color: #e5c378; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase;">
+                                PLANO AFFECTUS • 1 MINUTO • HORIZONTAL & VERTICAL
+                            </div>
                         </div>
 
-                        <!-- Card de Cima: Dropzone de Fotos -->
-                        <div class="upload-zone-compact" id="photo-dropzone" style="flex: 1; min-height: 0; width: 100%;">
-                            <div class="photo-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
-                                <i data-lucide="image-plus" style="width: 24px; height: 24px; color: #e5c378; margin-bottom: 3px;"></i>
-                                <h4 style="color: #f6e3c5; font-size: 0.88rem; margin: 0; font-weight: 600;">Clique ou arraste as fotos aqui</h4>
+                        <!-- Container dos Dois Cards Lado a Lado -->
+                        <div class="upload-zones-row" style="display: flex; flex-direction: row; gap: 14px; flex: 1; min-height: 0; width: 100%;">
+                            
+                            <!-- Card da Esquerda: Dropzone de Fotos -->
+                            <div class="upload-zone-compact zone-empty" id="photo-dropzone" style="flex: 1 1 0%; min-height: 0; width: 50%;">
+                                <!-- 1. Topo: Título do Card -->
+                                <div class="photo-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
+                                    <i data-lucide="image-plus" style="width: 26px; height: 26px; color: #e5c378; margin-bottom: 3px;"></i>
+                                    <h4 style="color: #f6e3c5; font-size: 0.88rem; margin: 0; font-weight: 600;">Clique ou arraste as fotos aqui</h4>
+                                    <p style="font-size: 0.70rem; color: #ede3d2; margin: 2px 0; text-align: center; max-width: 380px; line-height: 1.35; opacity: 0.9;">
+                                        Envie fotos nítidas para restaurar os traços e recriar a imagem em movimento com máxima fidelidade.
+                                    </p>
+                                </div>
+
+                                <!-- 2. Centro: Quadradinhos centralizados no espaço entre o título e as dicas -->
+                                <div class="upload-slots-row" id="photo-slots-container" style="margin: auto 0;">
+                                    <div class="upload-slot-empty" title="Clique para enviar foto 1">
+                                        <i data-lucide="plus"></i>
+                                        <span>Foto 01</span>
+                                    </div>
+                                    <div class="upload-slot-empty" title="Clique para enviar foto 2">
+                                        <i data-lucide="plus"></i>
+                                        <span>Foto 02</span>
+                                    </div>
+                                    <div class="upload-slot-empty" title="Clique para enviar foto 3">
+                                        <i data-lucide="plus"></i>
+                                        <span>Foto 03</span>
+                                    </div>
+                                </div>
+
+                                <!-- 3. Base: Dicas Posicionadas em Formato 2-1-2 sem moldura/caixa -->
+                                <div class="tips-die-grid" style="margin: 0 auto 4px auto;">
+                                    <div class="upload-tip-die-item" style="grid-column: 1;">
+                                        <i data-lucide="camera"></i>
+                                        <span>Até 3 fotografias</span>
+                                    </div>
+                                    <div class="upload-tip-die-item" style="grid-column: 2;">
+                                        <i data-lucide="user-check"></i>
+                                        <span>Fotos individuais</span>
+                                    </div>
+                                    <div class="upload-tip-die-item" style="grid-column: 1 / span 2; justify-self: center; width: 65%; min-width: 170px;">
+                                        <i data-lucide="sun-medium"></i>
+                                        <span>Boa iluminação</span>
+                                    </div>
+                                    <div class="upload-tip-die-item" style="grid-column: 1;">
+                                        <i data-lucide="scan-face"></i>
+                                        <span>Foco no rosto</span>
+                                    </div>
+                                    <div class="upload-tip-die-item" style="grid-column: 2;">
+                                        <i data-lucide="sparkles"></i>
+                                        <span>Expressão natural</span>
+                                    </div>
+                                </div>
+
+                                <input type="file" id="photo-input" multiple accept="image/*" style="display: none;">
                             </div>
 
-                            <div class="dropzone-tips-rotator" id="dropzoneTipsRotator">
-                                <div class="dropzone-tip-slide active">
-                                    <i data-lucide="camera"></i>
-                                    <span>Até 3 fotografias</span>
+                            <!-- Card da Direita: Dropzone de Áudios -->
+                            <div class="upload-zone-compact zone-empty" id="audio-dropzone" style="flex: 1 1 0%; min-height: 0; width: 50%;">
+                                <!-- 1. Topo: Título do Card -->
+                                <div class="audio-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
+                                    <i data-lucide="mic" style="width: 26px; height: 26px; color: #e5c378; margin-bottom: 3px;"></i>
+                                    <h4 style="color: #f6e3c5; font-size: 0.88rem; margin: 0; font-weight: 600;">Clique ou arraste áudios com a voz original</h4>
+                                    <p style="font-size: 0.70rem; color: #ede3d2; margin: 2px 0; text-align: center; max-width: 380px; line-height: 1.35; opacity: 0.9;">
+                                        Envie áudios claros para extrair o timbre e clonar a voz autêntica que narrará a homenagem.
+                                    </p>
                                 </div>
-                                <div class="dropzone-tip-slide">
-                                    <i data-lucide="user-check"></i>
-                                    <span>Fotos Individuais</span>
+
+                                <!-- 2. Centro: Quadradinhos centralizados no espaço entre o título e as dicas -->
+                                <div class="upload-slots-row" id="audio-slots-container" style="margin: auto 0;">
+                                    <div class="upload-slot-empty" title="Clique para enviar áudio 1">
+                                        <i data-lucide="plus"></i>
+                                        <span>Áudio 01</span>
+                                    </div>
+                                    <div class="upload-slot-empty" title="Clique para enviar áudio 2">
+                                        <i data-lucide="plus"></i>
+                                        <span>Áudio 02</span>
+                                    </div>
+                                    <div class="upload-slot-empty" title="Clique para enviar áudio 3">
+                                        <i data-lucide="plus"></i>
+                                        <span>Áudio 03</span>
+                                    </div>
                                 </div>
-                                <div class="dropzone-tip-slide">
-                                    <i data-lucide="sun-medium"></i>
-                                    <span>Boa iluminação</span>
+
+                                <!-- 3. Base: Dicas Posicionadas em Formato 2-1-2 sem moldura/caixa -->
+                                <div class="tips-die-grid" style="margin: 0 auto 4px auto;">
+                                    <div class="upload-tip-die-item" style="grid-column: 1;">
+                                        <i data-lucide="clock"></i>
+                                        <span>Até 3 minutos</span>
+                                    </div>
+                                    <div class="upload-tip-die-item" style="grid-column: 2;">
+                                        <i data-lucide="user-check"></i>
+                                        <span>Áudios individuais</span>
+                                    </div>
+                                    <div class="upload-tip-die-item" style="grid-column: 1 / span 2; justify-self: center; width: 65%; min-width: 170px;">
+                                        <i data-lucide="volume-2"></i>
+                                        <span>Sem ruídos de fundo</span>
+                                    </div>
+                                    <div class="upload-tip-die-item" style="grid-column: 1;">
+                                        <i data-lucide="mic"></i>
+                                        <span>Foco na voz da pessoa</span>
+                                    </div>
+                                    <div class="upload-tip-die-item" style="grid-column: 2;">
+                                        <i data-lucide="sparkles"></i>
+                                        <span>Gravações espontâneas</span>
+                                    </div>
                                 </div>
-                                <div class="dropzone-tip-slide">
-                                    <i data-lucide="scan-face"></i>
-                                    <span>Alta Nitidez</span>
-                                </div>
-                                <div class="dropzone-tip-slide">
-                                    <i data-lucide="sparkles"></i>
-                                    <span>Expressão natural</span>
-                                </div>
+
+                                <input type="file" id="audio-input" multiple accept="audio/*,video/*" style="display: none;">
                             </div>
 
-                            <input type="file" id="photo-input" multiple accept="image/*" style="display: none;">
                         </div>
 
-                        <!-- Card de Baixo: Dropzone de Áudios -->
-                        <div class="upload-zone-compact" id="audio-dropzone" style="flex: 1; min-height: 0; width: 100%;">
-                            <div class="audio-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
-                                <i data-lucide="mic" style="width: 24px; height: 24px; color: #e5c378; margin-bottom: 3px;"></i>
-                                <h4 style="color: #f6e3c5; font-size: 0.88rem; margin: 0; font-weight: 600;">Clique ou arraste áudios com a voz original aqui</h4>
-                            </div>
-
-                            <div class="dropzone-tips-rotator" id="audioTipsRotator">
-                                <div class="dropzone-tip-slide active">
-                                    <i data-lucide="message-square"></i>
-                                    <span>Áudios de WhatsApp ou vídeos</span>
-                                </div>
-                                <div class="dropzone-tip-slide">
-                                    <i data-lucide="volume-2"></i>
-                                    <span>Voz clara e sem ruídos</span>
-                                </div>
-                                <div class="dropzone-tip-slide">
-                                    <i data-lucide="clock"></i>
-                                    <span>Até 3 minutos de gravação</span>
-                                </div>
-                                <div class="dropzone-tip-slide">
-                                    <i data-lucide="sparkles"></i>
-                                    <span>Gravações espontâneas em vida</span>
-                                </div>
-                            </div>
-
-                            <input type="file" id="audio-input" multiple accept="audio/*,video/*" style="display: none;">
+                        <!-- Botão Avançar centralizado no mesmo card geral com mesmo tamanho do botão assistir -->
+                        <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin-top: 4px; flex-shrink: 0;">
+                            <button class="btn btn-primary btn-disabled" id="btn-next-step-1" style="min-width: 170px; height: 34px !important;" disabled title="Envie pelo menos 1 foto e 1 áudio para avançar">
+                                <span id="btn-next-step-1-text">AVANÇAR</span>
+                            </button>
                         </div>
-
-                        <!-- Botão Avançar no mesmo card geral -->
-                        <button class="btn btn-primary" id="btn-next-step-1" style="width: 100%; height: 38px !important; font-size: 0.82rem !important; letter-spacing: 0.8px; font-weight: 600; flex-shrink: 0;">
-                            <span id="btn-next-step-1-text">AVANÇAR</span>
-                        </button>
 
                     </div>
 
@@ -2244,10 +2600,10 @@
                         <div class="chat-card-header" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid rgba(197, 160, 89, 0.25); padding-bottom: 6px;">
                             <div style="display: flex; align-items: center; gap: 6px;">
                                 <i data-lucide="message-square" style="width: 15px; height: 15px; color: #e5c378;"></i>
-                                <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">DESENVOLVIMENTO DO ROTEIRO</span>
+                                <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">A ESSÊNCIA • DESENVOLVIMENTO DO ROTEIRO</span>
                             </div>
-                            <div id="chat-header-plan-badge" style="background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 2px 8px; color: #e5c378; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase;">
-                                PLANO AFFECTUS • 1 MINUTO
+                            <div id="chat-header-plan-badge" class="step-card-header-badge step-plan-badge" style="background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 2px 8px; color: #e5c378; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase;">
+                                PLANO AFFECTUS • 1 MINUTO • HORIZONTAL & VERTICAL
                             </div>
                         </div>
 
@@ -2265,10 +2621,17 @@
                         </div>
 
                         <!-- Barra de Input Flutuante Padronizada -->
-                        <div class="chat-input-bar" style="margin-top: 8px;">
+                        <div class="chat-input-bar" id="chat-input-bar-container" style="margin-top: 8px;">
                             <input type="text" id="chat-input" placeholder="Escreva sua resposta..." autocomplete="off">
                             <button class="btn btn-primary" id="btn-send-chat" style="padding: 0 16px !important; height: 38px !important;">
                                 <i data-lucide="send" style="width: 14px; height: 14px;"></i> ENVIAR
+                            </button>
+                        </div>
+
+                        <!-- Botão Avançar da Etapa 2 (surge quando o roteiro é aprovado) -->
+                        <div id="chat-advance-bar-container" style="display: none; justify-content: center; align-items: center; width: 100%; margin-top: 4px; flex-shrink: 0;">
+                            <button class="btn btn-primary" id="btn-next-step-2" style="min-width: 170px; height: 34px !important;">
+                                <span id="btn-next-step-2-text">AVANÇAR</span>
                             </button>
                         </div>
                     </div>
@@ -2278,125 +2641,150 @@
 
             <!-- ================= ETAPA 3: A HARMONIZAÇÃO (TRILHA SONORA & PAISAGEM DE FUNDO) ================= -->
             <div class="step-section" id="step-3" style="display: none;">
-                <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
-                    <div class="step3-grid" id="step3-grid-container">
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 0;">
+                    
+                    <!-- Card Geral Unificado Centralizado (Largura Padrão 1040px) Contornando os dois cards e o botão -->
+                    <div class="upload-wrapper-card" style="width: 100%; max-width: 1040px; height: 100%; min-height: 0; background: rgba(8, 5, 3, 0.55); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: var(--radius-md); padding: 12px 16px; box-sizing: border-box; backdrop-filter: blur(12px); display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
                         
-                        <!-- Coluna 1 (Esquerda): Lista de Trilhas Sonoras (Mesmo Formato e Animação das Paisagens) -->
-                        <div class="scenarios-vertical-container" id="musicContainer" style="display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0;">
-                            <!-- Trilha 1 -->
-                            <div class="scenario-card-full selected" data-music="piano_emocao" data-title="Piano Emocionante">
-                                <img src="https://images.unsplash.com/photo-1513883049090-d0b7439799bf?w=800&auto=format&fit=crop&q=80" alt="Piano" class="scenario-full-bg-img">
-                                <div class="scenario-full-bg-scrim"></div>
-                                <div class="scenario-card-inner-content">
-                                    <div class="scenario-details">
-                                        <span class="scenario-badge-label">TRILHA SONORA</span>
-                                        <div class="scenario-name">Piano Emocionante</div>
-                                        <div class="scenario-subtitle">Teclas suaves e melodia comovente e profunda</div>
-                                    </div>
-                                    <div class="scenario-radio-check">✓</div>
-                                </div>
+                        <!-- Cabeçalho Superior Padronizado do Card -->
+                        <div class="chat-card-header" style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid rgba(197, 160, 89, 0.25); padding-bottom: 6px; flex-shrink: 0;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="music-2" style="width: 15px; height: 15px; color: #e5c378;"></i>
+                                <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">A HARMONIZAÇÃO • ESCOLHA DE TRILHA SONORA E AMBIENTE</span>
                             </div>
-
-                            <!-- Trilha 2 -->
-                            <div class="scenario-card-full" data-music="cordas_paz" data-title="Cordas & Harmonia">
-                                <img src="https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&auto=format&fit=crop&q=80" alt="Cordas" class="scenario-full-bg-img">
-                                <div class="scenario-full-bg-scrim"></div>
-                                <div class="scenario-card-inner-content">
-                                    <div class="scenario-details">
-                                        <span class="scenario-badge-label">TRILHA SONORA</span>
-                                        <div class="scenario-name">Cordas & Harmonia</div>
-                                        <div class="scenario-subtitle">Violinos e violoncelos em tom sereno e acolhedor</div>
-                                    </div>
-                                    <div class="scenario-radio-check">✓</div>
-                                </div>
-                            </div>
-
-                            <!-- Trilha 3 -->
-                            <div class="scenario-card-full" data-music="serenidade" data-title="Serenidade Celeste">
-                                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80" alt="Serenidade" class="scenario-full-bg-img">
-                                <div class="scenario-full-bg-scrim"></div>
-                                <div class="scenario-card-inner-content">
-                                    <div class="scenario-details">
-                                        <span class="scenario-badge-label">TRILHA SONORA</span>
-                                        <div class="scenario-name">Serenidade Celeste</div>
-                                        <div class="scenario-subtitle">Ambiência transcendental com tons etéreos e de paz</div>
-                                    </div>
-                                    <div class="scenario-radio-check">✓</div>
-                                </div>
-                            </div>
-
-                            <!-- Trilha 4 -->
-                            <div class="scenario-card-full" data-music="sem_musica" data-title="Voz Pura (Sem Trilha)">
-                                <img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800&auto=format&fit=crop&q=80" alt="Voz Pura" class="scenario-full-bg-img">
-                                <div class="scenario-full-bg-scrim"></div>
-                                <div class="scenario-card-inner-content">
-                                    <div class="scenario-details">
-                                        <span class="scenario-badge-label">TRILHA SONORA</span>
-                                        <div class="scenario-name">Voz Pura (Sem Trilha)</div>
-                                        <div class="scenario-subtitle">Destaque absoluto e intimista apenas para a voz</div>
-                                    </div>
-                                    <div class="scenario-radio-check">✓</div>
-                                </div>
+                            <div class="step-card-header-badge step-plan-badge" style="background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 2px 8px; color: #e5c378; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase;">
+                                PLANO AFFECTUS • 1 MINUTO • HORIZONTAL & VERTICAL
                             </div>
                         </div>
 
-                        <!-- Coluna 2 (Direita): Lista de Cenários / Paisagens de Fundo -->
-                        <div class="scenarios-vertical-container" id="scenariosContainer" style="display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0;">
-                            <!-- Cenário 1 -->
-                            <div class="scenario-card-full selected" data-bg="nuvens" data-preview-src="bg_nuvens.jpg" data-title="Nuvens" data-desc="Céu límpido e celestial, com nuvens suaves e iluminação etérea e brilhante.">
-                                <img src="bg_nuvens.jpg" alt="Nuvens" class="scenario-full-bg-img">
-                                <div class="scenario-full-bg-scrim"></div>
-                                <div class="scenario-card-inner-content">
-                                    <div class="scenario-details">
-                                        <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
-                                        <div class="scenario-name">Nuvens Celestes</div>
-                                        <div class="scenario-subtitle">Céu claro com nuvens suaves e etéreas</div>
+                        <!-- Linha dos Dois Painéis Lado a Lado -->
+                        <div class="upload-zones-row" id="step3-grid-container" style="display: flex; flex-direction: row; gap: 14px; flex: 1; min-height: 0; width: 100%;">
+                            
+                            <!-- Coluna 1 (Esquerda): Lista de Trilhas Sonoras (Mesmo Formato e Animação das Paisagens) -->
+                            <div class="scenarios-vertical-container" id="musicContainer" style="display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; flex: 1 1 0%; width: 50%;">
+                                <!-- Trilha Padrão: Sem Trilha -->
+                                <div class="scenario-card-full selected" data-music="sem_musica" data-title="Sem Trilha">
+                                    <img src="trilha_sem_trilha.jpg" alt="Sem Trilha" class="scenario-full-bg-img">
+                                    <div class="scenario-full-bg-scrim"></div>
+                                    <div class="scenario-card-inner-content">
+                                        <div class="scenario-details">
+                                            <span class="scenario-badge-label">TRILHA SONORA</span>
+                                            <div class="scenario-name">Sem Trilha</div>
+                                            <div class="scenario-subtitle">Voz destacada com efeitos sonoros e ambiência natural</div>
+                                        </div>
+                                        <div class="scenario-radio-check">✓</div>
                                     </div>
-                                    <div class="scenario-radio-check">✓</div>
+                                </div>
+
+                                <!-- Trilha 1: Piano -->
+                                <div class="scenario-card-full" data-music="piano" data-title="Piano">
+                                    <img src="trilha_piano.jpg" alt="Piano" class="scenario-full-bg-img">
+                                    <div class="scenario-full-bg-scrim"></div>
+                                    <div class="scenario-card-inner-content">
+                                        <div class="scenario-details">
+                                            <span class="scenario-badge-label">TRILHA SONORA</span>
+                                            <div class="scenario-name">Piano</div>
+                                            <div class="scenario-subtitle">Teclas suaves e melodia comovente e profunda</div>
+                                        </div>
+                                        <div class="scenario-radio-check">✓</div>
+                                    </div>
+                                </div>
+
+                                <!-- Trilha 2: Violino -->
+                                <div class="scenario-card-full" data-music="violino" data-title="Violino">
+                                    <img src="trilha_violino.jpg" alt="Violino" class="scenario-full-bg-img">
+                                    <div class="scenario-full-bg-scrim"></div>
+                                    <div class="scenario-card-inner-content">
+                                        <div class="scenario-details">
+                                            <span class="scenario-badge-label">TRILHA SONORA</span>
+                                            <div class="scenario-name">Violino</div>
+                                            <div class="scenario-subtitle">Cordas clássicas em tom sereno e acolhedor</div>
+                                        </div>
+                                        <div class="scenario-radio-check">✓</div>
+                                    </div>
+                                </div>
+
+                                <!-- Trilha 3: Violão -->
+                                <div class="scenario-card-full" data-music="violao" data-title="Violão">
+                                    <img src="trilha_violao.jpg" alt="Violão" class="scenario-full-bg-img">
+                                    <div class="scenario-full-bg-scrim"></div>
+                                    <div class="scenario-card-inner-content">
+                                        <div class="scenario-details">
+                                            <span class="scenario-badge-label">TRILHA SONORA</span>
+                                            <div class="scenario-name">Violão</div>
+                                            <div class="scenario-subtitle">Acordes acústicos intimistas, afeto e delicadeza</div>
+                                        </div>
+                                        <div class="scenario-radio-check">✓</div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Cenário 2 -->
-                            <div class="scenario-card-full" data-bg="montanhas" data-preview-src="bg_montanhas.jpg" data-title="Montanhas" data-desc="Picos serenos com névoa mística e horizontes infinitos cheios de paz.">
-                                <img src="bg_montanhas.jpg" alt="Montanhas" class="scenario-full-bg-img">
-                                <div class="scenario-full-bg-scrim"></div>
-                                <div class="scenario-card-inner-content">
-                                    <div class="scenario-details">
-                                        <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
-                                        <div class="scenario-name">Montanhas Serenas</div>
-                                        <div class="scenario-subtitle">Picos serenos e horizontes imponentes</div>
+                            <!-- Coluna 2 (Direita): Lista de Cenários / Paisagens de Fundo -->
+                            <div class="scenarios-vertical-container" id="scenariosContainer" style="display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; flex: 1 1 0%; width: 50%;">
+                                <!-- Cenário 1 -->
+                                <div class="scenario-card-full selected" data-bg="nuvens" data-preview-src="bg_nuvens.jpg" data-title="Nuvens" data-desc="Céu límpido e celestial, com nuvens suaves e iluminação etérea e brilhante.">
+                                    <img src="bg_nuvens.jpg" alt="Nuvens" class="scenario-full-bg-img">
+                                    <div class="scenario-full-bg-scrim"></div>
+                                    <div class="scenario-card-inner-content">
+                                        <div class="scenario-details">
+                                            <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
+                                            <div class="scenario-name">Nuvens Celestes</div>
+                                            <div class="scenario-subtitle">Céu claro com nuvens suaves e etéreas</div>
+                                        </div>
+                                        <div class="scenario-radio-check">✓</div>
                                     </div>
-                                    <div class="scenario-radio-check">✓</div>
+                                </div>
+
+                                <!-- Cenário 2 -->
+                                <div class="scenario-card-full" data-bg="montanhas" data-preview-src="bg_montanhas.jpg" data-title="Montanhas" data-desc="Picos serenos com névoa mística e horizontes infinitos cheios de paz.">
+                                    <img src="bg_montanhas.jpg" alt="Montanhas" class="scenario-full-bg-img">
+                                    <div class="scenario-full-bg-scrim"></div>
+                                    <div class="scenario-card-inner-content">
+                                        <div class="scenario-details">
+                                            <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
+                                            <div class="scenario-name">Montanhas Serenas</div>
+                                            <div class="scenario-subtitle">Picos serenos e horizontes imponentes</div>
+                                        </div>
+                                        <div class="scenario-radio-check">✓</div>
+                                    </div>
+                                </div>
+
+                                <!-- Cenário 3 -->
+                                <div class="scenario-card-full" data-bg="mata" data-preview-src="bg_floresta.jpg" data-title="Floresta" data-desc="Floresta encantada, folhas verdejantes e raios solares dourados entre as copas.">
+                                    <img src="bg_floresta.jpg" alt="Mata" class="scenario-full-bg-img">
+                                    <div class="scenario-full-bg-scrim"></div>
+                                    <div class="scenario-card-inner-content">
+                                        <div class="scenario-details">
+                                            <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
+                                            <div class="scenario-name">Floresta Encantada</div>
+                                            <div class="scenario-subtitle">Natureza viva, folhas verdes e luz filtrada</div>
+                                        </div>
+                                        <div class="scenario-radio-check">✓</div>
+                                    </div>
+                                </div>
+
+                                <!-- Cenário 4 -->
+                                <div class="scenario-card-full" data-bg="oceano" data-preview-src="bg_oceano.png" data-title="Oceano" data-desc="Horizontes infinitos do mar azul, brisa serena e reflexos dourados sobre as águas.">
+                                    <img src="bg_oceano.png" alt="Oceano" class="scenario-full-bg-img">
+                                    <div class="scenario-full-bg-scrim"></div>
+                                    <div class="scenario-card-inner-content">
+                                        <div class="scenario-details">
+                                            <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
+                                            <div class="scenario-name">Oceano Infinito</div>
+                                            <div class="scenario-subtitle">Horizontes calmos do mar e brisa serena</div>
+                                        </div>
+                                        <div class="scenario-radio-check">✓</div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Cenário 3 -->
-                            <div class="scenario-card-full" data-bg="mata" data-preview-src="bg_floresta.jpg" data-title="Floresta" data-desc="Floresta encantada, folhas verdejantes e raios solares dourados entre as copas.">
-                                <img src="bg_floresta.jpg" alt="Mata" class="scenario-full-bg-img">
-                                <div class="scenario-full-bg-scrim"></div>
-                                <div class="scenario-card-inner-content">
-                                    <div class="scenario-details">
-                                        <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
-                                        <div class="scenario-name">Floresta Encantada</div>
-                                        <div class="scenario-subtitle">Natureza viva, folhas verdes e luz filtrada</div>
-                                    </div>
-                                    <div class="scenario-radio-check">✓</div>
-                                </div>
-                            </div>
+                        </div>
 
-                            <!-- Cenário 4 -->
-                            <div class="scenario-card-full" data-bg="oceano" data-preview-src="bg_oceano.png" data-title="Oceano" data-desc="Horizontes infinitos do mar azul, brisa serena e reflexos dourados sobre as águas.">
-                                <img src="bg_oceano.png" alt="Oceano" class="scenario-full-bg-img">
-                                <div class="scenario-full-bg-scrim"></div>
-                                <div class="scenario-card-inner-content">
-                                    <div class="scenario-details">
-                                        <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
-                                        <div class="scenario-name">Oceano Infinito</div>
-                                        <div class="scenario-subtitle">Horizontes calmos do mar e brisa serena</div>
-                                    </div>
-                                    <div class="scenario-radio-check">✓</div>
-                                </div>
-                            </div>
+                        <!-- Botão Avançar centralizado no mesmo card geral com mesmo tamanho do botão da etapa 1 e 4 -->
+                        <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin-top: 4px; flex-shrink: 0;">
+                            <button class="btn btn-primary" id="btn-next-step-3" style="min-width: 170px; height: 34px !important;">
+                                <span id="btn-next-step-3-text">AVANÇAR</span>
+                            </button>
                         </div>
 
                     </div>
@@ -2405,173 +2793,180 @@
 
             <!-- ================= ETAPA 4: A LAPIDAÇÃO (APROVAÇÃO DA NOVA IMAGEM + VOZ CLONADA) ================= -->
             <div class="step-section" id="step-4" style="display: none;">
-                <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
-                    <div class="step4-grid" id="step4-grid-container">
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 0;">
+                    
+                    <!-- Card Geral Unificado Centralizado (Largura Padrão 1040px) Contornando os dois cards e o botão -->
+                    <div class="upload-wrapper-card" style="width: 100%; max-width: 1040px; height: 100%; min-height: 0; background: rgba(8, 5, 3, 0.55); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: var(--radius-md); padding: 12px 16px; box-sizing: border-box; backdrop-filter: blur(12px); display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
                         
-                        <!-- Coluna 1 (Esquerda): Prévia da Imagem com o Fundo Escolhido -->
-                        <div class="preview-watermark-card" id="preview-card-panel">
-                            <div class="chat-card-header" style="margin-bottom: 4px;">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <i data-lucide="sparkles" style="width: 15px; height: 15px; color: #e5c378;"></i>
-                                    <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600;">FOTOGRAFIA</span>
-                                </div>
+                        <!-- Cabeçalho Superior Padronizado do Card -->
+                        <div class="chat-card-header" style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid rgba(197, 160, 89, 0.25); padding-bottom: 6px; flex-shrink: 0;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="sparkles" style="width: 15px; height: 15px; color: #e5c378;"></i>
+                                <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">A LAPIDAÇÃO • VALIDAÇÃO DE IMAGEM E VOZ</span>
                             </div>
-
-                            <div class="preview-media-frame" style="position: relative; overflow: hidden; border-radius: var(--radius-sm); border: 1.5px solid var(--border-gold); background: #000; min-height: 200px;">
-                                <img src="gallery_homem_02.jpg" alt="Prévia Restaurada" id="preview-avatar-img" style="width: 100%; height: 100%; min-height: 200px; object-fit: cover; display: block;">
-                                
-                                <!-- Logo Reviva Memories Centralizada na Base da Imagem (Marca D'água Transparente) -->
-                                <div class="image-watermark-logo" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; pointer-events: none; z-index: 5;">
-                                    <img src="logo.png" alt="Reviva Memories" style="height: 32px; width: auto; object-fit: contain; opacity: 0.88; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.85)) drop-shadow(0 0 12px rgba(229,195,120,0.35));">
-                                </div>
-                            </div>
-
-                            <!-- Ações de Aprovação e Reprovação da Imagem -->
-                            <div class="photo-actions-container" style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
-                                <!-- Botões de Aprovação e Reprovação -->
-                                <div id="photo-approval-buttons-row" style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
-                                    <button type="button" class="btn btn-decision-reject" id="btn-reject-photo-modal" style="flex: 1; height: 34px !important; font-size: 0.74rem !important; display: flex; align-items: center; justify-content: center;">
-                                        <span id="btn-reject-photo-modal-text">REPROVAR</span>
-                                    </button>
-                                    <button type="button" class="btn btn-decision-approve" id="btn-approve-photo-status" style="flex: 1; height: 34px !important; font-size: 0.74rem !important; display: flex; align-items: center; justify-content: center;">
-                                        <span id="btn-approve-photo-status-text">APROVAR</span>
-                                    </button>
-                                </div>
-
-                                <!-- Caixa de Feedback de Reprovação (Abre ao clicar em Reprovar) -->
-                                <div id="photo-rejection-box" style="display: none; flex-direction: column; gap: 6px; background: rgba(14, 9, 6, 0.85); border: 1px solid rgba(239, 68, 68, 0.45); border-radius: var(--radius-sm); padding: 8px 10px; margin-top: 2px;">
-                                    <div style="display: flex; align-items: center;">
-                                        <span style="font-size: 0.70rem; color: #fca5a5; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                                            <i data-lucide="message-square-warning" style="width: 13px; height: 13px;"></i>
-                                            Descreva o que tem de errado na imagem.
-                                        </span>
-                                    </div>
-                                    <textarea id="photo-rejection-feedback" rows="2" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 4px; padding: 6px 8px; color: #f6e3c5; font-size: 0.72rem; resize: none; font-family: inherit; outline: none;"></textarea>
-                                </div>
+                            <div class="step-card-header-badge step-plan-badge" style="background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 2px 8px; color: #e5c378; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase;">
+                                PLANO AFFECTUS • 1 MINUTO • HORIZONTAL & VERTICAL
                             </div>
                         </div>
 
-                        <!-- Coluna 2 (Direita): Player da Voz e Roteiro + Ações de Aprovação -->
-                        <div class="preview-watermark-card" id="preview-voice-card-panel">
-                            <div class="chat-card-header" style="margin-bottom: 4px;">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <i data-lucide="volume-2" style="width: 15px; height: 15px; color: #e5c378;"></i>
-                                    <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600;">VOZ & ROTEIRO</span>
-                                </div>
-                            </div>
-
-                            <!-- Showcase Central da Voz com Botão de Play Central -->
-                            <div class="preview-media-frame" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(197, 160, 89, 0.12) 0%, rgba(8, 5, 3, 0.95) 75%); border: 1.5px solid var(--border-gold); border-radius: var(--radius-sm); padding: 24px 16px; gap: 14px; min-height: 200px;">
-                                
-                                <!-- Botão de Play Central Circular Vazado sem Preenchimento -->
-                                <button type="button" class="sample-play-btn-center" id="btnPlayVoiceSampleCenter" title="Ouvir Amostra da Voz Narrando o Roteiro" style="width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                    <i data-lucide="play" id="icon-voice-play-center" style="width: 24px; height: 24px; stroke: #e5c378; margin-left: 3px;"></i>
-                                </button>
-
-                                <div style="width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 6px; text-align: center;">
-                                    <div style="font-family: var(--font-serif); font-size: 0.88rem; color: var(--gold-bright); font-weight: 700; letter-spacing: 0.5px;">
-                                        Narração Oficial do Roteiro
+                        <!-- Container dos Dois Cards Lado a Lado -->
+                        <div class="upload-zones-row" style="display: flex; flex-direction: row; gap: 14px; flex: 1; min-height: 0; width: 100%;">
+                            
+                            <!-- Coluna 1 (Esquerda): Prévia da Imagem com o Fundo Escolhido -->
+                            <div class="preview-watermark-card" id="preview-card-panel" style="flex: 1 1 0%; min-height: 0; width: 50%;">
+                                <div class="chat-card-header" style="margin-bottom: 4px;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <i data-lucide="sparkles" style="width: 15px; height: 15px; color: #e5c378;"></i>
+                                        <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600;">FOTOGRAFIA</span>
                                     </div>
+                                </div>
+
+                                <div class="preview-media-frame" style="position: relative; overflow: hidden; border-radius: var(--radius-sm); border: 1.5px solid var(--border-gold); background: #000; flex: 1; min-height: 0;">
+                                    <img src="gallery_homem_02.jpg" alt="Prévia Restaurada" id="preview-avatar-img" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                                     
-                                    <!-- Barra de Progresso com Tempo -->
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <span id="voiceSampleCurrentTime" style="font-size: 0.70rem; color: var(--text-secondary); font-family: var(--font-mono);">00:00</span>
-                                        <div style="flex: 1; height: 5px; background: rgba(197, 160, 89, 0.25); border-radius: 3px; position: relative; overflow: hidden; cursor: pointer;">
-                                            <div id="voiceSampleProgress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #c5a059, #e5c378); transition: width 0.1s linear;"></div>
+                                    <!-- Logo Reviva Memories Centralizada na Base da Imagem (Marca D'água Transparente) -->
+                                    <div class="image-watermark-logo" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; pointer-events: none; z-index: 5;">
+                                        <img src="logo.png" alt="Reviva Memories" style="height: 32px; width: auto; object-fit: contain; opacity: 0.88; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.85)) drop-shadow(0 0 12px rgba(229,195,120,0.35));">
+                                    </div>
+                                </div>
+
+                                <!-- Ações de Aprovação e Reprovação da Imagem -->
+                                <div class="photo-actions-container" style="margin-top: 6px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
+                                    <!-- Botões de Aprovação e Reprovação -->
+                                    <div id="photo-approval-buttons-row" style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+                                        <button type="button" class="btn btn-decision-reject" id="btn-reject-photo-modal" style="flex: 1; height: 32px !important; font-size: 0.74rem !important; display: flex; align-items: center; justify-content: center;">
+                                            <span id="btn-reject-photo-modal-text">REPROVAR</span>
+                                        </button>
+                                        <button type="button" class="btn btn-decision-approve" id="btn-approve-photo-status" style="flex: 1; height: 32px !important; font-size: 0.74rem !important; display: flex; align-items: center; justify-content: center;">
+                                            <span id="btn-approve-photo-status-text">APROVAR</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Caixa de Feedback de Reprovação (Abre ao clicar em Reprovar) -->
+                                    <div id="photo-rejection-box" style="display: none; flex-direction: column; gap: 4px; background: rgba(14, 9, 6, 0.85); border: 1px solid rgba(239, 68, 68, 0.45); border-radius: var(--radius-sm); padding: 6px 8px; margin-top: 2px;">
+                                        <div style="display: flex; align-items: center;">
+                                            <span style="font-size: 0.70rem; color: #fca5a5; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                                <i data-lucide="message-square-warning" style="width: 13px; height: 13px;"></i>
+                                                Descreva o que tem de errado na imagem.
+                                            </span>
                                         </div>
-                                        <span id="voiceSampleTime" style="font-size: 0.70rem; color: var(--gold-primary); font-family: var(--font-mono); font-weight: 600;">00:08</span>
+                                        <textarea id="photo-rejection-feedback" rows="2" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 4px; padding: 4px 6px; color: #f6e3c5; font-size: 0.72rem; resize: none; font-family: inherit; outline: none;"></textarea>
                                     </div>
                                 </div>
-                                <audio id="voiceSampleAudio" src="bg_music.mp3" preload="metadata" style="display: none;"></audio>
                             </div>
 
-                            <!-- Ações de Aprovação e Reprovação do Áudio (Idênticas à Imagem) -->
-                            <div class="voice-actions-container" style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
-                                <div id="voice-approval-buttons-row" style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
-                                    <button type="button" class="btn btn-decision-reject" id="btn-reject-voice-modal" style="flex: 1; height: 34px !important; font-size: 0.74rem !important; display: flex; align-items: center; justify-content: center;">
-                                        <span id="btn-reject-voice-modal-text">REPROVAR</span>
-                                    </button>
-                                    <button type="button" class="btn btn-decision-approve" id="btn-approve-voice-status" style="flex: 1; height: 34px !important; font-size: 0.74rem !important; display: flex; align-items: center; justify-content: center;">
-                                        <span id="btn-approve-voice-status-text">APROVAR</span>
-                                    </button>
-                                </div>
-
-                                <!-- Caixa de Feedback de Reprovação do Áudio -->
-                                <div id="voice-rejection-box" style="display: none; flex-direction: column; gap: 6px; background: rgba(14, 9, 6, 0.85); border: 1px solid rgba(239, 68, 68, 0.45); border-radius: var(--radius-sm); padding: 8px 10px; margin-top: 2px;">
-                                    <div style="display: flex; align-items: center;">
-                                        <span style="font-size: 0.70rem; color: #fca5a5; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                                            <i data-lucide="message-square-warning" style="width: 13px; height: 13px;"></i>
-                                            Descreva o que tem de errado no áudio.
-                                        </span>
+                            <!-- Coluna 2 (Direita): Player da Voz e Roteiro + Ações de Aprovação -->
+                            <div class="preview-watermark-card" id="preview-voice-card-panel" style="flex: 1 1 0%; min-height: 0; width: 50%;">
+                                <div class="chat-card-header" style="margin-bottom: 4px;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <i data-lucide="volume-2" style="width: 15px; height: 15px; color: #e5c378;"></i>
+                                        <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600;">VOZ & ROTEIRO</span>
                                     </div>
-                                    <textarea id="voice-rejection-feedback" rows="2" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 4px; padding: 6px 8px; color: #f6e3c5; font-size: 0.72rem; resize: none; font-family: inherit; outline: none;"></textarea>
+                                </div>
+
+                                <!-- Showcase Central da Voz com Botão de Play Central -->
+                                <div class="preview-media-frame" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(197, 160, 89, 0.12) 0%, rgba(8, 5, 3, 0.95) 75%); border: 1.5px solid var(--border-gold); border-radius: var(--radius-sm); padding: 14px 12px; gap: 8px; flex: 1; min-height: 0;">
+                                    
+                                    <!-- Botão de Play Central Circular Vazado sem Preenchimento -->
+                                    <button type="button" class="sample-play-btn-center" id="btnPlayVoiceSampleCenter" title="Ouvir Amostra da Voz Narrando o Roteiro" style="width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i data-lucide="play" id="icon-voice-play-center" style="width: 22px; height: 22px; stroke: #e5c378; margin-left: 2px;"></i>
+                                    </button>
+
+                                    <div style="width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 4px; text-align: center;">
+                                        <div style="font-family: var(--font-serif); font-size: 0.85rem; color: var(--gold-bright); font-weight: 700; letter-spacing: 0.5px;">
+                                            Narração Oficial do Roteiro
+                                        </div>
+                                        
+                                        <!-- Barra de Progresso com Tempo -->
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span id="voiceSampleCurrentTime" style="font-size: 0.68rem; color: var(--text-secondary); font-family: var(--font-mono);">00:00</span>
+                                            <div style="flex: 1; height: 5px; background: rgba(197, 160, 89, 0.25); border-radius: 3px; position: relative; overflow: hidden; cursor: pointer;">
+                                                <div id="voiceSampleProgress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #c5a059, #e5c378); transition: width 0.1s linear;"></div>
+                                            </div>
+                                            <span id="voiceSampleTime" style="font-size: 0.68rem; color: var(--gold-primary); font-family: var(--font-mono); font-weight: 600;">00:08</span>
+                                        </div>
+                                    </div>
+                                    <audio id="voiceSampleAudio" src="audio_exemplo_etapa4.mp3" preload="metadata" style="display: none;"></audio>
+                                </div>
+
+                                <!-- Ações de Aprovação e Reprovação do Áudio (Idênticas à Imagem) -->
+                                <div class="voice-actions-container" style="margin-top: 6px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
+                                    <div id="voice-approval-buttons-row" style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+                                        <button type="button" class="btn btn-decision-reject" id="btn-reject-voice-modal" style="flex: 1; height: 32px !important; font-size: 0.74rem !important; display: flex; align-items: center; justify-content: center;">
+                                            <span id="btn-reject-voice-modal-text">REPROVAR</span>
+                                        </button>
+                                        <button type="button" class="btn btn-decision-approve" id="btn-approve-voice-status" style="flex: 1; height: 32px !important; font-size: 0.74rem !important; display: flex; align-items: center; justify-content: center;">
+                                            <span id="btn-approve-voice-status-text">APROVAR</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Caixa de Feedback de Reprovação do Áudio -->
+                                    <div id="voice-rejection-box" style="display: none; flex-direction: column; gap: 4px; background: rgba(14, 9, 6, 0.85); border: 1px solid rgba(239, 68, 68, 0.45); border-radius: var(--radius-sm); padding: 6px 8px; margin-top: 2px;">
+                                        <div style="display: flex; align-items: center;">
+                                            <span style="font-size: 0.70rem; color: #fca5a5; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                                <i data-lucide="message-square-warning" style="width: 13px; height: 13px;"></i>
+                                                Descreva o que tem de errado no áudio.
+                                            </span>
+                                        </div>
+                                        <textarea id="voice-rejection-feedback" rows="2" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 4px; padding: 4px 6px; color: #f6e3c5; font-size: 0.72rem; resize: none; font-family: inherit; outline: none;"></textarea>
+                                    </div>
                                 </div>
                             </div>
+
+                        </div>
+
+                        <!-- Botão Avançar centralizado no mesmo card geral com mesmo tamanho do botão da etapa 1 -->
+                        <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin-top: 4px; flex-shrink: 0;">
+                            <button class="btn btn-primary btn-disabled" id="btn-approve-lapidacao" style="min-width: 170px; height: 34px !important;" disabled title="Aprove ou solicite ajustes para avançar">
+                                <span id="btn-approve-lapidacao-text">AVANÇAR</span>
+                            </button>
                         </div>
 
                     </div>
+
                 </div>
             </div>
 
-            <!-- ================= ETAPA 5: O REENCONTRO (VÍDEO FINAL & SALA DE REVELAÇÃO) ================= -->
+            <!-- ================= ETAPA 5: O REENCONTRO (VÍDEO FINAL DA HOMENAGEM) ================= -->
             <div class="step-section" id="step-5" style="display: none;">
-                <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
-                    <div class="step5-grid" id="step5-grid-container">
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 0;">
+                    
+                    <!-- Card Geral Unificado Centralizado (Largura Padrão 1040px) -->
+                    <div class="upload-wrapper-card" style="width: 100%; max-width: 1040px; height: 100%; min-height: 0; background: rgba(8, 5, 3, 0.55); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: var(--radius-md); padding: 12px 16px; box-sizing: border-box; backdrop-filter: blur(12px); display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
                         
-                        <!-- Coluna 1 (Esquerda): Showcase do Vídeo Final em Alta Resolução -->
-                        <div class="final-video-showcase">
-                            <div class="chat-card-header" style="margin-bottom: 4px;">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <i data-lucide="film" style="width: 15px; height: 15px; color: #e5c378;"></i>
-                                    <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600;">VÍDEO DA HOMENAGEM PRONTO</span>
-                                </div>
-                                <span style="color: #4ade80; font-size: 0.68rem; font-weight: 700; text-transform: uppercase;">4K ULTRA HD</span>
+                        <!-- Cabeçalho Superior Padronizado do Card -->
+                        <div class="chat-card-header" style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid rgba(197, 160, 89, 0.25); padding-bottom: 6px; flex-shrink: 0;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="film" style="width: 15px; height: 15px; color: #e5c378;"></i>
+                                <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">O REENCONTRO • ENTREGA DO VÍDEO FINAL</span>
                             </div>
-
-                            <div class="final-video-poster watch-video-btn" data-video="about_maderite_preview.webm" data-video-id="video-final-homenagem" title="Clique para assistir ao vídeo completo">
-                                <img src="about_maderite.jpg" alt="Homenagem Concluída">
-                                <span class="final-video-badge">HOMENAGEM RENDERIZADA</span>
-                                <div class="final-play-overlay-btn">
-                                    <i data-lucide="play" style="width: 22px; height: 22px; margin-left: 2px;"></i>
-                                </div>
-                            </div>
-
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; font-size: 0.72rem; color: #f6e3c5;">
-                                <span><strong>Homenageado:</strong> Mariana</span>
-                                <span style="color: #e5c378;" id="final-video-duration">Duração: 01:00 min</span>
+                            <div class="step-card-header-badge step-plan-badge" style="background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 2px 8px; color: #e5c378; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase;">
+                                PLANO AFFECTUS • 1 MINUTO • HORIZONTAL & VERTICAL
                             </div>
                         </div>
 
-                        <!-- Coluna 2 (Direita): Sala de Revelação & Entrega Nobre -->
-                        <div class="final-access-card">
-                            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-                                <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(197, 160, 89, 0.15); border: 1.5px solid #e5c378; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(229, 195, 120, 0.35);">
-                                    <i data-lucide="sparkles" style="width: 18px; height: 18px; color: #e5c378;"></i>
-                                </div>
-                                <h3 style="font-family: var(--font-serif); font-size: 1.25rem; color: #f6e3c5; margin: 4px 0 2px 0;">Sala de Revelação & Entrega</h3>
-                                <p style="color: var(--text-secondary); font-size: 0.75rem; margin: 0; max-width: 380px; line-height: 1.35;">
-                                    Acesse o ambiente imersivo climatizado com música ou compartilhe a surpresa por QR Code.
-                                </p>
+                        <!-- Centro: Showcase do Vídeo em Alta Resolução (ocupa toda a altura disponível) -->
+                        <div class="final-video-poster" style="position: relative; flex: 1; min-height: 0; border-radius: var(--radius-sm); overflow: hidden; border: 1.5px solid rgba(197, 160, 89, 0.35); background: #000; box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(229, 195, 120, 0.15); display: flex; align-items: center; justify-content: center;">
+                            <video id="final-homenagem-video" src="gallery_homem_02.webm" poster="gallery_homem_02.jpg" controls playsinline preload="metadata" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; display: block; border-radius: calc(var(--radius-sm) - 1px); background: #000;"></video>
+                            
+                            <!-- Selo Manuscrito no Topo do Vídeo (Fonte Oficial Allura) -->
+                            <div id="video-manuscrito-overlay" style="position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 5; pointer-events: none; text-align: center; width: 100%; transition: opacity 0.4s ease;">
+                                <span style="font-family: 'Allura', cursive; font-size: 2.2rem; color: #fcebd0; text-shadow: 0 2px 14px rgba(0,0,0,0.95), 0 0 25px rgba(229,195,120,0.75); letter-spacing: 1px; font-weight: 400; line-height: 1; display: inline-block;">
+                                    Homenagem Finalizada
+                                </span>
                             </div>
+                        </div>
 
-                            <!-- Botão de Acesso Direto à Sala de Revelação -->
-                            <a href="revelar.html?v=reviva_token_mariana_777" target="_blank" class="btn btn-primary" style="height: 38px !important; padding: 0 22px !important; font-size: 0.78rem !important; width: 100%; max-width: 340px;">
-                                <i data-lucide="play-circle"></i> ABRIR SALA DE REVELAÇÃO (QR CODE)
+                        <!-- Base: Botões Link WhatsApp e Baixar Vídeo (Idênticos) -->
+                        <div style="display: flex; justify-content: center; align-items: center; gap: 14px; width: 100%; margin-top: 4px; flex-shrink: 0; flex-wrap: wrap;">
+                            <button class="btn btn-primary" id="btnCopyRevealLink" style="min-width: 200px; height: 34px !important; font-size: 0.76rem !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i data-lucide="share-2" style="width: 14px; height: 14px;"></i>
+                                <span>LINK WHATSAPP</span>
+                            </button>
+                            <a href="gallery_homem_02.webm" download="homenagem_reviva.webm" class="btn btn-primary" style="min-width: 200px; height: 34px !important; font-size: 0.76rem !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
+                                <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+                                <span>BAIXAR VÍDEO</span>
                             </a>
-
-                            <!-- Botões de Compartilhamento e Download -->
-                            <div style="display: flex; gap: 10px; width: 100%; max-width: 340px;">
-                                <button class="btn btn-secondary" id="btnCopyRevealLink" style="flex: 1; font-size: 0.70rem !important;">
-                                    <i data-lucide="share-2"></i> COPIAR LINK WHATSAPP
-                                </button>
-                                <a href="about_maderite_preview.webm" download class="btn btn-secondary" style="flex: 1; font-size: 0.70rem !important;">
-                                    <i data-lucide="download"></i> BAIXAR MP4
-                                </a>
-                            </div>
-
-                            <div style="font-size: 0.68rem; color: var(--text-secondary); line-height: 1.3;">
-                                Homenagem salva com segurança e criptografia na nuvem Reviva Memories.
-                            </div>
                         </div>
 
                     </div>
@@ -2612,12 +3007,7 @@
             </div>
 
             <!-- Ações Etapa 3 (A Harmonização / Trilha & Fundo) -->
-            <div class="footer-step-actions" id="footer-step-3" style="display: none;">
-                <div class="footer-action-buttons-row">
-                    <button class="btn btn-primary" id="btn-approve-harmonizacao" style="width: 100%; max-width: 380px;">
-                        AVANÇAR / CONFIRMAR AMBIENTAÇÃO
-                    </button>
-                </div>
+            <div class="footer-step-actions" id="footer-step-3" style="display: none; justify-content: center;">
                 <div class="slide-actions-panel">
                     <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo"></div>
                     <div class="video-badge-wrapper" style="position: relative; display: inline-flex;">
@@ -2631,12 +3021,7 @@
             </div>
 
             <!-- Ações Etapa 4 (A Lapidação / Aprovações) -->
-            <div class="footer-step-actions" id="footer-step-4" style="display: none;">
-                <div class="footer-action-buttons-row">
-                    <button class="btn btn-primary" id="btn-approve-lapidacao" style="width: 100%; max-width: 380px;">
-                        PRODUZIR HOMENAGEM
-                    </button>
-                </div>
+            <div class="footer-step-actions" id="footer-step-4" style="display: none; justify-content: center;">
                 <div class="slide-actions-panel">
                     <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo"></div>
                     <div class="video-badge-wrapper" style="position: relative; display: inline-flex;">
@@ -2950,168 +3335,14 @@
                 window.selectedBackground = card.dataset.bg;
             });
         });
-
-        // Inicializador Oficial da Galáxia WebGL
-        function initGalaxyBg() {
-            const ctn = document.getElementById('galaxyBg');
-            if (!ctn || !window.ogl) return;
-
-            const { Renderer, Program, Mesh, Triangle } = window.ogl;
-            const renderer = new Renderer({ alpha: true, dpr: Math.min(window.devicePixelRatio || 1, 1.0) });
-            const gl = renderer.gl;
-            ctn.appendChild(gl.canvas);
-
-            const vert = `
-                attribute vec2 uv;
-                attribute vec2 position;
-                varying vec2 vUv;
-                void main() {
-                    vUv = uv;
-                    gl_Position = vec4(position, 0, 1);
-                }
-            `;
-
-            const frag = `
-                precision highp float;
-                uniform float uTime;
-                uniform vec3 uResolution;
-                uniform float uStarSpeed;
-                uniform float uDensity;
-                uniform float uHueShift;
-                uniform float uSpeed;
-                uniform float uGlowIntensity;
-                uniform float uSaturation;
-                uniform float uTwinkleIntensity;
-                uniform float uRotationSpeed;
-                varying vec2 vUv;
-
-                #define NUM_LAYER 3.0
-                #define STAR_COLOR_CUTOFF 0.2
-                #define MAT45 mat2(0.7071, -0.7071, 0.7071, 0.7071)
-                #define PERIOD 3.0
-
-                float Hash21(vec2 p) {
-                    p = fract(p * vec2(123.34, 456.21));
-                    p += dot(p, p + 45.32);
-                    return fract(p.x * p.y);
-                }
-
-                float tri(float x) { return abs(fract(x) * 2.0 - 1.0); }
-                float tris(float x) { float t = fract(x); return 1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0)); }
-                float trisn(float x) { float t = fract(x); return 2.0 * (1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0))) - 1.0; }
-
-                vec3 hsv2rgb(vec3 c) {
-                    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-                    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-                    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-                }
-
-                float Star(vec2 uv, float flare) {
-                    float d = length(uv);
-                    float m = (0.05 * uGlowIntensity) / d;
-                    float rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
-                    m += rays * flare * uGlowIntensity;
-                    uv *= MAT45;
-                    rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
-                    m += rays * 0.3 * flare * uGlowIntensity;
-                    m *= smoothstep(1.0, 0.2, d);
-                    return m;
-                }
-
-                vec3 StarLayer(vec2 uv) {
-                    vec3 col = vec3(0.0);
-                    vec2 gv = fract(uv) - 0.5;
-                    vec2 id = floor(uv);
-
-                    for (int y = -1; y <= 1; y++) {
-                        for (int x = -1; x <= 1; x++) {
-                            vec2 offset = vec2(float(x), float(y));
-                            vec2 si = id + vec2(float(x), float(y));
-                            float seed = Hash21(si);
-                            float size = fract(seed * 345.32);
-                            float glossLocal = tri(uStarSpeed / (PERIOD * seed + 1.0));
-                            float flareSize = smoothstep(0.9, 1.0, size) * glossLocal;
-
-                            float red = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 1.0)) + STAR_COLOR_CUTOFF;
-                            float blu = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 3.0)) + STAR_COLOR_CUTOFF;
-                            float grn = min(red, blu) * seed;
-                            vec3 base = vec3(red, grn, blu);
-
-                            float hue = atan(base.g - base.r, base.b - base.r) / (2.0 * 3.14159) + 0.5;
-                            hue = fract(hue + uHueShift / 360.0);
-                            float sat = length(base - vec3(dot(base, vec3(0.299, 0.587, 0.114)))) * uSaturation;
-                            float val = max(max(base.r, base.g), base.b);
-                            base = hsv2rgb(vec3(hue, sat, val));
-
-                            vec2 pad = vec2(tris(seed * 34.0 + uTime * uSpeed / 10.0), tris(seed * 38.0 + uTime * uSpeed / 30.0)) - 0.5;
-                            float star = Star(gv - offset - pad, flareSize);
-                            float twinkle = trisn(uTime * uSpeed + seed * 6.2831) * 0.5 + 1.0;
-                            twinkle = mix(1.0, twinkle, uTwinkleIntensity);
-                            star *= twinkle;
-                            col += star * size * base;
-                        }
-                    }
-                    return col;
-                }
-
-                void main() {
-                    vec2 uv = (vUv * uResolution.xy - 0.5 * uResolution.xy) / uResolution.y;
-                    float autoRotAngle = uTime * uRotationSpeed;
-                    mat2 autoRot = mat2(cos(autoRotAngle), -sin(autoRotAngle), sin(autoRotAngle), cos(autoRotAngle));
-                    uv = autoRot * uv;
-
-                    vec3 col = vec3(0.0);
-                    for (float i = 0.0; i < 1.0; i += 1.0 / NUM_LAYER) {
-                        float depth = fract(i + uStarSpeed * uSpeed);
-                        float scale = mix(20.0 * uDensity, 0.5 * uDensity, depth);
-                        float fade = depth * smoothstep(1.0, 0.9, depth);
-                        col += StarLayer(uv * scale + i * 453.32) * fade;
-                    }
-                    float alpha = length(col);
-                    alpha = smoothstep(0.0, 0.3, alpha);
-                    gl_FragColor = vec4(col, min(alpha, 1.0));
-                }
-            `;
-
-            const uniforms = {
-                uTime: { value: 0 },
-                uResolution: { value: [ctn.clientWidth, ctn.clientHeight, 1.0] },
-                uStarSpeed: { value: 0.5 },
-                uDensity: { value: 0.18 },
-                uHueShift: { value: 270.0 },
-                uSpeed: { value: 1.0 },
-                uGlowIntensity: { value: 0.35 },
-                uSaturation: { value: 0.9 },
-                uTwinkleIntensity: { value: 0.4 },
-                uRotationSpeed: { value: 0.08 }
-            };
-
-            const program = new Program(gl, { vertex: vert, fragment: frag, uniforms });
-            const mesh = new Mesh(gl, { geometry: new Triangle(gl), program });
-
-            const updateSize = () => {
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                uniforms.uResolution.value = [window.innerWidth, window.innerHeight, window.innerWidth / window.innerHeight];
-            };
-            window.addEventListener('resize', updateSize);
-            updateSize();
-
-            const loop = (t) => {
-                requestAnimationFrame(loop);
-                const timeSec = t * 0.001;
-                uniforms.uTime.value = timeSec;
-                uniforms.uStarSpeed.value = (timeSec * 0.5) / 10.0;
-                renderer.render({ scene: mesh });
-            };
-            requestAnimationFrame(loop);
-        }
+    </script>
 
     <!-- ================= MODAL DO TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO ================= -->
     <div id="modal-termo-responsabilidade" style="position: fixed; inset: 0; background: rgba(5, 3, 2, 0.92); backdrop-filter: blur(16px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
         <div style="width: 100%; max-width: 640px; background: rgba(14, 9, 6, 0.96); border: 1.5px solid var(--border-gold); border-radius: var(--radius-md); padding: 24px 28px; box-shadow: 0 0 50px rgba(0,0,0,0.95), 0 0 25px rgba(229,195,120,0.25); max-height: 90vh; display: flex; flex-direction: column; gap: 14px; overflow-y: auto;">
             
-            <div style="text-align: center; border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 12px; position: relative;">
-                <img src="logo.png" alt="Reviva Memories" style="height: 36px; margin-bottom: 6px;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 12px; position: relative; width: 100%;">
+                <img src="logo.png" alt="Reviva Memories" style="height: 36px; margin: 0 auto 6px auto; display: block;">
                 <h3 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--gold-bright); letter-spacing: 1px; margin-bottom: 4px;">TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO</h3>
                 <p style="font-size: 0.74rem; color: var(--text-secondary);">Autorização Formal e Declaração de Titularidade para Recriação Afetiva com IA</p>
                 <button type="button" id="btn-close-termo-view" onclick="closeTermoModal()" style="display: none; position: absolute; top: 0; right: 0; background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; padding: 4px;">✕</button>
@@ -3119,50 +3350,88 @@
 
             <!-- Caixa de Texto Fundamentada do Termo Legal -->
             <div style="background: rgba(8, 5, 3, 0.85); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 0.74rem; color: #ede3d2; line-height: 1.6; max-height: 180px; overflow-y: auto; text-align: justify;">
-                <p style="margin-bottom: 8px;"><strong>1. FINALIDADE ESTATUTÁRIA E AFETIVA:</strong> As homenagens produzidas pela <em>Reviva Memories</em> destinam-se exclusivamente à preservação de memórias familiares, homenagens em vida ou póstumas e celebração de vínculos afetivos em âmbito estritamente privado.</p>
+                <p style="margin-bottom: 8px;"><strong>1. FINALIDADE AFETIVA E PRIVADA:</strong> As homenagens produzidas pela <em>Reviva Memories</em> destinam-se exclusivamente à preservação de memórias familiares, homenagens em vida ou póstumas e celebração de vínculos afetivos em âmbito estritamente pessoal e privado.</p>
                 
-                <p style="margin-bottom: 8px;"><strong>2. DECLARAÇÃO DE LEGITIMIDADE:</strong> O(a) CONTRATANTE declara, sob as penas da lei (Art. 299 do Código Penal Brasileiro), possuir legítima relação familiar ou autorização expressa do ente homenageado para fornecimento e tratamento das fotografias e gravações de áudio originais.</p>
+                <p style="margin-bottom: 8px;"><strong>2. DECLARAÇÃO DE TITULARIDADE E CONSENTIMENTO:</strong> O(a) CONTRATANTE declara, sob as penas da lei (Art. 299 do Código Penal Brasileiro e Art. 186 do Código Civil), possuir legítima relação ou consentimento expresso para o fornecimento, restauração de imagem e recriação de voz a partir dos registros enviados.</p>
                 
-                <p style="margin-bottom: 8px;"><strong>3. SIGILO E CONFORMIDADE LGPD:</strong> Em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), todos os dados biométricos, fotos e amostras de voz são processados sob sigilo absoluto, ambiente encriptado e utilizados unicamente para a confecção da homenagem solicitada.</p>
+                <p style="margin-bottom: 8px;"><strong>3. CONFORMIDADE LGPD (LEI Nº 13.709/2018):</strong> Todos os dados biométricos, fotos e amostras sonoras fornecidas são processados sob sigilo absoluto em ambiente encriptado, sendo utilizados exclusivamente para a confecção da homenagem solicitada.</p>
                 
-                <p style="margin-bottom: 0;"><strong>4. VEDAÇÃO DE USO ILÍCITO:</strong> É expressamente proibida a utilização deste serviço para difamação, simulação fraudulenta, fins eleitorais ou comerciais não autorizados, assumindo o CONTRATANTE integral responsabilidade civil e criminal por eventuais usos indevidos dos arquivos finais.</p>
+                <p style="margin-bottom: 0;"><strong>4. VEDAÇÃO ABSOLUTA DE USOS RESTRITIVOS OU ILÍCITOS:</strong> É expressamente proibida a criação de vídeos para difamação, simulação fraudulenta, fins eleitorais, comerciais não autorizados, atos vexatórios ou sem anuência dos envolvidos. O CONTRATANTE assume integral e exclusiva responsabilidade civil e criminal por eventuais danos causados a terceiros, isentando a plataforma de qualquer uso indevido.</p>
             </div>
 
-            <!-- Formulário de Identificação do Responsável Legal -->
+            <!-- Formulário de Identificação do Responsável Legal e Relações -->
             <form id="form-termo-responsabilidade" onsubmit="handleSignTermo(event)" style="display: flex; flex-direction: column; gap: 10px;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div>
-                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">NOME COMPLETO DO RESPONSÁVEL *</label>
-                        <input type="text" id="term-signer-name" required placeholder="Ex: Mariana Silva Santos" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px; white-space: nowrap;">NOME DO RESPONSÁVEL</label>
+                        <input type="text" id="term-signer-name" required readonly value="Mariana Silva Santos" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 4px; padding: 8px 10px; color: var(--gold-bright); font-size: 0.78rem; outline: none; cursor: not-allowed; font-weight: 600;">
                     </div>
                     <div>
-                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">CPF DO RESPONSÁVEL *</label>
-                        <input type="text" id="term-signer-cpf" required placeholder="000.000.000-00" maxlength="14" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px; white-space: nowrap;">CPF DO RESPONSÁVEL</label>
+                        <input type="text" id="term-signer-cpf" required readonly value="123.456.789-00" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 4px; padding: 8px 10px; color: var(--gold-bright); font-size: 0.78rem; outline: none; cursor: not-allowed; font-weight: 600;">
                     </div>
                 </div>
 
-                <div>
-                    <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">GRAU DE PARENTESCO / VÍNCULO COM O HOMENAGEADO *</label>
-                    <select id="term-signer-relation" required style="width: 100%; box-sizing: border-box; background: rgba(14, 9, 6, 0.95); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
-                        <option value="Filho(a)">Filho(a)</option>
-                        <option value="Cônjuge / Parceiro(a)">Cônjuge / Parceiro(a)</option>
-                        <option value="Pai / Mãe">Pai / Mãe</option>
-                        <option value="Irmão / Irmã">Irmão / Irmã</option>
-                        <option value="Neto(a)">Neto(a)</option>
-                        <option value="Outro Familiar Direto">Outro Familiar Direto</option>
-                    </select>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px; white-space: nowrap;">SEU LAÇO COM A PESSOA FALECIDA *</label>
+                        <input type="text" id="term-signer-relation-narrator" required placeholder="Ex: Sou filho da pessoa falecida, Sou neto da pessoa falecida, Não cheguei a conhecer a pessoa falecida..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px; white-space: nowrap;">SEU LAÇO COM A PESSOA HOMENAGEADA *</label>
+                        <input type="text" id="term-signer-relation-recipient" required placeholder="Ex: Eu mesmo(a) serei o homenageado(a), Meu namorado será o homenageado, Minha irmã será a homenageada..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                    </div>
                 </div>
 
                 <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.70rem; color: #f6e3c5; cursor: pointer; background: rgba(197, 160, 89, 0.1); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 4px; padding: 8px 10px; margin-top: 4px;">
                     <input type="checkbox" id="chk-term-accept" required style="accent-color: #e5c378; width: 15px; height: 15px; margin-top: 1px;">
-                    <span style="line-height: 1.4;">Declaro que li, compreendi e aceito integralmente os termos deste documento, assumindo total responsabilidade legal sobre os materiais fornecidos.</span>
+                    <span style="line-height: 1.4;">Declaro que li, compreendi e aceito integralmente os termos de responsabilidade, confirmando que os dados e laços informados são verídicos e assumindo total responsabilidade legal sobre os materiais fornecidos.</span>
                 </label>
 
                 <button type="submit" id="btn-submit-term" class="btn-gold" style="height: 42px; font-size: 0.82rem; margin-top: 6px;">
-                    <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i> ASSINAR TERMO & LIBERAR ENVIO DE MÍDIAS
+                    <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i> CONFIRMAR TERMO & LIBERAR ACESSO AO PAINEL
                 </button>
             </form>
         </div>
     </div>
+
+    <!-- Auto-Reload Nativo Universal para Desenvolvimento Local -->
+    <script>
+        (function() {
+            if (location.protocol === 'file:') return;
+            const filesToWatch = ['painel.html', 'painel.js', 'styles.css'];
+            const fileTimestamps = {};
+
+            async function getHeaderToken(url) {
+                try {
+                    const res = await fetch(url + '?_t=' + Date.now(), { method: 'HEAD', cache: 'no-store' });
+                    return (res.headers.get('last-modified') || '') + '|' + (res.headers.get('etag') || '') + '|' + (res.headers.get('content-length') || '');
+                } catch(e) {
+                    return null;
+                }
+            }
+
+            async function initWatcher() {
+                for (const file of filesToWatch) {
+                    const token = await getHeaderToken(file);
+                    if (token) fileTimestamps[file] = token;
+                }
+                
+                setInterval(async () => {
+                    for (const file of filesToWatch) {
+                        const token = await getHeaderToken(file);
+                        if (token && fileTimestamps[file] && fileTimestamps[file] !== token) {
+                            console.log('[LiveReload] Atualização detectada em ' + file + '! Recarregando página...');
+                            window.location.reload();
+                            return;
+                        }
+                        if (token) fileTimestamps[file] = token;
+                    }
+                }, 1000);
+            }
+
+            initWatcher();
+        })();
+    </script>
 </body>
 </html>

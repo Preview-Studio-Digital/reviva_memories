@@ -38,9 +38,15 @@ Esta habilidade orienta a coleta de informações (conversa guiada pelo Iasis) e
 3. **Recados Familiares Personalizados (Especialmente nos Planos Legatum e Tributum):**
    - **Nunca faça apenas saudações genéricas ou listas frias de nomes.**
    - Dedique frases afetuosas e mensagens específicas para cada familiar mencionado (mãe, pai, irmãos, filhos, cônjuge).
-4. **Clímax & Despedida (Extremamente Emocionante e Sublime):**
+4. **Clímax, Despedida & Bênção Divina (Extremamente Emocionante e com Menção a Deus):**
    - **O final e a despedida devem ser profundamente comoventes, poéticos e tocantes.**
-   - Transmita a certeza do amor eterno, o abraço espiritual que vence a distância, a presença que continua viva no coração e a bênção de paz e luz.
+   - Transmita a certeza do amor eterno, o abraço espiritual que vence a distância e a presença viva no coração.
+   - **Bênção Divina Obrigatória:** Logo após a despedida ao homenageado, **SEMPRE inclua frases mencionando a bênção e a presença de Deus**, como:
+     - *"Fica com Deus..."*
+     - *"Que a paz do Senhor te acompanhe sempre..."*
+     - *"Continue seguindo a Deus de coração aberto..."*
+     - *"Que Deus abençoe cada passo do seu caminho..."*
+     - *"Deus está cuidando de você e eu também..."*
 
 ---
 
@@ -117,6 +123,12 @@ Quando o cliente interage com o Iasis no Painel do Cliente, as perguntas são co
 9. **Recados Familiares & Bênçãos:**
    - *1 Minuto (Affectus):* Bênção afetuosa e abraço à família no fechamento.
    - *2 ou 3 Minutos (Legatum / Tributum):* **Recados personalizados e carinhosos dedicados a cada familiar próximo** (mãe, pai, irmãos, filhos, cônjuge).
+10. **Tom Narrativo & Personalidade:** Preferência do cliente entre um tom mais alegre/descontraído/cômico ou profundamente emocionante/terno/poético.
+11. **Pergunta de Personalização Extra & Detalhes Livres (MANDATÓRIA ANTES DE QUALQUER ESCRITA):**
+   - **Regra Fundamental:** O Iasis nunca gera o roteiro imediatamente após o tom. Ele DEVE abrir uma oportunidade explícita para o cliente acrescentar detalhes livres, frases marcantes, hábitos ou memórias.
+   - **Formulação Padrão para os Planos de 2 e 3 Minutos (Legatum / Tributum):**
+     > *"Como você contratou o Plano Legatum (2 Minutos) [ou Tributum (3 Minutos)], temos um espaço generoso e muito especial na narrativa. Antes de eu começar a redigir: há mais alguma história marcante, hábitos, piadas de família, frases características ou conselhos que você gostaria que o(a) [Nome] dissesse para deixar este roteiro ainda mais rico, único e personalizado?"*
+   - **Geração do Roteiro:** Somente após a resposta do cliente a esta pergunta é que o Iasis acolhe o retorno e elabora o roteiro oficial estruturado em parágrafos com a tag `[[ROTEIRO_FINAL]]`.
 
 ---
 
@@ -126,7 +138,7 @@ Quando o cliente interage com o Iasis no Painel do Cliente, as perguntas são co
 1. **Abertura Vibrante com Apelido (0-15s):** Saudação calorosa, empolgada, surpresa e reconhecimento alegre da data.
 2. **Orgulho & Celebração (15-30s):** Vibração pelo momento e sentimento de presença.
 3. **Conselho do Coração & Memória (30-45s):** O maior conselho ou lembrança marcante.
-4. **Alento, Recado Familiar & Despedida Sublime (45-60s+):** Mensagem de amor eterno, abraço espiritual à família e fechamento extremamente emocionante.
+4. **Alento, Recado Familiar, Despedida & Bênção Divina (45-60s+):** Mensagem de amor eterno, abraço espiritual à família, encerramento comovente e a bênção de Deus (*"Fica com Deus...", "Que a paz do Senhor te acompanhe..."*).
 
 ---
 
@@ -135,7 +147,7 @@ Quando o cliente interage com o Iasis no Painel do Cliente, as perguntas são co
 2. **Trajetória & Recordações Marcantes (25-65s):** Lembrança de momentos vividos juntos e orgulho pelo caminho percorrido.
 3. **Legado & Conselhos de Vida (65-95s):** Valores fundamentais e palavras de incentivo.
 4. **Recados Personalizados aos Familiares (95-125s):** Mensagens carinhosas dedicadas a entes queridos próximos (mãe, pai, irmãos, etc.).
-5. **Clímax & Despedida Sublime (125-140s+):** Certeza da presença espiritual, abraço que vence o tempo e bênção de paz eterna.
+5. **Clímax, Despedida & Bênção Divina (125-140s+):** Certeza da presença espiritual, abraço que vence o tempo e encerramento abençoando com menção a Deus (*"Continue seguindo a Deus...", "Que o Senhor ilumine seus passos..."*).
 
 ---
 
@@ -144,7 +156,7 @@ Quando o cliente interage com o Iasis no Painel do Cliente, as perguntas são co
 2. **Capítulo 1: As Lembranças e Histórias Inesquecíveis (30-85s):** Histórias detalhadas, hábitos, risadas e momentos de ouro da convivência.
 3. **Capítulo 2: Os Ensinamentos & Legado Moral (85-135s):** O grande testamento afetivo e ético.
 4. **Capítulo 3: Múltiplos Recados Personalizados para a Família (135-180s):** Mensagens individuais e detalhadas para cada membro familiar.
-5. **Encerramento Celestial & Bênção Eterna (180-200s+):** O abraço que transcende a ausência, o pedido para sorrirem e a despedida sublime e inesquecível.
+5. **Encerramento Celestial & Bênção Divina Eterna (180-200s+):** O abraço que transcende a ausência, o pedido para sorrirem e a despedida sublime abençoando a vida com Deus (*"Fique com Deus...", "Que a graça e a paz do Senhor estejam sempre com você..."*).
 
 ---
 

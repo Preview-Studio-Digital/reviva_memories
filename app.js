@@ -1125,6 +1125,181 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ==========================================
+    // SIMULADOR DE CHECKOUT & PAGAMENTO
+    // ==========================================
+    let currentSelectedPlanData = {
+        planId: 'emocao',
+        planName: 'Plano Legatum',
+        duration: '2 Minutos',
+        format: 'Formato Horizontal',
+        hasUpsell: false,
+        priceFormatted: 'R$ 897,00',
+        priceVal: 897
+    };
+
+    window.openCheckoutModal = function(card) {
+        const modal = document.getElementById('modal-checkout-simulado');
+        if (!modal) return;
+
+        const planNameEl = card.querySelector('.plan-name');
+        const planDurationEl = card.querySelector('.plan-duration');
+        const activeFormatBtn = card.querySelector('.format-btn.active');
+        const upsellCheckbox = card.querySelector('.upsell-checkbox');
+        const priceDisplay = card.querySelector('.price-display');
+        const amountSpan = priceDisplay ? priceDisplay.querySelector('.amount') : null;
+        const centsSpan = priceDisplay ? priceDisplay.querySelector('.cents') : null;
+
+        const planName = planNameEl ? planNameEl.textContent.trim() : 'Plano Legatum';
+        const duration = planDurationEl ? planDurationEl.textContent.trim() : '2 Minutos';
+        const formatPrimary = activeFormatBtn ? activeFormatBtn.getAttribute('data-format') : 'horizontal';
+        const hasUpsell = upsellCheckbox ? upsellCheckbox.checked : false;
+
+        let formatText = formatPrimary === 'horizontal' ? 'Formato Horizontal' : 'Formato Vertical';
+        if (hasUpsell) {
+            formatText = 'Formatos Horizontal + Vertical';
+        }
+
+        const priceText = 'R$ ' + (amountSpan ? amountSpan.textContent.trim() : '897') + (centsSpan ? centsSpan.textContent.trim() : ',00');
+        
+        let planId = 'emocao';
+        if (planName.toLowerCase().includes('affectus') || duration.includes('1')) planId = 'essencial';
+        else if (planName.toLowerCase().includes('tributum') || duration.includes('3')) planId = 'tributo';
+
+        currentSelectedPlanData = {
+            planId: planId,
+            planName: planName,
+            duration: duration,
+            format: formatText,
+            hasUpsell: hasUpsell,
+            priceFormatted: priceText,
+            priceVal: parseFloat(priceDisplay?.getAttribute('data-base') || 897) + (hasUpsell ? parseFloat(priceDisplay?.getAttribute('data-upsell') || 0) : 0)
+        };
+
+        const chkPlanName = document.getElementById('chk-plan-name');
+        const chkPlanDetails = document.getElementById('chk-plan-details');
+        const chkPlanPrice = document.getElementById('chk-plan-price');
+
+        if (chkPlanName) chkPlanName.textContent = planName;
+        if (chkPlanDetails) chkPlanDetails.textContent = `${duration} • ${formatText}`;
+        if (chkPlanPrice) chkPlanPrice.textContent = priceText;
+
+        // Se o formulário estiver vazio, preenche com dados padrão
+        const nameInput = document.getElementById('chk-input-name');
+        const cpfInput = document.getElementById('chk-input-cpf');
+        const emailInput = document.getElementById('chk-input-email');
+        const phoneInput = document.getElementById('chk-input-phone');
+
+        if (nameInput && !nameInput.value) nameInput.value = 'Mariana Silva Santos';
+        if (cpfInput && !cpfInput.value) cpfInput.value = '123.456.789-00';
+        if (emailInput && !emailInput.value) emailInput.value = 'mariana.silva@exemplo.com';
+        if (phoneInput && !phoneInput.value) phoneInput.value = '(11) 98765-4321';
+
+        modal.style.display = 'flex';
+        if (window.lucide) lucide.createIcons();
+    };
+
+    window.closeCheckoutModal = function() {
+        const modal = document.getElementById('modal-checkout-simulado');
+        if (modal) modal.style.display = 'none';
+    };
+
+    window.preencherDadosTesteCheckout = function() {
+        const nameInput = document.getElementById('chk-input-name');
+        const cpfInput = document.getElementById('chk-input-cpf');
+        const emailInput = document.getElementById('chk-input-email');
+        const phoneInput = document.getElementById('chk-input-phone');
+        if (nameInput) nameInput.value = 'Mariana Silva Santos';
+        if (cpfInput) cpfInput.value = '123.456.789-00';
+        if (emailInput) emailInput.value = 'mariana.silva@exemplo.com';
+        if (phoneInput) phoneInput.value = '(11) 98765-4321';
+    };
+
+    // Máscara do CPF no Checkout
+    document.getElementById('chk-input-cpf')?.addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+        else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+        else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+        e.target.value = v;
+    });
+
+    window.handleSimulateCheckout = function(e) {
+        if (e) e.preventDefault();
+        
+        const name = (document.getElementById('chk-input-name')?.value || 'Mariana Silva Santos').trim();
+        const cpf = (document.getElementById('chk-input-cpf')?.value || '123.456.789-00').trim();
+        const email = (document.getElementById('chk-input-email')?.value || 'mariana.silva@exemplo.com').trim();
+        const phone = (document.getElementById('chk-input-phone')?.value || '(11) 98765-4321').trim();
+
+        // Criar objeto de pedido
+        const planInfo = currentSelectedPlanData || {
+            planId: 'emocao',
+            planName: 'Plano Legatum',
+            duration: '2 Minutos',
+            format: 'Formato Horizontal',
+            hasUpsell: false,
+            priceFormatted: 'R$ 897,00'
+        };
+
+        const orderData = {
+            order_id: 'REVIVA-ORD-' + Date.now().toString(36).toUpperCase(),
+            customer_name: name,
+            customer_cpf: cpf,
+            customer_email: email,
+            customer_phone: phone,
+            plan_id: planInfo.planId || 'emocao',
+            plan_name: planInfo.planName || 'Plano Legatum',
+            plan_duration: planInfo.duration || '2 Minutos',
+            plan_format: planInfo.format || 'Formato Horizontal',
+            has_upsell: !!planInfo.hasUpsell,
+            total_price: planInfo.priceFormatted || 'R$ 897,00',
+            status: 'paid',
+            created_at: new Date().toISOString()
+        };
+
+        // Salvar na sessão local
+        localStorage.setItem('reviva_order_data', JSON.stringify(orderData));
+        localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone }));
+        
+        // Resetar o termo para exigir assinatura nova com o nome e CPF desta simulação
+        localStorage.removeItem('reviva_legal_term');
+
+        // Atualizar estado mestre do painel
+        let fullState = {};
+        try {
+            const raw = localStorage.getItem('reviva_full_session_state');
+            if (raw) fullState = JSON.parse(raw);
+        } catch(err) {}
+        fullState.orderData = orderData;
+        fullState.legalTermSigned = null; // forçar novo aceite do termo
+        fullState.clientName = name;
+        fullState.clientCpf = cpf;
+        localStorage.setItem('reviva_full_session_state', JSON.stringify(fullState));
+
+        // Redirecionamento direto
+        window.location.href = 'termo.html';
+        return false;
+    };
+
+    // Vincular submit do form explicitamente
+    const formChk = document.getElementById('form-checkout-simulado');
+    if (formChk) {
+        formChk.addEventListener('submit', window.handleSimulateCheckout);
+    }
+
+    // Vincular botões "Contratar" dos cards para abrir o checkout simulado
+    document.querySelectorAll('.plan-buy-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const card = btn.closest('.plan-card');
+            if (card) {
+                openCheckoutModal(card);
+            }
+        });
+    });
+
     // Interatividade do FAQ (Spotlight Modal Centralizado com Fundo Desfocado)
     const faqModalBackdrop = document.getElementById('faqModalBackdrop');
     const faqModalQuestion = document.getElementById('faqModalQuestion');

@@ -7,12 +7,70 @@ document.addEventListener('DOMContentLoaded', async () => {
     let orderData = await window.revivaData.getCurrentOrder();
     let currentUser = await window.revivaData.getCurrentUser();
 
-    // Nome do cliente para personalização calorosa
-    const clientFullName = currentUser?.user_metadata?.full_name || 'Mariana';
-    const clientFirstName = clientFullName.trim().split(' ')[0] || 'Mariana';
+    // Nome do cliente para personalização calorosa e dinâmica
+    let clientFullName = 'Cliente';
+    let clientFirstName = 'Cliente';
 
-    const topbarUserName = document.getElementById('topbar-user-name');
-    if (topbarUserName) topbarUserName.textContent = clientFirstName;
+    function resolveClientIdentity() {
+        let name = '';
+        try {
+            const rawTerm = localStorage.getItem('reviva_legal_term');
+            if (rawTerm) {
+                const parsedTerm = JSON.parse(rawTerm);
+                if (parsedTerm?.name && parsedTerm.name.trim().length > 0) name = parsedTerm.name.trim();
+            }
+        } catch(e) {}
+
+        if (!name) {
+            try {
+                const rawOrder = localStorage.getItem('reviva_order_data');
+                if (rawOrder) {
+                    const parsedOrd = JSON.parse(rawOrder);
+                    if (parsedOrd?.customer_name && parsedOrd.customer_name.trim().length > 0) name = parsedOrd.customer_name.trim();
+                }
+            } catch(e) {}
+        }
+
+        if (!name) {
+            try {
+                const rawFull = localStorage.getItem('reviva_full_session_state');
+                if (rawFull) {
+                    const parsedFull = JSON.parse(rawFull);
+                    if (parsedFull?.clientName && parsedFull.clientName.trim().length > 0) name = parsedFull.clientName.trim();
+                    else if (parsedFull?.legalTermSigned?.name) name = parsedFull.legalTermSigned.name.trim();
+                }
+            } catch(e) {}
+        }
+
+        if (!name) {
+            try {
+                const rawUser = localStorage.getItem('reviva_session_user');
+                if (rawUser) {
+                    const parsedUser = JSON.parse(rawUser);
+                    if (parsedUser?.name && parsedUser.name.trim().length > 0) name = parsedUser.name.trim();
+                }
+            } catch(e) {}
+        }
+
+        if (!name && currentUser?.user_metadata?.full_name) {
+            name = currentUser.user_metadata.full_name.trim();
+        }
+
+        if (!name) name = 'Mariana Silva Santos';
+
+        clientFullName = name;
+        clientFirstName = name.split(/\s+/)[0] || 'Cliente';
+
+        const topbarUserName = document.getElementById('topbar-user-name');
+        if (topbarUserName) topbarUserName.textContent = clientFirstName;
+
+        const termSignerName = document.getElementById('term-signer-name');
+        if (termSignerName && (!termSignerName.value || termSignerName.value === 'Mariana Silva Santos')) {
+            termSignerName.value = clientFullName;
+        }
+    }
+
+    resolveClientIdentity();
 
     // =========================================================================
     // CONFIGURAÇÃO DINÂMICA DOS 3 PLANOS OFICIAIS (AFFECTUS, LEGATUM, TRIBUTUM)
@@ -71,7 +129,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         orderData.plan_name = activePlanKey;
     }
 
-    // Atualiza cabeçalhos e badges com o plano ativo
+    // Atualiza cabeçalhos e badges com o plano ativo e formato contratado
+    function updateAllStepPlanBadges() {
+        const formatFromUrl = (urlParams.get('formato') || urlParams.get('format') || localStorage.getItem('reviva_selected_format') || 'ambos').toLowerCase();
+        let formatLabel = 'HORIZONTAL & VERTICAL';
+        if (formatFromUrl === 'horizontal') formatLabel = 'HORIZONTAL';
+        else if (formatFromUrl === 'vertical') formatLabel = 'VERTICAL';
+        else if (formatFromUrl === 'ambos' || formatFromUrl === 'both') formatLabel = 'HORIZONTAL & VERTICAL';
+
+        const planBadgeText = `PLANO ${currentPlan.name.toUpperCase()} • ${currentPlan.durationMinutes} MINUTO${currentPlan.durationMinutes > 1 ? 'S' : ''} • ${formatLabel}`;
+        
+        document.querySelectorAll('.step-plan-badge').forEach(badge => {
+            badge.textContent = planBadgeText;
+        });
+    }
+    updateAllStepPlanBadges();
+
     const chatHeaderPlanTitle = document.getElementById('chat-header-plan-title');
     if (chatHeaderPlanTitle) {
         chatHeaderPlanTitle.textContent = `DESENVOLVIMENTO DO ROTEIRO - PLANO ${currentPlan.name.toUpperCase()}: ${currentPlan.durationMinutes} MINUTO${currentPlan.durationMinutes > 1 ? 'S' : ''}`;
@@ -86,7 +159,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let uploadedPhotos = [];
     let uploadedAudios = [];
     let selectedBackground = 'nuvens';
-    let selectedMusic = 'piano_emocao';
+    let selectedMusic = 'sem_musica';
+    let musicManuallyChosen = false;
     let interviewAnswers = {};
     let interviewQuestionIndex = 0;
 
@@ -133,6 +207,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             text: currentPlan.durationMinutes >= 2
                 ? `No Plano ${currentPlan.name} temos espaço para mensagens dedicadas: quais familiares próximos (mãe, pai, irmãos, filhos, cônjuge) devem receber recados personalizados e o que ele(a) diria especificamente a cada um?`
                 : "Quais outros familiares ou pessoas queridas não podem deixar de receber um abraço apertado e uma bênção no final da mensagem?"
+        },
+        {
+            id: 'narrative_tone',
+            text: "Para que as palavras e o estilo reflitam com fidelidade a personalidade da pessoa, qual tom você prefere que prevaleça na homenagem? Um tom mais alegre, descontraído e cômico, ou um tom profundamente emocionante, terno e poético?"
+        },
+        {
+            id: 'extra_personalization',
+            text: currentPlan.durationMinutes >= 2
+                ? `Como você contratou o Plano ${currentPlan.name} (${currentPlan.durationMinutes} minutos), temos um espaço generoso e muito especial na narrativa: há mais alguma lembrança, história marcante, hábitos, piadas de família, frases características ou conselhos que você gostaria de incluir para deixar o roteiro ainda mais personalizado?`
+                : "Antes de eu começar a estruturar o roteiro com todo o carinho: há mais algum detalhe específico, frase marcante ou lembrança que você gostaria de acrescentar para que a homenagem fique ainda mais personalizada?"
         }
     ];
 
@@ -174,8 +258,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    // Flag de controle: Transição cinematográfica entre etapas ativada
+    const ENABLE_STEP_TRANSITIONS = true;
+
     let curtainTimer = null;
     function triggerStageCurtainAnimation(step, callback) {
+        if (!ENABLE_STEP_TRANSITIONS) {
+            if (callback) callback();
+            return;
+        }
+
         const curtain = document.getElementById('fullscreen-stage-curtain');
         const badge = document.getElementById('stageCurtainBadge');
         const title = document.getElementById('stageCurtainTitle');
@@ -212,9 +304,61 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 2500);
     }
 
+    function stopAllAudios() {
+        // Pausar e resetar elementos de prévia de áudio, preservando a música de fundo (bgAudio)
+        try {
+            document.querySelectorAll('audio:not(#bgAudio)').forEach(a => {
+                try {
+                    a.pause();
+                    a.currentTime = 0;
+                } catch(e) {}
+            });
+        } catch(e) {}
+
+        // Resetar player de voz da etapa 4
+        try {
+            const vSample = document.getElementById('voiceSampleAudio');
+            if (vSample) {
+                vSample.pause();
+                vSample.currentTime = 0;
+            }
+            if (typeof updateVoicePlayIcon === 'function') updateVoicePlayIcon(false);
+            const centerIcon = document.getElementById('voice-center-play-icon');
+            if (centerIcon) centerIcon.setAttribute('data-lucide', 'play');
+            const progress = document.getElementById('voice-progress-current');
+            if (progress) progress.style.width = '0%';
+            const timeCur = document.getElementById('voice-time-current');
+            if (timeCur) timeCur.textContent = '0:00';
+        } catch(e) {}
+
+        // Resetar áudio gravado da etapa 1
+        try {
+            if (typeof currentAttachedAudio !== 'undefined' && currentAttachedAudio) {
+                currentAttachedAudio.pause();
+                currentAttachedAudio.currentTime = 0;
+                currentPlayingAudioIdx = -1;
+                if (typeof renderAudioPreviews === 'function') renderAudioPreviews();
+            }
+        } catch(e) {}
+
+        // A música de fundo ambiente (bgAudio) é preservada e continua tocando sem cortes!
+
+        if (window.lucide) lucide.createIcons();
+    }
+
     function executeStepSwitch(step) {
+        // Interromper imediatamente qualquer reprodução de áudio em andamento
+        stopAllAudios();
+
         currentStep = step;
+        resolveClientIdentity();
         
+        // Persistir etapa ativa imediatamente para recarregamento em tempo real
+        try {
+            localStorage.setItem('reviva_active_step', step.toString());
+            history.replaceState(null, '', '#step-' + step);
+        } catch (e) {}
+
         // Atualiza a barra de progresso (5 passos = 01 a 05)
         document.querySelectorAll('.step-item').forEach(item => {
             const s = parseInt(item.dataset.step);
@@ -252,6 +396,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (step === 2) {
             startInterviewChat();
+            if (typeof updateScriptApprovedUI === 'function') {
+                updateScriptApprovedUI(isScriptApproved);
+            }
         }
 
         if (step === 3) {
@@ -273,6 +420,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selectedBackground = scenarioCards[0].dataset.bg || 'nuvens';
             }
 
+            // Garantir que "Sem Trilha" (sem_musica) seja o padrão se o cliente não escolheu outra manualmente
+            if (!musicManuallyChosen) {
+                selectedMusic = 'sem_musica';
+            }
+
             const musicCards = document.querySelectorAll('#musicContainer .scenario-card-full');
             let hasSelectedMusic = false;
             musicCards.forEach(c => {
@@ -285,9 +437,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     c.classList.remove('selected');
                 }
             });
-            if (!hasSelectedMusic && musicCards.length > 0) {
-                musicCards[0].classList.add('selected');
-                selectedMusic = musicCards[0].dataset.music || 'piano_emocao';
+            if (!hasSelectedMusic) {
+                const semTrilhaCard = document.querySelector('#musicContainer .scenario-card-full[data-music="sem_musica"]');
+                if (semTrilhaCard) {
+                    semTrilhaCard.classList.add('selected');
+                    const container = document.getElementById('musicContainer');
+                    if (container && container.firstElementChild !== semTrilhaCard) container.prepend(semTrilhaCard);
+                }
+                selectedMusic = 'sem_musica';
             }
         }
 
@@ -302,11 +459,80 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof updateLapidacaoActionButton === 'function') updateLapidacaoActionButton();
         }
 
+        if (step === 5) {
+            const names = extractHomenagemNames();
+            const enteNameEl = document.getElementById('step5-ente-name');
+            const homenageadoNameEl = document.getElementById('step5-homenageado-name');
+            if (enteNameEl) {
+                enteNameEl.textContent = names.ente;
+            }
+            if (homenageadoNameEl) {
+                homenageadoNameEl.textContent = names.homenageado;
+            }
+        }
+
+        updateAllStepPlanBadges();
         if (window.lucide) window.lucide.createIcons();
+        saveFullSessionState();
+    }
+
+    function extractHomenagemNames() {
+        let ente = '';
+        let homenageado = '';
+
+        // 1. Tentar extrair diretamente do Roteiro Oficial Capturado na Etapa 2 (latestScriptText)
+        if (typeof latestScriptText !== 'undefined' && latestScriptText) {
+            const rawText = latestScriptText.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+            // Padrões para o Homenageado (destinatário da mensagem):
+            const destPatterns = [
+                /(?:olha só pra você|olha pra você|quem diria|querid[oa]|minh[ao] querid[oa]|meu querid[oa]|minha amada|meu amado|olá|para você|para ti|meu filho|minha filha|meu neto|minha neta|meu amor|meu grande amigo|minha grande amiga)[,\s]+([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+)/i,
+                /(?:homenagem a|homenagem para|especial para|dedicado a|feita para|entregue a)\s+([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+)/i
+            ];
+            for (const pat of destPatterns) {
+                const m = rawText.match(pat);
+                if (m && m[1]) {
+                    homenageado = m[1].trim();
+                    break;
+                }
+            }
+
+            // Padrões para o Ente (quem transmite a mensagem com sua imagem e voz):
+            const entePatterns = [
+                /(?:do seu|da sua|com amor do|com amor da|com carinho do|com carinho da|bênção do seu|bênção da sua|abraço do seu|abraço da sua|assinad[oa] por|com saudades do seu|com saudades da sua)\s+(?:pai|mãe|avô|avó|irmão|irmã|amigo|amiga|esposo|esposa|filho|filha)?\s*([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+)/i,
+                /(?:do seu|da sua)\s+(pai|mãe|avô|avó|irmão|irmã|esposo|esposa)/i,
+                /(?:com todo o amor de|com amor,|com carinho,|um abraço de|bênção de)\s*([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ][a-záéíóúâêîôûãõç]+)/i
+            ];
+            for (const pat of entePatterns) {
+                const m = rawText.match(pat);
+                if (m && m[1]) {
+                    ente = m[1].trim();
+                    break;
+                }
+            }
+        }
+
+        // 2. Dados da entrevista coletados pelo Iasis na Etapa 2
+        if (!ente && typeof interviewData !== 'undefined' && interviewData?.protagonista) {
+            ente = interviewData.protagonista.trim();
+        }
+        if (!homenageado && typeof interviewData !== 'undefined') {
+            if (interviewData?.destinatario) homenageado = interviewData.destinatario.trim();
+            else if (interviewData?.apelido) homenageado = interviewData.apelido.trim();
+        }
+
+        // 3. Fallbacks elegantes
+        if (!ente) ente = (typeof interviewData !== 'undefined' && interviewData?.protagonista) ? interviewData.protagonista : 'Pai';
+        if (!homenageado) homenageado = (typeof interviewData !== 'undefined' && interviewData?.destinatario) ? interviewData.destinatario : clientFirstName;
+
+        return {
+            ente: ente,
+            homenageado: homenageado
+        };
     }
 
     function goToStep(step, immediate = false) {
-        if (immediate || step === currentStep) {
+        if (!ENABLE_STEP_TRANSITIONS || immediate || step === currentStep) {
             executeStepSwitch(step);
         } else {
             triggerStageCurtainAnimation(step, () => {
@@ -317,11 +543,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.goToStep = goToStep;
 
-    // Habilitar navegação livre ao clicar nos passos da linha do tempo (Modo Testes/Desenvolvimento)
+    // Navegação interativa pelas bolinhas da linha do tempo
     document.querySelectorAll('.step-item').forEach(item => {
-        item.addEventListener('click', () => {
+        item.addEventListener('click', (e) => {
             const targetStep = parseInt(item.dataset.step);
-            if (targetStep) goToStep(targetStep);
+            if (targetStep && !isNaN(targetStep)) {
+                goToStep(targetStep);
+            }
         });
     });
 
@@ -329,18 +557,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ETAPA 01: O RESGATE (FOTOS + CENÁRIO)
     // =========================================================================
     const photoDropzone = document.getElementById('photo-dropzone');
-    const photoInput = document.getElementById('photo-input');
 
     if (photoDropzone) {
         photoDropzone.addEventListener('click', (e) => {
-            if (e.target.closest('.preview-remove-btn')) return;
-            if (!legalTermSigned || !legalTermSigned.signed) {
-                e.stopPropagation();
-                if (typeof window.openTermoModal === 'function') window.openTermoModal(false);
-                return;
-            }
-            if (uploadedPhotos.length < 5) {
-                photoInput.click();
+            if (e.target.tagName === 'INPUT' || e.target.closest('.preview-remove-btn') || e.target.closest('.upload-slot-filled')) return;
+            if (uploadedPhotos.length < 3) {
+                const input = document.getElementById('photo-input');
+                if (input) input.click();
             }
         });
 
@@ -360,13 +583,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             photoDropzone.style.borderColor = 'rgba(197, 160, 89, 0.5)';
             photoDropzone.style.background = 'rgba(10, 7, 5, 0.55)';
             handlePhotoFiles(e.dataTransfer.files);
-        });
-    }
-
-    if (photoInput) {
-        photoInput.addEventListener('change', (e) => {
-            handlePhotoFiles(e.target.files);
-            photoInput.value = '';
         });
     }
 
@@ -406,75 +622,125 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    function updateNextStep1ButtonState() {
+        const btnNext = document.getElementById('btn-next-step-1');
+        if (!btnNext) return;
+
+        const hasPhoto = uploadedPhotos && uploadedPhotos.length >= 1;
+        const hasAudio = uploadedAudios && uploadedAudios.length >= 1;
+        const canAdvance = hasPhoto && hasAudio;
+
+        btnNext.disabled = !canAdvance;
+        if (canAdvance) {
+            btnNext.classList.remove('btn-disabled');
+            btnNext.style.opacity = '1';
+            btnNext.style.cursor = 'pointer';
+            btnNext.style.pointerEvents = 'auto';
+            btnNext.title = 'Avançar para a Etapa 2 (A Essência)';
+        } else {
+            btnNext.classList.add('btn-disabled');
+            btnNext.style.opacity = '0.38';
+            btnNext.style.cursor = 'not-allowed';
+            btnNext.style.pointerEvents = 'none';
+            btnNext.title = 'Envie pelo menos 1 foto e 1 áudio para avançar';
+        }
+    }
+
+    function getPhotoSlotsHtml() {
+        let html = '';
+        for (let i = 0; i < 3; i++) {
+            if (i < uploadedPhotos.length) {
+                const photo = uploadedPhotos[i];
+                html += `
+                <div class="upload-slot-filled">
+                    <img src="${photo.data}" alt="${photo.name}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                    <button class="preview-remove-btn" onclick="removePhoto(${i}, event)" title="Remover foto" style="position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; border-radius: 50%; background: rgba(14, 9, 6, 0.95); color: #e5c378; border: 1px solid #e5c378; font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; transition: transform 0.2s ease; z-index: 5;">✕</button>
+                </div>`;
+            } else {
+                html += `
+                <div class="upload-slot-empty" onclick="triggerPhotoUpload(event)" title="Clique para enviar foto ${i + 1}">
+                    <i data-lucide="plus"></i>
+                    <span>Foto 0${i + 1}</span>
+                </div>`;
+            }
+        }
+        return html;
+    }
+
+    window.triggerPhotoUpload = function(e) {
+        if (e) e.stopPropagation();
+        if (uploadedPhotos.length < 3) {
+            const input = document.getElementById('photo-input');
+            if (input) input.click();
+        }
+    };
+
     function renderPhotoPreviews() {
         if (!photoDropzone) return;
-
         const count = uploadedPhotos.length;
 
         if (count === 0) {
-            photoDropzone.innerHTML = `
-                <div class="photo-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 6px;">
-                    <i data-lucide="image-plus" style="width: 28px; height: 28px; color: #e5c378; margin-bottom: 4px;"></i>
-                    <h4 style="color: #f6e3c5; font-size: 0.92rem; margin: 0; font-weight: 600;">Clique ou arraste as fotos aqui</h4>
-                </div>
-
-                <div class="dropzone-tips-rotator" id="dropzoneTipsRotator">
-                    <div class="dropzone-tip-slide active">
-                        <i data-lucide="camera"></i>
-                        <span>Até 3 fotografias</span>
-                    </div>
-                    <div class="dropzone-tip-slide">
-                        <i data-lucide="user-check"></i>
-                        <span>Fotos Individuais</span>
-                    </div>
-                    <div class="dropzone-tip-slide">
-                        <i data-lucide="sun-medium"></i>
-                        <span>Boa iluminação</span>
-                    </div>
-                    <div class="dropzone-tip-slide">
-                        <i data-lucide="scan-face"></i>
-                        <span>Alta Nitidez</span>
-                    </div>
-                    <div class="dropzone-tip-slide">
-                        <i data-lucide="sparkles"></i>
-                        <span>Expressão natural</span>
-                    </div>
-                </div>
-
-                <input type="file" id="photo-input" multiple accept="image/*" style="display: none;">
-            `;
-            const newInput = photoDropzone.querySelector('#photo-input');
-            newInput?.addEventListener('change', (e) => {
-                handlePhotoFiles(e.target.files);
-                newInput.value = '';
-            });
-            if (window.lucide) lucide.createIcons();
-            initTipsRotator();
-            return;
+            photoDropzone.classList.remove('zone-filled');
+            photoDropzone.classList.add('zone-empty');
+        } else {
+            photoDropzone.classList.remove('zone-empty');
+            photoDropzone.classList.add('zone-filled');
         }
 
-        let thumbsHtml = uploadedPhotos.map((photo, idx) => `
-            <div style="position: relative; width: 92px; height: 92px; border-radius: 10px; overflow: hidden; border: 1.5px solid #e5c378; flex-shrink: 0; box-shadow: 0 4px 16px rgba(0,0,0,0.7); background: #000;">
-                <img src="${photo.data}" alt="${photo.name}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                <button class="preview-remove-btn" onclick="removePhoto(${idx}, event)" title="Remover foto" style="position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(14, 9, 6, 0.95); color: #e5c378; border: 1px solid #e5c378; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; transition: transform 0.2s ease;">✕</button>
+        const headerHtml = (count === 0) ? `
+            <div class="photo-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
+                <i data-lucide="image-plus" style="width: 26px; height: 26px; color: #e5c378; margin-bottom: 3px;"></i>
+                <h4 style="color: #f6e3c5; font-size: 0.88rem; margin: 0; font-weight: 600;">Clique ou arraste as fotos aqui</h4>
+                <p style="font-size: 0.70rem; color: #ede3d2; margin: 2px 0; text-align: center; max-width: 380px; line-height: 1.35; opacity: 0.9;">
+                    Envie fotos nítidas para restaurar os traços e recriar a imagem em movimento com máxima fidelidade.
+                </p>
             </div>
-        `).join('');
-
-        photoDropzone.innerHTML = `
-            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; padding: 2px 0;">
-                <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 20px; padding: 4px 14px;">
-                    <span style="color: #e5c378; font-weight: bold; font-size: 0.90rem;">✓</span>
-                    <span style="color: #f6e3c5; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.2px;">
+        ` : `
+            <div class="photo-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
+                <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 20px; padding: 3px 14px; margin-bottom: 2px;">
+                    <span style="color: #e5c378; font-weight: bold; font-size: 0.85rem;">✓</span>
+                    <span style="color: #f6e3c5; font-size: 0.80rem; font-weight: 600; letter-spacing: 0.2px;">
                         ${count} ${count === 1 ? 'foto anexada' : 'fotos anexadas'}
                     </span>
                 </div>
+                <span style="font-size: 0.68rem; color: ${count < 3 ? '#e5c378' : 'var(--text-secondary)'}; font-weight: 500;">
+                    ${count < 3 ? '+ Anexar mais fotos' : '✓ Limite máximo de 3 fotos atingido'}
+                </span>
+            </div>
+        `;
 
-                <div style="display: flex; gap: 12px; justify-content: center; align-items: center; max-width: 100%; overflow-x: auto; padding: 4px 0;">
-                    ${thumbsHtml}
+        photoDropzone.innerHTML = `
+            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 2px 0; box-sizing: border-box;">
+                <!-- 1. Topo: Título do Card -->
+                ${headerHtml}
+
+                <!-- 2. Centro: Quadradinhos centralizados no espaço entre o título e as dicas -->
+                <div class="upload-slots-row" id="photo-slots-container" style="margin: auto 0;">
+                    ${getPhotoSlotsHtml()}
                 </div>
 
-                <div style="font-size: 0.76rem; color: ${count < 3 ? '#e5c378' : 'var(--text-secondary)'}; font-weight: 500;">
-                    ${count < 3 ? '+ Clique para adicionar mais fotos (máx. 3)' : '✓ Limite máximo de 3 fotos atingido'}
+                <!-- 3. Base: Dicas Posicionadas em Formato 2-1-2 sem moldura/caixa -->
+                <div class="tips-die-grid" style="margin: 0 auto 4px auto;">
+                    <div class="upload-tip-die-item" style="grid-column: 1;">
+                        <i data-lucide="camera"></i>
+                        <span>Até 3 fotografias</span>
+                    </div>
+                    <div class="upload-tip-die-item" style="grid-column: 2;">
+                        <i data-lucide="user-check"></i>
+                        <span>Fotos individuais</span>
+                    </div>
+                    <div class="upload-tip-die-item" style="grid-column: 1 / span 2; justify-self: center; width: 65%; min-width: 170px;">
+                        <i data-lucide="sun-medium"></i>
+                        <span>Boa iluminação</span>
+                    </div>
+                    <div class="upload-tip-die-item" style="grid-column: 1;">
+                        <i data-lucide="scan-face"></i>
+                        <span>Foco no rosto</span>
+                    </div>
+                    <div class="upload-tip-die-item" style="grid-column: 2;">
+                        <i data-lucide="sparkles"></i>
+                        <span>Expressão natural</span>
+                    </div>
                 </div>
             </div>
             <input type="file" id="photo-input" multiple accept="image/*" style="display: none;">
@@ -485,12 +751,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             handlePhotoFiles(e.target.files);
             newInput.value = '';
         });
+        if (window.lucide) lucide.createIcons();
+        updateNextStep1ButtonState();
     }
 
     window.removePhoto = (index, event) => {
         if (event) event.stopPropagation();
         uploadedPhotos.splice(index, 1);
         renderPhotoPreviews();
+        updateNextStep1ButtonState();
     };
 
     document.querySelectorAll('#scenariosContainer .scenario-card-full').forEach(card => {
@@ -538,17 +807,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    document.getElementById('btn-next-step-1')?.addEventListener('click', () => {
-        if (!legalTermSigned || !legalTermSigned.signed) {
-            if (typeof window.openTermoModal === 'function') window.openTermoModal(false);
-            return;
-        }
-        if (!uploadedPhotos || uploadedPhotos.length === 0) {
-            openPhotoAlertModal();
+    document.getElementById('btn-next-step-1')?.addEventListener('click', (e) => {
+        if (e) e.preventDefault();
+        const hasPhoto = uploadedPhotos && uploadedPhotos.length >= 1;
+        const hasAudio = uploadedAudios && uploadedAudios.length >= 1;
+        
+        if (!hasPhoto || !hasAudio) {
+            alert('Por favor, anexe pelo menos 1 foto e 1 áudio para avançar para a Etapa 2.');
             return;
         }
 
         goToStep(2);
+    });
+
+    document.getElementById('btn-next-step-2')?.addEventListener('click', (e) => {
+        if (e) e.preventDefault();
+        goToStep(3);
+    });
+
+    document.getElementById('btn-next-step-3')?.addEventListener('click', (e) => {
+        if (e) e.preventDefault();
+        goToStep(4);
     });
 
     // =========================================================================
@@ -565,7 +844,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     let geminiChatHistory = [];
     let isWaitingGemini = false;
 
-    const IASIS_SYSTEM_PROMPT = `
+    function getIasisSystemPrompt() {
+        resolveClientIdentity();
+        return `
 Você é o Iasis, o guia oficial e inteligência afetiva da Reviva Memories.
 Seu propósito é conduzir uma conversa genuinamente humana, empática e acolhedora com o cliente (${clientFirstName}) para coletar memórias e desenvolver o roteiro do vídeo de homenagem (com imagem restaurada e voz da pessoa homenageada).
 
@@ -573,7 +854,7 @@ IDENTIDADE, GÊNERO E CONCORDÂNCIA GRAMATICAL DE IASIS:
 - Você é o Iasis, um homem maduro, sábio, elegante, sereno e caloroso (identidade e gênero MASCULINO).
 - Ao se referir a si mesmo, use SEMPRE o gênero masculino: "estou pronto", "estou atento", "fico muito honrado", "como seu guia oficial".
 - Ao falar em conjunto com o cliente (1ª pessoa do plural), use SEMPRE o plural masculino/misto: "vamos JUNTOS", "estamos JUNTOS", "construiremos juntos essa homenagem". NUNCA use "juntas" ao se incluir na frase.
-- Ao se dirigir à cliente (${clientFirstName}), concorde os adjetivos que se referem a ela ("seja muito bem-vinda", "sinta-se acolhida", "querida ${clientFirstName}"), mas as ações conjuntas são SEMPRE "vamos juntos".
+- Ao se dirigir ao cliente (${clientFirstName}), concorde os adjetivos de forma nobre e respeitosa, e as ações conjuntas são SEMPRE "vamos juntos".
 
 POSTURA, TOM DE VOZ E LINGUAGEM CENTRADA (HOMEM MADURO, SÓBRIO E RESPEITOSO):
 - Você se expressa como um homem maduro, equilibrado, sereno, seguro e de postura nobre.
@@ -609,7 +890,7 @@ REGRA DE OURO DA CADÊNCIA DRAMÁTICA EM TODOS OS ROTEIROS:
 - ABERTURA: SEMPRE comece o roteiro com EMPOLGAÇÃO, ALEGRIA, SURPRESA E ENTUSIASMO! Evite inícios monótonos ou tristes. Ex: "Olha só pra você!", "Quem diria, hein?!", "Você achou mesmo que eu não estaria aqui?", "Que alegria imensa ver esse dia chegar!".
 - CADÊNCIA & TRANSIÇÃO: A narrativa começa com energia comemorativa e transiciona suavemente para o afeto íntimo, relembrando histórias marcantes, valores e os conselhos do coração.
 - RECADOS FAMILIARES PERSONALIZADOS (ESPECIALMENTE NOS PLANOS DE 2 E 3 MINUTOS): Nunca faça apenas uma saudação genérica ou lista fria de nomes. Crie recados personalizados e carinhosos com significado próprio para cada familiar mencionado (pai, mãe, irmãos, filhos, cônjuge).
-- CLÍMAX & ENCERRAMENTO EXTREMAMENTE EMOCIONANTE: O final e a despedida devem ser profundamente comoventes, poéticos e inesquecíveis (o abraço espiritual que vence a distância, a presença viva no coração e a bênção de paz e luz eterna).
+- CLÍMAX, DESPEDIDA & BÊNÇÃO DIVINA OBRIGATÓRIA: O final e a despedida devem ser profundamente comoventes, poéticos e inesquecíveis (o abraço espiritual que vence a distância, a presença viva no coração). Logo após a despedida ao homenageado, você DEVE SEMPRE incluir frases abençoando com menção explícita a Deus, como: "Fica com Deus...", "Que a paz do Senhor te acompanhe sempre...", "Continue seguindo a Deus de coração aberto...", "Que Deus abençoe cada passo do seu caminho...".
 
 COMPROMISSO INEGOCIÁVEL DE DURAÇÃO (NUNCA FALTAR PALAVRAS):
 - Se o cliente contratou 1 minuto, o roteiro NUNCA pode ter menos de 120 palavras (para que o vídeo nunca fique com 55 segundos).
@@ -637,13 +918,23 @@ ETAPAS DA COLETA AFETIVA (UMA PERGUNTA POR TURNO COM COSTURA AFETIVA):
 6. HISTÓRIA / ACONTECIMENTO MARCANTE: ${currentPlan.durationMinutes >= 2 ? 'Perguntar: "Para o Plano ' + currentPlan.name + ', temos espaço para relembrar histórias ricas: existe algum acontecimento inesquecível, história marcante ou momento de convivência que viveram juntos que vale a pena recordar com carinho?"' : 'Perguntar: "Existe algum acontecimento ou frase marcante que o(a) [Nome] diria à [Nome/Apelido da pessoa homenageada] que seria profundamente impactante e especial ouvir?"'}
 7. CONSELHOS OU INCENTIVO: Perguntar de forma simples e direta: "Quais conselhos ou palavras de carinho e incentivo o(a) [Nome] daria para a [Nome/Apelido da pessoa homenageada]?"
 8. RECADOS PERSONALIZADOS PARA A FAMÍLIA: ${currentPlan.durationMinutes >= 2 ? 'Perguntar: "No Plano ' + currentPlan.name + ', temos espaço dedicado para mensagens para outras pessoas queridas: quais familiares ou amigos próximos devem receber recados personalizados antes da bênção final?"' : 'Perguntar: "Quais outros familiares ou pessoas queridas não podem deixar de receber um abraço apertado e uma bênção no final da mensagem?"'}
-9. TOM NARRATIVO E PERSONALIDADE (OBRIGATÓRIO ANTES DE GERAR O ROTEIRO):
+9. TOM NARRATIVO E PERSONALIDADE:
    - Perguntar sobre o tom desejado para a narrativa da pessoa:
      "Para que as palavras e a locução reflitam com fidelidade o jeito único de ser do(a) [Nome], qual tom você prefere que prevaleça na homenagem? Um tom mais alegre, descontraído e bem-humorado/cômico, ou um tom profundamente emocionante, terno e poético?"
-   - Ao receber a escolha do cliente, aplique fielmente esse estilo no roteiro.
+   - Ao receber a escolha do cliente, acolha a decisão e NUNCA gere o roteiro ainda. Avance OBRIGATORIAMENTE para a etapa 10.
 
-FINALIZAÇÃO E ENTREGA DO ROTEIRO:
-Assim que todas as informações (incluindo o tom desejado) forem compartilhadas, avise em uma frase serena e acolhedora ao cliente: "Por favor, aguarde um instante enquanto elaboro o roteiro com muito carinho e respeito..." e em seguida adicione no final:
+10. PERGUNTA DE PERSONALIZAÇÃO EXTRA (MANDATÓRIA ANTES DE QUALQUER ESCRITA):
+   - NUNCA gere o roteiro imediatamente após a escolha do tom. Antes de começar a redigir, você DEVE perguntar se tem mais alguma coisa, detalhe específico, lembrança, hábito, piada ou frase que o cliente queira incluir para que o roteiro fique ainda mais personalizado e fiel.
+   - ATENÇÃO CRÍTICA E OBRIGATÓRIA AOS PLANOS DE 2 E 3 MINUTOS (LEGATUM E TRIBUTUM):
+     * Nos planos de 2 e 3 minutos, como são homenagens longas que demandam muito mais volume de conteúdo e profundidade emocional para preencher o tempo integral, enfatize isso de forma calorosa e nobre ao cliente.
+     * Exemplo para 2 e 3 Minutos: "Como você contratou o Plano ${currentPlan.name} (${currentPlan.durationMinutes} minutos), temos um espaço generoso e muito especial na narrativa. Antes de eu começar a redigir: há mais algum detalhe, frase marcante, lembrança de hábitos, piadas de família ou mensagem específica que você gostaria que o(a) [Nome] dissesse para deixar este roteiro ainda mais rico, único e personalizado?"
+     * Exemplo para 1 Minuto: "Antes de eu iniciar a escrita do roteiro com todo o carinho: há mais algum detalhe especial, frase marcante ou lembrança que você gostaria que o(a) [Nome] dissesse para deixar a homenagem ainda mais personalizada?"
+   - SOMENTE APÓS A RESPOSTA DO CLIENTE A ESTA PERGUNTA 10:
+     * Se o cliente trouxer novos detalhes, frases ou histórias: acolha com entusiasmo ("Que maravilha! Esses detalhes trarão uma alma inesquecível à homenagem."), incorpore absolutamente tudo no texto e prossiga para a finalização.
+     * Se o cliente disser que já está completo ou que não há mais nada a acrescentar: acolha com serenidade e prossiga para a finalização.
+
+FINALIZAÇÃO E ENTREGA DO ROTEIRO (SOMENTE APÓS A RESPOSTA DA PERGUNTA 10):
+Assim que o cliente responder à pergunta de personalização extra (etapa 10), avise em uma frase serena e acolhedora ao cliente: "Por favor, aguarde um instante enquanto elaboro o roteiro oficial com muito carinho e respeito..." e em seguida adicione no final:
 [[ROTEIRO_FINAL]]
 seguido do texto completo do roteiro da homenagem, redigido em PRIMEIRA PESSOA (a voz de quem protagoniza para a pessoa homenageada), aplicando a cadência de ABERTURA ALEGRE E EMPOLGADA -> DESENVOLVIMENTO COM MEMÓRIAS E RECADOS -> CLÍMAX DRAMÁTICO E SUBLIME, respeitando estritamente o PLANO ${currentPlan.name.toUpperCase()} (duração de ${currentPlan.durationMinutes} minuto(s), meta de ${currentPlan.targetWords}, limite absoluto de ${currentPlan.maxChars} caracteres).
 
@@ -656,6 +947,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
 2. Aplique a modificação mantendo a métrica e o tempo do PLANO ${currentPlan.name.toUpperCase()}.
 3. Avise em uma frase: "Aguarde um instante enquanto readequamos o texto com carinho e precisão..." e entregue o roteiro completo revisado com a tag [[ROTEIRO_FINAL]] seguida do novo roteiro integral estruturado em parágrafos.
 `;
+    }
 
     const chatTypingText = document.getElementById('chat-typing-text');
     let latestScriptText = '';
@@ -681,6 +973,13 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
     let mediaRevisionsHistory = [];
     let latestPhotoFeedback = '';
     let legalTermSigned = null;
+    try {
+        const storedTermo = localStorage.getItem('reviva_legal_term');
+        if (storedTermo) {
+            const parsed = JSON.parse(storedTermo);
+            if (parsed && parsed.signed) legalTermSigned = parsed;
+        }
+    } catch(e) {}
     let photoDecision = 'pending'; // 'pending' | 'approved' | 'rejected'
     let voiceDecision = 'pending'; // 'pending' | 'approved' | 'rejected'
     const SESSION_KEY = 'reviva_order_state_' + (orderData?.id || 1);
@@ -693,6 +992,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
                 uploadedAudios,
                 selectedBackground,
                 selectedMusic,
+                musicManuallyChosen,
                 geminiChatHistory,
                 scriptRevisionCount,
                 latestScriptText,
@@ -751,24 +1051,40 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
                     }
                 });
             }
-            if (state.selectedMusic) {
-                selectedMusic = state.selectedMusic;
-                document.querySelectorAll('#musicContainer .scenario-card-full').forEach(c => {
-                    if (c.dataset.music === selectedMusic) {
-                        c.classList.add('selected');
-                        const container = document.getElementById('musicContainer');
-                        if (container && container.firstElementChild !== c) container.prepend(c);
-                    } else {
-                        c.classList.remove('selected');
-                    }
-                });
+            if (state.selectedMusic && state.musicManuallyChosen) {
+                musicManuallyChosen = true;
+                if (state.selectedMusic === 'piano_emocao') selectedMusic = 'piano';
+                else if (state.selectedMusic === 'cordas_paz') selectedMusic = 'violino';
+                else if (state.selectedMusic === 'serenidade') selectedMusic = 'violao';
+                else selectedMusic = state.selectedMusic;
+            } else {
+                musicManuallyChosen = false;
+                selectedMusic = 'sem_musica';
             }
 
+            document.querySelectorAll('#musicContainer .scenario-card-full').forEach(c => {
+                if (c.dataset.music === selectedMusic) {
+                    c.classList.add('selected');
+                    const container = document.getElementById('musicContainer');
+                    if (container && container.firstElementChild !== c) container.prepend(c);
+                } else {
+                    c.classList.remove('selected');
+                }
+            });
+
             // 3. Restaurar Termo de Responsabilidade e Aprovações da Etapa 4
-            if (state.legalTermSigned) {
+            if (state.legalTermSigned && state.legalTermSigned.signed) {
                 legalTermSigned = state.legalTermSigned;
-                if (typeof updateTermoUI === 'function') updateTermoUI();
+            } else {
+                try {
+                    const storedTermo = localStorage.getItem('reviva_legal_term');
+                    if (storedTermo) {
+                        const parsed = JSON.parse(storedTermo);
+                        if (parsed && parsed.signed) legalTermSigned = parsed;
+                    }
+                } catch(e) {}
             }
+            if (typeof updateTermoUI === 'function') updateTermoUI();
 
             if (Array.isArray(state.mediaRevisionsHistory)) {
                 mediaRevisionsHistory = state.mediaRevisionsHistory;
@@ -833,12 +1149,20 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
                                 btnApprove.style.opacity = '0.9';
                                 if (btnEdit) btnEdit.style.display = 'none';
                                 isScriptApproved = true;
-                                saveFullSessionState();
+                                
                                 const wordCount = latestScriptText.trim().split(/\s+/).filter(w => w.length > 0).length;
                                 if (window.revivaData?.saveApprovedScript) {
                                     await window.revivaData.saveApprovedScript(orderData?.id || 1, latestScriptText, wordCount);
                                 }
-                                goToStep(3);
+
+                                if (typeof updateScriptApprovedUI === 'function') {
+                                    updateScriptApprovedUI(true);
+                                }
+
+                                const thankMsg = `Muito obrigado por sua aprovação e confiança, ${clientFirstName || 'cliente'}! O roteiro oficial está confirmado com sucesso e a próxima etapa (<strong>Etapa 03: A Harmonização</strong>) já está liberada para você. Clique no botão <strong>AVANÇAR</strong> abaixo para continuarmos!`;
+                                addAiChatMessage(thankMsg);
+
+                                saveFullSessionState();
                             };
                         }
                     }
@@ -853,6 +1177,10 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
                         };
                     }
                 });
+
+                if (isScriptApproved && typeof updateScriptApprovedUI === 'function') {
+                    updateScriptApprovedUI(true);
+                }
 
                 if (window.lucide) lucide.createIcons();
                 interviewChatBox.scrollTop = interviewChatBox.scrollHeight;
@@ -875,6 +1203,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
     }
 
     function startInterviewChat() {
+        resolveClientIdentity();
         const badgeEl = document.getElementById('chat-header-plan-badge');
         if (badgeEl) {
             badgeEl.textContent = `PLANO ${currentPlan.name.toUpperCase()} • ${currentPlan.durationMinutes} MINUTO${currentPlan.durationMinutes > 1 ? 'S' : ''}`;
@@ -888,6 +1217,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
 
             // Se após a restauração o chat continuar vazio, envia a mensagem inicial de boas-vindas do Iasis
             if (interviewChatBox.children.length === 0) {
+                resolveClientIdentity();
                 const firstMessage = `Olá, ${clientFirstName}! Eu sou o Iasis, seu guia aqui na Reviva Memories.<br><br>Faremos agora uma breve conversa para capturar as memórias, o afeto e os detalhes necessários para o desenvolvimento do roteiro personalizado da homenagem.<br><br>Podemos começar?`;
                 
                 geminiChatHistory = [
@@ -900,6 +1230,40 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
                 addAiChatMessage(firstMessage);
             }
         }
+    }
+
+    window.resetarChat = function() {
+        resolveClientIdentity();
+        if (interviewChatBox) interviewChatBox.innerHTML = '';
+        geminiChatHistory = [];
+        scriptRevisionCount = 0;
+        latestScriptText = '';
+        isScriptApproved = false;
+        interviewData = {
+            protagonista: '',
+            destinatario: clientFirstName,
+            tom: '',
+            memorias: '',
+            mensagem: '',
+            duracaoMinutos: currentPlan?.durationMinutes || 2
+        };
+        currentQuestionStep = 'ask_protagonista';
+        updateScriptApprovedUI(false);
+        saveFullSessionState();
+        startInterviewChat();
+    };
+
+    function updateScriptApprovedUI(approved) {
+        const inputBar = document.getElementById('chat-input-bar-container');
+        const advanceBar = document.getElementById('chat-advance-bar-container');
+        if (approved) {
+            if (inputBar) inputBar.style.display = 'none';
+            if (advanceBar) advanceBar.style.display = 'flex';
+        } else {
+            if (inputBar) inputBar.style.display = 'flex';
+            if (advanceBar) advanceBar.style.display = 'none';
+        }
+        if (window.lucide) lucide.createIcons();
     }
 
     function addAiChatMessage(text, callback) {
@@ -926,10 +1290,14 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
 
             saveChatSession();
 
-            if (btnSendChat) btnSendChat.disabled = false;
-            if (chatInput) {
-                chatInput.disabled = false;
-                chatInput.focus();
+            if (isScriptApproved) {
+                updateScriptApprovedUI(true);
+            } else {
+                if (btnSendChat) btnSendChat.disabled = false;
+                if (chatInput) {
+                    chatInput.disabled = false;
+                    chatInput.focus();
+                }
             }
             if (callback) callback();
         }, 1100);
@@ -1020,11 +1388,20 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
                 btnApprove.style.opacity = '0.9';
                 if (btnEdit) btnEdit.style.display = 'none';
                 isScriptApproved = true;
-                saveChatSession();
+                
                 if (window.revivaData?.saveApprovedScript) {
                     await window.revivaData.saveApprovedScript(orderData?.id || 1, scriptContent, wordCount);
                 }
-                goToStep(3);
+
+                // Ocultar input/enviar e exibir o botão AVANÇAR
+                updateScriptApprovedUI(true);
+
+                // Mensagem carinhosa do Iasis agradecendo e liberando a próxima etapa
+                const thankMsg = `Muito obrigado por sua aprovação e confiança, ${clientFirstName || 'cliente'}! O roteiro oficial está confirmado com sucesso e a próxima etapa (<strong>Etapa 03: A Harmonização</strong>) já está liberada para você. Clique em <strong>AVANÇAR</strong> abaixo para continuarmos!`;
+                addAiChatMessage(thankMsg);
+
+                saveChatSession();
+                saveFullSessionState();
             });
 
             btnEdit?.addEventListener('click', () => {
@@ -1038,10 +1415,14 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
 
             saveChatSession();
 
-            if (btnSendChat) btnSendChat.disabled = false;
-            if (chatInput) {
-                chatInput.disabled = false;
-                chatInput.focus();
+            if (isScriptApproved) {
+                updateScriptApprovedUI(true);
+            } else {
+                if (btnSendChat) btnSendChat.disabled = false;
+                if (chatInput) {
+                    chatInput.disabled = false;
+                    chatInput.focus();
+                }
             }
         }, 1200);
     }
@@ -1072,7 +1453,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
                     body: JSON.stringify({
                         contents: geminiChatHistory,
                         systemInstruction: {
-                            parts: [{ text: IASIS_SYSTEM_PROMPT }]
+                            parts: [{ text: getIasisSystemPrompt() }]
                         }
                     })
                 });
@@ -1205,30 +1586,44 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
                 };
 
             case 'ask_tom':
-            default:
                 interviewData.tom = text;
+                currentQuestionStep = 'ask_personalizacao_extra';
+                if (currentPlan.durationMinutes >= 2) {
+                    return {
+                        chat: `Excelente escolha de tom, ${clientFirstName}! Ficará sublime.<br><br>Como você contratou o <strong>Plano ${currentPlan.name} (${currentPlan.durationMinutes} Minutos)</strong>, temos um espaço generoso e muito especial na narrativa: <strong>há mais alguma lembrança, história marcante, hábitos, piadas de família, frases características ou conselhos que você gostaria que o(a) ${interviewData.protagonista || 'protagonista'} dissesse</strong> para deixar o roteiro ainda mais rico, único e personalizado?`
+                    };
+                } else {
+                    return {
+                        chat: `Excelente escolha de tom, ${clientFirstName}!<br><br>Antes de eu começar a estruturar o roteiro oficial com todo o carinho: <strong>há mais algum detalhe específico, frase marcante ou lembrança que você gostaria de acrescentar</strong> para que a homenagem fique ainda mais personalizada?`
+                    };
+                }
+
+            case 'ask_personalizacao_extra':
+            default:
+                interviewData.detalhes_extras = (lower.includes('não') || lower.includes('nao') || lower.includes('nada') || lower.includes('tudo certo') || lower.includes('pode fazer') || lower.includes('apenas isso') || lower.includes('acho que só') || lower.includes('só isso') || lower.includes('so isso')) ? '' : text;
                 currentQuestionStep = 'script_ready';
 
-                const isComico = lower.includes('cômico') || lower.includes('comico') || lower.includes('descontraído') || lower.includes('descontraido') || lower.includes('engraçado') || lower.includes('alegre') || lower.includes('bem-humorado') || lower.includes('humor');
+                const isComico = (interviewData.tom || '').toLowerCase().includes('cômico') || (interviewData.tom || '').toLowerCase().includes('comico') || (interviewData.tom || '').toLowerCase().includes('descontraído') || (interviewData.tom || '').toLowerCase().includes('descontraido') || (interviewData.tom || '').toLowerCase().includes('engraçado') || (interviewData.tom || '').toLowerCase().includes('alegre') || (interviewData.tom || '').toLowerCase().includes('humor') || lower.includes('cômico') || lower.includes('comico') || lower.includes('descontraído') || lower.includes('descontraido') || lower.includes('engraçado');
                 const protagonista = interviewData.protagonista || 'Artur';
                 const apelido = interviewData.apelido || clientFirstName;
                 const historia = interviewData.historia || 'tantos momentos de risos e união que compartilhamos';
                 const conselhos = interviewData.conselhos || 'siga firme com o coração em paz e a cabeça erguida';
-                const familiares = (lower.includes('não') || lower.includes('nao') || lower.includes('nenhum')) ? 'todos que guardam nosso carinho' : (interviewData.familiares || 'toda a nossa família querida');
+                const familiares = (interviewData.familiares && (interviewData.familiares.toLowerCase().includes('não') || interviewData.familiares.toLowerCase().includes('nao') || interviewData.familiares.toLowerCase().includes('nenhum'))) ? 'todos que guardam nosso carinho' : (interviewData.familiares || 'toda a nossa família querida');
+                const extraFragmento = interviewData.detalhes_extras ? ` ${interviewData.detalhes_extras}.` : '';
 
                 let script = "";
                 if (isComico) {
-                    script = `Olha só pra você, ${apelido}! Quem diria, hein?! Achou mesmo que eu ia perder essa festa e deixar você comemorar sem ouvir a minha voz? Jamais!\n\nEu dou risada só de lembrar de ${historia}. Bons tempos aqueles! Mas falando sério, meu coração se enche de orgulho de ver você brilhando. Meu único conselho: ${conselhos}. E trate de dar um abraço bem forte em ${familiares}, que eu tô de olho em vocês daqui!\n\nReceba o meu melhor abraço, cheio de energia boa e alegria. Um beijo estalado e vamos comemorar que a vida é pra ser vivida!`;
+                    script = `Olha só pra você, ${apelido}! Quem diria, hein?! Achou mesmo que eu ia perder essa festa e deixar você comemorar sem ouvir a minha voz? Jamais!\n\nEu dou risada só de lembrar de ${historia}.${extraFragmento} Bons tempos aqueles! Mas falando sério, meu coração se enche de orgulho de ver você brilhando. Meu único conselho: ${conselhos}. E trate de dar um abraço bem forte em ${familiares}, que eu tô de olho em vocês daqui!\n\nReceba o meu melhor abraço, cheio de energia boa e alegria. Um beijo estalado e vamos comemorar que a vida é pra ser vivida!`;
                 } else if (currentPlan.durationMinutes === 1) {
-                    script = `Olha só pra você, ${apelido}! Achou mesmo que eu deixaria de estar presente neste dia tão marcante? Que alegria imensa poder falar com você agora!\n\nEu guardo com tanto carinho no meu peito cada segundo que estivemos juntos... Lembro como se fosse hoje de ${historia}. Saiba que mesmo na distância, meu afeto por você permanece vivo e vibrante. Quero que você nunca esqueça: ${conselhos}. Tenha orgulho dos seus passos e cuide sempre de ${familiares}.\n\nReceba o meu abraço mais apertado, cheio de luz e boas lembranças. Fique em paz e continue brilhando!`;
+                    script = `Olha só pra você, ${apelido}! Achou mesmo que eu deixaria de estar presente neste dia tão marcante? Que alegria imensa poder falar com você agora!\n\nEu guardo com tanto carinho no meu peito cada segundo que estivemos juntos... Lembro como se fosse hoje de ${historia}.${extraFragmento} Saiba que mesmo na distância, meu afeto por você permanece vivo e vibrante. Quero que você nunca esqueça: ${conselhos}. Tenha orgulho dos seus passos e cuide sempre de ${familiares}.\n\nReceba o meu abraço mais apertado, cheio de luz e boas lembranças. Fique em paz e continue brilhando!`;
                 } else if (currentPlan.durationMinutes === 2) {
-                    script = `Olha só pra você! Que momento emocionante e que alegria ver esse dia chegar! Você achou que eu não estaria aqui para comemorar com você? Pois estou bem aqui, com o coração transbordando de orgulho!\n\nComo é bom lembrar da nossa trajetória... Lembro com um sorriso no rosto de ${historia}. Cada instante ao seu lado foi uma bênção que guardo na eternidade. Quero te deixar um pedido muito especial: ${conselhos}. Nunca duvide da força que você tem e da pessoa maravilhosa que você se tornou.\n\nE não posso esquecer de deixar o meu carinho para ${familiares}. Digam a todos que continuo comemorando cada vitória e envolvendo cada um em paz e proteção.\n\nSinta a minha mão no seu ombro e o calor do meu abraço que vence o tempo. Seja feliz, viva com intensidade e saiba que este carinho é eterno. Fique com Deus!`;
+                    script = `Olha só pra você! Que momento emocionante e que alegria ver esse dia chegar! Você achou que eu não estaria aqui para comemorar com você? Pois estou bem aqui, com o coração transbordando de orgulho!\n\nComo é bom lembrar da nossa trajetória... Lembro com um sorriso no rosto de ${historia}.${extraFragmento} Cada instante ao seu lado foi uma bênção que guardo na eternidade. Quero te deixar um pedido muito especial: ${conselhos}. Nunca duvide da força que você tem e da pessoa maravilhosa que você se tornou.\n\nE não posso esquecer de deixar o meu carinho para ${familiares}. Digam a todos que continuo comemorando cada vitória e envolvendo cada um em paz e proteção.\n\nSinta a minha mão no seu ombro e o calor do meu abraço que vence o tempo. Seja feliz, viva com intensidade e saiba que este carinho é eterno. Fique com Deus!`;
                 } else {
-                    script = `Olha só pra você, ${apelido}! Quem diria, hein?! Que dia radiante e que honra estar aqui falando com você! Não existe distância no mundo capaz de separar o afeto que nos une.\n\nRelembrar a nossa história enche a alma de paz. Como esquecer de ${historia}? Cada risada, cada conversa na varanda, cada conselho trocado... Tudo isso permanece vivo e eternizado na memória.\n\nNesta data especial de ${interviewData.ocasiao || 'comemoração'}, meu maior desejo é que você continue trilhando o seu caminho com sabedoria. Lembre-se sempre: ${conselhos}. Seja generosa, cuide dos seus e nunca perca esse brilho no olhar.\n\nQuero deixar uma mensagem de carinho profundo também para ${familiares}. Que o amor continue sendo o alicerce de vocês. Cuidem uns dos outros como sempre fizemos.\n\nReceba agora a minha bênção mais carinhosa e um abraço longo e apertado. Onde há carinho e memória viva, o afeto nunca termina. Um grande abraço do fundo do coração!`;
+                    script = `Olha só pra você, ${apelido}! Quem diria, hein?! Que dia radiante e que honra estar aqui falando com você! Não existe distância no mundo capaz de separar o afeto que nos une.\n\nRelembrar a nossa história enche a alma de paz. Como esquecer de ${historia}? Cada risada, cada conversa na varanda, cada conselho trocado...${extraFragmento} Tudo isso permanece vivo e eternizado na memória.\n\nNesta data especial de ${interviewData.ocasiao || 'comemoração'}, meu maior desejo é que você continue trilhando o seu caminho com sabedoria. Lembre-se sempre: ${conselhos}. Seja generosa, cuide dos seus e nunca perca esse brilho no olhar.\n\nQuero deixar uma mensagem de carinho profundo também para ${familiares}. Que o amor continue sendo o alicerce de vocês. Cuidem uns dos outros como sempre fizemos.\n\nReceba agora a minha bênção mais carinhosa e um abraço longo e apertado. Onde há carinho e memória viva, o afeto nunca termina. Um grande abraço do fundo do coração!`;
                 }
 
                 return {
-                    chat: `Mariana, foi uma honra conhecer essa história. Estruturei o roteiro oficial respeitando o tom escolhido e o tempo do Plano ${currentPlan.name} (${currentPlan.durationMinutes} min). Confira o texto abaixo:`,
+                    chat: `${clientFirstName}, foi uma honra reunir todas essas memórias preciosas. Estruturei o roteiro oficial respeitando o tom escolhido, todos os detalhes compartilhados e o tempo do Plano ${currentPlan.name} (${currentPlan.durationMinutes} min). Confira o texto abaixo:`,
                     script: script
                 };
         }
@@ -1322,14 +1717,10 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
 
     if (audioDropzone) {
         audioDropzone.addEventListener('click', (e) => {
-            if (e.target.closest('.preview-remove-btn')) return;
-            if (!legalTermSigned || !legalTermSigned.signed) {
-                e.stopPropagation();
-                if (typeof window.openTermoModal === 'function') window.openTermoModal(false);
-                return;
-            }
+            if (e.target.tagName === 'INPUT' || e.target.closest('.preview-remove-btn') || e.target.closest('.upload-slot-audio-filled') || e.target.closest('.preview-audio-play-btn')) return;
             if (uploadedAudios.length < 3) {
-                audioInput?.click();
+                const input = document.getElementById('audio-input');
+                if (input) input.click();
             }
         });
 
@@ -1352,12 +1743,20 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
         });
     }
 
-    if (audioInput) {
-        audioInput.addEventListener('change', (e) => {
+    // Listener Global Delegado para Inputs de Arquivos (Fotos e Áudios)
+    document.addEventListener('change', (e) => {
+        if (e.target && e.target.id === 'photo-input') {
+            handlePhotoFiles(e.target.files);
+            e.target.value = '';
+        }
+        if (e.target && e.target.id === 'audio-input') {
             handleAudioFiles(e.target.files);
-            audioInput.value = '';
-        });
-    }
+            e.target.value = '';
+        }
+    });
+
+    let currentAttachedAudio = null;
+    let currentPlayingAudioIdx = -1;
 
     function handleAudioFiles(files) {
         const remainingSlots = 3 - uploadedAudios.length;
@@ -1365,78 +1764,152 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
 
         const filesToProcess = Array.from(files).slice(0, remainingSlots);
         filesToProcess.forEach(file => {
-            uploadedAudios.push({ name: file.name, size: (file.size / 1024 / 1024).toFixed(1) + ' MB' });
+            const url = URL.createObjectURL(file);
+            uploadedAudios.push({
+                name: file.name,
+                size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
+                url: url,
+                file: file
+            });
         });
         renderAudioPreviews();
     }
+
+    window.togglePlayAttachedAudio = function(index, event) {
+        if (event) event.stopPropagation();
+        const aud = uploadedAudios[index];
+        if (!aud || !aud.url) return;
+
+        if (!currentAttachedAudio) {
+            currentAttachedAudio = new Audio();
+            currentAttachedAudio.addEventListener('ended', () => {
+                currentPlayingAudioIdx = -1;
+                renderAudioPreviews();
+            });
+            currentAttachedAudio.addEventListener('pause', () => {
+                renderAudioPreviews();
+            });
+            currentAttachedAudio.addEventListener('play', () => {
+                renderAudioPreviews();
+            });
+        }
+
+        if (currentPlayingAudioIdx === index && !currentAttachedAudio.paused) {
+            currentAttachedAudio.pause();
+            currentPlayingAudioIdx = -1;
+        } else {
+            currentAttachedAudio.src = aud.url;
+            currentPlayingAudioIdx = index;
+            currentAttachedAudio.play().then(() => {
+                renderAudioPreviews();
+            }).catch(err => console.log("Erro ao reproduzir áudio anexado:", err));
+        }
+        renderAudioPreviews();
+    };
+
+    function getAudioSlotsHtml() {
+        let html = '';
+        for (let i = 0; i < 3; i++) {
+            if (i < uploadedAudios.length) {
+                const aud = uploadedAudios[i];
+                const isPlaying = (currentPlayingAudioIdx === i && currentAttachedAudio && !currentAttachedAudio.paused);
+                html += `
+                <div class="upload-slot-audio-filled" style="border: 1.5px solid ${isPlaying ? '#f6e3c5' : '#e5c378'}; box-shadow: ${isPlaying ? '0 0 16px rgba(229, 195, 120, 0.7)' : '0 4px 14px rgba(0,0,0,0.7)'}; background: radial-gradient(circle at center, rgba(197, 160, 89, 0.22) 0%, rgba(10, 7, 5, 0.95) 100%);">
+                    <button class="preview-remove-btn" onclick="removeAudio(${i}, event)" title="Remover áudio" style="position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; border-radius: 50%; background: rgba(14, 9, 6, 0.95); color: #e5c378; border: 1px solid #e5c378; font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; transition: transform 0.2s ease; z-index: 5;">✕</button>
+
+                    <button type="button" class="preview-audio-play-btn" onclick="togglePlayAttachedAudio(${i}, event)" title="${isPlaying ? 'Pausar áudio' : 'Ouvir gravação'}" style="width: 34px; height: 34px; border-radius: 50%; background: ${isPlaying ? 'linear-gradient(135deg, #f6e3c5, #e5c378)' : 'linear-gradient(135deg, #c5a059, #9c7247)'}; color: #0f0a06; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.6); transition: transform 0.2s ease; margin-bottom: 3px;">
+                        <i data-lucide="${isPlaying ? 'pause' : 'play'}" style="width: 14px; height: 14px; fill: #0f0a06; stroke: #0f0a06; margin-left: ${isPlaying ? '0' : '2px'};"></i>
+                    </button>
+
+                    <span style="font-size: 0.55rem; color: #f6e3c5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; font-weight: 600; padding: 0 2px; box-sizing: border-box;" title="${aud.name}">
+                        ${aud.name}
+                    </span>
+                </div>`;
+            } else {
+                html += `
+                <div class="upload-slot-empty" onclick="triggerAudioUpload(event)" title="Clique para enviar áudio ${i + 1}">
+                    <i data-lucide="plus"></i>
+                    <span>Áudio 0${i + 1}</span>
+                </div>`;
+            }
+        }
+        return html;
+    }
+
+    window.triggerAudioUpload = function(e) {
+        if (e) e.stopPropagation();
+        if (uploadedAudios.length < 3) {
+            const input = document.getElementById('audio-input');
+            if (input) input.click();
+        }
+    };
 
     function renderAudioPreviews() {
         if (!audioDropzone) return;
         const count = uploadedAudios.length;
 
         if (count === 0) {
-            audioDropzone.innerHTML = `
-                <div class="audio-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <i data-lucide="mic" style="width: 26px; height: 26px; color: #e5c378; margin-bottom: 2px;"></i>
-                    <h4 style="color: #f6e3c5; font-size: 0.88rem; margin: 0; font-weight: 600;">Envie áudios com a voz original</h4>
-                </div>
-
-                <div class="dropzone-tips-rotator" id="audioTipsRotator">
-                    <div class="dropzone-tip-slide active">
-                        <i data-lucide="message-square"></i>
-                        <span>Áudios de WhatsApp ou vídeos</span>
-                    </div>
-                    <div class="dropzone-tip-slide">
-                        <i data-lucide="volume-2"></i>
-                        <span>Voz clara e sem ruídos</span>
-                    </div>
-                    <div class="dropzone-tip-slide">
-                        <i data-lucide="clock"></i>
-                        <span>Até 3 minutos de gravação</span>
-                    </div>
-                    <div class="dropzone-tip-slide">
-                        <i data-lucide="sparkles"></i>
-                        <span>Gravações espontâneas em vida</span>
-                    </div>
-                </div>
-
-                <input type="file" id="audio-input" multiple accept="audio/*,video/*" style="display: none;">
-            `;
-            const newInput = audioDropzone.querySelector('#audio-input');
-            newInput?.addEventListener('change', (e) => {
-                handleAudioFiles(e.target.files);
-                newInput.value = '';
-            });
-            if (window.lucide) lucide.createIcons();
-            initAudioTipsRotator();
-            return;
+            audioDropzone.classList.remove('zone-filled');
+            audioDropzone.classList.add('zone-empty');
+        } else {
+            audioDropzone.classList.remove('zone-empty');
+            audioDropzone.classList.add('zone-filled');
         }
 
-        let audiosHtml = uploadedAudios.map((aud, idx) => `
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(18, 12, 8, 0.7); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 20px; padding: 4px 10px; width: 100%; max-width: 280px; box-sizing: border-box;">
-                <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
-                    <i data-lucide="mic" style="width: 14px; height: 14px; color: #e5c378; flex-shrink: 0;"></i>
-                    <span style="font-size: 0.72rem; color: #f6e3c5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">${aud.name}</span>
-                </div>
-                <button class="preview-remove-btn" onclick="removeAudio(${idx}, event)" title="Remover áudio" style="width: 18px; height: 18px; border-radius: 50%; background: rgba(14, 9, 6, 0.95); color: #e5c378; border: 1px solid #e5c378; font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0;">✕</button>
+        const headerHtml = (count === 0) ? `
+            <div class="audio-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
+                <i data-lucide="mic" style="width: 26px; height: 26px; color: #e5c378; margin-bottom: 3px;"></i>
+                <h4 style="color: #f6e3c5; font-size: 0.88rem; margin: 0; font-weight: 600;">Clique ou arraste áudios com a voz original</h4>
+                <p style="font-size: 0.70rem; color: #ede3d2; margin: 2px 0; text-align: center; max-width: 380px; line-height: 1.35; opacity: 0.9;">
+                    Envie áudios claros para extrair o timbre e clonar a voz autêntica que narrará a homenagem.
+                </p>
             </div>
-        `).join('');
-
-        audioDropzone.innerHTML = `
-            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; padding: 2px 0;">
-                <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 20px; padding: 3px 12px;">
+        ` : `
+            <div class="audio-dropzone-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px;">
+                <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 20px; padding: 3px 14px; margin-bottom: 2px;">
                     <span style="color: #e5c378; font-weight: bold; font-size: 0.85rem;">✓</span>
-                    <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600;">
+                    <span style="color: #f6e3c5; font-size: 0.80rem; font-weight: 600; letter-spacing: 0.2px;">
                         ${count} ${count === 1 ? 'áudio anexado' : 'áudios anexados'}
                     </span>
                 </div>
+                <span style="font-size: 0.68rem; color: ${count < 3 ? '#e5c378' : 'var(--text-secondary)'}; font-weight: 500;">
+                    ${count < 3 ? '+ Anexar mais áudios' : '✓ Limite máximo de 3 gravações atingido'}
+                </span>
+            </div>
+        `;
 
-                <div style="display: flex; flex-direction: column; gap: 4px; justify-content: center; align-items: center; width: 100%; padding: 2px 0;">
-                    ${audiosHtml}
+        audioDropzone.innerHTML = `
+            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 2px 0; box-sizing: border-box;">
+                <!-- 1. Topo: Título do Card -->
+                ${headerHtml}
+
+                <!-- 2. Centro: Quadradinhos centralizados no espaço entre o título e as dicas -->
+                <div class="upload-slots-row" id="audio-slots-container" style="margin: auto 0;">
+                    ${getAudioSlotsHtml()}
                 </div>
 
-                <div style="font-size: 0.72rem; color: ${count < 3 ? '#e5c378' : 'var(--text-secondary)'}; font-weight: 500;">
-                    ${count < 3 ? '+ Clique para adicionar mais áudios (máx. 3)' : '✓ Limite de 3 gravações atingido'}
+                <!-- 3. Base: Dicas Posicionadas em Formato 2-1-2 sem moldura/caixa -->
+                <div class="tips-die-grid" style="margin: 0 auto 4px auto;">
+                    <div class="upload-tip-die-item" style="grid-column: 1;">
+                        <i data-lucide="clock"></i>
+                        <span>Até 3 minutos</span>
+                    </div>
+                    <div class="upload-tip-die-item" style="grid-column: 2;">
+                        <i data-lucide="user-check"></i>
+                        <span>Áudios individuais</span>
+                    </div>
+                    <div class="upload-tip-die-item" style="grid-column: 1 / span 2; justify-self: center; width: 65%; min-width: 170px;">
+                        <i data-lucide="volume-2"></i>
+                        <span>Sem ruídos de fundo</span>
+                    </div>
+                    <div class="upload-tip-die-item" style="grid-column: 1;">
+                        <i data-lucide="mic"></i>
+                        <span>Foco na voz da pessoa</span>
+                    </div>
+                    <div class="upload-tip-die-item" style="grid-column: 2;">
+                        <i data-lucide="sparkles"></i>
+                        <span>Gravações espontâneas</span>
+                    </div>
                 </div>
             </div>
             <input type="file" id="audio-input" multiple accept="audio/*,video/*" style="display: none;">
@@ -1448,12 +1921,21 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
             newInput.value = '';
         });
         if (window.lucide) lucide.createIcons();
+        updateNextStep1ButtonState();
     }
 
     window.removeAudio = (index, event) => {
         if (event) event.stopPropagation();
-        uploadedAudios.splice(index, 1);
+        if (currentPlayingAudioIdx === index && currentAttachedAudio) {
+            currentAttachedAudio.pause();
+            currentPlayingAudioIdx = -1;
+        }
+        const removed = uploadedAudios.splice(index, 1);
+        if (removed[0] && removed[0].url && removed[0].url.startsWith('blob:')) {
+            URL.revokeObjectURL(removed[0].url);
+        }
         renderAudioPreviews();
+        updateNextStep1ButtonState();
     };
 
     // Seletor de Trilha Sonora (Mesmo Formato e Animação das Paisagens)
@@ -1462,6 +1944,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
             document.querySelectorAll('#musicContainer .scenario-card-full').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             selectedMusic = card.dataset.music;
+            musicManuallyChosen = true;
 
             // No Desktop: Mover o card selecionado para o topo da lista de trilhas
             const container = document.getElementById('musicContainer');
@@ -1475,33 +1958,34 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
     // =========================================================================
     // PLAYER CENTRAL DE AMOSTRA DE VOZ CLONADA (ETAPA 4)
     // =========================================================================
+    // ETAPA 04: A LAPIDAÇÃO (APROVAÇÃO DA NOVA IMAGEM + VOZ CLONADA)
+    // =========================================================================
     const btnPlayVoiceSampleCenter = document.getElementById('btnPlayVoiceSampleCenter');
-    const iconVoicePlayCenter = document.getElementById('icon-voice-play-center');
     const voiceSampleAudio = document.getElementById('voiceSampleAudio');
     const voiceSampleProgress = document.getElementById('voiceSampleProgress');
     const voiceSampleTime = document.getElementById('voiceSampleTime');
     const voiceSampleCurrentTime = document.getElementById('voiceSampleCurrentTime');
 
+    function updateVoicePlayIcon(isPlaying) {
+        if (!btnPlayVoiceSampleCenter) return;
+        btnPlayVoiceSampleCenter.innerHTML = isPlaying
+            ? `<i data-lucide="pause" style="width: 26px; height: 26px; stroke: #e5c378;"></i>`
+            : `<i data-lucide="play" style="width: 26px; height: 26px; stroke: #e5c378; margin-left: 3px;"></i>`;
+        if (window.lucide) lucide.createIcons();
+    }
+
     if (btnPlayVoiceSampleCenter && voiceSampleAudio) {
         btnPlayVoiceSampleCenter.addEventListener('click', (e) => {
             e.stopPropagation();
             if (voiceSampleAudio.paused) {
-                voiceSampleAudio.play().then(() => {
-                    if (iconVoicePlayCenter) {
-                        iconVoicePlayCenter.setAttribute('data-lucide', 'pause');
-                        iconVoicePlayCenter.style.marginLeft = '0';
-                    }
-                    if (window.lucide) lucide.createIcons();
-                }).catch(err => console.log("Sample play blocked:", err));
+                voiceSampleAudio.play().catch(err => console.log("Sample play blocked:", err));
             } else {
                 voiceSampleAudio.pause();
-                if (iconVoicePlayCenter) {
-                    iconVoicePlayCenter.setAttribute('data-lucide', 'play');
-                    iconVoicePlayCenter.style.marginLeft = '3px';
-                }
-                if (window.lucide) lucide.createIcons();
             }
         });
+
+        voiceSampleAudio.addEventListener('play', () => updateVoicePlayIcon(true));
+        voiceSampleAudio.addEventListener('pause', () => updateVoicePlayIcon(false));
 
         voiceSampleAudio.addEventListener('timeupdate', () => {
             if (!voiceSampleAudio.duration) return;
@@ -1521,18 +2005,38 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
             }
         });
 
-        voiceSampleAudio.addEventListener('ended', () => {
-            if (iconVoicePlayCenter) {
-                iconVoicePlayCenter.setAttribute('data-lucide', 'play');
-                iconVoicePlayCenter.style.marginLeft = '3px';
+        voiceSampleAudio.addEventListener('loadedmetadata', () => {
+            const totalMin = Math.floor(voiceSampleAudio.duration / 60);
+            const totalSec = Math.floor(voiceSampleAudio.duration % 60);
+            if (voiceSampleTime && !isNaN(totalSec)) {
+                voiceSampleTime.textContent = `0${totalMin}:${totalSec < 10 ? '0' : ''}${totalSec}`;
             }
+        });
+
+        voiceSampleAudio.addEventListener('ended', () => {
+            updateVoicePlayIcon(false);
             if (voiceSampleProgress) voiceSampleProgress.style.width = '0%';
             if (voiceSampleCurrentTime) voiceSampleCurrentTime.textContent = '00:00';
-            if (window.lucide) lucide.createIcons();
         });
+
+        const voiceProgressContainer = voiceSampleProgress?.parentElement;
+        if (voiceProgressContainer) {
+            voiceProgressContainer.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!voiceSampleAudio.duration) return;
+                const rect = voiceProgressContainer.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                const seekTime = (clickX / width) * voiceSampleAudio.duration;
+                voiceSampleAudio.currentTime = seekTime;
+            });
+        }
     }
 
     // Ações Etapa 3 (A Harmonização: Trilha & Cenários)
+    document.getElementById('btn-next-step-3')?.addEventListener('click', () => {
+        goToStep(4);
+    });
     document.getElementById('btn-approve-harmonizacao')?.addEventListener('click', () => {
         goToStep(4);
     });
@@ -1553,58 +2057,35 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
 
         const isPhotoValid = photoDecision === 'approved' || (photoDecision === 'rejected' && photoFeedbackTxt.length > 0);
         const isVoiceValid = voiceDecision === 'approved' || (voiceDecision === 'rejected' && voiceFeedbackTxt.length > 0);
-        const hasRejection = photoDecision === 'rejected' || voiceDecision === 'rejected';
 
-        // Estado 1: Ambas aprovadas -> Verde "PRODUZIR HOMENAGEM" (Ativo)
-        if (photoDecision === 'approved' && voiceDecision === 'approved') {
-            btn.textContent = 'PRODUZIR HOMENAGEM';
-            btn.className = 'btn';
-            btn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
-            btn.style.borderColor = '#4ade80';
-            btn.style.color = '#ffffff';
-            btn.style.opacity = '1';
-            btn.style.cursor = 'pointer';
-            btn.style.pointerEvents = 'auto';
-            btn.style.boxShadow = '0 0 20px rgba(34, 197, 94, 0.6), 0 4px 14px rgba(34, 197, 94, 0.4)';
-            btn.disabled = false;
-        } 
-        // Estado 2: Pelo menos uma reprovada, nenhuma pendente E texto digitado em todas as caixas necessárias -> Vermelho "ENVIAR CORREÇÕES" (Ativo)
-        else if (photoDecision !== 'pending' && voiceDecision !== 'pending' && hasRejection && isPhotoValid && isVoiceValid) {
-            btn.textContent = 'ENVIAR CORREÇÕES';
-            btn.className = 'btn';
-            btn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-            btn.style.borderColor = '#f87171';
-            btn.style.color = '#ffffff';
-            btn.style.opacity = '1';
-            btn.style.cursor = 'pointer';
-            btn.style.pointerEvents = 'auto';
-            btn.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.6), 0 4px 14px rgba(239, 68, 68, 0.4)';
-            btn.disabled = false;
-        } 
-        // Estado 3: Reprovado mas ainda sem texto digitado -> Vermelho "ENVIAR CORREÇÕES" visível mas inativo
-        else if (photoDecision !== 'pending' && voiceDecision !== 'pending' && hasRejection) {
-            btn.textContent = 'ENVIAR CORREÇÕES';
-            btn.className = 'btn';
-            btn.style.background = 'rgba(239, 68, 68, 0.18)';
-            btn.style.borderColor = 'rgba(239, 68, 68, 0.45)';
-            btn.style.color = '#fca5a5';
-            btn.style.opacity = '0.65';
-            btn.style.cursor = 'not-allowed';
-            btn.style.pointerEvents = 'none';
-            btn.style.boxShadow = 'none';
-            btn.disabled = true;
+        // Ambas as mídias precisam estar decididas (nenhuma pendente) e válidas (com texto se reprovada)
+        const isReadyToAdvance = photoDecision !== 'pending' && voiceDecision !== 'pending' && isPhotoValid && isVoiceValid;
+
+        const btnText = document.getElementById('btn-approve-lapidacao-text');
+        if (btnText) {
+            btnText.textContent = 'AVANÇAR';
+        } else {
+            btn.textContent = 'AVANÇAR';
         }
-        // Estado 4: Alguma ainda pendente -> "PRODUZIR HOMENAGEM" inativo
-        else {
-            btn.textContent = 'PRODUZIR HOMENAGEM';
-            btn.className = 'btn';
-            btn.style.background = 'rgba(197, 160, 89, 0.16)';
-            btn.style.borderColor = 'rgba(197, 160, 89, 0.38)';
-            btn.style.color = '#f6e3c5';
-            btn.style.opacity = '0.65';
+
+        // Limpar estilos inline de cores para manter estritamente o padrão dourado/bege nobre (.btn-primary)
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        btn.style.boxShadow = '';
+
+        if (isReadyToAdvance) {
+            btn.className = 'btn btn-primary';
+            btn.classList.remove('btn-disabled');
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+            btn.style.pointerEvents = 'auto';
+            btn.disabled = false;
+        } else {
+            btn.className = 'btn btn-primary btn-disabled';
+            btn.style.opacity = '';
             btn.style.cursor = 'not-allowed';
             btn.style.pointerEvents = 'none';
-            btn.style.boxShadow = 'none';
             btn.disabled = true;
         }
     }
@@ -1615,6 +2096,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
         const btnReject = document.getElementById('btn-reject-photo-modal');
         const btnRejectText = document.getElementById('btn-reject-photo-modal-text');
         const rejectionBox = document.getElementById('photo-rejection-box');
+        const photoCard = document.getElementById('preview-card-panel');
 
         // Resetar estilos inline que possam conflitar
         if (btnApprove) {
@@ -1632,9 +2114,14 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
             btnReject.disabled = false;
         }
 
+        if (photoCard) {
+            photoCard.classList.remove('card-approved', 'card-rejected', 'zone-filled', 'zone-empty');
+        }
+
         if (status === 'approved' || status === true) {
             photoDecision = 'approved';
             isPhotoApprovedState = true;
+            if (photoCard) photoCard.classList.add('card-approved', 'zone-filled');
             if (btnApprove) btnApprove.classList.add('is-selected');
             if (btnApproveText) btnApproveText.textContent = 'IMAGEM APROVADA ✓';
             
@@ -1644,6 +2131,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
         } else if (status === 'rejected') {
             photoDecision = 'rejected';
             isPhotoApprovedState = false;
+            if (photoCard) photoCard.classList.add('card-rejected', 'zone-empty');
             if (btnApprove) btnApprove.classList.remove('is-selected');
             if (btnApproveText) btnApproveText.textContent = 'APROVAR';
 
@@ -1673,6 +2161,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
         const btnReject = document.getElementById('btn-reject-voice-modal');
         const btnRejectText = document.getElementById('btn-reject-voice-modal-text');
         const rejectionBox = document.getElementById('voice-rejection-box');
+        const voiceCard = document.getElementById('preview-voice-card-panel');
 
         // Resetar estilos inline que possam conflitar
         if (btnApprove) {
@@ -1690,9 +2179,14 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
             btnReject.disabled = false;
         }
 
+        if (voiceCard) {
+            voiceCard.classList.remove('card-approved', 'card-rejected', 'zone-filled', 'zone-empty');
+        }
+
         if (status === 'approved' || status === true) {
             voiceDecision = 'approved';
             isVoiceApprovedState = true;
+            if (voiceCard) voiceCard.classList.add('card-approved', 'zone-filled');
             if (btnApprove) btnApprove.classList.add('is-selected');
             if (btnApproveText) btnApproveText.textContent = 'VOZ APROVADA ✓';
 
@@ -1702,6 +2196,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
         } else if (status === 'rejected') {
             voiceDecision = 'rejected';
             isVoiceApprovedState = false;
+            if (voiceCard) voiceCard.classList.add('card-rejected', 'zone-empty');
             if (btnApprove) btnApprove.classList.remove('is-selected');
             if (btnApproveText) btnApproveText.textContent = 'APROVAR';
 
@@ -1906,6 +2401,20 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
         });
     }
 
+    const finalHomenagemVideo = document.getElementById('final-homenagem-video');
+    const videoManuscritoOverlay = document.getElementById('video-manuscrito-overlay');
+    if (finalHomenagemVideo && videoManuscritoOverlay) {
+        finalHomenagemVideo.addEventListener('play', () => {
+            videoManuscritoOverlay.style.opacity = '0';
+        });
+        finalHomenagemVideo.addEventListener('pause', () => {
+            videoManuscritoOverlay.style.opacity = '1';
+        });
+        finalHomenagemVideo.addEventListener('ended', () => {
+            videoManuscritoOverlay.style.opacity = '1';
+        });
+    }
+
     // =========================================================================
     // SISTEMA DE MÚSICA DE FUNDO E ONDAS SONORAS (IDÊNTICO AO SITE ORIGINAL)
     // =========================================================================
@@ -1986,7 +2495,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
     document.getElementById('chk-approve-voice')?.addEventListener('change', () => saveFullSessionState());
 
     // =========================================================================
-    // TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO (ETAPA 1)
+    // TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO (ENTRADA DO PAINEL)
     // =========================================================================
     window.openTermoModal = function(isViewOnly = false) {
         const modal = document.getElementById('modal-termo-responsabilidade');
@@ -1995,7 +2504,8 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
         const chkAccept = document.getElementById('chk-term-accept');
         const inputName = document.getElementById('term-signer-name');
         const inputCpf = document.getElementById('term-signer-cpf');
-        const selectRelation = document.getElementById('term-signer-relation');
+        const inputNarrator = document.getElementById('term-signer-relation-narrator');
+        const inputRecipient = document.getElementById('term-signer-relation-recipient');
 
         if (!modal) return;
 
@@ -2004,14 +2514,24 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
             if (btnSubmit) btnSubmit.style.display = 'none';
             if (inputName) { inputName.value = legalTermSigned.name; inputName.disabled = true; }
             if (inputCpf) { inputCpf.value = legalTermSigned.cpf; inputCpf.disabled = true; }
-            if (selectRelation) { selectRelation.value = legalTermSigned.relation; selectRelation.disabled = true; }
+            if (inputNarrator) { inputNarrator.value = legalTermSigned.relationNarrator || legalTermSigned.relation || 'Filho(a)'; inputNarrator.disabled = true; }
+            if (inputRecipient) { inputRecipient.value = legalTermSigned.relationRecipient || 'Sou eu mesmo(a)'; inputRecipient.disabled = true; }
             if (chkAccept) { chkAccept.checked = true; chkAccept.disabled = true; }
         } else {
             if (btnCloseView) btnCloseView.style.display = 'none';
             if (btnSubmit) btnSubmit.style.display = 'block';
-            if (inputName) { inputName.value = legalTermSigned?.name || 'Mariana Silva'; inputName.disabled = false; }
-            if (inputCpf) { inputCpf.value = legalTermSigned?.cpf || ''; inputCpf.disabled = false; }
-            if (selectRelation) { selectRelation.value = legalTermSigned?.relation || 'Filho(a)'; selectRelation.disabled = false; }
+            if (inputName) { 
+                const customerName = (typeof orderData !== 'undefined' && orderData?.customer_name) ? orderData.customer_name : 'Mariana Silva Santos';
+                inputName.value = legalTermSigned?.name || customerName; 
+                inputName.readOnly = true; 
+            }
+            if (inputCpf) { 
+                const customerCpf = (typeof orderData !== 'undefined' && orderData?.customer_cpf) ? orderData.customer_cpf : '123.456.789-00';
+                inputCpf.value = legalTermSigned?.cpf || customerCpf; 
+                inputCpf.readOnly = true; 
+            }
+            if (inputNarrator) { inputNarrator.value = legalTermSigned?.relationNarrator || legalTermSigned?.relation || ''; inputNarrator.disabled = false; }
+            if (inputRecipient) { inputRecipient.value = legalTermSigned?.relationRecipient || ''; inputRecipient.disabled = false; }
             if (chkAccept) { chkAccept.checked = false; chkAccept.disabled = false; }
         }
 
@@ -2019,7 +2539,48 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
         if (window.lucide) lucide.createIcons();
     };
 
+    // Algoritmo Oficial de Validação de CPF (Módulo 11)
+    function validarCpfOficial(cpf) {
+        if (!cpf || typeof cpf !== 'string') return false;
+        const limpo = cpf.replace(/\D/g, '');
+        if (limpo.length !== 11) return false;
+        if (/^(\d)\1{10}$/.test(limpo)) return false;
+
+        let soma = 0;
+        for (let i = 0; i < 9; i++) {
+            soma += parseInt(limpo.charAt(i), 10) * (10 - i);
+        }
+        let resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(limpo.charAt(9), 10)) return false;
+
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+            soma += parseInt(limpo.charAt(i), 10) * (11 - i);
+        }
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(limpo.charAt(10), 10)) return false;
+
+        return true;
+    }
+
+    // Máscara dinâmica de CPF no modal
+    document.getElementById('term-signer-cpf')?.addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+        else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+        else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+        e.target.value = v;
+    });
+
     window.closeTermoModal = function() {
+        // Se ainda não assinou e não é modo visualização, não permite fechar
+        if (!legalTermSigned || !legalTermSigned.signed) {
+            alert('É obrigatório ler e aceitar o Termo de Responsabilidade para ter acesso ao painel e ao envio de materiais.');
+            return;
+        }
         const modal = document.getElementById('modal-termo-responsabilidade');
         if (modal) modal.style.display = 'none';
     };
@@ -2028,11 +2589,25 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
         e.preventDefault();
         const name = document.getElementById('term-signer-name')?.value.trim();
         const cpf = document.getElementById('term-signer-cpf')?.value.trim();
-        const relation = document.getElementById('term-signer-relation')?.value;
+        const relationNarrator = document.getElementById('term-signer-relation-narrator')?.value.trim();
+        const relationRecipient = document.getElementById('term-signer-relation-recipient')?.value.trim();
         const chk = document.getElementById('chk-term-accept')?.checked;
 
-        if (!name || !cpf || !chk) {
-            alert('Por favor, preencha todos os campos obrigatórios e aceite os termos.');
+        if (!name || !cpf || !relationNarrator || !relationRecipient || !chk) {
+            alert('Por favor, preencha todos os campos obrigatórios e marque o aceite do termo.');
+            return;
+        }
+
+        const partesNome = name.split(/\s+/).filter(p => p.length >= 2);
+        if (partesNome.length < 2) {
+            alert('Por favor, informe seu nome e sobrenome completos.');
+            document.getElementById('term-signer-name')?.focus();
+            return;
+        }
+
+        if (!validarCpfOficial(cpf)) {
+            alert('O CPF digitado é inválido. Por favor, digite um CPF real com dígitos verificadores válidos.');
+            document.getElementById('term-signer-cpf')?.focus();
             return;
         }
 
@@ -2040,15 +2615,17 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
             signed: true,
             name: name,
             cpf: cpf,
-            relation: relation,
+            relationNarrator: relationNarrator,
+            relationRecipient: relationRecipient,
             signedAt: new Date().toISOString(),
             dateFormatted: new Date().toLocaleString('pt-BR')
         };
 
         updateTermoUI();
-        window.closeTermoModal();
+        const modal = document.getElementById('modal-termo-responsabilidade');
+        if (modal) modal.style.display = 'none';
         saveFullSessionState();
-        alert('✓ Termo de Responsabilidade & Consentimento Ético assinado com sucesso!');
+        alert('✓ Termo de Responsabilidade e Consentimento registrado com sucesso! Bem-vindo ao painel.');
     };
 
     function updateTermoUI() {
@@ -2057,7 +2634,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
         if (legalTermSigned && legalTermSigned.signed) {
             if (badge) badge.style.display = 'flex';
             if (badgeText) {
-                badgeText.textContent = `✓ Termo Assinado Digitalmente por ${legalTermSigned.name} (CPF: ${legalTermSigned.cpf})`;
+                badgeText.textContent = `✓ Termo Assinado por ${legalTermSigned.name} (CPF: ${legalTermSigned.cpf})`;
             }
         } else {
             if (badge) badge.style.display = 'none';
@@ -2066,10 +2643,345 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
     }
 
     // =========================================================================
-    // INICIALIZAÇÃO E RESTAURAÇÃO COMPLETA DO ESTADO (SEM PERDA DE PROGRESSO)
+    // INICIALIZAÇÃO E RESTAURAÇÃO COMPLETA DO ESTADO (ABRINDO NA ETAPA ATIVA)
     // =========================================================================
-    const isSessionRestored = restoreFullSessionState(true);
-    if (!isSessionRestored) {
-        goToStep(1, true);
+    renderPhotoPreviews();
+    renderAudioPreviews();
+    updateNextStep1ButtonState();
+
+    // 0. Inicializar Galáxia WebGL
+    const galaxyBg = document.getElementById('galaxyBg');
+    if (galaxyBg) initGalaxy(galaxyBg, true);
+
+    // 1. Restaurar dados completos da sessão anterior
+    restoreFullSessionState(false);
+
+    // 2. Determinar etapa prioritária: Hash da URL > reviva_active_step > estado salvo > etapa 1
+    const hashMatch = window.location.hash.match(/step-(\d+)/);
+    const hashStep = hashMatch ? parseInt(hashMatch[1]) : null;
+    const storedActiveStep = parseInt(localStorage.getItem('reviva_active_step'));
+
+    let initialStep = 1;
+    if (hashStep && hashStep >= 1 && hashStep <= 5) {
+        initialStep = hashStep;
+    } else if (storedActiveStep && storedActiveStep >= 1 && storedActiveStep <= 5) {
+        initialStep = storedActiveStep;
+    } else if (currentStep && currentStep >= 1 && currentStep <= 5) {
+        initialStep = currentStep;
+    }
+
+    goToStep(initialStep, true);
+
+    // 3. Se o termo de responsabilidade ainda não foi aceito, abre o modal imediatamente na entrada do painel
+    if (!legalTermSigned || !legalTermSigned.signed) {
+        setTimeout(() => {
+            if (typeof openTermoModal === 'function') openTermoModal(false);
+        }, 350);
+    }
+
+    // 3. Suporte a navegação por histórico/hash (voltar/avançar no navegador)
+    window.addEventListener('hashchange', () => {
+        const match = window.location.hash.match(/step-(\d+)/);
+        if (match) {
+            const target = parseInt(match[1]);
+            if (target && target !== currentStep && target >= 1 && target <= 5) {
+                goToStep(target, true);
+            }
+        }
+    });
+
+    // =========================================================================
+    // FUNDO DE GALÁXIA WEBGL OFICIAL (OGL) IDÊNTICO AO SITE
+    // =========================================================================
+    function initGalaxy(ctn, mouseInteraction = true) {
+        if (!ctn || !window.ogl) return;
+
+        const { Renderer, Program, Mesh, Triangle } = window.ogl;
+
+        const renderer = new Renderer({
+            alpha: true,
+            premultipliedAlpha: false
+        });
+        const gl = renderer.gl;
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.clearColor(0, 0, 0, 0);
+
+        gl.canvas.style.width = '100%';
+        gl.canvas.style.height = '100%';
+
+        while (ctn.firstChild) {
+            ctn.removeChild(ctn.firstChild);
+        }
+        ctn.appendChild(gl.canvas);
+
+        const vert = `
+attribute vec2 position;
+varying vec2 vUv;
+void main() {
+  vUv = position * 0.5 + 0.5;
+  gl_Position = vec4(position, 0.0, 1.0);
+}`;
+
+        const frag = `precision highp float;
+
+uniform float uTime;
+uniform vec3 uResolution;
+uniform vec2 uFocal;
+uniform vec2 uRotation;
+uniform float uStarSpeed;
+uniform float uDensity;
+uniform float uHueShift;
+uniform float uSpeed;
+uniform vec2 uMouse;
+uniform float uGlowIntensity;
+uniform float uSaturation;
+uniform bool uMouseRepulsion;
+uniform float uTwinkleIntensity;
+uniform float uRotationSpeed;
+uniform float uRepulsionStrength;
+uniform float uMouseActiveFactor;
+uniform float uAutoCenterRepulsion;
+uniform bool uTransparent;
+
+varying vec2 vUv;
+
+#define NUM_LAYER 3.0
+#define STAR_COLOR_CUTOFF 0.2
+#define MAT45 mat2(0.7071, -0.7071, 0.7071, 0.7071)
+#define PERIOD 3.0
+
+float Hash21(vec2 p) {
+  p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32);
+  return fract(p.x * p.y);
+}
+
+float tri(float x) {
+  return abs(fract(x) * 2.0 - 1.0);
+}
+
+float tris(float x) {
+  float t = fract(x);
+  return 1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0));
+}
+
+float trisn(float x) {
+  float t = fract(x);
+  return 2.0 * (1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0))) - 1.0;
+}
+
+vec3 hsv2rgb(vec3 c) {
+  vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+  vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+  return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+float Star(vec2 uv, float flare) {
+  float d = length(uv);
+  float m = (0.05 * uGlowIntensity) / d;
+
+  float rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+  m += rays * flare * uGlowIntensity;
+  uv *= MAT45;
+  rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+  m += rays * 0.3 * flare * uGlowIntensity;
+
+  m *= smoothstep(1.0, 0.2, d);
+  return m;
+}
+
+vec3 StarLayer(vec2 uv) {
+  vec3 col = vec3(0.0);
+
+  vec2 gv = fract(uv) - 0.5;
+  vec2 id = floor(uv);
+
+  for (int y = -1; y <= 1; y++) {
+    for (int x = -1; x <= 1; x++) {
+      vec2 offset = vec2(float(x), float(y));
+      vec2 si = id + vec2(float(x), float(y));
+      float seed = Hash21(si);
+      float size = fract(seed * 345.32);
+      float glossLocal = tri(uStarSpeed / (PERIOD * seed + 1.0));
+      float flareSize = smoothstep(0.9, 1.0, size) * glossLocal;
+
+      float red = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 1.0)) + STAR_COLOR_CUTOFF;
+      float blu = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 3.0)) + STAR_COLOR_CUTOFF;
+      float grn = min(red, blu) * seed;
+      vec3 base = vec3(red, grn, blu);
+
+      float hue = atan(base.g - base.r, base.b - base.r) / (2.0 * 3.14159) + 0.5;
+      hue = fract(hue + uHueShift / 360.0);
+      float sat = length(base - vec3(dot(base, vec3(0.299, 0.587, 0.114)))) * uSaturation;
+      float val = max(max(base.r, base.g), base.b);
+      base = hsv2rgb(vec3(hue, sat, val));
+
+      vec2 pad = vec2(tris(seed * 34.0 + uTime * uSpeed / 10.0), tris(seed * 38.0 + uTime * uSpeed / 30.0)) - 0.5;
+
+      float star = Star(gv - offset - pad, flareSize);
+      vec3 color = base;
+
+      float twinkle = trisn(uTime * uSpeed + seed * 6.2831) * 0.5 + 1.0;
+      twinkle = mix(1.0, twinkle, uTwinkleIntensity);
+      star *= twinkle;
+
+      col += star * size * color;
+    }
+  }
+
+  return col;
+}
+
+void main() {
+  vec2 focalPx = uFocal * uResolution.xy;
+  vec2 uv = (vUv * uResolution.xy - focalPx) / uResolution.y;
+
+  vec2 mouseNorm = uMouse - vec2(0.5);
+
+  if (uAutoCenterRepulsion > 0.0) {
+    vec2 centerUV = vec2(0.0, 0.0);
+    float centerDist = length(uv - centerUV);
+    vec2 repulsion = normalize(uv - centerUV) * (uAutoCenterRepulsion / (centerDist + 0.1));
+    uv += repulsion * 0.05;
+  } else if (uMouseRepulsion) {
+    vec2 mousePosUV = (uMouse * uResolution.xy - focalPx) / uResolution.y;
+    float mouseDist = length(uv - mousePosUV);
+    vec2 repulsion = normalize(uv - mousePosUV) * (uRepulsionStrength / (mouseDist + 0.1));
+    uv += repulsion * 0.05 * uMouseActiveFactor;
+  } else {
+    vec2 mouseOffset = mouseNorm * 0.1 * uMouseActiveFactor;
+    uv += mouseOffset;
+  }
+
+  float autoRotAngle = uTime * uRotationSpeed;
+  mat2 autoRot = mat2(cos(autoRotAngle), -sin(autoRotAngle), sin(autoRotAngle), cos(autoRotAngle));
+  uv = autoRot * uv;
+
+  uv = mat2(uRotation.x, -uRotation.y, uRotation.y, uRotation.x) * uv;
+
+  vec3 col = vec3(0.0);
+
+  for (float i = 0.0; i < 1.0; i += 1.0 / NUM_LAYER) {
+    float depth = fract(i + uStarSpeed * uSpeed);
+    float scale = mix(20.0 * uDensity, 0.5 * uDensity, depth);
+    float fade = depth * smoothstep(1.0, 0.9, depth);
+    col += StarLayer(uv * scale + i * 453.32) * fade;
+  }
+
+  if (uTransparent) {
+    float alpha = length(col);
+    alpha = smoothstep(0.0, 0.3, alpha);
+    alpha = min(alpha, 1.0);
+    gl_FragColor = vec4(col, alpha);
+  } else {
+    gl_FragColor = vec4(col, 1.0);
+  }
+}`;
+
+        const mouseInteractionVal = mouseInteraction;
+        const mouseRepulsion = false;
+        const density = 0.22;
+        const glowIntensity = 0.35;
+        const saturation = 0.9;
+        const hueShift = 270.0;
+
+        const uniforms = {
+            uTime: { value: 0 },
+            uResolution: { value: [gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height] },
+            uFocal: { value: [0.5, 0.5] },
+            uRotation: { value: [1.0, 0.0] },
+            uStarSpeed: { value: 0.5 },
+            uDensity: { value: density },
+            uHueShift: { value: hueShift },
+            uSpeed: { value: 1.0 },
+            uMouse: { value: [0.5, 0.5] },
+            uGlowIntensity: { value: glowIntensity },
+            uSaturation: { value: saturation },
+            uMouseRepulsion: { value: mouseRepulsion },
+            uTwinkleIntensity: { value: 0.4 },
+            uRotationSpeed: { value: 0.08 },
+            uRepulsionStrength: { value: 2.0 },
+            uMouseActiveFactor: { value: 0.0 },
+            uAutoCenterRepulsion: { value: 0.0 },
+            uTransparent: { value: true }
+        };
+
+        const geometry = new Triangle(gl);
+        const program = new Program(gl, {
+            vertex: vert,
+            fragment: frag,
+            uniforms
+        });
+        const mesh = new Mesh(gl, { geometry, program });
+
+        const updatePlacement = () => {
+            if (!ctn) return;
+            renderer.dpr = Math.min(window.devicePixelRatio || 1, 1.0);
+            const wCSS = ctn.clientWidth || window.innerWidth;
+            const hCSS = ctn.clientHeight || window.innerHeight;
+            renderer.setSize(wCSS, hCSS);
+            const w = gl.canvas.width;
+            const h = gl.canvas.height;
+            uniforms.uResolution.value = [w, h, w / h];
+        };
+
+        const targetMousePos = { x: 0.5, y: 0.5 };
+        const smoothMousePos = { x: 0.5, y: 0.5 };
+        let targetMouseActive = 0.0;
+        let smoothMouseActive = 0.0;
+
+        if (mouseInteractionVal) {
+            window.addEventListener('pointermove', (e) => {
+                const rect = ctn.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / (rect.width || 1);
+                const y = 1.0 - (e.clientY - rect.top) / (rect.height || 1);
+                targetMousePos.x = x;
+                targetMousePos.y = y;
+                targetMouseActive = 1.0;
+            }, { passive: true });
+
+            window.addEventListener('pointerleave', () => {
+                targetMouseActive = 0.0;
+            }, { passive: true });
+        }
+
+        let animationFrameId = null;
+        let isRunning = false;
+
+        const loop = (t) => {
+            if (!isRunning) return;
+            animationFrameId = requestAnimationFrame(loop);
+
+            const timeSeconds = t * 0.001;
+            uniforms.uTime.value = timeSeconds;
+            uniforms.uStarSpeed.value = (timeSeconds * 0.5) / 10.0;
+
+            const lerp = 0.05;
+            smoothMousePos.x += (targetMousePos.x - smoothMousePos.x) * lerp;
+            smoothMousePos.y += (targetMousePos.y - smoothMousePos.y) * lerp;
+            smoothMouseActive += (targetMouseActive - smoothMouseActive) * lerp;
+
+            uniforms.uMouse.value[0] = smoothMousePos.x;
+            uniforms.uMouse.value[1] = smoothMousePos.y;
+            uniforms.uMouseActiveFactor.value = smoothMouseActive;
+
+            try {
+                renderer.render({ scene: mesh });
+            } catch (error) {
+                console.warn('WebGL rendering error:', error);
+            }
+        };
+
+        const startLoop = () => {
+            if (!isRunning) {
+                isRunning = true;
+                animationFrameId = requestAnimationFrame(loop);
+            }
+        };
+
+        window.addEventListener('resize', updatePlacement);
+        updatePlacement();
+        startLoop();
     }
 });
