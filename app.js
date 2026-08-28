@@ -795,13 +795,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Lógica de Persistência dos Badges de Vídeos Assistidos (LocalStorage)
-    document.querySelectorAll('.video-new-badge').forEach(badge => {
-        const videoId = badge.getAttribute('data-video-id');
-        if (localStorage.getItem(`watched-${videoId}`)) {
-            badge.classList.add('watched');
-        }
-    });
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1' || 
+                        window.location.hostname.startsWith('192.168.') || 
+                        window.location.hostname.startsWith('10.') || 
+                        window.location.protocol === 'file:';
+
+    // Lógica de Persistência dos Badges e Guia Comece Aqui:
+    // No Localhost: Sempre visíveis para facilitar seus testes.
+    // No Site Publicado: Ocultados permanentemente após o cliente clicar/assistir.
+    if (!isLocalhost) {
+        document.querySelectorAll('.video-new-badge').forEach(badge => {
+            const videoId = badge.getAttribute('data-video-id');
+            if (localStorage.getItem(`watched-${videoId}`)) {
+                badge.classList.add('watched');
+                const wrapper = badge.closest('.video-badge-wrapper');
+                const guide = wrapper?.querySelector('.start-here-guide');
+                if (guide) guide.classList.add('watched');
+            }
+        });
+    }
 
     if (videoModal) {
         // Abrir Modal
@@ -810,14 +823,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // Obter ID do vídeo para persistir o estado assistido
+                // Obter ID do vídeo para persistir o estado assistido (apenas em produção)
                 const videoId = button.getAttribute('data-video-id');
-                if (videoId) {
+                if (videoId && !isLocalhost) {
                     localStorage.setItem(`watched-${videoId}`, 'true');
                     const badge = document.querySelector(`.video-new-badge[data-video-id="${videoId}"]`);
                     if (badge) {
                         badge.classList.add('watched');
                     }
+                    const wrapper = button.closest('.video-badge-wrapper');
+                    const guide = wrapper?.querySelector('.start-here-guide');
+                    if (guide) guide.classList.add('watched');
                 }
 
                 const videoUrl = button.getAttribute('data-video-url');

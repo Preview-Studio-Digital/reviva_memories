@@ -3,6 +3,12 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1' || 
+                        window.location.hostname.startsWith('192.168.') || 
+                        window.location.hostname.startsWith('10.') || 
+                        window.location.protocol === 'file:';
+
     let currentStep = 1;
     let orderData = await window.revivaData.getCurrentOrder();
     let currentUser = await window.revivaData.getCurrentUser();
@@ -114,13 +120,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // Detectar plano ativo via Query Param (?plano=... ou ?plan=...) - Padrão obrigatório de testes: AFFECTUS (1 MINUTO)
+    // Detectar plano ativo via Query Param, Order Data ou LocalStorage
     const urlParams = new URLSearchParams(window.location.search);
-    const planFromUrl = (urlParams.get('plano') || urlParams.get('plan') || '').toLowerCase();
+    let rawPlan = (urlParams.get('plano') || urlParams.get('plan') || '').toLowerCase();
+    
+    if (!rawPlan && orderData) {
+        rawPlan = (orderData.plan_id || orderData.plan_name || '').toLowerCase();
+    }
+    if (!rawPlan) {
+        try {
+            const rawStoredOrder = localStorage.getItem('reviva_order_data');
+            if (rawStoredOrder) {
+                const parsed = JSON.parse(rawStoredOrder);
+                rawPlan = (parsed?.plan_id || parsed?.plan_name || '').toLowerCase();
+            }
+        } catch(e) {}
+    }
 
     let activePlanKey = 'affectus';
-    if (PLANS_CONFIG[planFromUrl]) {
-        activePlanKey = planFromUrl;
+    if (rawPlan.includes('tribut') || rawPlan.includes('3')) {
+        activePlanKey = 'tributum';
+    } else if (rawPlan.includes('legat') || rawPlan.includes('emocao') || rawPlan.includes('2')) {
+        activePlanKey = 'legatum';
+    } else if (rawPlan.includes('affect') || rawPlan.includes('essenc') || rawPlan.includes('1')) {
+        activePlanKey = 'affectus';
+    } else if (PLANS_CONFIG[rawPlan]) {
+        activePlanKey = rawPlan;
     }
 
     const currentPlan = PLANS_CONFIG[activePlanKey];
@@ -131,11 +156,40 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Atualiza cabeçalhos e badges com o plano ativo e formato contratado
     function updateAllStepPlanBadges() {
-        const formatFromUrl = (urlParams.get('formato') || urlParams.get('format') || localStorage.getItem('reviva_selected_format') || 'ambos').toLowerCase();
-        let formatLabel = 'HORIZONTAL & VERTICAL';
-        if (formatFromUrl === 'horizontal') formatLabel = 'HORIZONTAL';
-        else if (formatFromUrl === 'vertical') formatLabel = 'VERTICAL';
-        else if (formatFromUrl === 'ambos' || formatFromUrl === 'both') formatLabel = 'HORIZONTAL & VERTICAL';
+        let rawFormat = (urlParams.get('formato') || urlParams.get('format') || '').toLowerCase();
+        
+        if (!rawFormat && orderData) {
+            if (orderData.has_upsell || (orderData.plan_format && orderData.plan_format.toLowerCase().includes('+'))) {
+                rawFormat = 'ambos';
+            } else if (orderData.plan_format) {
+                rawFormat = orderData.plan_format.toLowerCase();
+            }
+        }
+        if (!rawFormat) {
+            try {
+                const rawStoredOrder = localStorage.getItem('reviva_order_data');
+                if (rawStoredOrder) {
+                    const parsed = JSON.parse(rawStoredOrder);
+                    if (parsed?.has_upsell || (parsed?.plan_format && parsed.plan_format.toLowerCase().includes('+'))) {
+                        rawFormat = 'ambos';
+                    } else if (parsed?.plan_format) {
+                        rawFormat = parsed.plan_format.toLowerCase();
+                    }
+                }
+            } catch(e) {}
+        }
+        if (!rawFormat) {
+            rawFormat = (localStorage.getItem('reviva_selected_format') || 'horizontal').toLowerCase();
+        }
+
+        let formatLabel = 'HORIZONTAL';
+        if (rawFormat.includes('ambos') || rawFormat.includes('both') || rawFormat.includes('+') || rawFormat.includes('&')) {
+            formatLabel = 'HORIZONTAL & VERTICAL';
+        } else if (rawFormat.includes('vertical')) {
+            formatLabel = 'VERTICAL';
+        } else {
+            formatLabel = 'HORIZONTAL';
+        }
 
         const planBadgeText = `PLANO ${currentPlan.name.toUpperCase()} • ${currentPlan.durationMinutes} MINUTO${currentPlan.durationMinutes > 1 ? 'S' : ''} • ${formatLabel}`;
         
@@ -158,7 +212,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Estado da sessão
     let uploadedPhotos = [];
     let uploadedAudios = [];
-    let selectedBackground = 'nuvens';
+    let selectedBackground = 'ceu';
     let selectedMusic = 'sem_musica';
     let musicManuallyChosen = false;
     let interviewAnswers = {};
@@ -244,7 +298,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         3: {
             badge: 'ETAPA 03',
             title: 'A HARMONIZAÇÃO',
-            sub: 'Trilha Sonora e Cenário'
+            sub: 'Trilha Sonora e Ambiente de Fundo'
         },
         4: {
             badge: 'ETAPA 04',
@@ -409,30 +463,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (c.dataset.bg === selectedBackground) {
                     c.classList.add('selected');
                     hasSelectedBg = true;
-                    const container = document.getElementById('scenariosContainer');
-                    if (container && container.firstElementChild !== c) container.prepend(c);
                 } else {
                     c.classList.remove('selected');
                 }
             });
             if (!hasSelectedBg && scenarioCards.length > 0) {
                 scenarioCards[0].classList.add('selected');
-                selectedBackground = scenarioCards[0].dataset.bg || 'nuvens';
+                selectedBackground = scenarioCards[0].dataset.bg || 'ceu';
             }
 
             // Garantir que "Sem Trilha" (sem_musica) seja o padrão se o cliente não escolheu outra manualmente
             if (!musicManuallyChosen) {
                 selectedMusic = 'sem_musica';
             }
-
             const musicCards = document.querySelectorAll('#musicContainer .scenario-card-full');
             let hasSelectedMusic = false;
             musicCards.forEach(c => {
                 if (c.dataset.music === selectedMusic) {
                     c.classList.add('selected');
                     hasSelectedMusic = true;
-                    const container = document.getElementById('musicContainer');
-                    if (container && container.firstElementChild !== c) container.prepend(c);
                 } else {
                     c.classList.remove('selected');
                 }
@@ -441,8 +490,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const semTrilhaCard = document.querySelector('#musicContainer .scenario-card-full[data-music="sem_musica"]');
                 if (semTrilhaCard) {
                     semTrilhaCard.classList.add('selected');
-                    const container = document.getElementById('musicContainer');
-                    if (container && container.firstElementChild !== semTrilhaCard) container.prepend(semTrilhaCard);
                 }
                 selectedMusic = 'sem_musica';
             }
@@ -450,16 +497,59 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (step === 4) {
             const producerImg = localStorage.getItem('reviva_producer_image');
+            const photoSrc = producerImg || (uploadedPhotos && uploadedPhotos.length > 0 ? uploadedPhotos[0].dataUrl : '');
             const previewAvatarImg = document.getElementById('preview-avatar-img');
-            if (producerImg && previewAvatarImg) {
-                previewAvatarImg.src = producerImg;
+            const previewAvatarPlaceholder = document.getElementById('preview-avatar-placeholder');
+            if (previewAvatarImg) {
+                if (photoSrc) {
+                    previewAvatarImg.src = photoSrc;
+                    previewAvatarImg.style.display = 'block';
+                    if (previewAvatarPlaceholder) previewAvatarPlaceholder.style.display = 'none';
+                } else {
+                    previewAvatarImg.src = '';
+                    previewAvatarImg.style.display = 'none';
+                    if (previewAvatarPlaceholder) previewAvatarPlaceholder.style.display = 'flex';
+                }
             }
+
+            const producerAudio = localStorage.getItem('reviva_producer_audio');
+            const voiceAudioSrc = producerAudio || (uploadedAudios && uploadedAudios.length > 0 && uploadedAudios[0].dataUrl ? uploadedAudios[0].dataUrl : '');
+            const voiceSampleAudio = document.getElementById('voiceSampleAudio');
+            if (voiceSampleAudio) {
+                voiceSampleAudio.src = voiceAudioSrc || '';
+            }
+
             if (typeof updatePhotoApprovalUI === 'function') updatePhotoApprovalUI(photoDecision);
             if (typeof updateVoiceApprovalUI === 'function') updateVoiceApprovalUI(voiceDecision);
             if (typeof updateLapidacaoActionButton === 'function') updateLapidacaoActionButton();
         }
 
         if (step === 5) {
+            const producerVideo = localStorage.getItem('reviva_producer_video');
+            const finalVideo = document.getElementById('final-homenagem-video');
+            const finalPlaceholder = document.getElementById('final-video-placeholder');
+            const btnDownload = document.getElementById('btnDownloadFinalVideo');
+            if (finalVideo) {
+                if (producerVideo) {
+                    finalVideo.src = producerVideo;
+                    finalVideo.style.display = 'block';
+                    if (finalPlaceholder) finalPlaceholder.style.display = 'none';
+                    if (btnDownload) {
+                        btnDownload.href = producerVideo;
+                        btnDownload.style.opacity = '1';
+                        btnDownload.style.pointerEvents = 'auto';
+                    }
+                } else {
+                    finalVideo.src = '';
+                    finalVideo.style.display = 'none';
+                    if (finalPlaceholder) finalPlaceholder.style.display = 'flex';
+                    if (btnDownload) {
+                        btnDownload.href = '#';
+                        btnDownload.style.opacity = '0.5';
+                    }
+                }
+            }
+
             const names = extractHomenagemNames();
             const enteNameEl = document.getElementById('step5-ente-name');
             const homenageadoNameEl = document.getElementById('step5-homenageado-name');
@@ -543,9 +633,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.goToStep = goToStep;
 
-    // Navegação interativa pelas bolinhas da linha do tempo
+    // Navegação interativa pelas bolinhas da linha do tempo:
+    // Habilitada LIVREMENTE no localhost para seus testes rápidos.
+    // BLOQUEADA no site publicado para que clientes e amigos sigam rigorosamente as etapas oficiais.
     document.querySelectorAll('.step-item').forEach(item => {
+        if (!isLocalhost) {
+            item.style.cursor = 'default';
+        }
         item.addEventListener('click', (e) => {
+            if (!isLocalhost) {
+                // Em produção / site publicado, a linha do tempo é apenas indicativa
+                return;
+            }
             const targetStep = parseInt(item.dataset.step);
             if (targetStep && !isNaN(targetStep)) {
                 goToStep(targetStep);
@@ -772,12 +871,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (labelSelected) {
                 labelSelected.textContent = card.dataset.title ? (card.dataset.title + (card.dataset.title.includes(' ') ? '' : ' Celestes')) : 'Cenário Selecionado';
             }
-
-            // No Desktop: Mover o card selecionado para o topo da lista
-            const container = document.getElementById('scenariosContainer');
-            if (container && container.firstElementChild !== card) {
-                container.prepend(card);
-            }
             saveFullSessionState();
         });
     });
@@ -847,106 +940,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     function getIasisSystemPrompt() {
         resolveClientIdentity();
         return `
-Você é o Iasis, o guia oficial e inteligência afetiva da Reviva Memories.
-Seu propósito é conduzir uma conversa genuinamente humana, empática e acolhedora com o cliente (${clientFirstName}) para coletar memórias e desenvolver o roteiro do vídeo de homenagem (com imagem restaurada e voz da pessoa homenageada).
+Você é o Iasis, o guia e roteirista afetivo da Reviva Memories.
+Seu propósito é conversar com o cliente (${clientFirstName}) de forma genuinamente HUMANA, calorosa, empática e acolhedora, como um amigo atencioso e sensível que está ajudando a eternizar a memória e a voz de alguém muito querido.
 
-IDENTIDADE, GÊNERO E CONCORDÂNCIA GRAMATICAL DE IASIS:
-- Você é o Iasis, um homem maduro, sábio, elegante, sereno e caloroso (identidade e gênero MASCULINO).
-- Ao se referir a si mesmo, use SEMPRE o gênero masculino: "estou pronto", "estou atento", "fico muito honrado", "como seu guia oficial".
-- Ao falar em conjunto com o cliente (1ª pessoa do plural), use SEMPRE o plural masculino/misto: "vamos JUNTOS", "estamos JUNTOS", "construiremos juntos essa homenagem". NUNCA use "juntas" ao se incluir na frase.
-- Ao se dirigir ao cliente (${clientFirstName}), concorde os adjetivos de forma nobre e respeitosa, e as ações conjuntas são SEMPRE "vamos juntos".
+DIRETRIZES DE LINGUAGEM E HUMANIZAÇÃO REAL:
+- FALE DE FORMA NATURAL, FLUIDA E AFETIVA (como uma pessoa de verdade falando em bom português brasileiro).
+- NUNCA use frases robóticas, burocráticas ou engessadas como:
+  * PROIBIDO: "Compreendo perfeitamente"
+  * PROIBIDO: "a pessoa que protagonizará a homenagem e que transmitirá a mensagem com sua imagem e voz"
+  * PROIBIDO: "É uma honra iniciarmos essa jornada juntos"
+  * PROIBIDO: "Registrado com todo o respeito e consideração"
+- USE LINGUAGEM ACOLHEDORA E ESPONTÂNEA:
+  * "Que alegria falar com você, ${clientFirstName}!"
+  * "Que nome forte e especial..."
+  * "Que lembrança linda..."
+  * "Tenho certeza de que vamos criar uma homenagem inesquecível."
+- IDENTIDADE: Você é o Iasis, um homem maduro, sereno, sábio e muito carinhoso. Sempre use concordância masculina ao falar de si ("estou aqui para te ajudar", "vamos juntos").
+- ESCUTA ATIVA: Sempre reaja ao que o cliente acabou de dizer com sensibilidade antes de fazer a próxima pergunta. Por exemplo, se ele disser o nome do pai ou da mãe, valorize esse nome; se contar uma história, comova-se ou sorria com a lembrança.
 
-POSTURA, TOM DE VOZ E LINGUAGEM CENTRADA (HOMEM MADURO, SÓBRIO E RESPEITOSO):
-- Você se expressa como um homem maduro, equilibrado, sereno, seguro e de postura nobre.
-- PROIBIÇÃO DE EXPRESSÕES MELOSAS, INFANTIS OU EXCESSIVAMENTE SENTIMENTALISTAS:
-  * NUNCA use termos como "que meigo", "que fofo", "que doçura", "que amorzinho", "que meiguice", "juntinhas" ou exclamações infantis.
-  * Homens maduros e sábios não usam essas expressões.
-- VOCABULÁRIO ADEQUADO E RECOMENDADO:
-  * "Compreendo perfeitamente, ${clientFirstName}."
-  * "Um gesto muito nobre e significativo."
-  * "Uma memória de grande valor."
-  * "Registrado com todo o respeito e consideração."
-  * "Uma trajetória admirável."
-  * "Excelente. Vamos em frente."
-- Mantenha um tom sóbrio, caloroso, respeitoso e firme, sem afetações ou sentimentalismo exagerado.
+PLANO CONTRATADO:
+- Plano: ${currentPlan.name} (${currentPlan.durationMinutes} Minuto${currentPlan.durationMinutes > 1 ? 's' : ''})
+- Meta de Palavras do Roteiro: ${currentPlan.targetWords} palavras (COMPROMISSO INEGOCIÁVEL: o roteiro final deve ter volume suficiente para preencher com folga a minutagem da locução, nunca menos de 120 palavras para 1 min, 240 palavras para 2 min, 360 palavras para 3 min).
 
-REGRA INVIOLÁVEL DE VOCABULÁRIO (NUNCA DIZER "SEU ENTE QUERIDO"):
-- NUNCA use a expressão "seu ente querido" ou "sua pessoa querida". Quem está encomendando o vídeo muitas vezes está prestando uma homenagem a pedido de terceiros, presenteando um amigo, parente ou cliente.
-- USE SEMPRE termos neutros e gentis, como:
-  * "a pessoa que protagonizará a homenagem"
-  * "a pessoa que transmitirá a mensagem com sua imagem e voz"
-  * "a pessoa homenageada"
-  * Ou, assim que souber o nome (ex: José, Maria), refira-se SEMPRE diretamente pelo nome ("o José", "a Maria").
+ROTEIRO DA ENTREVISTA (FAÇA UMA PERGUNTA POR VEZ, REAGINDO SEMPRE COM AFETO):
+1. NOME: Perguntar quem é a pessoa que vai falar no vídeo e trazer essa mensagem de afeto.
+2. DESTINATÁRIO: Acolher o nome com carinho e perguntar se o vídeo é para o próprio cliente ou se ele vai presentear alguém especial.
+3. LAÇO/PARENTESCO: Perguntar qual era a relação ou parentesco entre eles (Pai e Filho, Avó e Neto, Irmãos, Amigos, etc.).
+4. APELIDO/TRATAMENTO: Perguntar como costumavam se chamar carinhosamente no dia a dia (por apelido ou pelo próprio nome).
+5. OCASIÃO: Perguntar qual é a ocasião especial da homenagem (aniversário, formatura, casamento, ou um abraço de saudade e reencontro).
+6. HISTÓRIA/LEMBRANÇA: Perguntar se há algum acontecimento marcante, história inesquecível ou momento especial vivido juntos para recordar.
+7. CONSELHOS/VALORES: Perguntar quais os maiores conselhos, valores de vida ou palavras de força que a pessoa sempre dizia.
+8. OUTROS FAMILIARES: Perguntar se há outros parentes ou amigos queridos que devem receber um abraço carinhoso no vídeo.
+9. TOM DA VOZ: Perguntar se prefere um tom mais alegre e bem-humorado/descontraído, ou um tom profundamente emocionante e terno.
+10. DETALHE EXTRA FINAL: Antes de redigir, perguntar se há mais algum detalhe, piada de família ou frase marcante para incluir.
 
-PLANO ATIVO CONTRATADO PELO CLIENTE:
-- Nome do Plano: Plano ${currentPlan.name}
-- Duração do Vídeo: ${currentPlan.durationMinutes} Minuto${currentPlan.durationMinutes > 1 ? 's' : ''}
-- Meta de Palavras: ${currentPlan.targetWords}
-- Limite Máximo de Caracteres: ${currentPlan.maxChars} caracteres
-- Foco Narrativo do Plano: ${currentPlan.structurePrompt}
-- Instrução de Profundidade: ${currentPlan.specificInstructions}
-
-REGRA DE OURO DA CADÊNCIA DRAMÁTICA EM TODOS OS ROTEIROS:
-- ABERTURA: SEMPRE comece o roteiro com EMPOLGAÇÃO, ALEGRIA, SURPRESA E ENTUSIASMO! Evite inícios monótonos ou tristes. Ex: "Olha só pra você!", "Quem diria, hein?!", "Você achou mesmo que eu não estaria aqui?", "Que alegria imensa ver esse dia chegar!".
-- CADÊNCIA & TRANSIÇÃO: A narrativa começa com energia comemorativa e transiciona suavemente para o afeto íntimo, relembrando histórias marcantes, valores e os conselhos do coração.
-- RECADOS FAMILIARES PERSONALIZADOS (ESPECIALMENTE NOS PLANOS DE 2 E 3 MINUTOS): Nunca faça apenas uma saudação genérica ou lista fria de nomes. Crie recados personalizados e carinhosos com significado próprio para cada familiar mencionado (pai, mãe, irmãos, filhos, cônjuge).
-- CLÍMAX, DESPEDIDA & BÊNÇÃO DIVINA OBRIGATÓRIA: O final e a despedida devem ser profundamente comoventes, poéticos e inesquecíveis (o abraço espiritual que vence a distância, a presença viva no coração). Logo após a despedida ao homenageado, você DEVE SEMPRE incluir frases abençoando com menção explícita a Deus, como: "Fica com Deus...", "Que a paz do Senhor te acompanhe sempre...", "Continue seguindo a Deus de coração aberto...", "Que Deus abençoe cada passo do seu caminho...".
-
-COMPROMISSO INEGOCIÁVEL DE DURAÇÃO (NUNCA FALTAR PALAVRAS):
-- Se o cliente contratou 1 minuto, o roteiro NUNCA pode ter menos de 120 palavras (para que o vídeo nunca fique com 55 segundos).
-- Se o cliente contratou 2 minutos, o roteiro NUNCA pode ter menos de 240 palavras (para que nunca fique com menos de 2 minutos).
-- Se o cliente contratou 3 minutos, o roteiro NUNCA pode ter menos de 360 palavras.
-- A quantidade de palavras DEVE preencher e exceder ligeiramente a minutagem, garantindo locução completa com pausas, respirações e afeto. Nunca economize palavras!
-
-DIRETRIZ CENTRAL - ESCUTA ATIVA E COLIGAÇÃO CONTEXTUAL:
-- NUNCA faça perguntas frias, robóticas ou desconectadas da fala anterior.
-- SEMPRE costure a resposta do cliente na sua próxima frase com afeto, empatia e sentido.
-- Se o cliente responder de forma muito breve ou pouco clara, NUNCA dê desculpas técnicas. Pergunte com carinho e educação o que ele quis dizer para enriquecer o roteiro.
-- Se o cliente contar uma lembrança emocionante, um momento especial ou um apelido carinhoso, reconheça e valorize esse detalhe com carinho genuíno antes de fazer a próxima pergunta.
-
-REGRAS DE COMUNICAÇÃO:
-1. RESPOSTAS CONCISAS E ENVOLVENTES: Mantenha entre 2 a 3 frases curtas por mensagem durante a entrevista. Seja caloroso, nunca prolixo.
-2. UMA PERGUNTA POR VEZ: Nunca acumule perguntas.
-3. FOCO ESTRITO NA HOMENAGEM: Nunca fale sobre tecnologia interna ou assuntos alheios.
-
-ETAPAS DA COLETA AFETIVA (UMA PERGUNTA POR TURNO COM COSTURA AFETIVA):
-1. NOME DA PESSOA: Perguntar o nome da pessoa que protagonizará a homenagem e falará na mensagem.
-2. DESTINATÁRIO DA HOMENAGEM: Acolher o nome e perguntar se a homenagem é para o próprio cliente ou se ele vai presentear alguém especial (ex: "Faremos uma bela homenagem com a imagem e a voz do José! E para quem será a homenagem? É para você mesma ou você vai presentear alguém com essa surpresa?").
-3. LAÇO AFETIVO / PARENTESCO: Acolher o destinatário com afeto e perguntar APENAS qual era o laço afetivo / grau de parentesco entre eles (ex: "Que gesto maravilhoso! Qual é o laço de carinho ou parentesco entre o José e quem receberá o vídeo (ex: Pai e Filha, Avó e Neto, Amigos)?").
-4. FORMA DE TRATAMENTO / APELIDO: Acolher o laço e perguntar APENAS como costumavam se chamar carinhosamente (ex: "E como ele(a) costumava chamar o destinatário carinhosamente? Pelo próprio nome ou por algum apelido carinhoso?").
-5. OCASIÃO ESPECIAL (SOMENTE APÓS O LAÇO E APELIDO): Acolher e perguntar sobre a ocasião especial em que a homenagem será apresentada (ex: "Que carinho lindo! E qual é a ocasião especial dessa homenagem? É um aniversário, casamento, formatura, ou um momento de conforto e carinho?").
-6. HISTÓRIA / ACONTECIMENTO MARCANTE: ${currentPlan.durationMinutes >= 2 ? 'Perguntar: "Para o Plano ' + currentPlan.name + ', temos espaço para relembrar histórias ricas: existe algum acontecimento inesquecível, história marcante ou momento de convivência que viveram juntos que vale a pena recordar com carinho?"' : 'Perguntar: "Existe algum acontecimento ou frase marcante que o(a) [Nome] diria à [Nome/Apelido da pessoa homenageada] que seria profundamente impactante e especial ouvir?"'}
-7. CONSELHOS OU INCENTIVO: Perguntar de forma simples e direta: "Quais conselhos ou palavras de carinho e incentivo o(a) [Nome] daria para a [Nome/Apelido da pessoa homenageada]?"
-8. RECADOS PERSONALIZADOS PARA A FAMÍLIA: ${currentPlan.durationMinutes >= 2 ? 'Perguntar: "No Plano ' + currentPlan.name + ', temos espaço dedicado para mensagens para outras pessoas queridas: quais familiares ou amigos próximos devem receber recados personalizados antes da bênção final?"' : 'Perguntar: "Quais outros familiares ou pessoas queridas não podem deixar de receber um abraço apertado e uma bênção no final da mensagem?"'}
-9. TOM NARRATIVO E PERSONALIDADE:
-   - Perguntar sobre o tom desejado para a narrativa da pessoa:
-     "Para que as palavras e a locução reflitam com fidelidade o jeito único de ser do(a) [Nome], qual tom você prefere que prevaleça na homenagem? Um tom mais alegre, descontraído e bem-humorado/cômico, ou um tom profundamente emocionante, terno e poético?"
-   - Ao receber a escolha do cliente, acolha a decisão e NUNCA gere o roteiro ainda. Avance OBRIGATORIAMENTE para a etapa 10.
-
-10. PERGUNTA DE PERSONALIZAÇÃO EXTRA (MANDATÓRIA ANTES DE QUALQUER ESCRITA):
-   - NUNCA gere o roteiro imediatamente após a escolha do tom. Antes de começar a redigir, você DEVE perguntar se tem mais alguma coisa, detalhe específico, lembrança, hábito, piada ou frase que o cliente queira incluir para que o roteiro fique ainda mais personalizado e fiel.
-   - ATENÇÃO CRÍTICA E OBRIGATÓRIA AOS PLANOS DE 2 E 3 MINUTOS (LEGATUM E TRIBUTUM):
-     * Nos planos de 2 e 3 minutos, como são homenagens longas que demandam muito mais volume de conteúdo e profundidade emocional para preencher o tempo integral, enfatize isso de forma calorosa e nobre ao cliente.
-     * Exemplo para 2 e 3 Minutos: "Como você contratou o Plano ${currentPlan.name} (${currentPlan.durationMinutes} minutos), temos um espaço generoso e muito especial na narrativa. Antes de eu começar a redigir: há mais algum detalhe, frase marcante, lembrança de hábitos, piadas de família ou mensagem específica que você gostaria que o(a) [Nome] dissesse para deixar este roteiro ainda mais rico, único e personalizado?"
-     * Exemplo para 1 Minuto: "Antes de eu iniciar a escrita do roteiro com todo o carinho: há mais algum detalhe especial, frase marcante ou lembrança que você gostaria que o(a) [Nome] dissesse para deixar a homenagem ainda mais personalizada?"
-   - SOMENTE APÓS A RESPOSTA DO CLIENTE A ESTA PERGUNTA 10:
-     * Se o cliente trouxer novos detalhes, frases ou histórias: acolha com entusiasmo ("Que maravilha! Esses detalhes trarão uma alma inesquecível à homenagem."), incorpore absolutamente tudo no texto e prossiga para a finalização.
-     * Se o cliente disser que já está completo ou que não há mais nada a acrescentar: acolha com serenidade e prossiga para a finalização.
-
-FINALIZAÇÃO E ENTREGA DO ROTEIRO (SOMENTE APÓS A RESPOSTA DA PERGUNTA 10):
-Assim que o cliente responder à pergunta de personalização extra (etapa 10), avise em uma frase serena e acolhedora ao cliente: "Por favor, aguarde um instante enquanto elaboro o roteiro oficial com muito carinho e respeito..." e em seguida adicione no final:
+FINALIZAÇÃO E ENTREGA DO ROTEIRO (SOMENTE APÓS A RESPOSTA DO ITEM 10):
+Quando o cliente responder ao item 10, diga com carinho: "Por favor, aguarde um instante enquanto preparo o roteiro oficial com todo o amor e respeito..." e adicione:
 [[ROTEIRO_FINAL]]
-seguido do texto completo do roteiro da homenagem, redigido em PRIMEIRA PESSOA (a voz de quem protagoniza para a pessoa homenageada), aplicando a cadência de ABERTURA ALEGRE E EMPOLGADA -> DESENVOLVIMENTO COM MEMÓRIAS E RECADOS -> CLÍMAX DRAMÁTICO E SUBLIME, respeitando estritamente o PLANO ${currentPlan.name.toUpperCase()} (duração de ${currentPlan.durationMinutes} minuto(s), meta de ${currentPlan.targetWords}, limite absoluto de ${currentPlan.maxChars} caracteres).
+seguido do texto completo do roteiro em primeira pessoa (a voz da pessoa homenageada falando diretamente ao destinatário), com abertura alegre e calorosa, parágrafos bem espaçados, histórias reais, conselhos, recados e bênção de Deus no final.
 
-REGRA DE FORMATAÇÃO DO ROTEIRO EM PARÁGRAFOS:
-- O roteiro DEVE ser estruturado em 3 a 4 parágrafos bem espaçados, separados por uma linha em branco (pulo duplo de linha), para garantir cadência, pausas de respiração e excelente legibilidade.
-
-REVISÃO E EDIÇÃO DO ROTEIRO:
-Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próprio para substituir:
-1. Acolha com carinho e entusiasmo a contribuição.
-2. Aplique a modificação mantendo a métrica e o tempo do PLANO ${currentPlan.name.toUpperCase()}.
-3. Avise em uma frase: "Aguarde um instante enquanto readequamos o texto com carinho e precisão..." e entregue o roteiro completo revisado com a tag [[ROTEIRO_FINAL]] seguida do novo roteiro integral estruturado em parágrafos.
-`;
+REVISÃO E EDIÇÃO:
+Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no que ele pediu e entregue o roteiro revisado com a tag [[ROTEIRO_FINAL]].`;
     }
 
     const chatTypingText = document.getElementById('chat-typing-text');
@@ -1044,8 +1078,6 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
                 document.querySelectorAll('#scenariosContainer .scenario-card-full').forEach(c => {
                     if (c.dataset.bg === selectedBackground) {
                         c.classList.add('selected');
-                        const container = document.getElementById('scenariosContainer');
-                        if (container && container.firstElementChild !== c) container.prepend(c);
                     } else {
                         c.classList.remove('selected');
                     }
@@ -1065,8 +1097,6 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
             document.querySelectorAll('#musicContainer .scenario-card-full').forEach(c => {
                 if (c.dataset.music === selectedMusic) {
                     c.classList.add('selected');
-                    const container = document.getElementById('musicContainer');
-                    if (container && container.firstElementChild !== c) container.prepend(c);
                 } else {
                     c.classList.remove('selected');
                 }
@@ -1245,12 +1275,100 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
             tom: '',
             memorias: '',
             mensagem: '',
-            duracaoMinutos: currentPlan?.durationMinutes || 2
+            duracaoMinutos: currentPlan?.durationMinutes || 1
         };
         currentQuestionStep = 'ask_protagonista';
         updateScriptApprovedUI(false);
         saveFullSessionState();
         startInterviewChat();
+    };
+
+    window.resetarPainelCompleto = function(redirectStep1 = true) {
+        try {
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && (k.startsWith('reviva_order_state_') || k.startsWith('reviva_full_session_state') || k === 'reviva_active_step' || k === 'reviva_chat_session' || k.startsWith('reviva_producer_') || k === 'reviva_media_revisions')) {
+                    keysToRemove.push(k);
+                }
+            }
+            keysToRemove.forEach(k => localStorage.removeItem(k));
+        } catch (e) {}
+
+        uploadedPhotos = [];
+        uploadedAudios = [];
+        selectedBackground = 'nuvens';
+        selectedMusic = 'sem_musica';
+        musicManuallyChosen = false;
+        geminiChatHistory = [];
+        scriptRevisionCount = 0;
+        latestScriptText = '';
+        isScriptApproved = false;
+        mediaRevisionsHistory = [];
+        latestPhotoFeedback = '';
+        latestVoiceFeedback = '';
+        photoDecision = 'pending';
+        voiceDecision = 'pending';
+        isPhotoApprovedState = false;
+        isVoiceApprovedState = false;
+
+        resolveClientIdentity();
+        interviewData = {
+            protagonista: '',
+            destinatario: clientFirstName,
+            tom: '',
+            memorias: '',
+            mensagem: '',
+            duracaoMinutos: currentPlan?.durationMinutes || 1
+        };
+        currentQuestionStep = 'ask_protagonista';
+
+        if (interviewChatBox) interviewChatBox.innerHTML = '';
+        if (chatInput) {
+            chatInput.value = '';
+            chatInput.disabled = false;
+        }
+        updateScriptApprovedUI(false);
+
+        if (typeof renderPhotoPreviews === 'function') renderPhotoPreviews();
+        if (typeof renderAudioPreviews === 'function') renderAudioPreviews();
+        if (typeof updateNextStep1ButtonState === 'function') updateNextStep1ButtonState();
+        if (typeof updatePhotoApprovalUI === 'function') updatePhotoApprovalUI('pending');
+        if (typeof updateVoiceApprovalUI === 'function') updateVoiceApprovalUI('pending');
+
+        const photoInput = document.getElementById('photo-input');
+        if (photoInput) photoInput.value = '';
+        const audioInput = document.getElementById('audio-input');
+        if (audioInput) audioInput.value = '';
+
+        const previewAvatarImg = document.getElementById('preview-avatar-img');
+        const previewAvatarPlaceholder = document.getElementById('preview-avatar-placeholder');
+        if (previewAvatarImg) {
+            previewAvatarImg.src = '';
+            previewAvatarImg.style.display = 'none';
+        }
+        if (previewAvatarPlaceholder) previewAvatarPlaceholder.style.display = 'flex';
+
+        const voiceSampleAudio = document.getElementById('voiceSampleAudio');
+        if (voiceSampleAudio) voiceSampleAudio.src = '';
+
+        const finalVideo = document.getElementById('final-homenagem-video');
+        const finalPlaceholder = document.getElementById('final-video-placeholder');
+        if (finalVideo) {
+            finalVideo.src = '';
+            finalVideo.style.display = 'none';
+        }
+        if (finalPlaceholder) finalPlaceholder.style.display = 'flex';
+
+        const btnDownload = document.getElementById('btnDownloadFinalVideo');
+        if (btnDownload) {
+            btnDownload.href = '#';
+            btnDownload.style.opacity = '0.5';
+        }
+
+        if (redirectStep1) {
+            goToStep(1, true);
+        }
     };
 
     function updateScriptApprovedUI(approved) {
@@ -1510,7 +1628,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
         // 2. Cumprimentos e Conversas Iniciais ("Como vai?", "Tudo bem?", "Olá")
         if ((lower === 'como vai?' || lower === 'como vai' || lower === 'tudo bem?' || lower === 'tudo bem' || lower === 'olá' || lower === 'ola' || lower === 'oi') && !interviewData.protagonista) {
             return {
-                chat: `Vou muito bem, ${clientFirstName}, obrigado por perguntar! É uma honra imensa estar com você nesta missão tão especial.<br><br>Para começarmos a dar vida a este roteiro emocionante, qual é o nome da pessoa que transmitirá a mensagem com sua imagem e voz no vídeo?`
+                chat: `Que alegria falar com você, ${clientFirstName}! Estou aqui para te ajudar a criar uma homenagem linda, emocionante e cheia de carinho.<br><br>Para a gente começar: quem é a pessoa que vai falar no vídeo e trazer essa mensagem de afeto?`
             };
         }
 
@@ -1532,7 +1650,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
                 interviewData.protagonista = cleanName(text) || text;
                 currentQuestionStep = 'ask_destinatario';
                 return {
-                    chat: `Que nome abençoado! O(A) <strong>${interviewData.protagonista}</strong> terá uma presença inesquecível.<br><br>E me conte: essa homenagem é para você mesma ou você vai presentear e surpreender alguém muito especial?`
+                    chat: `O(A) <strong>${interviewData.protagonista}</strong>... Que nome forte e cheio de história! Tenho certeza de que faremos algo lindo com a voz e a presença dele(a).<br><br>E me conta, ${clientFirstName}: essa homenagem é um presente para você mesmo(a) ou você está preparando essa surpresa para alguém especial?`
                 };
 
             case 'ask_destinatario':
@@ -1540,7 +1658,7 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
                 currentQuestionStep = 'ask_parentesco';
                 const destNome = interviewData.destinatario === clientFirstName ? 'você' : interviewData.destinatario;
                 return {
-                    chat: `Que gesto comovente e cheio de significado!<br><br>E qual é o laço de carinho ou parentesco entre o(a) ${interviewData.protagonista} e ${destNome} (por exemplo: Pai e Filha, Avó e Neto, Irmãos, Amigos de longa data)?`
+                    chat: `Que gesto maravilhoso e cheio de significado!<br><br>E qual era o laço de carinho ou parentesco entre o(a) ${interviewData.protagonista} e ${destNome} (por exemplo: Pai e Filho, Avó e Neto, Irmãos, Amigos)?`
                 };
 
             case 'ask_parentesco':
@@ -1946,11 +2064,6 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
             selectedMusic = card.dataset.music;
             musicManuallyChosen = true;
 
-            // No Desktop: Mover o card selecionado para o topo da lista de trilhas
-            const container = document.getElementById('musicContainer');
-            if (container && container.firstElementChild !== card) {
-                container.prepend(card);
-            }
             saveFullSessionState();
         });
     });
@@ -2474,6 +2587,28 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
                 }
             });
         }
+        window.updateAudioUI = updateAudioUI;
+
+        let fadeInterval = null;
+        function fadeAudioVolume(targetVolume, duration = 400) {
+            if (!bgAudio) return;
+            if (fadeInterval) clearInterval(fadeInterval);
+            const startVolume = bgAudio.volume;
+            const steps = 20;
+            const stepTime = duration / steps;
+            const volumeDiff = targetVolume - startVolume;
+            let currentStep = 0;
+
+            fadeInterval = setInterval(() => {
+                currentStep++;
+                bgAudio.volume = Math.max(0, Math.min(1, startVolume + (volumeDiff * (currentStep / steps))));
+                if (currentStep >= steps) {
+                    clearInterval(fadeInterval);
+                    fadeInterval = null;
+                }
+            }, stepTime);
+        }
+        window.fadeAudioVolume = fadeAudioVolume;
 
         // Adiciona listeners para todas as ondas sonoras que controlam a música
         musicWaves.forEach(wave => {
@@ -2645,6 +2780,15 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
     // =========================================================================
     // INICIALIZAÇÃO E RESTAURAÇÃO COMPLETA DO ESTADO (ABRINDO NA ETAPA ATIVA)
     // =========================================================================
+    const btnResetPanel = document.getElementById('btnResetPanel');
+    if (btnResetPanel) {
+        btnResetPanel.addEventListener('click', () => {
+            if (confirm('Deseja reiniciar o teste do painel do zero? Todos os envios, histórico de chat e prévias serão limpos.')) {
+                window.resetarPainelCompleto(true);
+            }
+        });
+    }
+
     renderPhotoPreviews();
     renderAudioPreviews();
     updateNextStep1ButtonState();
@@ -2653,8 +2797,16 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
     const galaxyBg = document.getElementById('galaxyBg');
     if (galaxyBg) initGalaxy(galaxyBg, true);
 
-    // 1. Restaurar dados completos da sessão anterior
-    restoreFullSessionState(false);
+    // 1. Limpeza automática de versões antigas de teste armazenadas no navegador
+    const STORAGE_BUILD_KEY = 'reviva_storage_build_v5';
+    const hasCleanParam = urlParams.has('reset') || urlParams.has('clean') || urlParams.has('novo') || urlParams.has('clear');
+    
+    if (hasCleanParam || localStorage.getItem('reviva_storage_build') !== STORAGE_BUILD_KEY) {
+        window.resetarPainelCompleto(false);
+        localStorage.setItem('reviva_storage_build', STORAGE_BUILD_KEY);
+    } else {
+        restoreFullSessionState(false);
+    }
 
     // 2. Determinar etapa prioritária: Hash da URL > reviva_active_step > estado salvo > etapa 1
     const hashMatch = window.location.hash.match(/step-(\d+)/);
@@ -2662,7 +2814,9 @@ Se o cliente solicitar alterações, revisões ou fornecer um trecho/frase próp
     const storedActiveStep = parseInt(localStorage.getItem('reviva_active_step'));
 
     let initialStep = 1;
-    if (hashStep && hashStep >= 1 && hashStep <= 5) {
+    if (hasCleanParam) {
+        initialStep = 1;
+    } else if (hashStep && hashStep >= 1 && hashStep <= 5) {
         initialStep = hashStep;
     } else if (storedActiveStep && storedActiveStep >= 1 && storedActiveStep <= 5) {
         initialStep = storedActiveStep;

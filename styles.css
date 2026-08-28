@@ -870,8 +870,9 @@ body.video-active .global-galaxy-bg {
     }
 }
 
-/* Ocultar badge se já assistido */
-.video-new-badge.watched {
+/* Ocultar badge e guia Comece aqui se já assistido */
+.video-new-badge.watched,
+.start-here-guide.watched {
     opacity: 0 !important;
     transform: scale(0.8) !important;
     pointer-events: none !important;

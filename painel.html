@@ -734,6 +734,18 @@
             flex: 1;
             height: 100%;
             min-height: 0;
+            overflow: hidden;
+        }
+
+        .scenarios-grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 8px;
+            flex: 1;
+            height: 100%;
+            min-height: 0;
+            overflow: hidden;
         }
 
         .scenario-card-full {
@@ -744,9 +756,9 @@
             border: 1.5px solid rgba(197, 160, 89, 0.35);
             border-radius: 10px;
             cursor: pointer;
-            transition: var(--transition-smooth);
-            min-height: 40px;
-            flex: 1 1 0%;
+            transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+            height: 100%;
+            min-height: 0;
             background: rgba(14, 9, 6, 0.6);
             box-shadow: none;
         }
@@ -758,25 +770,25 @@
             height: 100%;
             object-fit: cover;
             z-index: 1;
-            transition: transform 0.5s ease, filter 0.5s ease;
-            filter: brightness(0.62) saturate(1.15);
+            transition: transform 0.4s ease, filter 0.4s ease;
+            filter: brightness(0.68) saturate(1.1);
         }
 
         .scenario-full-bg-scrim {
             position: absolute;
             inset: 0;
-            background: linear-gradient(90deg, rgba(10, 7, 5, 0.84) 0%, rgba(10, 7, 5, 0.42) 55%, rgba(10, 7, 5, 0.72) 100%);
+            background: linear-gradient(90deg, rgba(10, 7, 5, 0.8) 0%, rgba(10, 7, 5, 0.35) 60%, rgba(10, 7, 5, 0.65) 100%);
             z-index: 2;
             transition: var(--transition-smooth);
         }
 
         .scenario-card-full:hover .scenario-full-bg-img {
-            transform: scale(1.06);
-            filter: brightness(0.82) saturate(1.25);
+            transform: scale(1.05);
+            filter: brightness(0.85) saturate(1.2);
         }
 
         .scenario-card-full:hover .scenario-full-bg-scrim {
-            background: linear-gradient(90deg, rgba(10, 7, 5, 0.65) 0%, rgba(10, 7, 5, 0.22) 55%, rgba(10, 7, 5, 0.55) 100%);
+            background: linear-gradient(90deg, rgba(10, 7, 5, 0.6) 0%, rgba(10, 7, 5, 0.2) 60%, rgba(10, 7, 5, 0.5) 100%);
         }
 
         .scenario-card-full:hover {
@@ -786,40 +798,34 @@
         }
 
         .scenario-card-full.selected {
-            flex: 0 0 calc(50% - 4px);
-            height: calc(50% - 4px);
-            min-height: calc(50% - 4px);
-            max-height: calc(50% - 4px);
-            border-color: #e5c378;
-            border-width: 2px;
-            box-shadow: 0 0 24px rgba(229, 195, 120, 0.7), inset 0 0 15px rgba(229, 195, 120, 0.25);
-        }
-
-        .scenario-card-full.selected .scenario-badge-label {
-            display: block;
+            border-color: #f7d58a;
+            border-width: 2.5px;
+            box-shadow: 0 0 24px rgba(229, 195, 120, 0.75), inset 0 0 16px rgba(229, 195, 120, 0.3);
+            transform: scale(1.02);
+            z-index: 5;
         }
 
         .scenario-card-full.selected .scenario-name {
-            font-size: 1.18rem;
-        }
-
-        .scenario-card-full.selected .scenario-subtitle {
-            font-size: 0.86rem;
+            font-size: 1.05rem;
+            color: #ffffff;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 1px 3px #000000;
         }
 
         .scenario-card-full.selected .scenario-full-bg-img {
-            filter: brightness(1.05) saturate(1.05);
-            transform: scale(1.02);
+            filter: brightness(1.08) saturate(1.15);
+            transform: scale(1.06);
         }
 
         .scenario-card-full.selected .scenario-full-bg-scrim {
-            display: none !important;
-            background: transparent !important;
+            display: block !important;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 60%, rgba(0, 0, 0, 0.15) 100%) !important;
         }
 
         .scenario-card-full.selected .scenario-card-inner-content {
-            align-items: flex-start;
-            padding: 14px 18px;
+            align-items: center;
+            padding: 0 12px;
         }
 
         .scenario-card-inner-content {
@@ -830,7 +836,7 @@
             justify-content: space-between;
             width: 100%;
             height: 100%;
-            padding: 0 18px;
+            padding: 0 12px;
             box-sizing: border-box;
         }
 
@@ -841,34 +847,28 @@
             flex-direction: column;
             justify-content: center;
             gap: 2px;
-        }
-
-        .scenario-badge-label {
-            display: none;
-            font-size: 0.62rem;
-            color: #e5c378;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 2px;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+            overflow: hidden;
         }
 
         .scenario-name {
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             font-weight: 700;
             color: #ffffff;
             line-height: 1.2;
-            letter-spacing: 0.3px;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 1px 3px #000000;
         }
 
         .scenario-subtitle {
             font-size: 0.75rem;
-            color: #f6e3c5;
+            color: #ffffff;
             line-height: 1.25;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 1px 3px #000000;
             font-weight: 500;
+            opacity: 0.92;
         }
 
         .scenario-radio-check {
@@ -2650,134 +2650,177 @@
                         <div class="chat-card-header" style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid rgba(197, 160, 89, 0.25); padding-bottom: 6px; flex-shrink: 0;">
                             <div style="display: flex; align-items: center; gap: 6px;">
                                 <i data-lucide="music-2" style="width: 15px; height: 15px; color: #e5c378;"></i>
-                                <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">A HARMONIZAÇÃO • ESCOLHA DE TRILHA SONORA E AMBIENTE</span>
+                                <span style="color: #f6e3c5; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">A HARMONIZAÇÃO • ESCOLHA DE TRILHA SONORA E AMBIENTE DE FUNDO</span>
                             </div>
                             <div class="step-card-header-badge step-plan-badge" style="background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 2px 8px; color: #e5c378; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase;">
                                 PLANO AFFECTUS • 1 MINUTO • HORIZONTAL & VERTICAL
                             </div>
                         </div>
 
-                        <!-- Linha dos Dois Painéis Lado a Lado -->
+                        <!-- Linha dos Dois Painéis Lado a Lado Separados em Dois Cards -->
                         <div class="upload-zones-row" id="step3-grid-container" style="display: flex; flex-direction: row; gap: 14px; flex: 1; min-height: 0; width: 100%;">
                             
-                            <!-- Coluna 1 (Esquerda): Lista de Trilhas Sonoras (Mesmo Formato e Animação das Paisagens) -->
-                            <div class="scenarios-vertical-container" id="musicContainer" style="display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; flex: 1 1 0%; width: 50%;">
-                                <!-- Trilha Padrão: Sem Trilha -->
-                                <div class="scenario-card-full selected" data-music="sem_musica" data-title="Sem Trilha">
-                                    <img src="trilha_sem_trilha.jpg" alt="Sem Trilha" class="scenario-full-bg-img">
-                                    <div class="scenario-full-bg-scrim"></div>
-                                    <div class="scenario-card-inner-content">
-                                        <div class="scenario-details">
-                                            <span class="scenario-badge-label">TRILHA SONORA</span>
-                                            <div class="scenario-name">Sem Trilha</div>
-                                            <div class="scenario-subtitle">Voz destacada com efeitos sonoros e ambiência natural</div>
-                                        </div>
-                                        <div class="scenario-radio-check">✓</div>
-                                    </div>
+                            <!-- Card da Esquerda: Trilha Sonora -->
+                            <div class="upload-zone-compact" style="flex: 1 1 0%; min-height: 0; width: 50%; padding: 10px 12px; display: flex; flex-direction: column; cursor: default;">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; flex-shrink: 0;">
+                                    <i data-lucide="music" style="width: 16px; height: 16px; color: #e5c378;"></i>
+                                    <h4 style="color: #f6e3c5; font-size: 0.84rem; margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Trilha Sonora</h4>
                                 </div>
-
-                                <!-- Trilha 1: Piano -->
-                                <div class="scenario-card-full" data-music="piano" data-title="Piano">
-                                    <img src="trilha_piano.jpg" alt="Piano" class="scenario-full-bg-img">
-                                    <div class="scenario-full-bg-scrim"></div>
-                                    <div class="scenario-card-inner-content">
-                                        <div class="scenario-details">
-                                            <span class="scenario-badge-label">TRILHA SONORA</span>
-                                            <div class="scenario-name">Piano</div>
-                                            <div class="scenario-subtitle">Teclas suaves e melodia comovente e profunda</div>
+                                <div class="scenarios-vertical-container" id="musicContainer" style="display: flex; flex-direction: column; gap: 6px; flex: 1; height: 100%; min-height: 0;">
+                                    <!-- Trilha Padrão: Sem Trilha -->
+                                    <div class="scenario-card-full selected" data-music="sem_musica" data-title="Sem Trilha">
+                                        <img src="trilha_sem_trilha.jpg" alt="Sem Trilha" class="scenario-full-bg-img">
+                                        <div class="scenario-full-bg-scrim"></div>
+                                        <div class="scenario-card-inner-content">
+                                            <div class="scenario-details">
+                                                <div class="scenario-name">Sem Trilha</div>
+                                            </div>
+                                            <div class="scenario-radio-check">✓</div>
                                         </div>
-                                        <div class="scenario-radio-check">✓</div>
                                     </div>
-                                </div>
 
-                                <!-- Trilha 2: Violino -->
-                                <div class="scenario-card-full" data-music="violino" data-title="Violino">
-                                    <img src="trilha_violino.jpg" alt="Violino" class="scenario-full-bg-img">
-                                    <div class="scenario-full-bg-scrim"></div>
-                                    <div class="scenario-card-inner-content">
-                                        <div class="scenario-details">
-                                            <span class="scenario-badge-label">TRILHA SONORA</span>
-                                            <div class="scenario-name">Violino</div>
-                                            <div class="scenario-subtitle">Cordas clássicas em tom sereno e acolhedor</div>
+                                    <!-- Trilha 1: Piano -->
+                                    <div class="scenario-card-full" data-music="piano" data-title="Piano">
+                                        <img src="trilha_piano.jpg" alt="Piano" class="scenario-full-bg-img">
+                                        <div class="scenario-full-bg-scrim"></div>
+                                        <div class="scenario-card-inner-content">
+                                            <div class="scenario-details">
+                                                <div class="scenario-name">Piano</div>
+                                            </div>
+                                            <div class="scenario-radio-check">✓</div>
                                         </div>
-                                        <div class="scenario-radio-check">✓</div>
                                     </div>
-                                </div>
 
-                                <!-- Trilha 3: Violão -->
-                                <div class="scenario-card-full" data-music="violao" data-title="Violão">
-                                    <img src="trilha_violao.jpg" alt="Violão" class="scenario-full-bg-img">
-                                    <div class="scenario-full-bg-scrim"></div>
-                                    <div class="scenario-card-inner-content">
-                                        <div class="scenario-details">
-                                            <span class="scenario-badge-label">TRILHA SONORA</span>
-                                            <div class="scenario-name">Violão</div>
-                                            <div class="scenario-subtitle">Acordes acústicos intimistas, afeto e delicadeza</div>
+                                    <!-- Trilha 2: Violino -->
+                                    <div class="scenario-card-full" data-music="violino" data-title="Violino">
+                                        <img src="trilha_violino.jpg" alt="Violino" class="scenario-full-bg-img">
+                                        <div class="scenario-full-bg-scrim"></div>
+                                        <div class="scenario-card-inner-content">
+                                            <div class="scenario-details">
+                                                <div class="scenario-name">Violino</div>
+                                            </div>
+                                            <div class="scenario-radio-check">✓</div>
                                         </div>
-                                        <div class="scenario-radio-check">✓</div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <!-- Coluna 2 (Direita): Lista de Cenários / Paisagens de Fundo -->
-                            <div class="scenarios-vertical-container" id="scenariosContainer" style="display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; flex: 1 1 0%; width: 50%;">
-                                <!-- Cenário 1 -->
-                                <div class="scenario-card-full selected" data-bg="nuvens" data-preview-src="bg_nuvens.jpg" data-title="Nuvens" data-desc="Céu límpido e celestial, com nuvens suaves e iluminação etérea e brilhante.">
-                                    <img src="bg_nuvens.jpg" alt="Nuvens" class="scenario-full-bg-img">
-                                    <div class="scenario-full-bg-scrim"></div>
-                                    <div class="scenario-card-inner-content">
-                                        <div class="scenario-details">
-                                            <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
-                                            <div class="scenario-name">Nuvens Celestes</div>
-                                            <div class="scenario-subtitle">Céu claro com nuvens suaves e etéreas</div>
+                                    <!-- Trilha 3: Violão -->
+                                    <div class="scenario-card-full" data-music="violao" data-title="Violão">
+                                        <img src="trilha_violao.jpg" alt="Violão" class="scenario-full-bg-img">
+                                        <div class="scenario-full-bg-scrim"></div>
+                                        <div class="scenario-card-inner-content">
+                                            <div class="scenario-details">
+                                                <div class="scenario-name">Violão</div>
+                                            </div>
+                                            <div class="scenario-radio-check">✓</div>
                                         </div>
-                                        <div class="scenario-radio-check">✓</div>
-                                    </div>
-                                </div>
-
-                                <!-- Cenário 2 -->
-                                <div class="scenario-card-full" data-bg="montanhas" data-preview-src="bg_montanhas.jpg" data-title="Montanhas" data-desc="Picos serenos com névoa mística e horizontes infinitos cheios de paz.">
-                                    <img src="bg_montanhas.jpg" alt="Montanhas" class="scenario-full-bg-img">
-                                    <div class="scenario-full-bg-scrim"></div>
-                                    <div class="scenario-card-inner-content">
-                                        <div class="scenario-details">
-                                            <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
-                                            <div class="scenario-name">Montanhas Serenas</div>
-                                            <div class="scenario-subtitle">Picos serenos e horizontes imponentes</div>
-                                        </div>
-                                        <div class="scenario-radio-check">✓</div>
-                                    </div>
-                                </div>
-
-                                <!-- Cenário 3 -->
-                                <div class="scenario-card-full" data-bg="mata" data-preview-src="bg_floresta.jpg" data-title="Floresta" data-desc="Floresta encantada, folhas verdejantes e raios solares dourados entre as copas.">
-                                    <img src="bg_floresta.jpg" alt="Mata" class="scenario-full-bg-img">
-                                    <div class="scenario-full-bg-scrim"></div>
-                                    <div class="scenario-card-inner-content">
-                                        <div class="scenario-details">
-                                            <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
-                                            <div class="scenario-name">Floresta Encantada</div>
-                                            <div class="scenario-subtitle">Natureza viva, folhas verdes e luz filtrada</div>
-                                        </div>
-                                        <div class="scenario-radio-check">✓</div>
-                                    </div>
-                                </div>
-
-                                <!-- Cenário 4 -->
-                                <div class="scenario-card-full" data-bg="oceano" data-preview-src="bg_oceano.png" data-title="Oceano" data-desc="Horizontes infinitos do mar azul, brisa serena e reflexos dourados sobre as águas.">
-                                    <img src="bg_oceano.png" alt="Oceano" class="scenario-full-bg-img">
-                                    <div class="scenario-full-bg-scrim"></div>
-                                    <div class="scenario-card-inner-content">
-                                        <div class="scenario-details">
-                                            <span class="scenario-badge-label">PAISAGEM DE FUNDO</span>
-                                            <div class="scenario-name">Oceano Infinito</div>
-                                            <div class="scenario-subtitle">Horizontes calmos do mar e brisa serena</div>
-                                        </div>
-                                        <div class="scenario-radio-check">✓</div>
                                     </div>
                                 </div>
                             </div>
 
+                            <!-- Card da Direita: Ambientes de Fundo -->
+                            <div class="upload-zone-compact" style="flex: 1 1 0%; min-height: 0; width: 50%; padding: 10px 12px; display: flex; flex-direction: column; cursor: default;">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; flex-shrink: 0;">
+                                    <i data-lucide="image" style="width: 16px; height: 16px; color: #e5c378;"></i>
+                                    <h4 style="color: #f6e3c5; font-size: 0.84rem; margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Ambiente de Fundo</h4>
+                                </div>
+                                <div class="scenarios-grid-container" id="scenariosContainer" style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); gap: 6px; flex: 1; height: 100%; min-height: 0;">
+                                    <!-- Ambiente 1: Nuvens -->
+                                    <div class="scenario-card-full selected" data-bg="ceu" data-preview-src="assets/ambientes/bg_ceu.jpg" data-title="Nuvens Celestiais">
+                                        <img src="assets/ambientes/bg_ceu.jpg" alt="Nuvens Celestiais" class="scenario-full-bg-img">
+                                        <div class="scenario-full-bg-scrim"></div>
+                                        <div class="scenario-card-inner-content">
+                                            <div class="scenario-details">
+                                                <div class="scenario-name">Nuvens Celestiais</div>
+                                            </div>
+                                            <div class="scenario-radio-check">✓</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ambiente 2: Montanhas -->
+                                    <div class="scenario-card-full" data-bg="montanhas" data-preview-src="assets/ambientes/bg_montanhas.jpg" data-title="Montanhas Serenas">
+                                        <img src="assets/ambientes/bg_montanhas.jpg" alt="Montanhas" class="scenario-full-bg-img">
+                                        <div class="scenario-full-bg-scrim"></div>
+                                        <div class="scenario-card-inner-content">
+                                            <div class="scenario-details">
+                                                <div class="scenario-name">Montanhas Serenas</div>
+                                            </div>
+                                            <div class="scenario-radio-check">✓</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ambiente 3: Floresta -->
+                                    <div class="scenario-card-full" data-bg="floresta" data-preview-src="assets/ambientes/bg_floresta.jpg" data-title="Floresta Encantada">
+                                        <img src="assets/ambientes/bg_floresta.jpg" alt="Floresta" class="scenario-full-bg-img">
+                                        <div class="scenario-full-bg-scrim"></div>
+                                        <div class="scenario-card-inner-content">
+                                            <div class="scenario-details">
+                                                <div class="scenario-name">Floresta Encantada</div>
+                                            </div>
+                                            <div class="scenario-radio-check">✓</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ambiente 4: Girassóis -->
+                                    <div class="scenario-card-full" data-bg="girassois" data-preview-src="assets/ambientes/bg_girassois.jpg" data-title="Campo de Girassóis">
+                                        <img src="assets/ambientes/bg_girassois.jpg" alt="Girassóis" class="scenario-full-bg-img">
+                                        <div class="scenario-full-bg-scrim"></div>
+                                        <div class="scenario-card-inner-content">
+                                            <div class="scenario-details">
+                                                <div class="scenario-name">Campo de Girassóis</div>
+                                            </div>
+                                            <div class="scenario-radio-check">✓</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ambiente 5: Lago -->
+                                    <div class="scenario-card-full" data-bg="lago" data-preview-src="assets/ambientes/bg_lago.jpg" data-title="Lago Cristalino">
+                                        <img src="assets/ambientes/bg_lago.jpg" alt="Lago" class="scenario-full-bg-img">
+                                        <div class="scenario-full-bg-scrim"></div>
+                                        <div class="scenario-card-inner-content">
+                                            <div class="scenario-details">
+                                                <div class="scenario-name">Lago Cristalino</div>
+                                            </div>
+                                            <div class="scenario-radio-check">✓</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ambiente 6: Palmeiras -->
+                                    <div class="scenario-card-full" data-bg="palmeiras" data-preview-src="assets/ambientes/bg_palmeiras.jpg" data-title="Palmeiras Tropicais">
+                                        <img src="assets/ambientes/bg_palmeiras.jpg" alt="Palmeiras" class="scenario-full-bg-img">
+                                        <div class="scenario-full-bg-scrim"></div>
+                                        <div class="scenario-card-inner-content">
+                                            <div class="scenario-details">
+                                                <div class="scenario-name">Palmeiras Tropicais</div>
+                                            </div>
+                                            <div class="scenario-radio-check">✓</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ambiente 7: Vale -->
+                                    <div class="scenario-card-full" data-bg="vale" data-preview-src="assets/ambientes/bg_vale.jpg" data-title="Vale Dourado">
+                                        <img src="assets/ambientes/bg_vale.jpg" alt="Vale Dourado" class="scenario-full-bg-img">
+                                        <div class="scenario-full-bg-scrim"></div>
+                                        <div class="scenario-card-inner-content">
+                                            <div class="scenario-details">
+                                                <div class="scenario-name">Vale Dourado</div>
+                                            </div>
+                                            <div class="scenario-radio-check">✓</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ambiente 8: Descampado -->
+                                    <div class="scenario-card-full" data-bg="descampado" data-preview-src="assets/ambientes/bg_descampado.jpg" data-title="Descampado Verdejante">
+                                        <img src="assets/ambientes/bg_descampado.jpg" alt="Descampado Verdejante" class="scenario-full-bg-img">
+                                        <div class="scenario-full-bg-scrim"></div>
+                                        <div class="scenario-card-inner-content">
+                                            <div class="scenario-details">
+                                                <div class="scenario-name">Descampado Verdejante</div>
+                                            </div>
+                                            <div class="scenario-radio-check">✓</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Botão Avançar centralizado no mesmo card geral com mesmo tamanho do botão da etapa 1 e 4 -->
@@ -2821,8 +2864,12 @@
                                     </div>
                                 </div>
 
-                                <div class="preview-media-frame" style="position: relative; overflow: hidden; border-radius: var(--radius-sm); border: 1.5px solid var(--border-gold); background: #000; flex: 1; min-height: 0;">
-                                    <img src="gallery_homem_02.jpg" alt="Prévia Restaurada" id="preview-avatar-img" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                <div class="preview-media-frame" style="position: relative; overflow: hidden; border-radius: var(--radius-sm); border: 1.5px solid var(--border-gold); background: #000; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;">
+                                    <img src="" alt="Prévia Restaurada" id="preview-avatar-img" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                    <div id="preview-avatar-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-secondary); text-align: center; padding: 20px;">
+                                        <i data-lucide="image" style="width: 38px; height: 38px; color: #e5c378; opacity: 0.6;"></i>
+                                        <span style="font-size: 0.76rem; color: #d8c7b0;">Aguardando envio da imagem</span>
+                                    </div>
                                     
                                     <!-- Logo Reviva Memories Centralizada na Base da Imagem (Marca D'água Transparente) -->
                                     <div class="image-watermark-logo" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; pointer-events: none; z-index: 5;">
@@ -2886,7 +2933,7 @@
                                             <span id="voiceSampleTime" style="font-size: 0.68rem; color: var(--gold-primary); font-family: var(--font-mono); font-weight: 600;">00:08</span>
                                         </div>
                                     </div>
-                                    <audio id="voiceSampleAudio" src="audio_exemplo_etapa4.mp3" preload="metadata" style="display: none;"></audio>
+                                    <audio id="voiceSampleAudio" src="" preload="none" style="display: none;"></audio>
                                 </div>
 
                                 <!-- Ações de Aprovação e Reprovação do Áudio (Idênticas à Imagem) -->
@@ -2947,7 +2994,12 @@
 
                         <!-- Centro: Showcase do Vídeo em Alta Resolução (ocupa toda a altura disponível) -->
                         <div class="final-video-poster" style="position: relative; flex: 1; min-height: 0; border-radius: var(--radius-sm); overflow: hidden; border: 1.5px solid rgba(197, 160, 89, 0.35); background: #000; box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(229, 195, 120, 0.15); display: flex; align-items: center; justify-content: center;">
-                            <video id="final-homenagem-video" src="gallery_homem_02.webm" poster="gallery_homem_02.jpg" controls playsinline preload="metadata" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; display: block; border-radius: calc(var(--radius-sm) - 1px); background: #000;"></video>
+                            <video id="final-homenagem-video" src="" poster="" controls playsinline preload="none" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; display: none; border-radius: calc(var(--radius-sm) - 1px); background: #000;"></video>
+                            <div id="final-video-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-secondary); text-align: center; padding: 24px;">
+                                <i data-lucide="film" style="width: 44px; height: 44px; color: #e5c378; opacity: 0.6;"></i>
+                                <div style="font-family: var(--font-serif); font-size: 1.05rem; color: #f6e3c5; font-weight: 600;">Homenagem em Produção</div>
+                                <p style="font-size: 0.76rem; color: #d8c7b0; max-width: 340px; margin: 0; line-height: 1.4;">Assim que a arte final for renderizada pela equipe, o vídeo estará liberado para assistir e baixar.</p>
+                            </div>
                             
                             <!-- Selo Manuscrito no Topo do Vídeo (Fonte Oficial Allura) -->
                             <div id="video-manuscrito-overlay" style="position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 5; pointer-events: none; text-align: center; width: 100%; transition: opacity 0.4s ease;">
@@ -2963,7 +3015,7 @@
                                 <i data-lucide="share-2" style="width: 14px; height: 14px;"></i>
                                 <span>LINK WHATSAPP</span>
                             </button>
-                            <a href="gallery_homem_02.webm" download="homenagem_reviva.webm" class="btn btn-primary" style="min-width: 200px; height: 34px !important; font-size: 0.76rem !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
+                            <a id="btnDownloadFinalVideo" href="#" download="homenagem_reviva.webm" class="btn btn-primary" style="min-width: 200px; height: 34px !important; font-size: 0.76rem !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
                                 <i data-lucide="download" style="width: 14px; height: 14px;"></i>
                                 <span>BAIXAR VÍDEO</span>
                             </a>
@@ -2983,10 +3035,10 @@
                 <div class="slide-actions-panel">
                     <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo"></div>
                     <div class="video-badge-wrapper" style="position: relative; display: inline-flex;">
-                        <button class="btn btn-primary watch-video-btn" data-video="video_03.webm" data-video-id="video-painel-step1" id="btnStep1Iasis">
-                            <i data-lucide="play"></i> APRESENTAÇÃO
-                        </button>
                         <span class="video-new-badge" data-video-id="video-painel-step1">NOVO</span>
+                        <button class="btn btn-primary watch-video-btn" data-video="video_etapa1.webm" data-video-id="video-painel-step1" id="btnStep1Iasis">
+                            <i data-lucide="play"></i> O RESGATE
+                        </button>
                     </div>
                     <div class="music-wave-toggle right-wave" aria-label="Controlar Música de Fundo"></div>
                 </div>
@@ -2998,7 +3050,7 @@
                     <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo"></div>
                     <div class="video-badge-wrapper" style="position: relative; display: inline-flex;">
                         <button class="btn btn-primary watch-video-btn" data-video="video_03.webm" data-video-id="video-painel-step2">
-                            <i data-lucide="play"></i> APRESENTAÇÃO
+                            <i data-lucide="play"></i> A ESSÊNCIA
                         </button>
                         <span class="video-new-badge" data-video-id="video-painel-step2">NOVO</span>
                     </div>
@@ -3012,7 +3064,7 @@
                     <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo"></div>
                     <div class="video-badge-wrapper" style="position: relative; display: inline-flex;">
                         <button class="btn btn-primary watch-video-btn" data-video="video_03.webm" data-video-id="video-painel-step3">
-                            <i data-lucide="play"></i> APRESENTAÇÃO
+                            <i data-lucide="play"></i> A HARMONIZAÇÃO
                         </button>
                         <span class="video-new-badge" data-video-id="video-painel-step3">NOVO</span>
                     </div>
@@ -3026,7 +3078,7 @@
                     <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo"></div>
                     <div class="video-badge-wrapper" style="position: relative; display: inline-flex;">
                         <button class="btn btn-primary watch-video-btn" data-video="video_03.webm" data-video-id="video-painel-step4">
-                            <i data-lucide="play"></i> APRESENTAÇÃO
+                            <i data-lucide="play"></i> A LAPIDAÇÃO
                         </button>
                         <span class="video-new-badge" data-video-id="video-painel-step4">NOVO</span>
                     </div>
@@ -3040,7 +3092,7 @@
                     <div class="music-wave-toggle left-wave" aria-label="Controlar Música de Fundo"></div>
                     <div class="video-badge-wrapper" style="position: relative; display: inline-flex;">
                         <button class="btn btn-primary watch-video-btn" data-video="video_03.webm" data-video-id="video-painel-step5">
-                            <i data-lucide="play"></i> APRESENTAÇÃO
+                            <i data-lucide="play"></i> O REENCONTRO
                         </button>
                         <span class="video-new-badge" data-video-id="video-painel-step5">NOVO</span>
                     </div>
@@ -3193,38 +3245,148 @@
             }
         }
 
+        let originalVolume = 0.5;
+
+        function startVideoFadeOut() {
+            if (!localVideoPlayer) return;
+
+            // Desvanecer o modal visualmente com transição suave (2s)
+            videoModal.classList.remove('active');
+            document.body.classList.remove('video-active');
+            
+            // Restaurar o volume da música de fundo gradualmente ao longo dos 2 segundos
+            const bgAudio = document.getElementById('bgAudio');
+            if (bgAudio) {
+                if (bgAudio.paused) {
+                    bgAudio.volume = 0;
+                    bgAudio.play().then(() => {
+                        if (typeof updateAudioUI === 'function') updateAudioUI(true);
+                    }).catch(() => {});
+                }
+                if (typeof fadeAudioVolume === 'function') {
+                    fadeAudioVolume(originalVolume || 0.5, 2000);
+                } else {
+                    bgAudio.volume = originalVolume || 0.5;
+                }
+            }
+
+            // Aguardar o término do fade visual (2s) para remover e resetar o vídeo
+            setTimeout(() => {
+                stopVideos();
+            }, 2000);
+        }
+
+        function stopVideos() {
+            if (customVideoControls) {
+                customVideoControls.classList.remove('visible', 'idle');
+            }
+            if (localVideoPlayer) {
+                localVideoPlayer.pause();
+                localVideoPlayer.src = '';
+                localVideoPlayer.style.display = 'none';
+            }
+        }
+
         function openVideoModal(videoUrl) {
+            const bgAudio = document.getElementById('bgAudio');
+
+            if (bgAudio) {
+                if (!bgAudio.paused) {
+                    originalVolume = bgAudio.volume || 0.5;
+                } else {
+                    originalVolume = 0.5;
+                    bgAudio.volume = 0.25;
+                    bgAudio.play().then(() => {
+                        if (typeof updateAudioUI === 'function') updateAudioUI(true);
+                    }).catch(err => console.log("Audio play failed on video modal open:", err));
+                }
+                // Reduz o volume da música gradualmente ao longo de 2s para os vídeos do Iasis
+                if (typeof fadeAudioVolume === 'function') {
+                    fadeAudioVolume(0.25, 2000);
+                } else {
+                    bgAudio.volume = 0.25;
+                }
+            }
+
+            stopVideos();
             document.body.classList.add('video-active');
+
             if (videoUrl.endsWith('.webm') || videoUrl.endsWith('.mp4') || videoUrl.endsWith('.ogg')) {
                 if (customVideoControls) customVideoControls.classList.add('visible');
                 if (localVideoPlayer) {
                     localVideoPlayer.src = videoUrl;
                     localVideoPlayer.style.display = 'block';
                     localVideoPlayer.play().catch(err => console.log("Autoplay bloqueado:", err));
+
+                    // Permitir alternar Play/Pause clicando no vídeo
+                    localVideoPlayer.onclick = () => {
+                        if (localVideoPlayer.paused) {
+                            localVideoPlayer.play();
+                        } else {
+                            localVideoPlayer.pause();
+                        }
+                    };
+                    
+                    // Monitorar a reprodução para acionar o fade out suave antes do vídeo congelar no fim
+                    let autoFadeTriggered = false;
+
+                    const handleTimeUpdate = () => {
+                        if (!localVideoPlayer.duration) return;
+                        
+                        const timeLeft = localVideoPlayer.duration - localVideoPlayer.currentTime;
+                        // Dispara o fade out suave nos últimos 2.0 segundos de vídeo (com o avatar ainda em movimento suave)
+                        if (timeLeft <= 2.0 && !autoFadeTriggered) {
+                            autoFadeTriggered = true;
+                            startVideoFadeOut();
+                        }
+                    };
+
+                    const handleEnded = () => {
+                        if (!autoFadeTriggered) {
+                            autoFadeTriggered = true;
+                            startVideoFadeOut();
+                        }
+                        localVideoPlayer.removeEventListener('timeupdate', handleTimeUpdate);
+                        localVideoPlayer.removeEventListener('ended', handleEnded);
+                    };
+
+                    localVideoPlayer.addEventListener('timeupdate', handleTimeUpdate);
+                    localVideoPlayer.addEventListener('ended', handleEnded);
                 }
             }
-            videoModal.classList.add('active');
-            videoModal.focus();
-            if (window.lucide) lucide.createIcons();
+            
+            requestAnimationFrame(() => {
+                videoModal.classList.add('active');
+                videoModal.focus();
+                if (window.lucide) lucide.createIcons();
+            });
         }
 
         function closeVideoModal() {
-            if (localVideoPlayer) {
-                localVideoPlayer.pause();
-                localVideoPlayer.src = '';
-                localVideoPlayer.style.display = 'none';
-            }
-            document.body.classList.remove('video-active');
-            videoModal.classList.remove('active');
+            if (!videoModal.classList.contains('active')) return;
+            startVideoFadeOut();
         }
 
-        // Lógica de Persistência dos Badges de Vídeos Assistidos (LocalStorage)
-        document.querySelectorAll('.video-new-badge').forEach(badge => {
-            const videoId = badge.getAttribute('data-video-id');
-            if (videoId && localStorage.getItem(`watched-${videoId}`)) {
-                badge.classList.add('watched');
-            }
-        });
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                            window.location.hostname === '127.0.0.1' || 
+                            window.location.hostname.startsWith('192.168.') || 
+                            window.location.hostname.startsWith('10.') || 
+                            window.location.protocol === 'file:';
+
+        // Lógica de Persistência dos Badges e Guia Comece Aqui:
+        // No Localhost: Sempre visíveis para facilitar seus testes.
+        // No Site Publicado: Ocultados permanentemente após o cliente clicar/assistir.
+        if (!isLocalhost) {
+            document.querySelectorAll('.video-new-badge').forEach(badge => {
+                const videoId = badge.getAttribute('data-video-id');
+                if (videoId && localStorage.getItem(`watched-${videoId}`)) {
+                    badge.classList.add('watched');
+                    const wrapper = badge.closest('.video-badge-wrapper');
+                    const guide = wrapper?.querySelector('.start-here-guide');
+                    if (guide) guide.classList.add('watched');
+                }
+            });
+        }
 
         document.querySelectorAll('.watch-video-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -3232,11 +3394,14 @@
                 e.stopPropagation();
 
                 const videoId = btn.getAttribute('data-video-id');
-                if (videoId) {
+                if (videoId && !isLocalhost) {
                     localStorage.setItem(`watched-${videoId}`, 'true');
                     document.querySelectorAll(`.video-new-badge[data-video-id="${videoId}"]`).forEach(badge => {
                         badge.classList.add('watched');
                     });
+                    const wrapper = btn.closest('.video-badge-wrapper');
+                    const guide = wrapper?.querySelector('.start-here-guide');
+                    if (guide) guide.classList.add('watched');
                 }
 
                 const videoUrl = btn.getAttribute('data-video') || btn.getAttribute('data-video-url') || 'video_03.webm';
@@ -3304,7 +3469,20 @@
                 updatePlayPauseUI();
             });
 
-            localVideoPlayer.addEventListener('play', updatePlayPauseUI);
+            localVideoPlayer.addEventListener('play', () => {
+                const bgAudio = document.getElementById('bgAudio');
+                if (bgAudio) {
+                    if (bgAudio.paused) {
+                        bgAudio.volume = 0.22;
+                        bgAudio.play().then(() => {
+                            if (typeof updateAudioUI === 'function') updateAudioUI(true);
+                        }).catch(() => {});
+                    } else {
+                        if (typeof fadeAudioVolume === 'function') fadeAudioVolume(0.22, 800);
+                    }
+                }
+                updatePlayPauseUI();
+            });
             localVideoPlayer.addEventListener('pause', updatePlayPauseUI);
 
             vProgressContainer?.addEventListener('click', (e) => {

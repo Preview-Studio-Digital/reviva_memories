@@ -19,19 +19,31 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 
 ---
 
-## 🎥 Slide 2: Homenagens Inesquecíveis (Hero Section / #homenagens)
+## 🎥 Slide 2: Homenagens Inesquecíveis (Hero Section / #homenagens) — ⚠️ [REGRAVAÇÃO PENDENTE]
 **Personagem / Apresentador:** Iasis (Agente IA)  
+**Duração Estimada:** ~32 segundos (~67 palavras)  
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
-**Texto de Narração:**
-> "Recriamos com delicadeza, respeito e realismo a presença de quem sempre esteve ao seu lado, unindo a sensibilidade humana com a Inteligência Artificial para trazer mensagens emocionantes em momentos únicos, especiais e inesquecíveis, um presente sublime para celebrar o amor que transcende a ausência física. Os exemplos da tela não são de pessoas reais mas servem para você imaginar como seria a sua homenagem, uma experiência sobrenatural."
+**Tom de Voz:** Sereno, acolhedor, empático e afetuoso.  
+
+### 📝 Versão Limpa (Texto Oficial Aprovado):
+> "Recriamos com delicadeza, respeito e realismo a presença do ente querido, unindo a sensibilidade humana com a Inteligência Artificial para trazer mensagens emocionantes em momentos únicos, especiais e inesquecíveis, um presente sublime para celebrar o amor que transcende a ausência física. Os exemplos da tela não são de pessoas reais mas servem para você imaginar como seria a sua homenagem, uma experiência sobrenatural."
+
+### 🎙️ Versão Técnica ElevenLabs (Com Tags de Emoção & Protocolo Gravando / Corta):
+> `Gravando... [warmly] Recriamos com delicadeza, respeito e realismo a presença do ente querido, [peaceful] unindo a sensibilidade humana com a Inteligência Artificial para trazer mensagens emocionantes em momentos únicos, especiais e inesquecíveis, [tenderly] um presente sublime para celebrar o amor que transcende a ausência física. [thoughtful] Os exemplos da tela não são de pessoas reais [warmly] mas servem para você imaginar como seria a sua homenagem, uma experiência sobrenatural. [sighs] corta.`
 
 ---
 
-## 🎥 Slide 3: A Experiência (Experiência / #experiencia)
+## 🎥 Slide 3: A Experiência (Experiência / #experiencia) — ⚠️ [REGRAVAÇÃO PENDENTE]
 **Personagem / Apresentador:** Iasis (Agente IA)  
+**Duração Estimada:** ~32 segundos (~68 palavras)  
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
-**Texto de Narração:**
-> "A experiência tem 5 etapas onde você participa ativamente escolhendo cenários, trilhas e aprovando imagem e voz num processo simples, cuidadoso e profundamente humanizado, focado no respeito absoluto à memória de quem você ama utilizando tecnologia de inteligência artificial de ponta e a máxima sensibilidade afetiva e artística para lapidar registros e criar um reencontro inesquecível, repleto de afeto e carinho. Experimente!"
+**Tom de Voz:** Sereno, acolhedor, didático e inspirador.  
+
+### 📝 Versão Limpa (Texto Oficial Aprovado):
+> "A experiência tem 5 etapas onde você participa ativamente escolhendo cenários, trilhas e aprovando imagem e voz num processo simples, cuidadoso e profundamente humanizado, focado no respeito absoluto à memória do ente querido utilizando tecnologia de inteligência artificial de ponta e a máxima sensibilidade afetiva e artística para lapidar registros e criar um reencontro inesquecível, repleto de afeto e carinho. Experimente!"
+
+### 🎙️ Versão Técnica ElevenLabs (Com Tags de Emoção & Protocolo Gravando / Corta):
+> `Gravando... [warmly] A experiência tem 5 etapas onde você participa ativamente [peaceful] escolhendo cenários, trilhas e aprovando imagem e voz num processo simples, cuidadoso e profundamente humanizado, [thoughtful] focado no respeito absoluto à memória do ente querido [tenderly] utilizando tecnologia de inteligência artificial de ponta e a máxima sensibilidade afetiva e artística para lapidar registros e criar um reencontro inesquecível, repleto de afeto e carinho. [warmly] Experimente! [exhales softly] corta.`
 
 ---
 
@@ -78,6 +90,82 @@ Este arquivo contém todos os roteiros, textos de narração e diretrizes de enc
 **Movimentos do Avatar:** Gestos naturais com as duas mãos, leve sorriso e expressão aconchegante.  
 **Texto de Narração:**
 > "Reunimos as dúvidas e perguntas mais comuns de quem deseja eternizar uma memória com máximo respeito, cuidado técnico e sensibilidade afetiva, mas caso ainda tenha algum outro questionamento, nossa equipe dedicada está sempre pronta para ajudar, atender e acolher suas solicitações. Nos chame no whatsapp, tire suas dúvidas e reviva suas memórias! Seja para você mesmo ou para alguém especial, é um presente exclusivo e inesquecível!"
+
+---
+
+# 📱 Roteiros dos Vídeos das 5 Etapas (Painel do Cliente)
+
+Estes roteiros são exibidos nos botões **"Assistir Vídeo com Iasis"** de cada etapa no Painel do Cliente, com duração calibrada em **~30 segundos** cada.
+
+---
+
+### 🎥 Etapa 01: O Resgate (Envio de Fotos e Áudios) — ⚠️ [REGRAVAÇÃO PENDENTE]
+* **Personagem / Apresentador:** Iasis (Agente IA)
+* **Duração Estimada:** ~30 segundos (~68 palavras)
+* **Movimentos do Avatar:** Gestos naturais e acolhedores com as mãos, leve sorriso e olhar empático.
+* **Tom de Voz:** Sereno, acolhedor, solene e instrutivo.
+
+#### 📝 Versão Limpa (Texto Oficial Aprovado):
+> "Seja bem-vindo à primeira etapa: O Resgate. Aqui recolhemos as preciosidades que darão vida à presença e à voz de quem trará essa mensagem tão especial. Para as fotos, envie até três registros individuais, nítidos e bem iluminados. Para a voz, anexe áudios claros e espontâneos gravados pelo WhatsApp ou vídeos caseiros. Assim que enviar pelo menos uma foto e um áudio, clique em Avançar para iniciarmos o roteiro!"
+
+#### 🎙️ Versão Técnica ElevenLabs (Com Tags de Emoção & Protocolo Gravando / Corta):
+> `Gravando... [warmly] Seja bem-vindo à primeira etapa: O Resgate. [peaceful] Aqui recolhemos as preciosidades que darão vida à presença e à voz de quem trará essa mensagem tão especial. [tenderly] Para as fotos, envie até três registros individuais, nítidos e bem iluminados. [thoughtful] Para a voz, anexe áudios claros e espontâneos gravados pelo WhatsApp ou vídeos caseiros. [warmly] Assim que enviar pelo menos uma foto e um áudio, clique em Avançar para iniciarmos o roteiro! [exhales softly] corta.`
+
+---
+
+### 🎥 Etapa 02: A Essência (Entrevista e Roteiro no Chat)
+* **Personagem / Apresentador:** Iasis (Agente IA)
+* **Duração Estimada:** ~30 segundos (~68 palavras)
+* **Movimentos do Avatar:** Gestos expressivos e atenciosos, transmitindo proximidade e escuta ativa.
+* **Tom de Voz:** Acolhedor, afetuoso e empático.
+
+#### 📝 Versão Limpa (Texto Oficial Aprovado):
+> "Chegamos à Essência, o coração da nossa homenagem. Aqui no chat faremos uma conversa acolhedora para capturar as memórias mais especiais, histórias inesquecíveis, conselhos e o tom das palavras que você quer ouvir. Com esses detalhes, vou estruturar e lapidar o roteiro perfeito dentro da duração do seu plano. Leia com carinho, ajuste o que desejar e aprove apenas quando as palavras tocarem a sua alma."
+
+#### 🎙️ Versão Técnica ElevenLabs (Com Tags de Emoção & Protocolo Gravando / Corta):
+> `Gravando... [warmly] Chegamos à Essência, o coração da nossa homenagem. [peaceful] Aqui no chat faremos uma conversa acolhedora para capturar as memórias mais especiais, [tenderly] histórias inesquecíveis, conselhos e o tom das palavras que você quer ouvir. [thoughtful] Com esses detalhes, vou estruturar e lapidar o roteiro perfeito dentro da duração do seu plano. [warmly] Leia com carinho, ajuste o que desejar e aprove apenas quando as palavras tocarem a sua alma. [sighs] corta.`
+
+---
+
+### 🎥 Etapa 03: A Harmonização (Cenário e Trilha Sonora)
+* **Personagem / Apresentador:** Iasis (Agente IA)
+* **Duração Estimada:** ~30 segundos (~69 palavras)
+* **Movimentos do Avatar:** Gestos suaves e abertos com serenidade.
+* **Tom de Voz:** Sereno, suave e inspirador.
+
+#### 📝 Versão Limpa (Texto Oficial Aprovado):
+> "Na etapa de Harmonização definimos a atmosfera visual e sonora da homenagem. Primeiro, escolha o cenário de fundo que melhor transmite a paz e a beleza desse reencontro: entre nuvens douradas, montanhas, oceano ou floresta. Em seguida, selecione a trilha instrumental: piano suave, violão acolhedor, violino ou a pureza apenas da voz. Escolha as opções que mais tocam o seu coração e clique em Avançar para a próxima fase!"
+
+#### 🎙️ Versão Técnica ElevenLabs (Com Tags de Emoção & Protocolo Gravando / Corta):
+> `Gravando... [warmly] Na etapa de Harmonização definimos a atmosfera visual e sonora da homenagem. [peaceful] Primeiro, escolha o cenário de fundo que melhor transmite a paz e a beleza desse reencontro: entre nuvens douradas, montanhas, oceano ou floresta. [thoughtful] Em seguida, selecione a trilha instrumental: piano suave, violão acolhedor, violino ou a pureza apenas da voz. [warmly] Escolha as opções que mais tocam o seu coração e clique em Avançar para a próxima fase! [exhales softly] corta.`
+
+---
+
+### 🎥 Etapa 04: A Lapidação (Aprovação de Imagem e Voz)
+* **Personagem / Apresentador:** Iasis (Agente IA)
+* **Duração Estimada:** ~30 segundos (~69 palavras)
+* **Movimentos do Avatar:** Gestos de segurança e incentivo, com leve inclinação e olhar confiante.
+* **Tom de Voz:** Seguro, solene e encorajador.
+
+#### 📝 Versão Limpa (Texto Oficial Aprovado):
+> "Na Lapidação, nossa arte e tecnologia apresentam a primeira prévia do trabalho. Aqui você confere a imagem em alta definição restaurada pela equipe e aperta o play para ouvir a amostra da voz clonada narrando o roteiro aprovado. Essa validação garante que o timbre e o sentimento estejam perfeitos antes da sincronização labial e renderização final do vídeo. Aprove com segurança para avançarmos ao grande momento!"
+
+#### 🎙️ Versão Técnica ElevenLabs (Com Tags de Emoção & Protocolo Gravando / Corta):
+> `Gravando... [warmly] Na Lapidação, nossa arte e tecnologia apresentam a primeira prévia do trabalho. [tenderly] Aqui você confere a imagem em alta definição restaurada pela equipe [peaceful] e aperta o play para ouvir a amostra da voz clonada narrando o roteiro aprovado. [thoughtful] Essa validação garante que o timbre e o sentimento estejam perfeitos antes da sincronização labial e renderização final do vídeo. [warmly] Aprove com segurança para avançarmos ao grande momento! [sighs] corta.`
+
+---
+
+### 🎥 Etapa 05: O Reencontro (Sala de Revelação e Download)
+* **Personagem / Apresentador:** Iasis (Agente IA)
+* **Duração Estimada:** ~30 segundos (~69 palavras)
+* **Movimentos do Avatar:** Sorriso radiante, postura nobre e gestos de celebração e carinho.
+* **Tom de Voz:** Emocionado, caloroso e celebrativo.
+
+#### 📝 Versão Limpa (Texto Oficial Aprovado):
+> "Chegamos ao momento mais esperado: O Reencontro! A sua homenagem está finalizada, com sincronia labial realista, imagem em altíssima definição e trilha harmonizada. Você já pode vivenciar essa emoção na nossa Sala de Revelação, baixar o vídeo nos formatos horizontal e vertical, ou presentear a sua família com essa memória inesquecível. Obrigado por confiar essa história tão linda à Reviva Memories. Emocione-se!"
+
+#### 🎙️ Versão Técnica ElevenLabs (Com Tags de Emoção & Protocolo Gravando / Corta):
+> `Gravando... [excited] Chegamos ao momento mais esperado: [happy] O Reencontro! [peaceful] A sua homenagem está finalizada, com sincronia labial realista, imagem em altíssima definição e trilha harmonizada. [warmly] Você já pode vivenciar essa emoção na nossa Sala de Revelação, baixar o vídeo nos formatos horizontal e vertical, [tenderly] ou presentear a sua família com essa memória inesquecível. [emotional voice] Obrigado por confiar essa história tão linda à Reviva Memories. [warmly] Emocione-se! [sighs] corta.`
 
 ---
 
