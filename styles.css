@@ -4418,3 +4418,72 @@ span.section-tag.handwritten-title {
 
 
 
+/* ==========================================================================
+   BOTÃO FLUTUANTE DE WHATSAPP (CANTO INFERIOR DIREITO)
+   ========================================================================== */
+.whatsapp-float-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999999;
+    width: 58px;
+    height: 58px;
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4), 0 2px 8px rgba(0, 0, 0, 0.5);
+    text-decoration: none;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+}
+
+.whatsapp-float-btn:hover {
+    transform: scale(1.1) translateY(-3px);
+    box-shadow: 0 12px 30px rgba(37, 211, 102, 0.6), 0 4px 12px rgba(0, 0, 0, 0.6);
+    background: linear-gradient(135deg, #2cf076 0%, #15a191 100%);
+}
+
+.whatsapp-float-btn i, .whatsapp-float-btn svg {
+    width: 30px;
+    height: 30px;
+    fill: currentColor;
+}
+
+.whatsapp-tooltip {
+    position: absolute;
+    right: 70px;
+    top: 50%;
+    transform: translateY(-50%) scale(0.9);
+    background: rgba(14, 9, 6, 0.92);
+    border: 1px solid rgba(197, 160, 89, 0.4);
+    color: #f6e3c5;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+.whatsapp-float-btn:hover .whatsapp-tooltip {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+}
+
+@keyframes waPulse {
+    0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6); }
+    70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+.whatsapp-float-btn.pulse-active {
+    animation: waPulse 2.5s infinite;
+}
