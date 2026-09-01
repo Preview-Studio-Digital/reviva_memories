@@ -2457,6 +2457,20 @@ body.video-active {
     touch-action: none !important;
 }
 
+/* Transição suave cinematográfica do conteúdo central e rodapé */
+.painel-card-main,
+.painel-footer-actions {
+    transition: opacity 1.8s ease-in-out, filter 1.8s ease-in-out !important;
+}
+
+/* Quando o vídeo é aberto: O conteúdo do painel e rodapé somem em um fade suave sincronizado com o vídeo */
+body.video-active .painel-card-main,
+body.video-active .painel-footer-actions {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    filter: blur(4px);
+}
+
 body.video-active .audio-player-widget {
     opacity: 0 !important;
     pointer-events: none !important;

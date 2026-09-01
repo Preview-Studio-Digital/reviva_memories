@@ -1200,14 +1200,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (chkPlanDetails) chkPlanDetails.textContent = `${duration} • ${formatText}`;
         if (chkPlanPrice) chkPlanPrice.textContent = priceText;
 
-        // Se o formulário estiver vazio, preenche com dados padrão
+        // Algoritmo Oficial da Receita Federal para Validação de CPF (Módulo 11)
+        window.validarCPF = function(cpf) {
+            if (!cpf || typeof cpf !== 'string') return false;
+            const limpo = cpf.replace(/\D/g, '');
+            if (limpo.length !== 11) return false;
+            if (/^(\d)\1{10}$/.test(limpo)) return false;
+
+            let soma = 0;
+            for (let i = 0; i < 9; i++) {
+                soma += parseInt(limpo.charAt(i), 10) * (10 - i);
+            }
+            let resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(limpo.charAt(9), 10)) return false;
+
+            soma = 0;
+            for (let i = 0; i < 10; i++) {
+                soma += parseInt(limpo.charAt(i), 10) * (11 - i);
+            }
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(limpo.charAt(10), 10)) return false;
+
+            return true;
+        };
+
+        // Se o formulário estiver vazio, preenche com dados padrão válidos de teste
         const nameInput = document.getElementById('chk-input-name');
         const cpfInput = document.getElementById('chk-input-cpf');
         const emailInput = document.getElementById('chk-input-email');
         const phoneInput = document.getElementById('chk-input-phone');
 
         if (nameInput && !nameInput.value) nameInput.value = 'Mariana Silva Santos';
-        if (cpfInput && !cpfInput.value) cpfInput.value = '123.456.789-00';
+        if (cpfInput && !cpfInput.value) cpfInput.value = '111.444.777-35';
         if (emailInput && !emailInput.value) emailInput.value = 'mariana.silva@exemplo.com';
         if (phoneInput && !phoneInput.value) phoneInput.value = '(11) 98765-4321';
 
@@ -1226,7 +1252,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const emailInput = document.getElementById('chk-input-email');
         const phoneInput = document.getElementById('chk-input-phone');
         if (nameInput) nameInput.value = 'Mariana Silva Santos';
-        if (cpfInput) cpfInput.value = '123.456.789-00';
+        if (cpfInput) cpfInput.value = '111.444.777-35';
         if (emailInput) emailInput.value = 'mariana.silva@exemplo.com';
         if (phoneInput) phoneInput.value = '(11) 98765-4321';
     };
@@ -1244,10 +1270,21 @@ document.addEventListener('DOMContentLoaded', () => {
     window.handleSimulateCheckout = function(e) {
         if (e) e.preventDefault();
         
-        const name = (document.getElementById('chk-input-name')?.value || 'Mariana Silva Santos').trim();
-        const cpf = (document.getElementById('chk-input-cpf')?.value || '123.456.789-00').trim();
-        const email = (document.getElementById('chk-input-email')?.value || 'mariana.silva@exemplo.com').trim();
-        const phone = (document.getElementById('chk-input-phone')?.value || '(11) 98765-4321').trim();
+        const name = (document.getElementById('chk-input-name')?.value || '').trim();
+        const cpf = (document.getElementById('chk-input-cpf')?.value || '').trim();
+        const email = (document.getElementById('chk-input-email')?.value || '').trim();
+        const phone = (document.getElementById('chk-input-phone')?.value || '').trim();
+
+        if (!name) {
+            alert('Por favor, informe seu nome completo.');
+            return;
+        }
+
+        if (!cpf || !window.validarCPF(cpf)) {
+            alert('CPF inválido! Por favor, digite um CPF real e válido com os 11 dígitos corretos para prosseguir.');
+            document.getElementById('chk-input-cpf')?.focus();
+            return;
+        }
 
         // Criar objeto de pedido
         const planInfo = currentSelectedPlanData || {
@@ -1292,10 +1329,41 @@ document.addEventListener('DOMContentLoaded', () => {
         fullState.legalTermSigned = null; // forçar novo aceite do termo
         fullState.clientName = name;
         fullState.clientCpf = cpf;
+        fullState.clientEmail = email;
+        fullState.clientPhone = phone;
         localStorage.setItem('reviva_full_session_state', JSON.stringify(fullState));
 
-        // Redirecionamento direto
-        window.location.href = 'termo.html';
+        // Simular notificação interativa pós-compra
+        const modalCheckout = document.getElementById('modal-checkout-simulado');
+        if (modalCheckout) {
+            modalCheckout.innerHTML = `
+                <div style="text-align: center; padding: 20px 10px; font-family: 'Inter', sans-serif;">
+                    <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(34, 197, 94, 0.15); border: 2px solid #4ade80; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);">
+                        <i data-lucide="check" style="width: 32px; height: 32px; color: #4ade80;"></i>
+                    </div>
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; color: #f6e3c5; margin: 0 0 6px 0;">PAGAMENTO APROVADO COM SUCESSO!</h3>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin: 0 0 20px 0; line-height: 1.4;">Parabéns, <strong>${name}</strong>! Seu pedido do <strong>${planInfo.planName}</strong> foi confirmado.</p>
+
+                    <div style="background: rgba(14, 9, 6, 0.7); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 8px; padding: 14px; text-align: left; margin-bottom: 20px; font-size: 0.78rem; line-height: 1.6; color: #e2e8f0;">
+                        <div style="color: #e5c378; font-weight: 700; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="send" style="width: 14px; height: 14px;"></i> NOTIFICAÇÕES DE ACESSO ENVIADAS:
+                        </div>
+                        <div style="margin-bottom: 6px;">📧 <strong>E-mail:</strong> Enviado para <em>${email}</em> com seu link de acesso exclusivo.</div>
+                        <div style="margin-bottom: 6px;">💬 <strong>WhatsApp:</strong> Enviado para <em>${phone}</em> com as instruções do pedido.</div>
+                        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(197, 160, 89, 0.2); color: #94a3b8; font-size: 0.73rem;">
+                            🔒 <strong>Acesso Permanente:</strong> Você pode retornar ao seu painel a qualquer momento clicando em <strong>"MEU PAINEL"</strong> no site e digitando seu CPF (<em>${cpf}</em>).
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="window.location.href='termo.html'" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #c5a059 0%, #9c7247 100%); border: 1px solid #e5c378; border-radius: 8px; color: #fff; font-weight: 700; font-size: 0.88rem; letter-spacing: 0.6px; cursor: pointer; box-shadow: 0 4px 20px rgba(197, 160, 89, 0.4); text-transform: uppercase;">
+                        PROSSEGUIR PARA O PAINEL AGORA →
+                    </button>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+        } else {
+            window.location.href = 'termo.html';
+        }
         return false;
     };
 

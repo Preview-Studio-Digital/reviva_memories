@@ -70,18 +70,19 @@
             flex-direction: column;
             justify-content: space-between;
             position: relative;
-            z-index: 10;
+            z-index: 100005;
             padding: 8px 24px;
             box-sizing: border-box;
             background: transparent !important;
         }
 
-        /* Topbar Nobre Flutuante 100% Transparente */
+        /* Topbar Nobre Flutuante 100% Transparente (Acima do Vídeo Modal em todas as Etapas) */
         .painel-topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: relative;
+            z-index: 100005 !important;
             border: none;
             background: transparent;
             backdrop-filter: none;
@@ -111,12 +112,13 @@
             text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9), 0 0 20px rgba(197, 160, 89, 0.25);
         }
 
-        /* Stepper das 4 Etapas: Fio de Ouro Conector entre Círculos (Alinhamento 100% com os Cards) */
+        /* Stepper das 4 Etapas: Fio de Ouro Conector entre Círculos (Acima do Vídeo Modal) */
         .stepper-container {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             position: relative;
+            z-index: 100005 !important;
             max-width: 1040px;
             margin: 12px auto 14px auto;
             width: 100%;
@@ -745,7 +747,7 @@
             flex: 1;
             height: 100%;
             min-height: 0;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .scenario-card-full {
@@ -797,11 +799,104 @@
             box-shadow: 0 0 16px rgba(229, 195, 120, 0.45);
         }
 
+        .scenario-name-btn {
+            background: rgba(14, 9, 6, 0.65);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: 6px;
+            color: #d1d5db;
+            font-size: 0.73rem;
+            font-weight: 600;
+            padding: 0 8px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 6px;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            box-sizing: border-box;
+            transition: all 0.25s ease;
+            text-align: left;
+        }
+
+        .scenario-name-btn .btn-check-icon {
+            order: 1;
+        }
+
+        .scenario-name-btn .btn-title-text {
+            order: 2;
+        }
+
+        /* Alinhamento dos botões da coluna direita: texto à direita e ícone na extrema direita */
+        .scenario-name-btn.btn-align-right {
+            justify-content: space-between;
+            flex-direction: row;
+            text-align: right;
+        }
+
+        .scenario-name-btn.btn-align-right .btn-check-icon {
+            order: 2;
+            margin-left: 6px;
+            margin-right: 0;
+            flex-shrink: 0;
+        }
+
+        .scenario-name-btn.btn-align-right .btn-title-text {
+            order: 1;
+            margin-left: auto;
+            text-align: right;
+            width: 100%;
+        }
+
+        .scenario-name-btn:hover {
+            border-color: #e5c378;
+            background: rgba(197, 160, 89, 0.15);
+            color: #f6e3c5;
+            box-shadow: 0 0 10px rgba(229, 195, 120, 0.25);
+        }
+
+        .scenario-name-btn.selected {
+            background: linear-gradient(135deg, rgba(197, 160, 89, 0.3) 0%, rgba(125, 91, 56, 0.45) 100%);
+            border: 1.5px solid #e5c378;
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: 0 0 14px rgba(229, 195, 120, 0.4), inset 0 0 8px rgba(229, 195, 120, 0.2);
+        }
+
+        .scenario-name-btn .btn-check-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.65rem;
+            color: transparent;
+            flex-shrink: 0;
+            transition: all 0.25s ease;
+        }
+
+        .scenario-name-btn.selected .btn-check-icon {
+            background: #e5c378;
+            border-color: #f6e3c5;
+            color: #140d08;
+            box-shadow: 0 0 6px rgba(229, 195, 120, 0.8);
+        }
+
+        .scenario-name-btn .btn-title-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .scenario-card-full.selected {
             border-color: #f7d58a;
             border-width: 2.5px;
             box-shadow: 0 0 24px rgba(229, 195, 120, 0.75), inset 0 0 16px rgba(229, 195, 120, 0.3);
-            transform: scale(1.02);
+            transform: scale(1);
             z-index: 5;
         }
 
@@ -1135,10 +1230,13 @@
         }
 
         .sample-play-btn-center:hover {
-            transform: scale(1.08) !important;
-            background: rgba(229, 195, 120, 0.1) !important;
+            background: rgba(229, 195, 120, 0.15) !important;
             border-color: #ffffff !important;
-            box-shadow: 0 0 30px rgba(229, 195, 120, 0.7), 0 0 50px rgba(197, 160, 89, 0.4) !important;
+            box-shadow: 0 0 30px rgba(229, 195, 120, 0.8), 0 0 50px rgba(197, 160, 89, 0.5) !important;
+        }
+
+        #btn-play-music-preview:hover {
+            transform: translate(-50%, -50%) scale(1.08) !important;
         }
 
         .sample-play-btn-center:hover svg {
@@ -2405,7 +2503,7 @@
                 <div style="font-size: 0.8rem; color: var(--text-secondary);">
                     Olá, <strong id="topbar-user-name" style="color: #f6e3c5;">Mariana</strong>
                 </div>
-                <a href="index.html" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">Sair</a>
+                <a href="login.html" onclick="localStorage.removeItem('reviva_order_data'); localStorage.removeItem('reviva_session_user'); localStorage.removeItem('reviva_legal_term'); localStorage.removeItem('reviva_full_session_state');" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">Sair</a>
             </div>
         </header>
 
@@ -2660,165 +2758,150 @@
                         <!-- Linha dos Dois Painéis Lado a Lado Separados em Dois Cards -->
                         <div class="upload-zones-row" id="step3-grid-container" style="display: flex; flex-direction: row; gap: 14px; flex: 1; min-height: 0; width: 100%;">
                             
-                            <!-- Card da Esquerda: Trilha Sonora -->
-                            <div class="upload-zone-compact" style="flex: 1 1 0%; min-height: 0; width: 50%; padding: 10px 12px; display: flex; flex-direction: column; cursor: default;">
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; flex-shrink: 0;">
+                            <!-- Card da Esquerda: Trilha Sonora (Reestruturado idêntico ao lado direito) -->
+                            <div class="upload-zone-compact" style="flex: 1 1 0%; min-height: 0; width: 50%; padding: 8px 10px; display: flex; flex-direction: column; cursor: default; gap: 6px;">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-shrink: 0;">
                                     <i data-lucide="music" style="width: 16px; height: 16px; color: #e5c378;"></i>
                                     <h4 style="color: #f6e3c5; font-size: 0.84rem; margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Trilha Sonora</h4>
                                 </div>
-                                <div class="scenarios-vertical-container" id="musicContainer" style="display: flex; flex-direction: column; gap: 6px; flex: 1; height: 100%; min-height: 0;">
-                                    <!-- Trilha Padrão: Sem Trilha -->
-                                    <div class="scenario-card-full selected" data-music="sem_musica" data-title="Sem Trilha">
-                                        <img src="trilha_sem_trilha.jpg" alt="Sem Trilha" class="scenario-full-bg-img">
-                                        <div class="scenario-full-bg-scrim"></div>
-                                        <div class="scenario-card-inner-content">
-                                            <div class="scenario-details">
-                                                <div class="scenario-name">Sem Trilha</div>
-                                            </div>
-                                            <div class="scenario-radio-check">✓</div>
-                                        </div>
-                                    </div>
 
-                                    <!-- Trilha 1: Piano -->
-                                    <div class="scenario-card-full" data-music="piano" data-title="Piano">
-                                        <img src="trilha_piano.jpg" alt="Piano" class="scenario-full-bg-img">
-                                        <div class="scenario-full-bg-scrim"></div>
-                                        <div class="scenario-card-inner-content">
-                                            <div class="scenario-details">
-                                                <div class="scenario-name">Piano</div>
-                                            </div>
-                                            <div class="scenario-radio-check">✓</div>
-                                        </div>
-                                    </div>
+                                <!-- Metade Superior: Showcase/Preview da Trilha Selecionada + Botão Play/Pause Centralizado -->
+                                <div id="music-preview-showcase" style="position: relative; flex: 1 1 50%; min-height: 0; width: 100%; border-radius: 8px; overflow: hidden; border: 1.5px solid rgba(197, 160, 89, 0.4); background: #000; box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);">
+                                    <img id="music-preview-img" src="trilha_sons_naturais.jpg" alt="Trilha Selecionada" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85) saturate(1.1); transition: opacity 0.3s ease, transform 0.4s ease;">
+                                    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.25) 50%, rgba(0, 0, 0, 0.4) 100%); pointer-events: none;"></div>
+                                    
+                                    <!-- Botão de Play/Pause Circulado em Ouro Centralizado na Imagem -->
+                                    <button type="button" id="btn-play-music-preview" class="sample-play-btn-center" aria-label="Tocar Amostra" title="Ouvir Amostra da Trilha" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 4; cursor: pointer; border: 2px solid #e5c378; background: rgba(14, 9, 6, 0.65); color: #e5c378; box-shadow: 0 0 20px rgba(229, 195, 120, 0.4), inset 0 0 10px rgba(229, 195, 120, 0.2); transition: all 0.3s ease;">
+                                        <i data-lucide="play" style="width: 20px; height: 20px; stroke-width: 2.2; margin-left: 2px;"></i>
+                                    </button>
 
-                                    <!-- Trilha 2: Violino -->
-                                    <div class="scenario-card-full" data-music="violino" data-title="Violino">
-                                        <img src="trilha_violino.jpg" alt="Violino" class="scenario-full-bg-img">
-                                        <div class="scenario-full-bg-scrim"></div>
-                                        <div class="scenario-card-inner-content">
-                                            <div class="scenario-details">
-                                                <div class="scenario-name">Violino</div>
-                                            </div>
-                                            <div class="scenario-radio-check">✓</div>
-                                        </div>
+                                    <!-- Nome da Trilha no Rodapé da Imagem -->
+                                    <div style="position: absolute; bottom: 8px; left: 12px; right: 12px; display: flex; align-items: center; z-index: 3; pointer-events: none;">
+                                        <span id="music-preview-name" style="color: #ffffff; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; text-shadow: 0 2px 6px rgba(0,0,0,0.9);">Sons Naturais</span>
                                     </div>
+                                </div>
 
-                                    <!-- Trilha 3: Violão -->
-                                    <div class="scenario-card-full" data-music="violao" data-title="Violão">
-                                        <img src="trilha_violao.jpg" alt="Violão" class="scenario-full-bg-img">
-                                        <div class="scenario-full-bg-scrim"></div>
-                                        <div class="scenario-card-inner-content">
-                                            <div class="scenario-details">
-                                                <div class="scenario-name">Violão</div>
-                                            </div>
-                                            <div class="scenario-radio-check">✓</div>
-                                        </div>
-                                    </div>
+                                <!-- Metade Inferior: Grid de 2 Colunas x 4 Linhas com os 8 Instrumentos Isolados -->
+                                <div class="scenarios-grid-container" id="musicContainer" style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); gap: 5px; flex: 1 1 50%; height: 100%; min-height: 0; width: 100%; box-sizing: border-box;">
+                                    
+                                    <!-- 1. Sons Naturais -->
+                                    <button type="button" class="scenario-name-btn selected" data-music="sem_musica" data-preview-src="trilha_sons_naturais.jpg" data-audio-src="trilha_sons_naturais.mp3" data-title="Sons Naturais">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Sons Naturais</span>
+                                    </button>
+
+                                    <!-- 2. Violão Acústico -->
+                                    <button type="button" class="scenario-name-btn btn-align-right" data-music="violao" data-preview-src="trilha_violao.jpg" data-audio-src="trilha_violao.mp3" data-title="Violão Acústico">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Violão Acústico</span>
+                                    </button>
+
+                                    <!-- 3. Piano Suave -->
+                                    <button type="button" class="scenario-name-btn" data-music="piano" data-preview-src="trilha_piano.jpg" data-audio-src="trilha_piano.mp3" data-title="Piano Suave">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Piano Suave</span>
+                                    </button>
+
+                                    <!-- 4. Violino Emocionante -->
+                                    <button type="button" class="scenario-name-btn btn-align-right" data-music="violino" data-preview-src="trilha_violino.jpg" data-audio-src="trilha_violino.mp3" data-title="Violino Emocionante">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Violino Emocionante</span>
+                                    </button>
+
+                                    <!-- 5. Flauta Celestial -->
+                                    <button type="button" class="scenario-name-btn" data-music="flauta" data-preview-src="trilha_flauta.jpg" data-title="Flauta Celestial">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Flauta Celestial</span>
+                                    </button>
+
+                                    <!-- 6. Saxofone Sereno -->
+                                    <button type="button" class="scenario-name-btn btn-align-right" data-music="saxofone" data-preview-src="trilha_saxofone.jpg" data-title="Saxofone Sereno">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Saxofone Sereno</span>
+                                    </button>
+
+                                    <!-- 7. Guitarra Melódica -->
+                                    <button type="button" class="scenario-name-btn" data-music="guitarra" data-preview-src="trilha_guitarra.jpg" data-title="Guitarra Melódica">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Guitarra Melódica</span>
+                                    </button>
+
+                                    <!-- 8. Harpa Angelical -->
+                                    <button type="button" class="scenario-name-btn btn-align-right" data-music="harpa" data-preview-src="trilha_harpa.jpg" data-audio-src="trilha_harpa.mp3" data-title="Harpa Angelical">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Harpa Angelical</span>
+                                    </button>
+
                                 </div>
                             </div>
 
-                            <!-- Card da Direita: Ambientes de Fundo -->
-                            <div class="upload-zone-compact" style="flex: 1 1 0%; min-height: 0; width: 50%; padding: 10px 12px; display: flex; flex-direction: column; cursor: default;">
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; flex-shrink: 0;">
+                            <!-- Card da Direita: Ambientes de Fundo (Reestruturado: Metade Superior Preview + Metade Inferior Grid 2x4) -->
+                            <div class="upload-zone-compact" style="flex: 1 1 0%; min-height: 0; width: 50%; padding: 8px 10px; display: flex; flex-direction: column; cursor: default; gap: 6px;">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-shrink: 0;">
                                     <i data-lucide="image" style="width: 16px; height: 16px; color: #e5c378;"></i>
                                     <h4 style="color: #f6e3c5; font-size: 0.84rem; margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Ambiente de Fundo</h4>
                                 </div>
-                                <div class="scenarios-grid-container" id="scenariosContainer" style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); gap: 6px; flex: 1; height: 100%; min-height: 0;">
-                                    <!-- Ambiente 1: Nuvens -->
-                                    <div class="scenario-card-full selected" data-bg="ceu" data-preview-src="assets/ambientes/bg_ceu.jpg" data-title="Nuvens Celestiais">
-                                        <img src="assets/ambientes/bg_ceu.jpg" alt="Nuvens Celestiais" class="scenario-full-bg-img">
-                                        <div class="scenario-full-bg-scrim"></div>
-                                        <div class="scenario-card-inner-content">
-                                            <div class="scenario-details">
-                                                <div class="scenario-name">Nuvens Celestiais</div>
-                                            </div>
-                                            <div class="scenario-radio-check">✓</div>
-                                        </div>
-                                    </div>
 
-                                    <!-- Ambiente 2: Montanhas -->
-                                    <div class="scenario-card-full" data-bg="montanhas" data-preview-src="assets/ambientes/bg_montanhas.jpg" data-title="Montanhas Serenas">
-                                        <img src="assets/ambientes/bg_montanhas.jpg" alt="Montanhas" class="scenario-full-bg-img">
-                                        <div class="scenario-full-bg-scrim"></div>
-                                        <div class="scenario-card-inner-content">
-                                            <div class="scenario-details">
-                                                <div class="scenario-name">Montanhas Serenas</div>
-                                            </div>
-                                            <div class="scenario-radio-check">✓</div>
-                                        </div>
+                                <!-- Metade Superior: Showcase/Preview da Paisagem Selecionada (50% da altura) -->
+                                <div id="scenario-preview-showcase" style="position: relative; flex: 1 1 50%; min-height: 0; width: 100%; border-radius: 8px; overflow: hidden; border: 1.5px solid rgba(197, 160, 89, 0.4); background: #000; box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);">
+                                    <img id="scenario-preview-img" src="assets/ambientes/bg_ceu.jpg" alt="Paisagem Selecionada" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.9) saturate(1.1); transition: opacity 0.3s ease, transform 0.4s ease;">
+                                    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%); pointer-events: none;"></div>
+                                    <div style="position: absolute; bottom: 8px; left: 12px; right: 12px; display: flex; justify-content: flex-start; align-items: center; pointer-events: none; z-index: 2;">
+                                        <span id="scenario-preview-name" style="color: #ffffff; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; text-shadow: 0 2px 6px rgba(0,0,0,0.9);">Nuvens Celestiais</span>
                                     </div>
+                                </div>
 
-                                    <!-- Ambiente 3: Floresta -->
-                                    <div class="scenario-card-full" data-bg="floresta" data-preview-src="assets/ambientes/bg_floresta.jpg" data-title="Floresta Encantada">
-                                        <img src="assets/ambientes/bg_floresta.jpg" alt="Floresta" class="scenario-full-bg-img">
-                                        <div class="scenario-full-bg-scrim"></div>
-                                        <div class="scenario-card-inner-content">
-                                            <div class="scenario-details">
-                                                <div class="scenario-name">Floresta Encantada</div>
-                                            </div>
-                                            <div class="scenario-radio-check">✓</div>
-                                        </div>
-                                    </div>
+                                <!-- Metade Inferior: Grid de 2 Colunas x 4 Linhas com Nomes das Paisagens -->
+                                <div class="scenarios-grid-container" id="scenariosContainer" style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); gap: 5px; flex: 1 1 50%; height: 100%; min-height: 0; width: 100%; box-sizing: border-box;">
+                                    
+                                    <!-- 1. Nuvens Celestiais -->
+                                    <button type="button" class="scenario-name-btn selected" data-bg="ceu" data-preview-src="assets/ambientes/bg_ceu.jpg" data-title="Nuvens Celestiais">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Nuvens Celestiais</span>
+                                    </button>
 
-                                    <!-- Ambiente 4: Girassóis -->
-                                    <div class="scenario-card-full" data-bg="girassois" data-preview-src="assets/ambientes/bg_girassois.jpg" data-title="Campo de Girassóis">
-                                        <img src="assets/ambientes/bg_girassois.jpg" alt="Girassóis" class="scenario-full-bg-img">
-                                        <div class="scenario-full-bg-scrim"></div>
-                                        <div class="scenario-card-inner-content">
-                                            <div class="scenario-details">
-                                                <div class="scenario-name">Campo de Girassóis</div>
-                                            </div>
-                                            <div class="scenario-radio-check">✓</div>
-                                        </div>
-                                    </div>
+                                    <!-- 2. Montanhas Serenas -->
+                                    <button type="button" class="scenario-name-btn btn-align-right" data-bg="montanhas" data-preview-src="assets/ambientes/bg_montanhas.jpg" data-title="Montanhas Serenas">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Montanhas Serenas</span>
+                                    </button>
 
-                                    <!-- Ambiente 5: Lago -->
-                                    <div class="scenario-card-full" data-bg="lago" data-preview-src="assets/ambientes/bg_lago.jpg" data-title="Lago Cristalino">
-                                        <img src="assets/ambientes/bg_lago.jpg" alt="Lago" class="scenario-full-bg-img">
-                                        <div class="scenario-full-bg-scrim"></div>
-                                        <div class="scenario-card-inner-content">
-                                            <div class="scenario-details">
-                                                <div class="scenario-name">Lago Cristalino</div>
-                                            </div>
-                                            <div class="scenario-radio-check">✓</div>
-                                        </div>
-                                    </div>
+                                    <!-- 3. Floresta Encantada -->
+                                    <button type="button" class="scenario-name-btn" data-bg="floresta" data-preview-src="assets/ambientes/bg_floresta.jpg" data-title="Floresta Encantada">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Floresta Encantada</span>
+                                    </button>
 
-                                    <!-- Ambiente 6: Palmeiras -->
-                                    <div class="scenario-card-full" data-bg="palmeiras" data-preview-src="assets/ambientes/bg_palmeiras.jpg" data-title="Palmeiras Tropicais">
-                                        <img src="assets/ambientes/bg_palmeiras.jpg" alt="Palmeiras" class="scenario-full-bg-img">
-                                        <div class="scenario-full-bg-scrim"></div>
-                                        <div class="scenario-card-inner-content">
-                                            <div class="scenario-details">
-                                                <div class="scenario-name">Palmeiras Tropicais</div>
-                                            </div>
-                                            <div class="scenario-radio-check">✓</div>
-                                        </div>
-                                    </div>
+                                    <!-- 4. Campo de Girassóis -->
+                                    <button type="button" class="scenario-name-btn btn-align-right" data-bg="girassois" data-preview-src="assets/ambientes/bg_girassois.jpg" data-title="Campo de Girassóis">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Campo de Girassóis</span>
+                                    </button>
 
-                                    <!-- Ambiente 7: Vale -->
-                                    <div class="scenario-card-full" data-bg="vale" data-preview-src="assets/ambientes/bg_vale.jpg" data-title="Vale Dourado">
-                                        <img src="assets/ambientes/bg_vale.jpg" alt="Vale Dourado" class="scenario-full-bg-img">
-                                        <div class="scenario-full-bg-scrim"></div>
-                                        <div class="scenario-card-inner-content">
-                                            <div class="scenario-details">
-                                                <div class="scenario-name">Vale Dourado</div>
-                                            </div>
-                                            <div class="scenario-radio-check">✓</div>
-                                        </div>
-                                    </div>
+                                    <!-- 5. Lago Cristalino -->
+                                    <button type="button" class="scenario-name-btn" data-bg="lago" data-preview-src="assets/ambientes/bg_lago.jpg" data-title="Lago Cristalino">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Lago Cristalino</span>
+                                    </button>
 
-                                    <!-- Ambiente 8: Descampado -->
-                                    <div class="scenario-card-full" data-bg="descampado" data-preview-src="assets/ambientes/bg_descampado.jpg" data-title="Descampado Verdejante">
-                                        <img src="assets/ambientes/bg_descampado.jpg" alt="Descampado Verdejante" class="scenario-full-bg-img">
-                                        <div class="scenario-full-bg-scrim"></div>
-                                        <div class="scenario-card-inner-content">
-                                            <div class="scenario-details">
-                                                <div class="scenario-name">Descampado Verdejante</div>
-                                            </div>
-                                            <div class="scenario-radio-check">✓</div>
-                                        </div>
-                                    </div>
+                                    <!-- 6. Palmeiras Tropicais -->
+                                    <button type="button" class="scenario-name-btn btn-align-right" data-bg="palmeiras" data-preview-src="assets/ambientes/bg_palmeiras.jpg" data-title="Palmeiras Tropicais">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Palmeiras Tropicais</span>
+                                    </button>
+
+                                    <!-- 7. Vale Dourado -->
+                                    <button type="button" class="scenario-name-btn" data-bg="vale" data-preview-src="assets/ambientes/bg_vale.jpg" data-title="Vale Dourado">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Vale Dourado</span>
+                                    </button>
+
+                                    <!-- 8. Descampado Verdejante -->
+                                    <button type="button" class="scenario-name-btn btn-align-right" data-bg="descampado" data-preview-src="assets/ambientes/bg_descampado.jpg" data-title="Descampado Verdejante">
+                                        <span class="btn-check-icon">✓</span>
+                                        <span class="btn-title-text">Descampado Verdejante</span>
+                                    </button>
+
                                 </div>
                             </div>
                         </div>

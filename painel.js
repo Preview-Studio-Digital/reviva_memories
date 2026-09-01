@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         scriptPlanBadge.textContent = `${currentPlan.title} • Máx ${currentPlan.maxChars} caracteres`;
     }
 
-    // Estado da sessão
+    // Estado da sessão (Padrões da Etapa 3: Sem Trilha Sonora e Nuvens Celestiais)
     let uploadedPhotos = [];
     let uploadedAudios = [];
     let selectedBackground = 'ceu';
@@ -457,12 +457,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (step === 3) {
             // Garantir que sempre haja uma paisagem e uma trilha sonora selecionadas
-            const scenarioCards = document.querySelectorAll('#scenariosContainer .scenario-card-full');
+            const scenarioCards = document.querySelectorAll('#scenariosContainer .scenario-name-btn');
             let hasSelectedBg = false;
             scenarioCards.forEach(c => {
                 if (c.dataset.bg === selectedBackground) {
                     c.classList.add('selected');
                     hasSelectedBg = true;
+                    const previewImg = document.getElementById('scenario-preview-img');
+                    const previewName = document.getElementById('scenario-preview-name');
+                    if (previewImg && c.dataset.previewSrc) previewImg.src = c.dataset.previewSrc;
+                    if (previewName && c.dataset.title) previewName.textContent = c.dataset.title;
                 } else {
                     c.classList.remove('selected');
                 }
@@ -470,26 +474,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!hasSelectedBg && scenarioCards.length > 0) {
                 scenarioCards[0].classList.add('selected');
                 selectedBackground = scenarioCards[0].dataset.bg || 'ceu';
+                const previewImg = document.getElementById('scenario-preview-img');
+                const previewName = document.getElementById('scenario-preview-name');
+                if (previewImg && scenarioCards[0].dataset.previewSrc) previewImg.src = scenarioCards[0].dataset.previewSrc;
+                if (previewName && scenarioCards[0].dataset.title) previewName.textContent = scenarioCards[0].dataset.title;
             }
 
-            // Garantir que "Sem Trilha" (sem_musica) seja o padrão se o cliente não escolheu outra manualmente
+            // Garantir que "Sons Naturais" (sem_musica) seja o padrão se o cliente não escolheu outra manualmente
             if (!musicManuallyChosen) {
                 selectedMusic = 'sem_musica';
             }
-            const musicCards = document.querySelectorAll('#musicContainer .scenario-card-full');
+            const musicCards = document.querySelectorAll('#musicContainer .scenario-name-btn');
             let hasSelectedMusic = false;
             musicCards.forEach(c => {
                 if (c.dataset.music === selectedMusic) {
                     c.classList.add('selected');
                     hasSelectedMusic = true;
+                    const previewImg = document.getElementById('music-preview-img');
+                    const previewName = document.getElementById('music-preview-name');
+                    if (previewImg && c.dataset.previewSrc) previewImg.src = c.dataset.previewSrc;
+                    if (previewName && c.dataset.title) previewName.textContent = c.dataset.title;
                 } else {
                     c.classList.remove('selected');
                 }
             });
             if (!hasSelectedMusic) {
-                const semTrilhaCard = document.querySelector('#musicContainer .scenario-card-full[data-music="sem_musica"]');
+                const semTrilhaCard = document.querySelector('#musicContainer .scenario-name-btn[data-music="sem_musica"]');
                 if (semTrilhaCard) {
                     semTrilhaCard.classList.add('selected');
+                    const previewImg = document.getElementById('music-preview-img');
+                    const previewName = document.getElementById('music-preview-name');
+                    if (previewImg && semTrilhaCard.dataset.previewSrc) previewImg.src = semTrilhaCard.dataset.previewSrc;
+                    if (previewName && semTrilhaCard.dataset.title) previewName.textContent = semTrilhaCard.dataset.title;
                 }
                 selectedMusic = 'sem_musica';
             }
@@ -861,11 +877,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateNextStep1ButtonState();
     };
 
-    document.querySelectorAll('#scenariosContainer .scenario-card-full').forEach(card => {
+    document.querySelectorAll('#scenariosContainer .scenario-name-btn').forEach(card => {
         card.addEventListener('click', () => {
-            document.querySelectorAll('#scenariosContainer .scenario-card-full').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('#scenariosContainer .scenario-name-btn').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             selectedBackground = card.dataset.bg;
+
+            const previewImg = document.getElementById('scenario-preview-img');
+            const previewName = document.getElementById('scenario-preview-name');
+            if (previewImg && card.dataset.previewSrc) {
+                previewImg.style.opacity = '0.5';
+                setTimeout(() => {
+                    previewImg.src = card.dataset.previewSrc;
+                    previewImg.style.opacity = '1';
+                }, 150);
+            }
+            if (previewName && card.dataset.title) {
+                previewName.textContent = card.dataset.title;
+            }
 
             const labelSelected = document.getElementById('label-selected-bg');
             if (labelSelected) {
@@ -1075,9 +1104,13 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
             // 2. Restaurar Cenário e Trilha
             if (state.selectedBackground) {
                 selectedBackground = state.selectedBackground;
-                document.querySelectorAll('#scenariosContainer .scenario-card-full').forEach(c => {
+                document.querySelectorAll('#scenariosContainer .scenario-name-btn').forEach(c => {
                     if (c.dataset.bg === selectedBackground) {
                         c.classList.add('selected');
+                        const previewImg = document.getElementById('scenario-preview-img');
+                        const previewName = document.getElementById('scenario-preview-name');
+                        if (previewImg && c.dataset.previewSrc) previewImg.src = c.dataset.previewSrc;
+                        if (previewName && c.dataset.title) previewName.textContent = c.dataset.title;
                     } else {
                         c.classList.remove('selected');
                     }
@@ -1094,9 +1127,13 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
                 selectedMusic = 'sem_musica';
             }
 
-            document.querySelectorAll('#musicContainer .scenario-card-full').forEach(c => {
+            document.querySelectorAll('#musicContainer .scenario-name-btn').forEach(c => {
                 if (c.dataset.music === selectedMusic) {
                     c.classList.add('selected');
+                    const previewImg = document.getElementById('music-preview-img');
+                    const previewName = document.getElementById('music-preview-name');
+                    if (previewImg && c.dataset.previewSrc) previewImg.src = c.dataset.previewSrc;
+                    if (previewName && c.dataset.title) previewName.textContent = c.dataset.title;
                 } else {
                     c.classList.remove('selected');
                 }
@@ -2056,13 +2093,170 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         updateNextStep1ButtonState();
     };
 
-    // Seletor de Trilha Sonora (Mesmo Formato e Animação das Paisagens)
-    document.querySelectorAll('#musicContainer .scenario-card-full').forEach(card => {
+    // Player de Amostra de Trilha Sonora com Pause Imediato e Fade Out nos últimos 5 segundos
+    let currentPreviewAudio = null;
+    let previewFadeInterval = null;
+
+    function stopMusicPreviewImmediately() {
+        if (previewFadeInterval) {
+            clearInterval(previewFadeInterval);
+            previewFadeInterval = null;
+        }
+
+        if (currentPreviewAudio) {
+            currentPreviewAudio.pause();
+            currentPreviewAudio = null;
+        }
+
+        updateMusicPreviewBtnUI(false);
+
+        // Restaurar imediatamente a música de fundo do site
+        if (typeof window.fadeAudioVolume === 'function') {
+            const targetVol = typeof window.getTargetBgVolume === 'function' ? window.getTargetBgVolume() : 0.5;
+            window.fadeAudioVolume(targetVol, 400);
+        }
+    }
+
+    function stopMusicPreviewWithFade(callback) {
+        if (!currentPreviewAudio) {
+            if (typeof window.fadeAudioVolume === 'function') {
+                const targetVol = typeof window.getTargetBgVolume === 'function' ? window.getTargetBgVolume() : 0.5;
+                window.fadeAudioVolume(targetVol, 800);
+            }
+            if (callback) callback();
+            return;
+        }
+
+        if (previewFadeInterval) {
+            clearInterval(previewFadeInterval);
+            previewFadeInterval = null;
+        }
+
+        const audio = currentPreviewAudio;
+        const startVolume = audio.volume;
+        const fadeDuration = 5000; // 5 segundos de Fade Out no final da música
+        const intervalTime = 100;
+        const steps = fadeDuration / intervalTime;
+        const volumeStep = startVolume / steps;
+
+        if (typeof window.fadeAudioVolume === 'function') {
+            const targetVol = typeof window.getTargetBgVolume === 'function' ? window.getTargetBgVolume() : 0.5;
+            window.fadeAudioVolume(targetVol, 3000);
+        }
+
+        previewFadeInterval = setInterval(() => {
+            if (audio.volume > volumeStep) {
+                audio.volume -= volumeStep;
+            } else {
+                audio.volume = 0;
+                audio.pause();
+                clearInterval(previewFadeInterval);
+                previewFadeInterval = null;
+                if (currentPreviewAudio === audio) {
+                    currentPreviewAudio = null;
+                }
+                updateMusicPreviewBtnUI(false);
+                if (callback) callback();
+            }
+        }, intervalTime);
+    }
+
+    function updateMusicPreviewBtnUI(isPlaying) {
+        const btn = document.getElementById('btn-play-music-preview');
+        if (!btn) return;
+        btn.innerHTML = isPlaying
+            ? `<i data-lucide="pause" style="width: 20px; height: 20px; stroke-width: 2.2;"></i>`
+            : `<i data-lucide="play" style="width: 20px; height: 20px; stroke-width: 2.2; margin-left: 2px;"></i>`;
+        if (window.lucide) lucide.createIcons();
+    }
+
+    const btnPlayMusicPreview = document.getElementById('btn-play-music-preview');
+    if (btnPlayMusicPreview) {
+        btnPlayMusicPreview.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Ao clicar no botão enquanto toca, faz o PAUSE IMEDIATO (sem fade out)
+            if (currentPreviewAudio && !currentPreviewAudio.paused) {
+                stopMusicPreviewImmediately();
+                return;
+            }
+
+            const selectedBtn = document.querySelector('#musicContainer .scenario-name-btn.selected');
+            const audioSrc = selectedBtn?.dataset?.audioSrc;
+
+            if (!audioSrc) {
+                alert('Amostra de áudio ainda não disponível para este instrumento.');
+                return;
+            }
+
+            if (currentPreviewAudio) {
+                currentPreviewAudio.pause();
+                currentPreviewAudio = null;
+            }
+            if (previewFadeInterval) {
+                clearInterval(previewFadeInterval);
+                previewFadeInterval = null;
+            }
+
+            // Silenciar totalmente a música de fundo do site (bgAudio)
+            if (typeof window.fadeAudioVolume === 'function') {
+                window.fadeAudioVolume(0, 400);
+            }
+
+            const audio = new Audio(audioSrc);
+            audio.volume = 1.0;
+            currentPreviewAudio = audio;
+
+            audio.play().then(() => {
+                updateMusicPreviewBtnUI(true);
+            }).catch(err => console.log('Erro ao tocar amostra:', err));
+
+            // Aplicar fade out APENAS quando a música chegar nos últimos 5 segundos naturalmente
+            audio.addEventListener('timeupdate', () => {
+                if (audio.duration && (audio.duration - audio.currentTime <= 5) && !previewFadeInterval && audio.volume > 0.05) {
+                    stopMusicPreviewWithFade();
+                }
+            });
+
+            audio.addEventListener('ended', () => {
+                currentPreviewAudio = null;
+                updateMusicPreviewBtnUI(false);
+                if (typeof window.fadeAudioVolume === 'function') {
+                    const targetVol = typeof window.getTargetBgVolume === 'function' ? window.getTargetBgVolume() : 0.5;
+                    window.fadeAudioVolume(targetVol, 800);
+                }
+            });
+        });
+    }
+
+    // Seletor de Trilha Sonora (Reestruturado com Preview e Botão Play/Pause)
+    document.querySelectorAll('#musicContainer .scenario-name-btn').forEach(card => {
         card.addEventListener('click', () => {
-            document.querySelectorAll('#musicContainer .scenario-card-full').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('#musicContainer .scenario-name-btn').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             selectedMusic = card.dataset.music;
             musicManuallyChosen = true;
+
+            // Se houver áudio tocando ao trocar de trilha, para imediatamente e reseta o botão para Play
+            if (currentPreviewAudio) {
+                stopMusicPreviewImmediately();
+            } else {
+                updateMusicPreviewBtnUI(false);
+            }
+
+            const previewImg = document.getElementById('music-preview-img');
+            const previewName = document.getElementById('music-preview-name');
+            if (previewImg && card.dataset.previewSrc) {
+                previewImg.style.opacity = '0.5';
+                setTimeout(() => {
+                    previewImg.src = card.dataset.previewSrc;
+                    previewImg.style.opacity = '1';
+                }, 150);
+            }
+            if (previewName && card.dataset.title) {
+                previewName.textContent = card.dataset.title;
+            }
 
             saveFullSessionState();
         });

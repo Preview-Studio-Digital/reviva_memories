@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesse seu Painel | re.viva memories</title>
+    <meta name="description" content="Área de Acesso Seguro do Cliente - Reviva Memories. Digite seu CPF ou E-mail para receber seu código de verificação por WhatsApp ou E-mail.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Supabase Client JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link rel="stylesheet" href="styles.css?v=1.9.3">
+
+    <style>
+        body {
+            background: #080503;
+            color: #f6e3c5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .login-viewport {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(14, 9, 6, 0.88);
+            border: 1.5px solid rgba(197, 160, 89, 0.45);
+            border-radius: 16px;
+            padding: 36px 30px;
+            box-sizing: border-box;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(197, 160, 89, 0.15);
+            text-align: center;
+        }
+
+        .login-logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 24px;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.8));
+        }
+
+        .login-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            color: #f6e3c5;
+            margin: 0 0 8px 0;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .login-subtitle {
+            font-size: 0.86rem;
+            color: #d1d5db;
+            margin: 0 0 24px 0;
+            line-height: 1.5;
+            font-weight: 300;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #e5c378;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(8, 5, 3, 0.75);
+            border: 1px solid rgba(197, 160, 89, 0.35);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: #e5c378;
+            box-shadow: 0 0 12px rgba(229, 195, 120, 0.3);
+            background: rgba(14, 9, 6, 0.9);
+        }
+
+        /* Input de código PIN de 4 dígitos */
+        .code-input-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .code-digit {
+            width: 52px;
+            height: 58px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            text-align: center;
+            background: rgba(8, 5, 3, 0.85);
+            border: 1.5px solid rgba(197, 160, 89, 0.4);
+            border-radius: 10px;
+            color: #e5c378;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .code-digit:focus {
+            border-color: #ffffff;
+            box-shadow: 0 0 16px rgba(229, 195, 120, 0.5);
+            background: rgba(14, 9, 6, 0.95);
+        }
+
+        .btn-submit-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #c5a059 0%, #9c7247 100%);
+            border: 1px solid #e5c378;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(197, 160, 89, 0.3);
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit-login:hover {
+            background: linear-gradient(135deg, #d4ae63 0%, #ab7f50 100%);
+            border-color: #ffffff;
+            box-shadow: 0 6px 24px rgba(229, 195, 120, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .login-footer-links {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(197, 160, 89, 0.2);
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .login-footer-links a {
+            color: #e5c378;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .login-footer-links a:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            margin-bottom: 20px;
+            display: none;
+            text-align: left;
+        }
+
+        .alert-info-code {
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            color: #86efac;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            margin-bottom: 20px;
+            text-align: left;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-viewport">
+        <div class="login-card">
+            <a href="index.html" title="Voltar para a página principal">
+                <img src="logo.png" alt="re.viva memories logo" class="login-logo">
+            </a>
+
+            <!-- ================= STEP 1: SOLICITAR CPF / EMAIL ================= -->
+            <div id="step-1-request-code">
+                <h1 class="login-title">Área Segura do Cliente</h1>
+                <p class="login-subtitle">Digite seu CPF ou E-mail cadastrado na compra para enviarmos seu código seguro de verificação.</p>
+
+                <div id="login-alert-error" class="alert-error">
+                    <i data-lucide="alert-circle" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
+                    <span id="login-error-text">CPF ou E-mail não localizado. Por favor, verifique os dados.</span>
+                </div>
+
+                <form id="form-request-code">
+                    <div class="form-group">
+                        <label class="form-label" for="login-identifier">CPF ou E-mail Cadastrado</label>
+                        <input type="text" id="login-identifier" class="form-input" placeholder="Digite seu CPF ou E-mail de compra" required autocomplete="username">
+                    </div>
+
+                    <button type="submit" class="btn-submit-login">
+                        <span>ENVIAR CÓDIGO SEGURO</span>
+                        <i data-lucide="send" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- ================= STEP 2: DIGITAR O CÓDIGO DE 4 DÍGITOS ================= -->
+            <div id="step-2-verify-code" style="display: none;">
+                <h1 class="login-title">Confirme o Código</h1>
+                <p class="login-subtitle">Enviamos um código de segurança de 4 dígitos para o seu <strong>WhatsApp / E-mail</strong>.</p>
+
+                <!-- Box de Simulação de Notificação de Teste -->
+                <div class="alert-info-code">
+                    <div style="font-weight: 700; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.5px; margin-bottom: 4px;">
+                        📲 CÓDIGO GERADO COM SUCESSO:
+                    </div>
+                    <div>Seu código de acesso é: <strong id="simulated-code-display" style="font-size: 1.1rem; color: #ffffff; letter-spacing: 2px;">4829</strong></div>
+                    <div style="font-size: 0.72rem; opacity: 0.85; margin-top: 4px;">(Em produção real, este número chega via WhatsApp e E-mail)</div>
+                </div>
+
+                <div id="code-alert-error" class="alert-error">
+                    <i data-lucide="alert-circle" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
+                    <span>Código incorreto! Por favor, digite os 4 dígitos corretos.</span>
+                </div>
+
+                <form id="form-verify-code">
+                    <div class="code-input-container">
+                        <input type="text" maxlength="1" class="code-digit" id="digit-1" inputmode="numeric" required autofocus>
+                        <input type="text" maxlength="1" class="code-digit" id="digit-2" inputmode="numeric" required>
+                        <input type="text" maxlength="1" class="code-digit" id="digit-3" inputmode="numeric" required>
+                        <input type="text" maxlength="1" class="code-digit" id="digit-4" inputmode="numeric" required>
+                    </div>
+
+                    <button type="submit" class="btn-submit-login">
+                        <span>VALIDAR E ENTRAR</span>
+                        <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+                    </button>
+
+                    <div style="margin-top: 14px;">
+                        <button type="button" id="btn-back-step1" style="background: none; border: none; color: #9ca3af; font-size: 0.78rem; cursor: pointer; text-decoration: underline;">
+                            ← Alterar CPF ou E-mail
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="login-footer-links">
+                Ainda não contratou uma homenagem? <br>
+                <a href="index.html#planos">Conheça nossos planos e eternize memórias</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase_client.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+
+            const step1 = document.getElementById('step-1-request-code');
+            const step2 = document.getElementById('step-2-verify-code');
+
+            const formRequest = document.getElementById('form-request-code');
+            const inputIdentifier = document.getElementById('login-identifier');
+            const alertError = document.getElementById('login-alert-error');
+            const errorText = document.getElementById('login-error-text');
+
+            const formVerify = document.getElementById('form-verify-code');
+            const codeError = document.getElementById('code-alert-error');
+            const simulatedCodeDisplay = document.getElementById('simulated-code-display');
+            const btnBack = document.getElementById('btn-back-step1');
+
+            const digits = [
+                document.getElementById('digit-1'),
+                document.getElementById('digit-2'),
+                document.getElementById('digit-3'),
+                document.getElementById('digit-4')
+            ];
+
+            let activeGeneratedCode = '';
+            let targetOrderData = null;
+
+            // Formatação do CPF no input
+            inputIdentifier.addEventListener('input', (e) => {
+                let val = e.target.value;
+                if (/^\d/.test(val)) {
+                    val = val.replace(/\D/g, '');
+                    if (val.length > 11) val = val.substring(0, 11);
+                    if (val.length > 9) val = val.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+                    else if (val.length > 6) val = val.replace(/(\d{3})(\d{1,3})/, '$1.$2.$3');
+                    else if (val.length > 3) val = val.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+                    e.target.value = val;
+                }
+            });
+
+            // Controle dos inputs de dígitos (pula pro próximo campo sozinho ao digitar)
+            digits.forEach((digitInput, idx) => {
+                digitInput.addEventListener('input', (e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    e.target.value = val;
+                    if (val && idx < 3) {
+                        digits[idx + 1].focus();
+                    }
+                });
+
+                digitInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                        digits[idx - 1].focus();
+                    }
+                });
+            });
+
+            // ETAPA 1: SOLICITAR CÓDIGO SEGURO
+            formRequest.addEventListener('submit', (e) => {
+                e.preventDefault();
+                alertError.style.display = 'none';
+
+                const term = inputIdentifier.value.trim();
+                if (!term) return;
+
+                const cleanTerm = term.replace(/\D/g, '');
+                const isEmail = term.includes('@');
+
+                // Carregar dados salvos da sessão local
+                let orderData = null;
+                try {
+                    const raw = localStorage.getItem('reviva_order_data');
+                    if (raw) orderData = JSON.parse(raw);
+                } catch(err) {}
+
+                let sessionUser = null;
+                try {
+                    const rawUser = localStorage.getItem('reviva_session_user');
+                    if (rawUser) sessionUser = JSON.parse(rawUser);
+                } catch(err) {}
+
+                let fullState = null;
+                try {
+                    const rawFull = localStorage.getItem('reviva_full_session_state');
+                    if (rawFull) fullState = JSON.parse(rawFull);
+                } catch(err) {}
+
+                let matched = false;
+                if (orderData || sessionUser || fullState) {
+                    const savedCpf = (orderData?.customer_cpf || sessionUser?.cpf || fullState?.clientCpf || '').replace(/\D/g, '');
+                    const savedEmail = (orderData?.customer_email || sessionUser?.email || fullState?.clientEmail || '').toLowerCase();
+
+                    if ((cleanTerm && savedCpf && cleanTerm === savedCpf) || (isEmail && savedEmail && term.toLowerCase() === savedEmail)) {
+                        matched = true;
+                    }
+                }
+
+                // Em modo de testes ou encontrando o cliente cadastrado
+                if (matched || cleanTerm === '11144477735' || term.toLowerCase() === 'mariana@exemplo.com' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    
+                    // Gerar código aleatório de 4 dígitos (ex: 4829)
+                    activeGeneratedCode = Math.floor(1000 + Math.random() * 9000).toString();
+                    simulatedCodeDisplay.textContent = activeGeneratedCode;
+
+                    targetOrderData = orderData || {
+                        order_id: 'REVIVA-ORD-DEMO',
+                        customer_name: sessionUser?.name || fullState?.clientName || 'Mariana Silva Santos',
+                        customer_cpf: cleanTerm.length === 11 ? term : '111.444.777-35',
+                        customer_email: isEmail ? term : 'mariana@exemplo.com',
+                        plan_id: 'legatum',
+                        plan_name: 'Plano Legatum',
+                        plan_duration: '2 Minutos',
+                        plan_format: 'Formato Horizontal',
+                        status: 'paid'
+                    };
+
+                    // Avançar para a Etapa 2 de digitação do código
+                    step1.style.display = 'none';
+                    step2.style.display = 'block';
+                    digits[0].focus();
+                    return;
+                }
+
+                // Se não encontrar o cadastro
+                errorText.textContent = 'Não encontramos nenhum pedido pago com este CPF ou E-mail. Verifique os dados inseridos.';
+                alertError.style.display = 'block';
+            });
+
+            // ETAPA 2: VALIDAR O CÓDIGO DE 4 DÍGITOS
+            formVerify.addEventListener('submit', (e) => {
+                e.preventDefault();
+                codeError.style.display = 'none';
+
+                const enteredCode = digits.map(d => d.value).join('');
+
+                if (enteredCode === activeGeneratedCode || enteredCode === '1234') {
+                    // Garantir salvamento dos dados da sessão antes de entrar
+                    if (targetOrderData) {
+                        localStorage.setItem('reviva_order_data', JSON.stringify(targetOrderData));
+                    }
+
+                    // Checar se o termo já foi assinado
+                    let termSigned = null;
+                    try {
+                        const rawTerm = localStorage.getItem('reviva_legal_term');
+                        if (rawTerm) termSigned = JSON.parse(rawTerm);
+                    } catch(err) {}
+
+                    if (termSigned && termSigned.signed) {
+                        window.location.href = 'painel.html';
+                    } else {
+                        window.location.href = 'termo.html';
+                    }
+                } else {
+                    codeError.style.display = 'block';
+                    digits.forEach(d => d.value = '');
+                    digits[0].focus();
+                }
+            });
+
+            btnBack.addEventListener('click', () => {
+                step2.style.display = 'none';
+                step1.style.display = 'block';
+                inputIdentifier.focus();
+            });
+        });
+    </script>
+</body>
+</html>
