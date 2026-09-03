@@ -941,7 +941,7 @@ body.video-active .global-galaxy-bg {
     backdrop-filter: blur(16px);
     border: 2px solid rgba(197, 160, 89, 0.25) !important;
     border-radius: var(--radius-lg);
-    padding: 24px 16px;
+    padding: 28px 18px 24px 18px;
     position: relative;
     transition: var(--transition-smooth);
     margin: 0;
@@ -1006,16 +1006,16 @@ body.video-active .global-galaxy-bg {
 
 .step-icon,
 .step-card .step-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: var(--radius-md);
-    background: radial-gradient(circle at center, rgba(229, 195, 120, 0.22) 0%, rgba(14, 9, 6, 0.85) 100%);
-    border: 1.5px solid rgba(229, 195, 120, 0.45);
+    width: 66px;
+    height: 66px;
+    border-radius: 14px;
+    background: radial-gradient(circle at center, rgba(229, 195, 120, 0.26) 0%, rgba(14, 9, 6, 0.88) 100%);
+    border: 1.5px solid rgba(229, 195, 120, 0.5);
     color: #e5c378;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 16px;
+    margin-bottom: 22px;
     animation: iconGlowPulse 3.4s ease-in-out infinite;
     transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
     position: relative;
@@ -1029,8 +1029,8 @@ body.video-active .global-galaxy-bg {
 
 .step-card .step-icon svg,
 .step-card .step-icon i {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     animation: iconSvgGlow 3.4s ease-in-out infinite;
     transition: all 0.35s ease;
 }
@@ -1062,17 +1062,17 @@ body.video-active .global-galaxy-bg {
 }
 
 .step-card h3 {
-    font-size: 1.22rem;
+    font-size: 1.28rem;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
     color: #e5c378; /* Titulo dourado */
     text-shadow: 0 0 8px rgba(229, 195, 120, 0.4); /* Efeito glow sutil */
 }
 
 .step-card p {
     color: var(--text-secondary);
-    font-size: 0.84rem;
-    line-height: 1.55;
+    font-size: 0.88rem;
+    line-height: 1.62;
     text-align: justify;
 }
 
