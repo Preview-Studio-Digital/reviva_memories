@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Cliente | re.viva memories</title>
+    <title>Painel do Cliente | Reviva Memories</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,6 +18,10 @@
     
     <!-- Supabase JS SDK CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- jsPDF para download do Termo de Responsabilidade pelo Cliente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="document_service.js"></script>
     
     <!-- Estilos Oficiais do Projeto -->
     <link rel="stylesheet" href="styles.css?v=1.9.1">
@@ -138,8 +142,8 @@
         .stepper-line-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #c5a059 0%, #e5c378 50%, #f6e3c5 100%);
-            box-shadow: 0 0 12px rgba(229, 195, 120, 0.8), 0 0 4px #ffffff;
+            background: linear-gradient(90deg, #15803d 0%, #22c55e 50%, #4ade80 100%);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.7);
             transition: width 0.75s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -237,15 +241,21 @@
         }
 
         .step-item.completed .step-bubble {
-            background: rgba(197, 160, 89, 0.18);
-            border-color: #e5c378;
-            color: #e5c378;
+            background: rgba(34, 197, 94, 0.16);
+            border: 1.5px solid #22c55e;
+            color: #4ade80;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
             animation: stepCompletedBurst 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .step-item.completed .step-label {
+            color: #4ade80;
+            font-weight: 600;
         }
 
         .step-label {
             font-size: 0.70rem;
-            color: var(--text-secondary);
+            color: #888888;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.6px;
@@ -1242,6 +1252,23 @@
         .sample-play-btn-center:hover svg {
             stroke: #ffffff !important;
             filter: drop-shadow(0 0 8px #e5c378);
+        }
+
+        /* Animação do Indicador de Espera da Equipe */
+        @keyframes pulseWaitingDot {
+            0%, 100% {
+                transform: scale(0.9);
+                opacity: 0.6;
+                box-shadow: 0 0 6px rgba(234, 179, 8, 0.4);
+            }
+            50% {
+                transform: scale(1.18);
+                opacity: 1;
+                box-shadow: 0 0 16px rgba(234, 179, 8, 0.95);
+            }
+        }
+        .waiting-pulse-dot {
+            animation: pulseWaitingDot 1.8s infinite ease-in-out;
         }
 
         /* ================= ETAPAS 1 A 5: ESTRUTURAS EM GRID & COMPONENTES NOBRES ================= */
@@ -2478,6 +2505,36 @@
 </head>
 <body>
 
+    <!-- Cortina Cinematográfica de Transição em Tela Cheia (Inserida no Topo do Body) -->
+    <div id="fullscreen-stage-curtain" class="fullscreen-stage-curtain">
+        <div class="stage-curtain-glow"></div>
+        <div class="stage-curtain-content">
+            <div class="stage-curtain-badge" id="stageCurtainBadge">ETAPA 01</div>
+            <h1 class="stage-curtain-title" id="stageCurtainTitle">O RESGATE</h1>
+            <div class="stage-curtain-divider">
+                <span class="divider-diamond">◆</span>
+            </div>
+            <p class="stage-curtain-sub" id="stageCurtainSub">Envio de Imagens e Áudio de Referência</p>
+        </div>
+    </div>
+    <script>
+        // Se estiver vindo de uma transição (termo ou parâmetro), cobre a tela imediatamente ANTES de pintar a interface
+        (function() {
+            try {
+                var p = new URLSearchParams(window.location.search);
+                if (p.has('showCurtain') || localStorage.getItem('reviva_show_curtain_on_enter') === 'true') {
+                    var c = document.getElementById('fullscreen-stage-curtain');
+                    if (c) {
+                        c.style.transition = 'none';
+                        c.classList.add('active');
+                        c.offsetHeight; // forçar aplicação síncrona
+                        c.style.transition = '';
+                    }
+                }
+            } catch(e) {}
+        })();
+    </script>
+
     <!-- Imagem de Fundo Oficial Idêntica ao Site (bg_01.jpeg) -->
     <div class="global-bg-image"></div>
 
@@ -2947,18 +3004,13 @@
                                     </div>
                                 </div>
 
-                                <div class="preview-media-frame" style="position: relative; overflow: hidden; border-radius: var(--radius-sm); border: 1.5px solid var(--border-gold); background: #000; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;">
-                                    <img src="" alt="Prévia Restaurada" id="preview-avatar-img" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                                    <div id="preview-avatar-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-secondary); text-align: center; padding: 20px;">
-                                        <i data-lucide="image" style="width: 38px; height: 38px; color: #e5c378; opacity: 0.6;"></i>
-                                        <span style="font-size: 0.76rem; color: #d8c7b0;">Aguardando envio da imagem</span>
+                                    <div class="preview-media-frame" style="position: relative; overflow: hidden; border-radius: var(--radius-sm); border: 1.5px solid var(--border-gold); background: #000; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;">
+                                        <img src="" alt="Prévia Restaurada" id="preview-avatar-img" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                        <div id="preview-avatar-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-secondary); text-align: center; padding: 20px;">
+                                            <i data-lucide="image" style="width: 38px; height: 38px; color: #e5c378; opacity: 0.6;"></i>
+                                            <span style="font-size: 0.76rem; color: #d8c7b0;">Aguardando envio da imagem</span>
+                                        </div>
                                     </div>
-                                    
-                                    <!-- Logo Reviva Memories Centralizada na Base da Imagem (Marca D'água Transparente) -->
-                                    <div class="image-watermark-logo" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; pointer-events: none; z-index: 5;">
-                                        <img src="logo.png" alt="Reviva Memories" style="height: 32px; width: auto; object-fit: contain; opacity: 0.88; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.85)) drop-shadow(0 0 12px rgba(229,195,120,0.35));">
-                                    </div>
-                                </div>
 
                                 <!-- Ações de Aprovação e Reprovação da Imagem -->
                                 <div class="photo-actions-container" style="margin-top: 6px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
@@ -3083,23 +3135,20 @@
                                 <div style="font-family: var(--font-serif); font-size: 1.05rem; color: #f6e3c5; font-weight: 600;">Homenagem em Produção</div>
                                 <p style="font-size: 0.76rem; color: #d8c7b0; max-width: 340px; margin: 0; line-height: 1.4;">Assim que a arte final for renderizada pela equipe, o vídeo estará liberado para assistir e baixar.</p>
                             </div>
-                            
-                            <!-- Selo Manuscrito no Topo do Vídeo (Fonte Oficial Allura) -->
-                            <div id="video-manuscrito-overlay" style="position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 5; pointer-events: none; text-align: center; width: 100%; transition: opacity 0.4s ease;">
-                                <span style="font-family: 'Allura', cursive; font-size: 2.2rem; color: #fcebd0; text-shadow: 0 2px 14px rgba(0,0,0,0.95), 0 0 25px rgba(229,195,120,0.75); letter-spacing: 1px; font-weight: 400; line-height: 1; display: inline-block;">
-                                    Homenagem Finalizada
-                                </span>
-                            </div>
                         </div>
 
-                        <!-- Base: Botões Link WhatsApp e Baixar Vídeo (Idênticos) -->
+                        <!-- Base: Botões Sala de Revelação, Link WhatsApp e Baixar Vídeo (Rigorosamente Idênticos) -->
                         <div style="display: flex; justify-content: center; align-items: center; gap: 14px; width: 100%; margin-top: 4px; flex-shrink: 0; flex-wrap: wrap;">
-                            <button class="btn btn-primary" id="btnCopyRevealLink" style="min-width: 200px; height: 34px !important; font-size: 0.76rem !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-                                <i data-lucide="share-2" style="width: 14px; height: 14px;"></i>
-                                <span>LINK WHATSAPP</span>
+                            <a id="btnGoToRevealRoom" href="revelar.html" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width: 210px; min-width: 210px; height: 34px !important; font-size: 0.76rem !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 0 16px; box-sizing: border-box; font-family: inherit; font-weight: 600; text-transform: uppercase;">
+                                <i data-lucide="sparkles" style="width: 14px; height: 14px; flex-shrink: 0;"></i>
+                                <span>SALA DE REVELAÇÃO</span>
+                            </a>
+                            <button type="button" class="btn btn-primary" id="btnCopyRevealLink" onclick="copiarLinkWhatsApp()" style="width: 210px; min-width: 210px; height: 34px !important; font-size: 0.76rem !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 0 16px; box-sizing: border-box; font-family: inherit; font-weight: 600; text-transform: uppercase;">
+                                <span id="btnCopyRevealLinkIcon" style="display: inline-flex; align-items: center;"><i data-lucide="share-2" style="width: 14px; height: 14px; flex-shrink: 0;"></i></span>
+                                <span id="btnCopyRevealLinkText">LINK WHATSAPP</span>
                             </button>
-                            <a id="btnDownloadFinalVideo" href="#" download="homenagem_reviva.webm" class="btn btn-primary" style="min-width: 200px; height: 34px !important; font-size: 0.76rem !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
-                                <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+                            <a id="btnDownloadFinalVideo" href="#" download="homenagem_reviva.webm" class="btn btn-primary" style="width: 210px; min-width: 210px; height: 34px !important; font-size: 0.76rem !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 0 16px; box-sizing: border-box; font-family: inherit; font-weight: 600; text-transform: uppercase;">
+                                <i data-lucide="download" style="width: 14px; height: 14px; flex-shrink: 0;"></i>
                                 <span>BAIXAR VÍDEO</span>
                             </a>
                         </div>
@@ -3185,18 +3234,7 @@
         </footer>
     </div>
 
-    <!-- Cortina Cinematográfica de Transição em Tela Cheia (Fundo Galáxia & Letras Garrafais) -->
-    <div id="fullscreen-stage-curtain" class="fullscreen-stage-curtain">
-        <div class="stage-curtain-glow"></div>
-        <div class="stage-curtain-content">
-            <div class="stage-curtain-badge" id="stageCurtainBadge">ETAPA 02</div>
-            <h1 class="stage-curtain-title" id="stageCurtainTitle">A ESSÊNCIA</h1>
-            <div class="stage-curtain-divider">
-                <span class="divider-diamond">◆</span>
-            </div>
-            <p class="stage-curtain-sub" id="stageCurtainSub">Desenvolvimento Afetivo do Roteiro Oficial</p>
-        </div>
-    </div>
+
 
     <!-- Modal de Vídeo do Iasis -->
     <!-- Modal de Vídeo Global Oficial com Controles Customizados Ouro & Marrom -->
@@ -3599,18 +3637,17 @@
     </script>
 
     <!-- ================= MODAL DO TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO ================= -->
-    <div id="modal-termo-responsabilidade" style="position: fixed; inset: 0; background: rgba(5, 3, 2, 0.92); backdrop-filter: blur(16px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px;">
-        <div style="width: 100%; max-width: 640px; background: rgba(14, 9, 6, 0.96); border: 1.5px solid var(--border-gold); border-radius: var(--radius-md); padding: 24px 28px; box-shadow: 0 0 50px rgba(0,0,0,0.95), 0 0 25px rgba(229,195,120,0.25); max-height: 90vh; display: flex; flex-direction: column; gap: 14px; overflow-y: auto;">
+    <div id="modal-termo-responsabilidade" style="position: fixed; inset: 0; background-color: #050302; background-image: radial-gradient(circle at 50% 0%, rgba(197, 160, 89, 0.12) 0%, transparent 60%), radial-gradient(circle at 80% 100%, rgba(197, 160, 89, 0.08) 0%, transparent 50%), linear-gradient(to bottom, rgba(5, 3, 2, 0.96) 0%, rgba(10, 6, 4, 0.98) 100%); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 1000100; display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;">
+        <div style="width: 100%; max-width: 860px; height: calc(100vh - 32px); max-height: calc(100vh - 32px); background: rgba(14, 9, 6, 0.94); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: 10px; padding: clamp(16px, 2.2vh, 24px) clamp(20px, 3vw, 36px); box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 195, 120, 0.18); backdrop-filter: blur(16px); display: flex; flex-direction: column; justify-content: space-between; gap: clamp(8px, 1.4vh, 14px); box-sizing: border-box; position: relative; overflow: hidden;">
             
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 12px; position: relative; width: 100%;">
                 <img src="logo.png" alt="Reviva Memories" style="height: 36px; margin: 0 auto 6px auto; display: block;">
-                <h3 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--gold-bright); letter-spacing: 1px; margin-bottom: 4px;">TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO</h3>
-                <p style="font-size: 0.74rem; color: var(--text-secondary);">Autorização Formal e Declaração de Titularidade para Recriação Afetiva com IA</p>
+                <h3 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--gold-bright); letter-spacing: 1px; margin-bottom: 0;">TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO</h3>
                 <button type="button" id="btn-close-termo-view" onclick="closeTermoModal()" style="display: none; position: absolute; top: 0; right: 0; background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; padding: 4px;">✕</button>
             </div>
 
             <!-- Caixa de Texto Fundamentada do Termo Legal -->
-            <div style="background: rgba(8, 5, 3, 0.85); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 0.74rem; color: #ede3d2; line-height: 1.6; max-height: 180px; overflow-y: auto; text-align: justify;">
+            <div style="background: rgba(8, 5, 3, 0.88); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 6px; padding: 14px 16px; font-size: 0.74rem; color: #ede3d2; line-height: 1.6; max-height: 180px; overflow-y: auto; text-align: justify;">
                 <p style="margin-bottom: 8px;"><strong>1. FINALIDADE AFETIVA E PRIVADA:</strong> As homenagens produzidas pela <em>Reviva Memories</em> destinam-se exclusivamente à preservação de memórias familiares, homenagens em vida ou póstumas e celebração de vínculos afetivos em âmbito estritamente pessoal e privado.</p>
                 
                 <p style="margin-bottom: 8px;"><strong>2. DECLARAÇÃO DE TITULARIDADE E CONSENTIMENTO:</strong> O(a) CONTRATANTE declara, sob as penas da lei (Art. 299 do Código Penal Brasileiro e Art. 186 do Código Civil), possuir legítima relação ou consentimento expresso para o fornecimento, restauração de imagem e recriação de voz a partir dos registros enviados.</p>
@@ -3625,22 +3662,24 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div>
                         <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px; white-space: nowrap;">NOME DO RESPONSÁVEL</label>
-                        <input type="text" id="term-signer-name" required readonly value="Mariana Silva Santos" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 4px; padding: 8px 10px; color: var(--gold-bright); font-size: 0.78rem; outline: none; cursor: not-allowed; font-weight: 600;">
+                        <input type="text" id="term-signer-name" required placeholder="Nome e sobrenome completos" value="Mariana Silva Santos" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                        <span id="errTermNome" style="display: none; color: #f87171; font-size: 0.68rem; margin-top: 4px; line-height: 1.2;">Informe seu nome completo (nome e sobrenome).</span>
                     </div>
                     <div>
                         <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px; white-space: nowrap;">CPF DO RESPONSÁVEL</label>
-                        <input type="text" id="term-signer-cpf" required readonly value="123.456.789-00" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 4px; padding: 8px 10px; color: var(--gold-bright); font-size: 0.78rem; outline: none; cursor: not-allowed; font-weight: 600;">
+                        <input type="text" id="term-signer-cpf" required placeholder="000.000.000-00" value="123.456.789-00" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                        <span id="errTermCpf" style="display: none; color: #f87171; font-size: 0.68rem; margin-top: 4px; line-height: 1.2;">Informe um CPF válido com 11 dígitos.</span>
                     </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div>
-                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px; white-space: nowrap;">SEU LAÇO COM A PESSOA FALECIDA *</label>
-                        <input type="text" id="term-signer-relation-narrator" required placeholder="Ex: Sou filho da pessoa falecida, Sou neto da pessoa falecida, Não cheguei a conhecer a pessoa falecida..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                        <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px; white-space: nowrap;">SEU LAÇO COM O ENTE QUERIDO *</label>
+                        <input type="text" id="term-signer-relation-narrator" required placeholder="Ex: Sou filho(a), Sou neto(a), Amigo(a) da família, Não cheguei a conhecer pessoalmente..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
                     </div>
                     <div>
                         <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px; white-space: nowrap;">SEU LAÇO COM A PESSOA HOMENAGEADA *</label>
-                        <input type="text" id="term-signer-relation-recipient" required placeholder="Ex: Eu mesmo(a) serei o homenageado(a), Meu namorado será o homenageado, Minha irmã será a homenageada..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                        <input type="text" id="term-signer-relation-recipient" required placeholder="Sou namorado(a). Sou filho(a)..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
                     </div>
                 </div>
 
@@ -3654,6 +3693,46 @@
                 </button>
             </form>
         </div>
+    </div>
+
+    <!-- ================= MODAL DE BLOQUEIO INFORMATIVO: AGUARDANDO PRODUÇÃO DA EQUIPE ================= -->
+    <div id="modal-aguardando-equipe" style="position: fixed; inset: 0; background-color: #050302; background-image: radial-gradient(circle at 50% 0%, rgba(197, 160, 89, 0.12) 0%, transparent 60%), radial-gradient(circle at 80% 100%, rgba(197, 160, 89, 0.08) 0%, transparent 50%), linear-gradient(to bottom, rgba(5, 3, 2, 0.96) 0%, rgba(10, 6, 4, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 1000100; display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;">
+        <div style="width: 100%; max-width: 860px; height: calc(100vh - 32px); max-height: calc(100vh - 32px); background: rgba(14, 9, 6, 0.94); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: 10px; padding: clamp(24px, 3.8vh, 38px) clamp(20px, 3.2vw, 38px) clamp(16px, 2.2vh, 24px); box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 195, 120, 0.18); backdrop-filter: blur(16px); display: flex; flex-direction: column; justify-content: space-between; gap: clamp(10px, 1.6vh, 16px); box-sizing: border-box; position: relative; overflow: hidden; text-align: center; z-index: 1000101;">
+            
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-bottom: none; margin-top: clamp(6px, 1.2vh, 14px); padding-bottom: clamp(4px, 0.8vh, 8px); width: 100%; flex-shrink: 0;">
+                <img src="logo.png" alt="Reviva Memories" style="height: clamp(50px, 7.2vh, 68px); width: auto; margin: 0 auto 12px auto; display: block; filter: drop-shadow(0 2px 14px rgba(0,0,0,0.9));">
+                <span id="waiting-modal-badge" style="display: none;"></span>
+                <h3 id="waiting-modal-title" style="font-family: var(--font-serif); font-size: clamp(1.22rem, 1.65vw + 0.3vh, 1.58rem); color: var(--gold-bright); letter-spacing: 1px; margin-top: 4px; margin-bottom: 0; font-weight: 600;">
+                    Sua homenagem está sendo lapidada com todo o cuidado...
+                </h3>
+            </div>
+
+            <!-- Grade dos 4 Tópicos Informativos (Melhor distribuídos no espaço central) -->
+            <div id="waiting-modal-body" style="background: transparent; border: none; padding: clamp(4px, 1vh, 12px) 0; margin: 0; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; gap: clamp(8px, 1.6vh, 16px); overflow: hidden;">
+                <!-- Preenchido dinamicamente via JS com os 4 tópicos -->
+            </div>
+
+            <!-- Status com Indicador Pulsante em Ouro (Sem contorno) -->
+            <div id="waiting-modal-status-box" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: transparent; border: none; padding: clamp(4px, 0.8vh, 8px) 0; flex-shrink: 0;">
+                <span class="waiting-pulse-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #e5c378; box-shadow: 0 0 12px rgba(229, 195, 120, 0.85); flex-shrink: 0;"></span>
+                <span id="waiting-modal-status-text" style="font-size: clamp(0.74rem, 0.82vw, 0.82rem); font-weight: 600; color: var(--gold-bright); letter-spacing: 0.4px;">
+                    Status: ETAPA 4 EM PRODUÇÃO.
+                </span>
+            </div>
+
+            <!-- Botão de Ação no Padrão Ouro do Termo de Responsabilidade -->
+            <div style="display: flex; flex-direction: column; flex-shrink: 0;">
+                <button type="button" id="btn-close-waiting-modal" onclick="closeWaitingTeamModal()" style="width: 100%; height: clamp(42px, 5.4vh, 48px); background: linear-gradient(135deg, #d4af37 0%, #aa771c 100%); border: 1px solid var(--gold-bright); border-radius: var(--radius-sm); color: #050302; font-family: var(--font-sans); font-size: clamp(0.78rem, 0.88vw, 0.86rem); font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 18px rgba(212, 175, 55, 0.4); transition: all 0.3s ease;">
+                    ENTENDI, AGUARDAR PRODUÇÃO
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Botão Provisório de Teste Local: Flutuante fora da área útil do card (no canto inferior direito da tela) -->
+        <button type="button" id="btn-simulate-team-delivery" onclick="simulateTeamDelivery()" style="display: none; position: fixed; bottom: 12px; right: 12px; z-index: 1000102; padding: 6px 12px; background: rgba(14, 165, 233, 0.2); border: 1px dashed rgba(14, 165, 233, 0.6); border-radius: 20px; color: #38bdf8; font-size: 0.66rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(8px); opacity: 0.8; transition: opacity 0.2s ease;">
+            ⚡ Liberar Envio (Modo Teste)
+        </button>
     </div>
 
     <!-- Auto-Reload Nativo Universal para Desenvolvimento Local -->
@@ -3696,7 +3775,6 @@
     </script>
     <!-- Botão Flutuante Oficial do WhatsApp (Canto Inferior Direito do Painel) -->
     <a href="https://wa.me/5531995701447?text=Ol%C3%A1!%20Estou%20no%20Painel%20do%20Cliente%20da%20Reviva%20Memories%20e%20preciso%20de%20ajuda." target="_blank" rel="noopener noreferrer" class="whatsapp-float-btn pulse-active" aria-label="Suporte pelo WhatsApp">
-        <span class="whatsapp-tooltip">Suporte via WhatsApp</span>
         <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
             <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
         </svg>

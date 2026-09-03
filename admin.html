@@ -17,6 +17,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase_config.js"></script>
 
+    <!-- jsPDF & JSZip para emissão de PDF e arquivo ZIP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="document_service.js"></script>
+
     <style>
         :root {
             --bg-deep: #050302;
@@ -649,6 +654,57 @@
                         <input type="file" id="input-admin-video" accept="video/*" style="display: none;" onchange="handleAdminVideoUpload(event)">
                     </div>
                 </div>
+
+                <!-- BARRA DE CONTROLE: LIBERAÇÃO DAS ETAPAS PARA O CLIENTE -->
+                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(197, 160, 89, 0.25); display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <!-- Card de Controle da Etapa 04 -->
+                    <div style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong style="font-size: 0.78rem; color: #fff; display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="sparkles" style="width: 14px; height: 14px; color: var(--gold-primary);"></i>
+                                Etapa 04: Prévias (Imagem & Voz)
+                            </strong>
+                            <span id="admin-stage4-badge" style="font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); color: #facc15;">
+                                BLOQUEADA ⏳
+                            </span>
+                        </div>
+                        <div style="font-size: 0.68rem; color: var(--text-secondary);">
+                            O cliente fica bloqueado no fim da Etapa 03 aguardando estes envios.
+                        </div>
+                        <div style="display: flex; gap: 6px; margin-top: 2px;">
+                            <button type="button" id="btn-admin-deliver-stage4" onclick="toggleAdminDeliveryStage(4, true)" class="btn-gold" style="flex: 1; padding: 7px 10px; font-size: 0.72rem; width: auto; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <i data-lucide="unlock" style="width: 12px; height: 12px;"></i> Liberar Prévias ao Cliente
+                            </button>
+                            <button type="button" id="btn-admin-block-stage4" onclick="toggleAdminDeliveryStage(4, false)" style="padding: 7px 10px; font-size: 0.70rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 4px; cursor: pointer;">
+                                Bloquear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card de Controle da Etapa 05 -->
+                    <div style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong style="font-size: 0.78rem; color: #fff; display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="film" style="width: 14px; height: 14px; color: var(--gold-primary);"></i>
+                                Etapa 05: Vídeo Final (Revelação)
+                            </strong>
+                            <span id="admin-stage5-badge" style="font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); color: #facc15;">
+                                BLOQUEADA ⏳
+                            </span>
+                        </div>
+                        <div style="font-size: 0.68rem; color: var(--text-secondary);">
+                            O cliente fica bloqueado no fim da Etapa 04 até a publicação do vídeo.
+                        </div>
+                        <div style="display: flex; gap: 6px; margin-top: 2px;">
+                            <button type="button" id="btn-admin-deliver-stage5" onclick="toggleAdminDeliveryStage(5, true)" class="btn-gold" style="flex: 1; padding: 7px 10px; font-size: 0.72rem; width: auto; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <i data-lucide="unlock" style="width: 12px; height: 12px;"></i> Publicar Vídeo & Liberar
+                            </button>
+                            <button type="button" id="btn-admin-block-stage5" onclick="toggleAdminDeliveryStage(5, false)" style="padding: 7px 10px; font-size: 0.70rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 4px; cursor: pointer;">
+                                Bloquear
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- SEÇÃO 4: DISPARADOR AUTOMÁTICO DE NOTIFICAÇÕES WHATSAPP -->
@@ -967,6 +1023,7 @@
 
             const lovedOne = (state && state.interviewData && state.interviewData.protagonista) ? state.interviewData.protagonista : "José";
             updateWhatsAppLinks(clientNameAdmin, clientPhoneAdmin, lovedOne);
+            updateAdminDeliveryBadges();
             if (window.lucide) lucide.createIcons();
         }
 
@@ -1101,17 +1158,117 @@ Status: ASSINADO DIGITALMENTE E ARQUIVADO JUNTO AO PEDIDO
         }
 
         // =========================================================================
-        // UPLOADS DE ENTREGA DO PRODUTOR
+        // CONTROLE DE LIBERAÇÃO DE ETAPAS E UPLOADS DO PRODUTOR
         // =========================================================================
+        function updateAdminDeliveryBadges() {
+            const isStage4 = localStorage.getItem('reviva_stage4_delivered') === 'true' || Boolean(localStorage.getItem('reviva_producer_image')) || Boolean(localStorage.getItem('reviva_producer_audio'));
+            const isStage5 = localStorage.getItem('reviva_stage5_delivered') === 'true' || Boolean(localStorage.getItem('reviva_producer_video'));
+
+            const badge4 = document.getElementById('admin-stage4-badge');
+            if (badge4) {
+                if (isStage4) {
+                    badge4.style.background = 'rgba(34, 197, 94, 0.2)';
+                    badge4.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+                    badge4.style.color = '#4ade80';
+                    badge4.textContent = 'LIBERADA AO CLIENTE ✓';
+                } else {
+                    badge4.style.background = 'rgba(234, 179, 8, 0.15)';
+                    badge4.style.borderColor = 'rgba(234, 179, 8, 0.4)';
+                    badge4.style.color = '#facc15';
+                    badge4.textContent = 'BLOQUEADA ⏳';
+                }
+            }
+
+            const badge5 = document.getElementById('admin-stage5-badge');
+            if (badge5) {
+                if (isStage5) {
+                    badge5.style.background = 'rgba(34, 197, 94, 0.2)';
+                    badge5.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+                    badge5.style.color = '#4ade80';
+                    badge5.textContent = 'LIBERADA AO CLIENTE ✓';
+                } else {
+                    badge5.style.background = 'rgba(234, 179, 8, 0.15)';
+                    badge5.style.borderColor = 'rgba(234, 179, 8, 0.4)';
+                    badge5.style.color = '#facc15';
+                    badge5.textContent = 'BLOQUEADA ⏳';
+                }
+            }
+
+            // Atualiza cards de upload se arquivos já existirem no armazenamento
+            const photoVal = localStorage.getItem('reviva_producer_image');
+            if (photoVal) {
+                const card = document.getElementById("drop-restored-photo");
+                if (card && !card.classList.contains('filled')) {
+                    card.classList.add("filled");
+                    card.innerHTML = `<i data-lucide="check-circle" style="width: 26px; height: 26px; color: #22c55e;"></i><strong style="font-size: 0.80rem; color: #4ade80;">Imagem Pronta!</strong><span style="font-size: 0.68rem; color: #fff;">Arquivo Salvo</span>`;
+                }
+            }
+
+            const audioVal = localStorage.getItem('reviva_producer_audio');
+            if (audioVal) {
+                const card = document.getElementById("drop-cloned-voice");
+                if (card && !card.classList.contains('filled')) {
+                    card.classList.add("filled");
+                    card.innerHTML = `<i data-lucide="check-circle" style="width: 26px; height: 26px; color: #22c55e;"></i><strong style="font-size: 0.80rem; color: #4ade80;">Áudio Pronto!</strong><span style="font-size: 0.68rem; color: #fff;">Arquivo Salvo</span>`;
+                }
+            }
+
+            const videoVal = localStorage.getItem('reviva_producer_video');
+            if (videoVal) {
+                const card = document.getElementById("drop-final-video");
+                if (card && !card.classList.contains('filled')) {
+                    card.classList.add("filled");
+                    card.innerHTML = `<i data-lucide="check-circle" style="width: 26px; height: 26px; color: #22c55e;"></i><strong style="font-size: 0.80rem; color: #4ade80;">Vídeo Publicado!</strong><span style="font-size: 0.68rem; color: #fff;">Arquivo Salvo</span>`;
+                }
+            }
+        }
+
+        function toggleAdminDeliveryStage(stage, deliver) {
+            if (stage === 4) {
+                localStorage.setItem('reviva_stage4_delivered', deliver ? 'true' : 'false');
+                if (!deliver) {
+                    localStorage.removeItem('reviva_producer_image');
+                    localStorage.removeItem('reviva_producer_audio');
+                    const cardP = document.getElementById("drop-restored-photo");
+                    if (cardP) {
+                        cardP.classList.remove("filled");
+                        cardP.innerHTML = `<div id="status-badge-photo" style="margin-bottom: 2px;"><span style="background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); color: #facc15; padding: 2px 8px; border-radius: 4px; font-size: 0.62rem; font-weight: 700;">AGUARDANDO ENVIO</span></div><i data-lucide="image-plus" style="width: 24px; height: 24px; color: var(--gold-primary);"></i><strong style="font-size: 0.80rem; color: #fff;">1. Nova Imagem Lapidada</strong><span style="font-size: 0.68rem; color: var(--text-secondary);">Prévia para aprovação na Etapa 04</span><input type="file" id="input-admin-photo" accept="image/*" style="display: none;" onchange="handleAdminPhotoUpload(event)">`;
+                    }
+                    const cardV = document.getElementById("drop-cloned-voice");
+                    if (cardV) {
+                        cardV.classList.remove("filled");
+                        cardV.innerHTML = `<div id="status-badge-voice" style="margin-bottom: 2px;"><span style="background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); color: #facc15; padding: 2px 8px; border-radius: 4px; font-size: 0.62rem; font-weight: 700;">AGUARDANDO ENVIO</span></div><i data-lucide="mic" style="width: 24px; height: 24px; color: var(--gold-primary);"></i><strong style="font-size: 0.80rem; color: #fff;">2. Narração na Voz Clonada</strong><span style="font-size: 0.68rem; color: var(--text-secondary);">Amostra de áudio na Etapa 04</span><input type="file" id="input-admin-voice" accept="audio/*" style="display: none;" onchange="handleAdminVoiceUpload(event)">`;
+                    }
+                }
+            } else if (stage === 5) {
+                localStorage.setItem('reviva_stage5_delivered', deliver ? 'true' : 'false');
+                if (!deliver) {
+                    localStorage.removeItem('reviva_producer_video');
+                    const cardVid = document.getElementById("drop-final-video");
+                    if (cardVid) {
+                        cardVid.classList.remove("filled");
+                        cardVid.innerHTML = `<div id="status-badge-video" style="margin-bottom: 2px;"><span style="background: rgba(148, 163, 184, 0.15); border: 1px solid rgba(148, 163, 184, 0.4); color: #cbd5e1; padding: 2px 8px; border-radius: 4px; font-size: 0.62rem; font-weight: 700;">SALA DE REVELAÇÃO</span></div><i data-lucide="film" style="width: 24px; height: 24px; color: var(--gold-primary);"></i><strong style="font-size: 0.80rem; color: #fff;">3. Vídeo Final</strong><span style="font-size: 0.68rem; color: var(--text-secondary);">Disponível na Sala de Revelação</span><input type="file" id="input-admin-video" accept="video/*" style="display: none;" onchange="handleAdminVideoUpload(event)">`;
+                    }
+                }
+            }
+            updateAdminDeliveryBadges();
+            if (window.lucide) lucide.createIcons();
+            alert(deliver 
+                ? `✓ Etapa 0${stage} LIBERADA com sucesso para o cliente!` 
+                : `⚠️ Etapa 0${stage} BLOQUEADA para o cliente.`);
+        }
+
         function handleAdminPhotoUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = (event) => {
                 localStorage.setItem("reviva_producer_image", event.target.result);
+                localStorage.setItem("reviva_stage4_delivered", "true");
                 const card = document.getElementById("drop-restored-photo");
                 card.classList.add("filled");
                 card.innerHTML = `<i data-lucide="check-circle" style="width: 26px; height: 26px; color: #22c55e;"></i><strong style="font-size: 0.80rem; color: #4ade80;">Imagem Carregada!</strong><span style="font-size: 0.68rem; color: #fff;">${file.name}</span>`;
+                updateAdminDeliveryBadges();
                 alert("✓ Nova Imagem Lapidada salva com sucesso! Ela já está disponível no painel do cliente.");
                 if (window.lucide) lucide.createIcons();
             };
@@ -1121,21 +1278,43 @@ Status: ASSINADO DIGITALMENTE E ARQUIVADO JUNTO AO PEDIDO
         function handleAdminVoiceUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
-            const card = document.getElementById("drop-cloned-voice");
-            card.classList.add("filled");
-            card.innerHTML = `<i data-lucide="check-circle" style="width: 26px; height: 26px; color: #22c55e;"></i><strong style="font-size: 0.80rem; color: #4ade80;">Áudio Carregado!</strong><span style="font-size: 0.68rem; color: #fff;">${file.name}</span>`;
-            alert("✓ Locução com Voz Clonada vinculada com sucesso!");
-            if (window.lucide) lucide.createIcons();
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    localStorage.setItem("reviva_producer_audio", event.target.result);
+                } catch (err) {
+                    console.warn("Áudio grande, salvando flag de entrega:", err);
+                }
+                localStorage.setItem("reviva_stage4_delivered", "true");
+                const card = document.getElementById("drop-cloned-voice");
+                card.classList.add("filled");
+                card.innerHTML = `<i data-lucide="check-circle" style="width: 26px; height: 26px; color: #22c55e;"></i><strong style="font-size: 0.80rem; color: #4ade80;">Áudio Carregado!</strong><span style="font-size: 0.68rem; color: #fff;">${file.name}</span>`;
+                updateAdminDeliveryBadges();
+                alert("✓ Locução com Voz Clonada vinculada e Etapa 04 liberada para o cliente!");
+                if (window.lucide) lucide.createIcons();
+            };
+            reader.readAsDataURL(file);
         }
 
         function handleAdminVideoUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
-            const card = document.getElementById("drop-final-video");
-            card.classList.add("filled");
-            card.innerHTML = `<i data-lucide="check-circle" style="width: 26px; height: 26px; color: #22c55e;"></i><strong style="font-size: 0.80rem; color: #4ade80;">Vídeo Carregado!</strong><span style="font-size: 0.68rem; color: #fff;">${file.name}</span>`;
-            alert("✓ Vídeo Final publicado para a Sala de Revelação!");
-            if (window.lucide) lucide.createIcons();
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    localStorage.setItem("reviva_producer_video", event.target.result);
+                } catch(err) {
+                    console.warn("Vídeo muito grande para localStorage, usando flag de entrega:", err);
+                }
+                localStorage.setItem("reviva_stage5_delivered", "true");
+                const card = document.getElementById("drop-final-video");
+                card.classList.add("filled");
+                card.innerHTML = `<i data-lucide="check-circle" style="width: 26px; height: 26px; color: #22c55e;"></i><strong style="font-size: 0.80rem; color: #4ade80;">Vídeo Carregado!</strong><span style="font-size: 0.68rem; color: #fff;">${file.name}</span>`;
+                updateAdminDeliveryBadges();
+                alert("✓ Vídeo Final publicado para a Sala de Revelação (Etapa 05 liberada)!");
+                if (window.lucide) lucide.createIcons();
+            };
+            reader.readAsDataURL(file);
         }
 
         function copyAdminScript() {
@@ -1158,26 +1337,20 @@ Status: ASSINADO DIGITALMENTE E ARQUIVADO JUNTO AO PEDIDO
             }).catch(err => console.error("Erro ao copiar:", err));
         }
 
-        function downloadFullOrderPackage() {
-            const scriptText = document.getElementById("admin-script-text")?.innerText || "";
-            const content = `DOSSIÊ DO PEDIDO - REVIVA MEMORIES\n` +
-                `Cliente: Mariana Silva\n` +
-                `Plano: Affectus (1 Minuto)\n` +
-                `Status: Em Produção / Lapidação\n\n` +
-                `--------------------------------------------------\n` +
-                `ROTEIRO OFICIAL APROVADO PELO CLIENTE:\n` +
-                `--------------------------------------------------\n\n` +
-                scriptText + `\n\n` +
-                `--------------------------------------------------\n` +
-                `DIRETRIZES ARTÍSTICAS:\n` +
-                `Cenário de Fundo: Nuvens Celestes\n` +
-                `Trilha Sonora: Piano Emocionante\n`;
+        function downloadTermoAdmin() {
+            if (window.RevivaDocumentService) {
+                window.RevivaDocumentService.downloadTermoPDF();
+            } else {
+                alert('Carregando serviço de documentos...');
+            }
+        }
 
-            const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `dossie_pedido_mariana_silva.txt`;
-            link.click();
+        function downloadFullOrderPackage() {
+            if (window.RevivaDocumentService) {
+                window.RevivaDocumentService.downloadFullOrderZip();
+            } else {
+                alert('Carregando serviço de compactação...');
+            }
         }
 
         document.addEventListener("DOMContentLoaded", () => {

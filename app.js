@@ -1254,7 +1254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (nameInput) nameInput.value = 'Mariana Silva Santos';
         if (cpfInput) cpfInput.value = '111.444.777-35';
         if (emailInput) emailInput.value = 'mariana.silva@exemplo.com';
-        if (phoneInput) phoneInput.value = '(11) 98765-4321';
+        if (phoneInput) phoneInput.value = '(31) 9 9239-0851';
     };
 
     // Máscara do CPF no Checkout
@@ -1267,22 +1267,93 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.value = v;
     });
 
+    // Máscara forçada do WhatsApp no Checkout no formato (xx) x xxxx-xxxx
+    const phoneInputEl = document.getElementById('chk-input-phone');
+    if (phoneInputEl) {
+        phoneInputEl.setAttribute('maxlength', '17');
+        phoneInputEl.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 10) {
+                v = v.replace(/(\d{2})(\d{1})(\d{4})(\d{4})/, '($1) $2 $3-$4');
+            } else if (v.length > 7) {
+                v = v.replace(/(\d{2})(\d{1})(\d{4})(\d{0,4})/, '($1) $2 $3-$4');
+            } else if (v.length > 3) {
+                v = v.replace(/(\d{2})(\d{1})(\d{0,4})/, '($1) $2 $3');
+            } else if (v.length > 2) {
+                v = v.replace(/(\d{2})(\d{0,1})/, '($1) $2');
+            } else if (v.length > 0) {
+                v = v.replace(/(\d{0,2})/, '($1');
+            }
+            e.target.value = v;
+        });
+    }
+
+    const chkNameInput = document.getElementById('chk-input-name');
+    const chkCpfInput = document.getElementById('chk-input-cpf');
+
+    chkNameInput?.addEventListener('input', function(e) {
+        const val = e.target.value.trim();
+        const errEl = document.getElementById('err-chk-name');
+        const partes = val.split(/\s+/).filter(p => p.length >= 2);
+        if (val.length > 0 && partes.length >= 2) {
+            chkNameInput.style.borderColor = '#22c55e';
+            if (errEl) errEl.style.display = 'none';
+        } else if (val.length > 0 && partes.length < 2) {
+            chkNameInput.style.borderColor = '#ef4444';
+            if (errEl) errEl.style.display = 'block';
+        } else {
+            chkNameInput.style.borderColor = 'rgba(197, 160, 89, 0.4)';
+            if (errEl) errEl.style.display = 'none';
+        }
+    });
+
     window.handleSimulateCheckout = function(e) {
         if (e) e.preventDefault();
         
-        const name = (document.getElementById('chk-input-name')?.value || '').trim();
-        const cpf = (document.getElementById('chk-input-cpf')?.value || '').trim();
-        const email = (document.getElementById('chk-input-email')?.value || '').trim();
-        const phone = (document.getElementById('chk-input-phone')?.value || '').trim();
+        const nameEl = document.getElementById('chk-input-name');
+        const cpfEl = document.getElementById('chk-input-cpf');
+        const emailEl = document.getElementById('chk-input-email');
+        const phoneEl = document.getElementById('chk-input-phone');
 
-        if (!name) {
-            alert('Por favor, informe seu nome completo.');
+        const name = (nameEl?.value || '').trim();
+        const cpf = (cpfEl?.value || '').trim();
+        const email = (emailEl?.value || '').trim();
+        const phone = (phoneEl?.value || '').trim();
+
+        const errNameEl = document.getElementById('err-chk-name');
+        const errCpfEl = document.getElementById('err-chk-cpf');
+
+        // Validação obrigatória de Nome Completo (nome + sobrenome)
+        const partesNome = name.split(/\s+/).filter(p => p.length >= 2);
+        if (partesNome.length < 2) {
+            if (errNameEl) errNameEl.style.display = 'block';
+            if (nameEl) {
+                nameEl.style.borderColor = '#ef4444';
+                nameEl.focus();
+            }
             return;
+        } else {
+            if (errNameEl) errNameEl.style.display = 'none';
+            if (nameEl) nameEl.style.borderColor = '#22c55e';
         }
 
+        // Validação de CPF
         if (!cpf || !window.validarCPF(cpf)) {
-            alert('CPF inválido! Por favor, digite um CPF real e válido com os 11 dígitos corretos para prosseguir.');
-            document.getElementById('chk-input-cpf')?.focus();
+            if (errCpfEl) errCpfEl.style.display = 'block';
+            if (cpfEl) {
+                cpfEl.style.borderColor = '#ef4444';
+                cpfEl.focus();
+            }
+            return;
+        } else {
+            if (errCpfEl) errCpfEl.style.display = 'none';
+            if (cpfEl) cpfEl.style.borderColor = '#22c55e';
+        }
+
+        const phoneDigits = phone.replace(/\D/g, '');
+        if (!phone || phoneDigits.length < 10) {
+            if (phoneEl) phoneEl.focus();
             return;
         }
 
@@ -1296,8 +1367,16 @@ document.addEventListener('DOMContentLoaded', () => {
             priceFormatted: 'R$ 897,00'
         };
 
+        // Gerar número de pedido sequencial organizado (iniciando em REVIVA-1001)
+        let nextOrderSeq = 1001;
+        try {
+            const savedSeq = parseInt(localStorage.getItem('reviva_last_order_seq') || '1000', 10);
+            nextOrderSeq = isNaN(savedSeq) ? 1001 : (savedSeq + 1);
+            localStorage.setItem('reviva_last_order_seq', nextOrderSeq.toString());
+        } catch(e) {}
+
         const orderData = {
-            order_id: 'REVIVA-ORD-' + Date.now().toString(36).toUpperCase(),
+            order_id: 'REVIVA-' + nextOrderSeq,
             customer_name: name,
             customer_cpf: cpf,
             customer_email: email,
@@ -1333,33 +1412,70 @@ document.addEventListener('DOMContentLoaded', () => {
         fullState.clientPhone = phone;
         localStorage.setItem('reviva_full_session_state', JSON.stringify(fullState));
 
-        // Simular notificação interativa pós-compra
-        const modalCheckout = document.getElementById('modal-checkout-simulado');
-        if (modalCheckout) {
-            modalCheckout.innerHTML = `
-                <div style="text-align: center; padding: 20px 10px; font-family: 'Inter', sans-serif;">
-                    <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(34, 197, 94, 0.15); border: 2px solid #4ade80; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);">
-                        <i data-lucide="check" style="width: 32px; height: 32px; color: #4ade80;"></i>
-                    </div>
-                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; color: #f6e3c5; margin: 0 0 6px 0;">PAGAMENTO APROVADO COM SUCESSO!</h3>
-                    <p style="font-size: 0.85rem; color: #cbd5e1; margin: 0 0 20px 0; line-height: 1.4;">Parabéns, <strong>${name}</strong>! Seu pedido do <strong>${planInfo.planName}</strong> foi confirmado.</p>
+        // Executar disparo de e-mail e geração de WhatsApp pós-compra
+        if (window.RevivaNotifications) {
+            window.RevivaNotifications.sendWelcomeNotifications(orderData, { name, cpf, email, phone });
+        }
 
-                    <div style="background: rgba(14, 9, 6, 0.7); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 8px; padding: 14px; text-align: left; margin-bottom: 20px; font-size: 0.78rem; line-height: 1.6; color: #e2e8f0;">
-                        <div style="color: #e5c378; font-weight: 700; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                            <i data-lucide="send" style="width: 14px; height: 14px;"></i> NOTIFICAÇÕES DE ACESSO ENVIADAS:
+        // Alternar visualização para tela de sucesso
+        const formView = document.getElementById('checkout-form-view');
+        const successView = document.getElementById('checkout-success-view');
+
+        if (formView && successView) {
+            let waLink = '#';
+            if (window.RevivaNotifications) {
+                waLink = window.RevivaNotifications.getWhatsAppUrl(phone, orderData, { name, cpf, email, phone });
+            }
+
+            successView.innerHTML = `
+                <div style="text-align: center; padding: 10px 4px; font-family: 'Inter', sans-serif;">
+                    <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(34, 197, 94, 0.15); border: 2px solid #4ade80; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 0 24px rgba(74, 222, 128, 0.4);">
+                        <i data-lucide="check" style="width: 30px; height: 30px; color: #4ade80;"></i>
+                    </div>
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; color: #f6e3c5; margin: 0 0 4px 0; font-weight: 700; letter-spacing: 0.5px;">PAGAMENTO APROVADO COM SUCESSO!</h3>
+                    <p style="font-size: 0.82rem; color: #cbd5e1; margin: 0 0 16px 0; line-height: 1.4;">Parabéns, <strong>${name}</strong>! Seu pedido do <strong>${planInfo.planName}</strong> foi confirmado.</p>
+
+                    <!-- Card de Notificações Enviadas -->
+                    <div style="background: rgba(14, 9, 6, 0.85); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 8px; padding: 12px 14px; text-align: left; margin-bottom: 14px; font-size: 0.76rem; line-height: 1.55; color: #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.5);">
+                        <div style="color: #e5c378; font-weight: 700; text-transform: uppercase; font-size: 0.70rem; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                            <span style="display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="send" style="width: 13px; height: 13px;"></i> NOTIFICAÇÕES DISPARADAS:
+                            </span>
+                            <span style="color: #4ade80; font-size: 0.65rem; font-weight: 700;">✓ STATUS: ENVIADAS</span>
                         </div>
-                        <div style="margin-bottom: 6px;">📧 <strong>E-mail:</strong> Enviado para <em>${email}</em> com seu link de acesso exclusivo.</div>
-                        <div style="margin-bottom: 6px;">💬 <strong>WhatsApp:</strong> Enviado para <em>${phone}</em> com as instruções do pedido.</div>
-                        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(197, 160, 89, 0.2); color: #94a3b8; font-size: 0.73rem;">
-                            🔒 <strong>Acesso Permanente:</strong> Você pode retornar ao seu painel a qualquer momento clicando em <strong>"MEU PAINEL"</strong> no site e digitando seu CPF (<em>${cpf}</em>).
+                        <div style="margin-bottom: 6px; display: flex; align-items: flex-start; gap: 8px;">
+                            <span style="font-size: 0.85rem;">✉️</span>
+                            <div><strong>E-mail Oficial:</strong> Enviado para <em>${email}</em> com credenciais e link de acesso.<div id="email-delivery-status-tag" style="margin-top:3px; font-size:0.68rem; color:#e5c378;">⏳ Transmitindo via EmailJS...</div></div>
+                        </div>
+                        <div style="margin-bottom: 6px; display: flex; align-items: flex-start; gap: 8px;">
+                            <span style="font-size: 0.85rem;">💬</span>
+                            <div><strong>WhatsApp do Cliente:</strong> Notificação preparada para <em>${phone}</em> com resumo e instruções.</div>
+                        </div>
+                        <div style="padding-top: 6px; border-top: 1px solid rgba(197, 160, 89, 0.2); color: #94a3b8; font-size: 0.70rem;">
+                            🔒 <strong>Acesso Permanente:</strong> Retorne ao painel clicando em <strong>"MEU PAINEL"</strong> e digitando seu CPF (<em>${cpf}</em>).
                         </div>
                     </div>
 
-                    <button type="button" onclick="window.location.href='termo.html'" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #c5a059 0%, #9c7247 100%); border: 1px solid #e5c378; border-radius: 8px; color: #fff; font-weight: 700; font-size: 0.88rem; letter-spacing: 0.6px; cursor: pointer; box-shadow: 0 4px 20px rgba(197, 160, 89, 0.4); text-transform: uppercase;">
-                        PROSSEGUIR PARA O PAINEL AGORA →
+                    <!-- Ações de Notificação Imediata -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+                        <a href="${waLink}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border: 1px solid #4ade80; color: #fff; text-decoration: none; padding: 9px 10px; border-radius: 6px; font-weight: 700; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);">
+                            <i data-lucide="message-circle" style="width: 14px; height: 14px;"></i> ABRIR NO WHATSAPP
+                        </a>
+                        <button type="button" onclick="openEmailPreviewModal()" style="display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); color: #f6e3c5; padding: 9px 10px; border-radius: 6px; font-weight: 700; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;">
+                            <i data-lucide="mail" style="width: 14px; height: 14px; color: #e5c378;"></i> VER E-MAIL ENVIADO
+                        </button>
+                    </div>
+
+                    <!-- Botão Principal de Avanço -->
+                    <button type="button" onclick="window.location.href='termo.html'" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #c5a059 0%, #9c7247 100%); border: 1px solid #e5c378; border-radius: 8px; color: #fff; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.8px; cursor: pointer; box-shadow: 0 4px 20px rgba(197, 160, 89, 0.4); text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span>PROSSEGUIR PARA O PAINEL AGORA</span>
+                        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
                     </button>
                 </div>
             `;
+
+            formView.style.display = 'none';
+            successView.style.display = 'flex';
             if (window.lucide) lucide.createIcons();
         } else {
             window.location.href = 'termo.html';
@@ -1367,9 +1483,319 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     };
 
-    // Vincular submit do form explicitamente
-    const formChk = document.getElementById('form-checkout-simulado');
-    if (formChk) {
+    // =========================================================================
+    // INTEGRAÇÃO REAL DO CHECKOUT COM ASAAS (PIX AUTOMÁTICO)
+    // =========================================================================
+    let asaasPixPollingInterval = null;
+
+    window.handleRealAsaasCheckout = async function(e) {
+        if (e) e.preventDefault();
+
+        const nameEl = document.getElementById('chk-input-name');
+        const cpfEl = document.getElementById('chk-input-cpf');
+        const emailEl = document.getElementById('chk-input-email');
+        const phoneEl = document.getElementById('chk-input-phone');
+        const btnSubmit = document.getElementById('btn-submit-real-pix');
+
+        const name = (nameEl?.value || '').trim();
+        const cpf = (cpfEl?.value || '').trim();
+        const email = (emailEl?.value || '').trim();
+        const phone = (phoneEl?.value || '').trim();
+
+        const errNameEl = document.getElementById('err-chk-name');
+        const errCpfEl = document.getElementById('err-chk-cpf');
+
+        // 1. Validação de Nome Completo
+        const partesNome = name.split(/\s+/).filter(p => p.length >= 2);
+        if (partesNome.length < 2) {
+            if (errNameEl) errNameEl.style.display = 'block';
+            nameEl?.focus();
+            return;
+        } else {
+            if (errNameEl) errNameEl.style.display = 'none';
+        }
+
+        // 2. Validação de CPF
+        if (!cpf || !window.validarCPF(cpf)) {
+            if (errCpfEl) errCpfEl.style.display = 'block';
+            cpfEl?.focus();
+            return;
+        } else {
+            if (errCpfEl) errCpfEl.style.display = 'none';
+        }
+
+        const phoneDigits = phone.replace(/\D/g, '');
+        if (!phone || phoneDigits.length < 10) {
+            phoneEl?.focus();
+            return;
+        }
+
+        // 3. Plano Selecionado
+        const planInfo = currentSelectedPlanData || {
+            planId: 'emocao',
+            planName: 'Plano Legatum',
+            duration: '2 Minutos',
+            format: 'Formato Horizontal',
+            hasUpsell: false,
+            priceFormatted: 'R$ 897,00'
+        };
+
+        // Extrair valor numérico do plano (ex: "R$ 897,00" -> 897.00)
+        let numericValue = 897.00;
+        try {
+            const cleanVal = planInfo.priceFormatted.replace(/[^\d,]/g, '').replace(',', '.');
+            const parsedVal = parseFloat(cleanVal);
+            if (!isNaN(parsedVal) && parsedVal > 0) numericValue = parsedVal;
+        } catch(e) {}
+
+        // Gerar número de pedido
+        let nextOrderSeq = 1001;
+        try {
+            const savedSeq = parseInt(localStorage.getItem('reviva_last_order_seq') || '1000', 10);
+            nextOrderSeq = isNaN(savedSeq) ? 1001 : (savedSeq + 1);
+            localStorage.setItem('reviva_last_order_seq', nextOrderSeq.toString());
+        } catch(e) {}
+        const orderId = 'REVIVA-' + nextOrderSeq;
+
+        // Feedback no botão de envio
+        const originalBtnHtml = btnSubmit ? btnSubmit.innerHTML : '';
+        if (btnSubmit) {
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i data-lucide="loader" style="animation: spin 1s linear infinite;"></i> GERANDO PIX OFICIAL NO ASAAS...';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        try {
+            const response = await fetch('/api/asaas/create-pix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: name,
+                    cpf: cpf,
+                    email: email,
+                    phone: phone,
+                    value: numericValue,
+                    orderId: orderId,
+                    planName: planInfo.planName,
+                    description: `Homenagem Afetiva - ${planInfo.planName} (${orderId})`
+                })
+            });
+
+            const result = await response.json();
+
+            if (!result.success || !result.encodedImage) {
+                throw new Error(result.error || 'Não foi possível gerar o PIX no momento.');
+            }
+
+            // Exibir a tela do PIX
+            const formView = document.getElementById('checkout-form-view');
+            const pixView = document.getElementById('checkout-pix-view');
+            const qrImg = document.getElementById('pix-qrcode-img');
+            const copiaColaInput = document.getElementById('pix-copia-cola-input');
+            const linkFatura = document.getElementById('link-fatura-asaas');
+
+            if (qrImg) qrImg.src = `data:image/png;base64,${result.encodedImage}`;
+            if (copiaColaInput) copiaColaInput.value = result.payload;
+            if (linkFatura && result.invoiceUrl) linkFatura.href = result.invoiceUrl;
+
+            if (formView) formView.style.display = 'none';
+            if (pixView) {
+                pixView.style.display = 'flex';
+                if (window.lucide) lucide.createIcons();
+            }
+
+            // Iniciar Polling de Status do Pagamento (Checa a cada 3 segundos se o cliente pagou)
+            startAsaasPaymentPolling(result.paymentId, {
+                orderId, name, cpf, email, phone, planInfo
+            });
+
+        } catch (err) {
+            console.error('Erro ao gerar PIX:', err);
+            alert(`Aviso ao conectar com Asaas:\n${err?.message || err}\n\nVocê também pode usar o botão "Modo Desenvolvedor" para testar o fluxo gratuitamente.`);
+            if (btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = originalBtnHtml;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+    };
+
+    window.handleRealAsaasCreditCard = async function(e) {
+        if (e) e.preventDefault();
+        const nameEl = document.getElementById('chk-input-name');
+        const cpfEl = document.getElementById('chk-input-cpf');
+        const emailEl = document.getElementById('chk-input-email');
+        const phoneEl = document.getElementById('chk-input-phone');
+
+        const name = (nameEl?.value || '').trim();
+        const cpf = (cpfEl?.value || '').trim();
+        const email = (emailEl?.value || '').trim();
+        const phone = (phoneEl?.value || '').trim();
+
+        const partesNome = name.split(/\s+/).filter(p => p.length >= 2);
+        if (partesNome.length < 2) {
+            alert('Por favor, preencha seu nome e sobrenome completos.');
+            nameEl?.focus();
+            return;
+        }
+        if (!cpf || !window.validarCPF(cpf)) {
+            alert('Por favor, informe um CPF válido.');
+            cpfEl?.focus();
+            return;
+        }
+
+        const planInfo = currentSelectedPlanData || {
+            planId: 'emocao',
+            planName: 'Plano Legatum',
+            priceFormatted: 'R$ 897,00'
+        };
+
+        let numericValue = 897.00;
+        try {
+            const cleanVal = planInfo.priceFormatted.replace(/[^\d,]/g, '').replace(',', '.');
+            const parsedVal = parseFloat(cleanVal);
+            if (!isNaN(parsedVal) && parsedVal > 0) numericValue = parsedVal;
+        } catch(e) {}
+
+        let nextOrderSeq = 1001;
+        try {
+            const savedSeq = parseInt(localStorage.getItem('reviva_last_order_seq') || '1000', 10);
+            nextOrderSeq = isNaN(savedSeq) ? 1001 : (savedSeq + 1);
+            localStorage.setItem('reviva_last_order_seq', nextOrderSeq.toString());
+        } catch(e) {}
+        const orderId = 'REVIVA-' + nextOrderSeq;
+
+        try {
+            const res = await fetch('/api/asaas/create-pix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name, cpf, email, phone,
+                    value: numericValue,
+                    orderId,
+                    planName: planInfo.planName,
+                    description: `Homenagem Afetiva - ${planInfo.planName} (${orderId})`
+                })
+            });
+            const result = await res.json();
+            if (result.success && result.invoiceUrl) {
+                // Abrir página de fatura com opção de Cartão em até 12x
+                window.open(result.invoiceUrl, '_blank');
+                // Deixar polling ativo aguardando o pagamento do cartão
+                startAsaasPaymentPolling(result.paymentId, {
+                    orderId, name, cpf, email, phone, planInfo
+                });
+            } else {
+                throw new Error(result.error || 'Erro ao gerar link de pagamento.');
+            }
+        } catch(err) {
+            alert(`Aviso Asaas: ${err?.message || err}`);
+        }
+    };
+
+    function startAsaasPaymentPolling(paymentId, orderMeta) {
+        if (asaasPixPollingInterval) clearInterval(asaasPixPollingInterval);
+
+        const statusTextEl = document.getElementById('pix-polling-status-text');
+
+        asaasPixPollingInterval = setInterval(async () => {
+            try {
+                const res = await fetch(`/api/asaas/check-status/${paymentId}`);
+                const data = await res.json();
+
+                if (data.success && data.isPaid) {
+                    clearInterval(asaasPixPollingInterval);
+                    asaasPixPollingInterval = null;
+
+                    if (statusTextEl) {
+                        statusTextEl.innerHTML = '<span style="color: #4ade80; font-weight: 700;">✓ PIX CONFIRMADO COM SUCESSO! LIBERANDO...</span>';
+                    }
+
+                    // Gravar sessão e disparar notificações
+                    concludePaidOrder(orderMeta);
+                }
+            } catch(e) {
+                console.warn('[Asaas Polling Status]:', e);
+            }
+        }, 3000);
+    }
+
+    function concludePaidOrder({ orderId, name, cpf, email, phone, planInfo }) {
+        const orderData = {
+            order_id: orderId,
+            customer_name: name,
+            customer_cpf: cpf,
+            customer_email: email,
+            customer_phone: phone,
+            plan_id: planInfo.planId || 'emocao',
+            plan_name: planInfo.planName || 'Plano Legatum',
+            plan_duration: planInfo.duration || '2 Minutos',
+            plan_format: planInfo.format || 'Formato Horizontal',
+            has_upsell: !!planInfo.hasUpsell,
+            total_price: planInfo.priceFormatted || 'R$ 897,00',
+            status: 'paid',
+            created_at: new Date().toISOString()
+        };
+
+        localStorage.setItem('reviva_order_data', JSON.stringify(orderData));
+        localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone }));
+        localStorage.removeItem('reviva_legal_term');
+
+        let fullState = {};
+        try {
+            const raw = localStorage.getItem('reviva_full_session_state');
+            if (raw) fullState = JSON.parse(raw);
+        } catch(err) {}
+        fullState.orderData = orderData;
+        fullState.legalTermSigned = null;
+        fullState.clientName = name;
+        fullState.clientCpf = cpf;
+        fullState.clientEmail = email;
+        fullState.clientPhone = phone;
+        localStorage.setItem('reviva_full_session_state', JSON.stringify(fullState));
+
+        // Enviar notificações automáticas
+        if (window.RevivaNotifications) {
+            window.RevivaNotifications.sendWelcomeNotifications(orderData, { name, cpf, email, phone });
+        }
+
+        // Redireciona suavemente para o Termo
+        setTimeout(() => {
+            window.location.href = 'termo.html';
+        }, 1500);
+    }
+
+    window.copyPixPayloadCode = function() {
+        const input = document.getElementById('pix-copia-cola-input');
+        const btnText = document.getElementById('btn-copy-pix-text');
+        if (!input) return;
+
+        input.select();
+        navigator.clipboard?.writeText(input.value).then(() => {
+            if (btnText) btnText.textContent = '✓ COPIADO!';
+            setTimeout(() => {
+                if (btnText) btnText.textContent = 'COPIAR PIX';
+            }, 2500);
+        }).catch(() => {
+            alert('Código PIX Copiado!');
+        });
+    };
+
+    window.cancelPixAndBackToForm = function() {
+        if (asaasPixPollingInterval) {
+            clearInterval(asaasPixPollingInterval);
+            asaasPixPollingInterval = null;
+        }
+        const formView = document.getElementById('checkout-form-view');
+        const pixView = document.getElementById('checkout-pix-view');
+        const btnSubmit = document.getElementById('btn-submit-real-pix');
+        if (pixView) pixView.style.display = 'none';
+        if (formView) formView.style.display = 'block';
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = '<i data-lucide="qr-code"></i> <span>GERAR PIX OFICIAL (ASAAS)</span>';
+            if (window.lucide) lucide.createIcons();
+        }
         formChk.addEventListener('submit', window.handleSimulateCheckout);
     }
 

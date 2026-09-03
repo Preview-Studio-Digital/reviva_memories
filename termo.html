@@ -13,6 +13,11 @@
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- jsPDF & JSZip para emissão de PDF e arquivo ZIP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="document_service.js"></script>
 
     <style>
         :root {
@@ -39,16 +44,22 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+        }
+
         body {
             background-color: var(--bg-deep);
             color: var(--text-primary);
             font-family: var(--font-sans);
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 24px 16px;
+            padding: 16px;
+            box-sizing: border-box;
             background-image: 
                 radial-gradient(circle at 50% 0%, rgba(197, 160, 89, 0.12) 0%, transparent 60%),
                 radial-gradient(circle at 80% 100%, rgba(197, 160, 89, 0.08) 0%, transparent 50%),
@@ -58,17 +69,21 @@
 
         .termo-container {
             width: 100%;
-            max-width: 760px;
+            max-width: 860px;
+            height: calc(100vh - 32px);
+            max-height: calc(100vh - 32px);
             background: var(--bg-card);
             border: 1.5px solid var(--border-gold);
             border-radius: var(--radius-md);
-            padding: 32px 36px;
+            padding: clamp(16px, 2.2vh, 24px) clamp(20px, 3vw, 36px);
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 195, 120, 0.18);
             backdrop-filter: blur(16px);
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: clamp(8px, 1.4vh, 14px);
+            box-sizing: border-box;
             position: relative;
+            overflow: hidden;
         }
 
         .termo-header {
@@ -78,32 +93,33 @@
             justify-content: center;
             text-align: center;
             border-bottom: 1px solid rgba(197, 160, 89, 0.3);
-            padding-bottom: 18px;
+            padding-bottom: clamp(8px, 1.2vh, 12px);
             width: 100%;
+            flex-shrink: 0;
         }
 
         .termo-logo {
-            height: 44px;
+            height: clamp(34px, 4.5vh, 44px);
             width: auto;
-            margin: 0 auto 10px auto;
+            margin: 0 auto 6px auto;
             display: block;
             filter: drop-shadow(0 2px 10px rgba(0,0,0,0.8));
         }
 
         .termo-title {
             font-family: var(--font-serif);
-            font-size: 1.25rem;
+            font-size: clamp(1.08rem, 1.4vw + 0.2vh, 1.35rem);
             color: var(--gold-bright);
-            letter-spacing: 1.5px;
+            letter-spacing: 1.2px;
             text-transform: uppercase;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             font-weight: 600;
         }
 
         .termo-subtitle {
-            font-size: 0.78rem;
+            font-size: clamp(0.68rem, 0.78vw, 0.78rem);
             color: var(--text-muted);
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
         }
 
         /* Caixa de Texto Jurídico */
@@ -111,17 +127,18 @@
             background: rgba(8, 5, 3, 0.88);
             border: 1px solid rgba(197, 160, 89, 0.35);
             border-radius: var(--radius-sm);
-            padding: 16px 20px;
-            font-size: 0.76rem;
+            padding: clamp(10px, 1.4vh, 14px) clamp(12px, 1.8vw, 18px);
+            font-size: clamp(0.68rem, 0.75vw, 0.75rem);
             color: var(--text-secondary);
-            line-height: 1.7;
-            max-height: 240px;
+            line-height: 1.55;
+            flex: 1 1 0;
+            min-height: 90px;
             overflow-y: auto;
             text-align: justify;
         }
 
         .termo-legal-box::-webkit-scrollbar {
-            width: 6px;
+            width: 5px;
         }
         .termo-legal-box::-webkit-scrollbar-thumb {
             background: rgba(197, 160, 89, 0.4);
@@ -129,7 +146,7 @@
         }
 
         .termo-legal-box p {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
         .termo-legal-box p:last-child {
             margin-bottom: 0;
@@ -143,33 +160,34 @@
         .termo-form {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: clamp(8px, 1.3vh, 14px);
+            flex-shrink: 0;
         }
 
         .form-grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 14px;
+            gap: clamp(8px, 1.3vw, 14px);
         }
 
         @media (max-width: 640px) {
             .termo-container {
-                padding: 22px 18px;
+                padding: 16px 14px;
             }
             .form-grid-2 {
                 grid-template-columns: 1fr;
-                gap: 10px;
+                gap: 8px;
             }
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
         }
 
         .form-label {
-            font-size: 0.70rem;
+            font-size: clamp(0.66rem, 0.72vw, 0.72rem);
             color: var(--gold-bright);
             font-weight: 600;
             letter-spacing: 0.5px;
@@ -181,9 +199,9 @@
             background: rgba(0, 0, 0, 0.65);
             border: 1px solid rgba(197, 160, 89, 0.45);
             border-radius: var(--radius-sm);
-            padding: 9px 12px;
+            padding: clamp(8px, 1.1vh, 11px) 12px;
             color: #ffffff;
-            font-size: 0.82rem;
+            font-size: clamp(0.78rem, 0.84vw, 0.85rem);
             font-family: var(--font-sans);
             outline: none;
             transition: border-color 0.25s ease, box-shadow 0.25s ease;
@@ -214,15 +232,15 @@
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            font-size: 0.74rem;
+            font-size: clamp(0.68rem, 0.75vw, 0.74rem);
             color: var(--gold-light);
             cursor: pointer;
             background: rgba(197, 160, 89, 0.08);
             border: 1px solid rgba(197, 160, 89, 0.3);
             border-radius: var(--radius-sm);
-            padding: 12px 14px;
-            margin-top: 4px;
-            line-height: 1.5;
+            padding: clamp(8px, 1.2vh, 12px) 12px;
+            margin-top: 2px;
+            line-height: 1.45;
             transition: background 0.2s ease;
         }
         .accept-box:hover {
@@ -230,37 +248,37 @@
         }
         .accept-box input {
             accent-color: var(--gold-bright);
-            width: 16px;
-            height: 16px;
-            margin-top: 2px;
+            width: 15px;
+            height: 15px;
+            margin-top: 1px;
             flex-shrink: 0;
         }
 
         /* Botão Dourado */
         .btn-confirm-termo {
             width: 100%;
-            height: 44px;
+            height: clamp(40px, 5.2vh, 48px);
             background: linear-gradient(135deg, #d4af37 0%, #aa771c 100%);
             border: 1px solid var(--gold-bright);
             border-radius: var(--radius-sm);
             color: #050302;
             font-family: var(--font-sans);
-            font-size: 0.84rem;
+            font-size: clamp(0.78rem, 0.88vw, 0.86rem);
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 16px rgba(212, 175, 55, 0.4);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 18px rgba(212, 175, 55, 0.4);
             transition: all 0.3s ease;
-            margin-top: 6px;
+            margin-top: 2px;
         }
         .btn-confirm-termo:hover {
             background: linear-gradient(135deg, #f3e5ab 0%, #c5a059 100%);
-            box-shadow: 0 4px 22px rgba(229, 195, 120, 0.6);
+            box-shadow: 0 4px 24px rgba(229, 195, 120, 0.6);
             transform: translateY(-1px);
         }
 
@@ -270,82 +288,90 @@
             background: rgba(34, 197, 94, 0.08);
             border: 1.5px solid rgba(34, 197, 94, 0.5);
             border-radius: var(--radius-md);
-            padding: 20px 24px;
-            margin-top: 14px;
-            box-shadow: 0 0 25px rgba(34, 197, 94, 0.15);
+            padding: clamp(16px, 2.5vh, 26px) clamp(18px, 2.5vw, 28px);
+            margin: auto 0;
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.25);
+            flex-direction: column;
+            justify-content: space-between;
+            gap: clamp(10px, 1.8vh, 18px);
+        }
+
+        .receipt-card.active {
+            display: flex !important;
         }
 
         .receipt-header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             color: #4ade80;
-            font-size: 0.92rem;
+            font-size: clamp(1rem, 1.2vw, 1.15rem);
             font-weight: 700;
-            margin-bottom: 12px;
             border-bottom: 1px solid rgba(34, 197, 94, 0.25);
-            padding-bottom: 8px;
+            padding-bottom: clamp(10px, 1.5vh, 14px);
         }
 
         .receipt-data-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 0.74rem;
+            gap: clamp(10px, 1.5vw, 16px);
+            font-size: clamp(0.76rem, 0.85vw, 0.84rem);
             color: #e2e8f0;
         }
 
         .receipt-item {
             background: rgba(0, 0, 0, 0.4);
-            padding: 8px 10px;
-            border-radius: 4px;
+            padding: clamp(10px, 1.6vh, 14px) 14px;
+            border-radius: 6px;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .receipt-item-label {
-            font-size: 0.64rem;
+            font-size: 0.65rem;
             color: #94a3b8;
             text-transform: uppercase;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
         }
 
         .receipt-item-val {
             color: #f8fafc;
             font-weight: 600;
+            font-size: clamp(0.82rem, 0.95vw, 0.92rem);
         }
 
         .receipt-hash {
             grid-column: 1 / -1;
             font-family: monospace;
-            font-size: 0.68rem;
+            font-size: clamp(0.70rem, 0.8vw, 0.78rem);
             color: #4ade80;
             background: rgba(0, 0, 0, 0.6);
-            padding: 8px 10px;
-            border-radius: 4px;
+            padding: clamp(10px, 1.5vh, 14px) 14px;
+            border-radius: 6px;
             border: 1px solid rgba(34, 197, 94, 0.3);
             word-break: break-all;
         }
 
         .btn-to-painel {
             width: 100%;
-            height: 42px;
+            height: clamp(42px, 5.5vh, 50px);
             background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
             border: 1px solid #4ade80;
             border-radius: var(--radius-sm);
             color: #ffffff;
             font-family: var(--font-sans);
-            font-size: 0.84rem;
+            font-size: clamp(0.82rem, 0.92vw, 0.90rem);
             font-weight: 700;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            margin-top: 14px;
+            margin-top: 0;
             text-decoration: none;
-            box-shadow: 0 4px 16px rgba(34, 197, 94, 0.35);
+            box-shadow: 0 4px 18px rgba(34, 197, 94, 0.35);
             transition: all 0.25s ease;
         }
         .btn-to-painel:hover {
@@ -362,7 +388,6 @@
         <header class="termo-header">
             <img src="logo.png" alt="Reviva Memories" class="termo-logo">
             <h1 class="termo-title">Termo de Responsabilidade & Consentimento Ético</h1>
-            <p class="termo-subtitle">Declaração de Titularidade, Vínculo e Autorização de Uso de Imagem & Voz com Inteligência Artificial</p>
         </header>
 
         <!-- Texto Fundamentado dos Termos Legais -->
@@ -385,23 +410,25 @@
             <div class="form-grid-2">
                 <div class="form-group">
                     <label class="form-label" for="iptNome" style="white-space: nowrap;">NOME DO RESPONSÁVEL</label>
-                    <input type="text" id="iptNome" class="form-input" required readonly value="Mariana Silva Santos" style="background: rgba(255,255,255,0.06); color: var(--gold-bright); border-color: rgba(197, 160, 89, 0.25); cursor: not-allowed; font-weight: 600;">
+                    <input type="text" id="iptNome" class="form-input" required placeholder="Nome e sobrenome completos" value="Mariana Silva Santos">
+                    <span id="errNome" style="display: none; color: #f87171; font-size: 0.68rem; margin-top: 4px; line-height: 1.2;">Informe seu nome completo (nome e sobrenome).</span>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="iptCpf" style="white-space: nowrap;">CPF DO RESPONSÁVEL</label>
-                    <input type="text" id="iptCpf" class="form-input" required readonly value="123.456.789-00" style="background: rgba(255,255,255,0.06); color: var(--gold-bright); border-color: rgba(197, 160, 89, 0.25); cursor: not-allowed; font-weight: 600;">
+                    <input type="text" id="iptCpf" class="form-input" required placeholder="000.000.000-00" value="123.456.789-00">
+                    <span id="errCpf" style="display: none; color: #f87171; font-size: 0.68rem; margin-top: 4px; line-height: 1.2;">Informe um CPF válido com 11 dígitos.</span>
                 </div>
             </div>
 
             <!-- Linha 2: Os Dois Laços Obrigatórios (Campos Abertos) -->
             <div class="form-grid-2">
                 <div class="form-group">
-                    <label class="form-label" for="iptNarrador" style="white-space: nowrap;">SEU LAÇO COM A PESSOA FALECIDA *</label>
-                    <input type="text" id="iptNarrador" class="form-input" required placeholder="Ex: Sou filho da pessoa falecida, Sou neto da pessoa falecida, Não cheguei a conhecer a pessoa falecida...">
+                    <label class="form-label" for="iptNarrador" style="white-space: nowrap;">SEU LAÇO COM O ENTE QUERIDO *</label>
+                    <input type="text" id="iptNarrador" class="form-input" required placeholder="Ex: Sou filho(a), Sou neto(a), Amigo(a) da família, Não cheguei a conhecer pessoalmente...">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="iptDestinatario" style="white-space: nowrap;">SEU LAÇO COM A PESSOA HOMENAGEADA *</label>
-                    <input type="text" id="iptDestinatario" class="form-input" required placeholder="Ex: Eu mesmo(a) serei o homenageado(a), Meu namorado será o homenageado, Minha irmã será a homenageada...">
+                    <label class="form-label" for="iptDestinatario" style="white-space: nowrap; text-transform: uppercase;">SEU LAÇO COM A PESSOA HOMENAGEADA *</label>
+                    <input type="text" id="iptDestinatario" class="form-input" required placeholder="Sou namorado(a). Sou filho(a)...">
                 </div>
             </div>
 
@@ -450,10 +477,17 @@
                 </div>
             </div>
 
-            <a href="painel.html" class="btn-to-painel">
-                <i data-lucide="arrow-right-circle"></i>
-                <span>Acessar Painel do Cliente (Etapa 01: O Resgate)</span>
-            </a>
+            <!-- Ações do Comprovante: Download PDF e Avançar -->
+            <div style="display: flex; flex-direction: column; gap: clamp(8px, 1.4vh, 12px); margin-top: clamp(6px, 1vh, 10px);">
+                <button type="button" onclick="downloadTermoPDF()" style="width: 100%; height: clamp(40px, 5.2vh, 46px); background: rgba(197, 160, 89, 0.15); border: 1.5px solid var(--gold-primary); border-radius: var(--radius-sm); color: var(--gold-bright); font-family: var(--font-sans); font-size: clamp(0.80rem, 0.88vw, 0.86rem); font-weight: 700; padding: 0 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.25s ease; letter-spacing: 0.5px;">
+                    <i data-lucide="file-down" style="width: 17px; height: 17px;"></i>
+                    <span>Baixar Termo Assinado em PDF (.pdf)</span>
+                </button>
+                <a href="painel.html?showCurtain=1#step-1" class="btn-to-painel" onclick="localStorage.setItem('reviva_show_curtain_on_enter', 'true'); localStorage.setItem('reviva_active_step', '1');">
+                    <i data-lucide="arrow-right-circle" style="width: 15px; height: 15px;"></i>
+                    <span>Acessar Painel do Cliente</span>
+                </a>
+            </div>
         </div>
 
     </div>
@@ -549,12 +583,15 @@
         const nomeInput = document.getElementById('iptNome');
         const errNome = document.getElementById('errNome');
 
-        nomeInput?.addEventListener('blur', function() {
+        nomeInput?.addEventListener('input', function() {
             if (nomeInput.value.trim().length > 0 && !validarNomeCompleto(nomeInput.value)) {
                 nomeInput.style.borderColor = '#ef4444';
                 if (errNome) errNome.style.display = 'block';
             } else if (validarNomeCompleto(nomeInput.value)) {
                 nomeInput.style.borderColor = '#22c55e';
+                if (errNome) errNome.style.display = 'none';
+            } else {
+                nomeInput.style.borderColor = 'rgba(197, 160, 89, 0.45)';
                 if (errNome) errNome.style.display = 'none';
             }
         });
@@ -570,21 +607,23 @@
             // Validação de Nome
             if (!validarNomeCompleto(nome)) {
                 if (errNome) errNome.style.display = 'block';
+                nomeInput.style.borderColor = '#ef4444';
                 nomeInput.focus();
-                alert('Por favor, informe seu nome e sobrenome completos.');
                 return;
             } else {
                 if (errNome) errNome.style.display = 'none';
+                nomeInput.style.borderColor = '#22c55e';
             }
 
             // Validação de CPF
             if (!validarCPF(cpf)) {
                 if (errCpf) errCpf.style.display = 'block';
+                cpfInput.style.borderColor = '#ef4444';
                 cpfInput.focus();
-                alert('O CPF digitado é inválido. Por favor, digite um CPF real com dígitos verificadores válidos.');
                 return;
             } else {
                 if (errCpf) errCpf.style.display = 'none';
+                cpfInput.style.borderColor = '#22c55e';
             }
 
             if (!narrador || !destinatario || !concordo) {
@@ -631,7 +670,11 @@
             document.getElementById('recHash').textContent = 'PROTOCOLO DIGITAL: ' + pseudoHash + ' • STATUS: REGISTRADO & VÁLIDO';
 
             document.getElementById('formTermoAvaliacao').style.display = 'none';
-            document.getElementById('receiptResult').style.display = 'block';
+            const legalBox = document.querySelector('.termo-legal-box');
+            if (legalBox) legalBox.style.display = 'none';
+            const receipt = document.getElementById('receiptResult');
+            receipt.style.display = 'flex';
+            receipt.classList.add('active');
             if (window.lucide) lucide.createIcons();
         }
 

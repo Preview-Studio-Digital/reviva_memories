@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         window.location.hostname.startsWith('10.') || 
                         window.location.protocol === 'file:';
 
-    let currentStep = 1;
+    let currentStep = 0;
     let orderData = await window.revivaData.getCurrentOrder();
     let currentUser = await window.revivaData.getCurrentUser();
 
@@ -215,6 +215,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let selectedBackground = 'ceu';
     let selectedMusic = 'sem_musica';
     let musicManuallyChosen = false;
+    let currentPreviewAudio = null;
+    let previewFadeInterval = null;
     let interviewAnswers = {};
     let interviewQuestionIndex = 0;
 
@@ -344,18 +346,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (curtainTimer) clearTimeout(curtainTimer);
 
-        // 1. Fade In Nobre (1,5 segundos)
-        curtain.classList.add('active');
+        // Se a cortina já foi ativada previamente (ex: no carregamento da página), mantemos a cobertura total
+        const alreadyActive = curtain.classList.contains('active');
+        if (!alreadyActive) {
+            curtain.classList.add('active');
+        }
 
         // 2. Troca de fase no auge da opacidade (1,5 segundos)
         setTimeout(() => {
             if (callback) callback();
-        }, 1500);
+        }, alreadyActive ? 500 : 1500);
 
-        // 3. Após 1,5s de entrada + 1,0s de leitura = 2,5s total, inicia o Fade Out (1,5 segundos)
+        // 3. Após leitura da transição, inicia o Fade Out suave revelando a tela da etapa
         curtainTimer = setTimeout(() => {
             curtain.classList.remove('active');
-        }, 2500);
+        }, alreadyActive ? 2200 : 2500);
     }
 
     function stopAllAudios() {
@@ -392,6 +397,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 currentAttachedAudio.currentTime = 0;
                 currentPlayingAudioIdx = -1;
                 if (typeof renderAudioPreviews === 'function') renderAudioPreviews();
+            }
+        } catch(e) {}
+
+        // Interromper imediatamente qualquer trilha sonora de teste (Etapa 3)
+        try {
+            if (typeof previewFadeInterval !== 'undefined' && previewFadeInterval) {
+                clearInterval(previewFadeInterval);
+                previewFadeInterval = null;
+            }
+            if (typeof currentPreviewAudio !== 'undefined' && currentPreviewAudio) {
+                currentPreviewAudio.pause();
+                currentPreviewAudio.currentTime = 0;
+                currentPreviewAudio = null;
+            }
+            if (typeof updateMusicPreviewBtnUI === 'function') {
+                updateMusicPreviewBtnUI(false);
             }
         } catch(e) {}
 
@@ -556,12 +577,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                         btnDownload.style.pointerEvents = 'auto';
                     }
                 } else {
-                    finalVideo.src = '';
-                    finalVideo.style.display = 'none';
-                    if (finalPlaceholder) finalPlaceholder.style.display = 'flex';
+                    finalVideo.src = 'about_maderite_preview.webm';
+                    finalVideo.style.display = 'block';
+                    if (finalPlaceholder) finalPlaceholder.style.display = 'none';
                     if (btnDownload) {
-                        btnDownload.href = '#';
-                        btnDownload.style.opacity = '0.5';
+                        btnDownload.href = 'about_maderite_preview.webm';
+                        btnDownload.style.opacity = '1';
+                        btnDownload.style.pointerEvents = 'auto';
                     }
                 }
             }
@@ -637,7 +659,260 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
     }
 
+    // =========================================================================
+    // CONTROLE DE LIBERAÇÃO DE ETAPAS PELA EQUIPE DE PRODUÇÃO
+    // =========================================================================
+    function isStage4ReadyFromTeam() {
+        // A Etapa 04 SÓ fica liberada se a equipe explicitamente liberou ou enviou prévias
+        return localStorage.getItem('reviva_stage4_delivered') === 'true';
+    }
+
+    function isStage5ReadyFromTeam() {
+        // A Etapa 05 SÓ fica liberada se a equipe explicitamente liberou ou publicou o vídeo
+        return localStorage.getItem('reviva_stage5_delivered') === 'true';
+    }
+
+    let currentWaitingStep = null;
+
+    function openWaitingTeamModal(targetStep) {
+        currentWaitingStep = targetStep;
+        const modal = document.getElementById('modal-aguardando-equipe');
+        if (!modal) return;
+
+        const badge = document.getElementById('waiting-modal-badge');
+        const title = document.getElementById('waiting-modal-title');
+        const subtitle = document.getElementById('waiting-modal-subtitle');
+        const body = document.getElementById('waiting-modal-body');
+        const statusBox = document.getElementById('waiting-modal-status-box');
+        const statusText = document.getElementById('waiting-modal-status-text');
+        const dot = statusBox?.querySelector('.waiting-pulse-dot');
+        const btnSimulate = document.getElementById('btn-simulate-team-delivery');
+
+        // Resetar estilos de status para o estado pulsante dourado idêntico em ambas as etapas
+        if (dot) {
+            dot.style.background = '#e5c378';
+            dot.style.boxShadow = '0 0 12px rgba(229, 195, 120, 0.85)';
+        }
+        if (statusBox) {
+            statusBox.style.background = 'transparent';
+            statusBox.style.border = 'none';
+        }
+        if (statusText) {
+            statusText.style.color = 'var(--gold-bright)';
+        }
+
+        if (targetStep === 'revisao' || targetStep === 'revisao_etapa4') {
+            if (badge) badge.style.display = 'none';
+            if (title) title.textContent = 'Suas considerações foram recebidas pela equipe...';
+            if (subtitle) subtitle.textContent = '';
+            if (statusText) statusText.textContent = 'Status: ETAPA 4 EM PRODUÇÃO.';
+            if (body) {
+                body.innerHTML = `
+                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">1. CONSIDERAÇÕES RECEBIDAS</strong>
+                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Seus apontamentos e direcionamentos de ajustes foram encaminhados com sucesso e já estão sob análise da nossa equipe de especialistas.</span>
+                    </div>
+                    
+                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">2. LAPIDAÇÃO ARTESANAL DA NOVA VERSÃO</strong>
+                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Nossos especialistas estão trabalhando minuciosamente nos detalhes indicados para alcançar a máxima fidelidade, naturalidade e respeito à memória do ente querido.</span>
+                    </div>
+
+                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">3. AVISO POR E-MAIL E WHATSAPP</strong>
+                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Você não precisa aguardar nesta tela. Assim que a nova versão for concluída pela equipe, você receberá uma notificação direta por <strong>E-mail</strong> e <strong>WhatsApp</strong>.</span>
+                    </div>
+
+                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">4. LIBERAÇÃO AUTOMÁTICA DAS NOVAS PRÉVIAS</strong>
+                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Assim que os novos arquivos forem publicados pela equipe, esta tela será atualizada instantaneamente para você avaliar e aprovar o resultado com total tranquilidade.</span>
+                    </div>
+                `;
+            }
+        } else if (targetStep === 4) {
+            if (badge) badge.style.display = 'none';
+            if (title) title.textContent = 'Sua homenagem está sendo lapidada com todo o cuidado...';
+            if (subtitle) subtitle.textContent = '';
+            if (statusText) statusText.textContent = 'Status: ETAPA 4 EM PRODUÇÃO.';
+            if (body) {
+                body.innerHTML = `
+                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">1. MATERIAIS & DIRETRIZES RECEBIDOS</strong>
+                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Suas fotos de memória, amostras de voz, o roteiro afetivo aprovado, a ambientação cênica e a trilha sonora foram encaminhados com sucesso à equipe de especialistas da <em>Reviva Memories</em>.</span>
+                    </div>
+                    
+                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">2. PRODUÇÃO & LAPIDAÇÃO ARTESANAL EM ANDAMENTO</strong>
+                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Nossa equipe e sistemas de alta precisão estão realizando a restauração digital da fisionomia em alta definição e a clonagem vocal com a locução do roteiro aprovado, preservando todo o afeto e a naturalidade.</span>
+                    </div>
+
+                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">3. AVISO POR E-MAIL E WHATSAPP</strong>
+                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Você não precisa aguardar nesta tela. Assim que a curadoria concluir as prévias de imagem e voz, você receberá uma notificação direta por <strong>E-mail</strong> e <strong>WhatsApp</strong> para conferir o resultado.</span>
+                    </div>
+
+                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">4. LIBERAÇÃO AUTOMÁTICA DA ETAPA</strong>
+                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Assim que os arquivos forem publicados pela equipe, o acesso à <strong>Etapa 04 (A Lapidação)</strong> será liberado instantaneamente na sua tela com a transição cinematográfica.</span>
+                    </div>
+                `;
+            }
+        } else if (targetStep === 5) {
+            if (badge) badge.style.display = 'none';
+            if (title) title.textContent = 'A magia do reencontro está sendo finalizada...';
+            if (subtitle) subtitle.textContent = '';
+            if (statusText) statusText.textContent = 'Status: ETAPA 5 EM PRODUÇÃO.';
+            if (body) {
+                body.innerHTML = `
+                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">1. VALIDAÇÃO DAS PRÉVIAS REGISTRADA</strong>
+                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Sua aprovação da nova imagem e da locução na voz clonada foi confirmada e encaminhada para a pós-produção cinematográfica final.</span>
+                    </div>
+
+                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">2. COMPUTAÇÃO GRÁFICA, SINCRONIZAÇÃO LABIAL & MASTERIZAÇÃO</strong>
+                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Nossa equipe está processando a sincronia labial ultra-realista, movimentos naturais dos olhos e expressões faciais, harmonização sonora e masterização em resolução cinematográfica.</span>
+                    </div>
+
+                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">3. AVISO POR E-MAIL E WHATSAPP</strong>
+                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Assim que a homenagem em vídeo for concluída e disponibilizada, você receberá um aviso imediato por <strong>E-mail</strong> e <strong>WhatsApp</strong> e poderá acessar a última etapa: o reencontro.</span>
+                    </div>
+
+                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">4. LIBERAÇÃO AUTOMÁTICA DA SALA DE REVELAÇÃO</strong>
+                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">A etapa 05: O Reencontro será liberada instantaneamente com o player cinematográfico e as opções de download e encaminhamento para você vivenciar e guardar para sempre a homenagem.</span>
+                    </div>
+                `;
+            }
+        }
+
+        // O botão dourado principal só permite fechar se for em ambiente de teste local (localhost).
+        // Para o cliente real em produção, o botão exibe 'PRODUÇÃO EM ANDAMENTO' e permanece bloqueado até a equipe liberar.
+        const btnClose = document.getElementById('btn-close-waiting-modal');
+        if (btnClose) {
+            if (isLocalhost) {
+                btnClose.textContent = 'ENTENDI, AGUARDAR PRODUÇÃO (TESTE: FECHAR)';
+                btnClose.style.cursor = 'pointer';
+                btnClose.style.opacity = '1';
+                btnClose.disabled = false;
+            } else {
+                btnClose.textContent = 'PRODUÇÃO EM ANDAMENTO';
+                btnClose.style.cursor = 'not-allowed';
+                btnClose.style.opacity = '0.85';
+                btnClose.disabled = true;
+            }
+        }
+
+        // Exibir botão de simulação apenas em ambiente local para testes
+        if (btnSimulate) {
+            btnSimulate.style.display = isLocalhost ? 'inline-block' : 'none';
+        }
+
+        // Salvar que o cliente está sob bloqueio
+        localStorage.setItem('reviva_waiting_active', String(targetStep));
+
+        modal.style.display = 'flex';
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function closeWaitingTeamModal() {
+        if (!isLocalhost) {
+            // Em produção/site real, o cliente NÃO pode fechar nem navegar para fora da tela de bloqueio
+            return;
+        }
+        const modal = document.getElementById('modal-aguardando-equipe');
+        if (modal) modal.style.display = 'none';
+        currentWaitingStep = null;
+        localStorage.removeItem('reviva_waiting_active');
+    }
+
+    window.closeWaitingTeamModal = closeWaitingTeamModal;
+
+    function onTeamDeliveryDetected(targetStep) {
+        const statusBox = document.getElementById('waiting-modal-status-box');
+        const statusText = document.getElementById('waiting-modal-status-text');
+        const dot = statusBox?.querySelector('.waiting-pulse-dot');
+        
+        if (dot) {
+            dot.style.background = '#22c55e';
+            dot.style.boxShadow = '0 0 14px #22c55e';
+        }
+        if (statusBox) {
+            statusBox.style.background = 'rgba(34, 197, 94, 0.15)';
+            statusBox.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+        }
+        if (statusText) {
+            statusText.style.color = '#4ade80';
+            statusText.textContent = targetStep === 4 
+                ? '✓ Prévias finalizadas pela equipe! Liberando Etapa 04...' 
+                : '✓ Homenagem finalizada pela equipe! Liberando Sala de Revelação...';
+        }
+
+        setTimeout(() => {
+            const modal = document.getElementById('modal-aguardando-equipe');
+            if (modal) modal.style.display = 'none';
+            currentWaitingStep = null;
+            localStorage.removeItem('reviva_waiting_active');
+            goToStep(targetStep);
+        }, 1200);
+    }
+
+    function checkAndHandleTeamDelivery() {
+        const modal = document.getElementById('modal-aguardando-equipe');
+        const isModalOpen = modal && modal.style.display === 'flex';
+
+        if (isModalOpen && currentWaitingStep) {
+            if ((currentWaitingStep === 4 || currentWaitingStep === 'revisao') && isStage4ReadyFromTeam()) {
+                onTeamDeliveryDetected(4);
+            } else if (currentWaitingStep === 5 && isStage5ReadyFromTeam()) {
+                onTeamDeliveryDetected(5);
+            }
+        }
+    }
+
+    function simulateTeamDelivery() {
+        if (!currentWaitingStep) return;
+        if (currentWaitingStep === 4 || currentWaitingStep === 'revisao') {
+            localStorage.setItem('reviva_stage4_delivered', 'true');
+            if (!localStorage.getItem('reviva_producer_image') && uploadedPhotos.length > 0) {
+                localStorage.setItem('reviva_producer_image', uploadedPhotos[0].dataUrl);
+            }
+        } else if (currentWaitingStep === 5) {
+            localStorage.setItem('reviva_stage5_delivered', 'true');
+        }
+        checkAndHandleTeamDelivery();
+    }
+
+    window.simulateTeamDelivery = simulateTeamDelivery;
+
+    // Ouvintes para detecção em tempo real entre abas (Admin <-> Painel)
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'reviva_stage4_delivered' || e.key === 'reviva_producer_image' || e.key === 'reviva_producer_audio' ||
+            e.key === 'reviva_stage5_delivered' || e.key === 'reviva_producer_video') {
+            checkAndHandleTeamDelivery();
+        }
+    });
+
+    // Polling contínuo leve a cada 1.5s
+    setInterval(checkAndHandleTeamDelivery, 1500);
+
     function goToStep(step, immediate = false) {
+        // Interrompe imediatamente qualquer trilha sonora ou áudio que esteja tocando no momento em que o usuário avança
+        stopAllAudios();
+
+        // 1. Bloqueio da Etapa 04: depende dos envios da equipe (prévias de imagem e voz)
+        if (step === 4 && !isStage4ReadyFromTeam()) {
+            openWaitingTeamModal(4);
+            return;
+        }
+
+        // 2. Bloqueio da Etapa 05: depende da conclusão e publicação do vídeo final pela equipe
+        if (step === 5 && !isStage5ReadyFromTeam()) {
+            openWaitingTeamModal(5);
+            return;
+        }
+
         if (!ENABLE_STEP_TRANSITIONS || immediate || step === currentStep) {
             executeStepSwitch(step);
         } else {
@@ -1255,7 +1530,10 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
 
             // 5. Restaurar Etapa Atual (somente se solicitado explicitamente na carga inicial)
             if (shouldNavigate && state.currentStep && state.currentStep >= 1) {
-                goToStep(state.currentStep, true);
+                let st = state.currentStep;
+                if (st === 4 && !isStage4ReadyFromTeam()) st = 3;
+                if (st === 5 && !isStage5ReadyFromTeam()) st = 4;
+                goToStep(st, true);
             }
 
             return true;
@@ -1325,7 +1603,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
             const keysToRemove = [];
             for (let i = 0; i < localStorage.length; i++) {
                 const k = localStorage.key(i);
-                if (k && (k.startsWith('reviva_order_state_') || k.startsWith('reviva_full_session_state') || k === 'reviva_active_step' || k === 'reviva_chat_session' || k.startsWith('reviva_producer_') || k === 'reviva_media_revisions')) {
+                if (k && (k.startsWith('reviva_order_state_') || k.startsWith('reviva_full_session_state') || k === 'reviva_active_step' || k === 'reviva_chat_session' || k.startsWith('reviva_producer_') || k.startsWith('reviva_stage') || k === 'reviva_media_revisions')) {
                     keysToRemove.push(k);
                 }
             }
@@ -1399,8 +1677,8 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
 
         const btnDownload = document.getElementById('btnDownloadFinalVideo');
         if (btnDownload) {
-            btnDownload.href = '#';
-            btnDownload.style.opacity = '0.5';
+            btnDownload.href = 'about_maderite_preview.webm';
+            btnDownload.style.opacity = '1';
         }
 
         if (redirectStep1) {
@@ -2094,9 +2372,6 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
     };
 
     // Player de Amostra de Trilha Sonora com Pause Imediato e Fade Out nos últimos 5 segundos
-    let currentPreviewAudio = null;
-    let previewFadeInterval = null;
-
     function stopMusicPreviewImmediately() {
         if (previewFadeInterval) {
             clearInterval(previewFadeInterval);
@@ -2105,6 +2380,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
 
         if (currentPreviewAudio) {
             currentPreviewAudio.pause();
+            currentPreviewAudio.currentTime = 0;
             currentPreviewAudio = null;
         }
 
@@ -2682,45 +2958,115 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
             latestVoiceFeedback = voiceTxt;
         }
 
-        // Notifica o cliente que a equipe do ateliê recebeu o envio oficial
-        alert('🕊️ Solicitação de Correções Registrada com Sucesso!\n\nNossa equipe do ateliê já recebeu suas considerações e iniciou a produção dos ajustes solicitados com todo o carinho.\n\nAssim que a nova versão for finalizada, você receberá um aviso pelo WhatsApp para conferir e aprovar novamente aqui no seu painel exclusivo.');
+        // Se houver reprovação de imagem ou voz: marca etapa como aguardando nova entrega da equipe
+        localStorage.setItem('reviva_stage4_delivered', 'false');
         saveFullSessionState();
+
+        // Abre diretamente a tela de bloqueio nobre informando que a equipe está cuidando dos ajustes
+        openWaitingTeamModal('revisao');
     });
 
     // =========================================================================
     // ETAPA 05: O REENCONTRO (AÇÕES & COMPARTILHAMENTO)
     // =========================================================================
-    const btnCopyRevealLink = document.getElementById('btnCopyRevealLink');
-    if (btnCopyRevealLink) {
-        btnCopyRevealLink.addEventListener('click', () => {
-            const revealUrl = `${window.location.origin}/revelar.html?v=reviva_token_mariana_777`;
-            navigator.clipboard?.writeText(revealUrl).then(() => {
-                const originalHtml = btnCopyRevealLink.innerHTML;
-                btnCopyRevealLink.innerHTML = '<i data-lucide="check" style="width: 14px; height: 14px;"></i> LINK COPIADO!';
-                if (window.lucide) lucide.createIcons();
-                setTimeout(() => {
-                    btnCopyRevealLink.innerHTML = originalHtml;
-                    if (window.lucide) lucide.createIcons();
-                }, 2500);
-            }).catch(() => {
-                alert(`Link da Sala de Revelação:\n${revealUrl}`);
-            });
+    function getRevealPageUrl() {
+        let names = { homenageado: '', ente: '' };
+        try {
+            if (typeof extractHomenagemNames === 'function') {
+                names = extractHomenagemNames();
+            }
+        } catch(e) {
+            console.warn('Erro ao extrair nomes da homenagem:', e);
+        }
+        const params = new URLSearchParams();
+        params.set('v', 'reviva_token_mariana_777');
+        if (names && names.homenageado) params.set('h', names.homenageado);
+        if (names && names.ente) params.set('e', names.ente);
+        const origin = (window.location.origin && window.location.origin !== 'null') ? window.location.origin : window.location.href.split('/painel')[0];
+        return `${origin}/revelar.html?${params.toString()}`;
+    }
+
+    const btnGoToRevealRoom = document.getElementById('btnGoToRevealRoom');
+    if (btnGoToRevealRoom) {
+        btnGoToRevealRoom.addEventListener('click', () => {
+            btnGoToRevealRoom.href = getRevealPageUrl();
         });
     }
 
-    const finalHomenagemVideo = document.getElementById('final-homenagem-video');
-    const videoManuscritoOverlay = document.getElementById('video-manuscrito-overlay');
-    if (finalHomenagemVideo && videoManuscritoOverlay) {
-        finalHomenagemVideo.addEventListener('play', () => {
-            videoManuscritoOverlay.style.opacity = '0';
-        });
-        finalHomenagemVideo.addEventListener('pause', () => {
-            videoManuscritoOverlay.style.opacity = '1';
-        });
-        finalHomenagemVideo.addEventListener('ended', () => {
-            videoManuscritoOverlay.style.opacity = '1';
-        });
+    // Função global explícita de cópia para garantir acionamento direto e feedback instantâneo
+    window.copiarLinkWhatsApp = function(event) {
+        if (event) event.preventDefault();
+        
+        const btn = document.getElementById('btnCopyRevealLink');
+        const textSpan = document.getElementById('btnCopyRevealLinkText');
+        const iconContainer = document.getElementById('btnCopyRevealLinkIcon');
+
+        // Feedback visual imediato
+        if (textSpan) {
+            textSpan.textContent = 'LINK COPIADO!';
+            textSpan.style.color = '#4ade80';
+        }
+        if (iconContainer) {
+            iconContainer.innerHTML = '<i data-lucide="check" style="width: 14px; height: 14px; flex-shrink: 0; color: #4ade80;"></i>';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // Gera o link da página de revelação
+        let revealUrl = `${window.location.origin}/revelar.html?v=reviva_token_mariana_777`;
+        try {
+            revealUrl = getRevealPageUrl();
+        } catch(e) {
+            console.warn('Erro ao obter URL de revelação:', e);
+        }
+
+        // Executa a cópia
+        fallbackCopyText(revealUrl);
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(revealUrl).catch(() => {});
+        }
+
+        // Restaura após 2,5 segundos
+        setTimeout(() => {
+            if (textSpan) {
+                textSpan.textContent = 'LINK WHATSAPP';
+                textSpan.style.color = '';
+            }
+            if (iconContainer) {
+                iconContainer.innerHTML = '<i data-lucide="share-2" style="width: 14px; height: 14px; flex-shrink: 0;"></i>';
+                if (window.lucide) lucide.createIcons();
+            }
+        }, 2500);
+    };
+
+    const btnCopyRevealLink = document.getElementById('btnCopyRevealLink');
+    if (btnCopyRevealLink) {
+        btnCopyRevealLink.onclick = window.copiarLinkWhatsApp;
     }
+
+    // Fallback universal e garantido para cópia de links
+    function fallbackCopyText(text, onSuccess) {
+        try {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.top = '-9999px';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.focus();
+            tempInput.select();
+            const successful = document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            if (successful && onSuccess) {
+                onSuccess();
+                return;
+            }
+        } catch (err) {
+            console.warn('Erro no fallback de cópia:', err);
+        }
+        if (onSuccess) onSuccess();
+    }
+
+    const finalHomenagemVideo = document.getElementById('final-homenagem-video');
 
     // =========================================================================
     // SISTEMA DE MÚSICA DE FUNDO E ONDAS SONORAS (IDÊNTICO AO SITE ORIGINAL)
@@ -2852,16 +3198,33 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
             if (inputName) { 
                 const customerName = (typeof orderData !== 'undefined' && orderData?.customer_name) ? orderData.customer_name : 'Mariana Silva Santos';
                 inputName.value = legalTermSigned?.name || customerName; 
-                inputName.readOnly = true; 
+                inputName.readOnly = false;
+                inputName.disabled = false;
+                inputName.style.cursor = 'text';
             }
             if (inputCpf) { 
                 const customerCpf = (typeof orderData !== 'undefined' && orderData?.customer_cpf) ? orderData.customer_cpf : '123.456.789-00';
                 inputCpf.value = legalTermSigned?.cpf || customerCpf; 
-                inputCpf.readOnly = true; 
+                inputCpf.readOnly = false;
+                inputCpf.disabled = false;
+                inputCpf.style.cursor = 'text';
             }
             if (inputNarrator) { inputNarrator.value = legalTermSigned?.relationNarrator || legalTermSigned?.relation || ''; inputNarrator.disabled = false; }
             if (inputRecipient) { inputRecipient.value = legalTermSigned?.relationRecipient || ''; inputRecipient.disabled = false; }
             if (chkAccept) { chkAccept.checked = false; chkAccept.disabled = false; }
+        }
+
+        const errNomeEl = document.getElementById('errTermNome');
+        const errCpfEl = document.getElementById('errTermCpf');
+        if (errNomeEl) errNomeEl.style.display = 'none';
+        if (errCpfEl) errCpfEl.style.display = 'none';
+        if (inputName) {
+            inputName.style.borderColor = 'rgba(197, 160, 89, 0.4)';
+            inputName.style.boxShadow = 'none';
+        }
+        if (inputCpf) {
+            inputCpf.style.borderColor = 'rgba(197, 160, 89, 0.4)';
+            inputCpf.style.boxShadow = 'none';
         }
 
         modal.style.display = 'flex';
@@ -2894,20 +3257,58 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         return true;
     }
 
-    // Máscara dinâmica de CPF no modal
-    document.getElementById('term-signer-cpf')?.addEventListener('input', function(e) {
+    // Máscara dinâmica de CPF no modal e validação visual
+    const termCpfInput = document.getElementById('term-signer-cpf');
+    const termNomeInput = document.getElementById('term-signer-name');
+
+    termCpfInput?.addEventListener('input', function(e) {
         let v = e.target.value.replace(/\D/g, '');
         if (v.length > 11) v = v.slice(0, 11);
         if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
         else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
         else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
         e.target.value = v;
+
+        const errCpfEl = document.getElementById('errTermCpf');
+        if (v.replace(/\D/g, '').length === 11) {
+            if (validarCpfOficial(v)) {
+                termCpfInput.style.borderColor = '#22c55e';
+                termCpfInput.style.boxShadow = '0 0 8px rgba(34, 197, 94, 0.3)';
+                if (errCpfEl) errCpfEl.style.display = 'none';
+            } else {
+                termCpfInput.style.borderColor = '#ef4444';
+                termCpfInput.style.boxShadow = '0 0 8px rgba(239, 68, 68, 0.3)';
+                if (errCpfEl) errCpfEl.style.display = 'block';
+            }
+        } else {
+            termCpfInput.style.borderColor = 'rgba(197, 160, 89, 0.4)';
+            termCpfInput.style.boxShadow = 'none';
+            if (errCpfEl) errCpfEl.style.display = 'none';
+        }
+    });
+
+    termNomeInput?.addEventListener('input', function(e) {
+        const val = e.target.value.trim();
+        const errNomeEl = document.getElementById('errTermNome');
+        const partes = val.split(/\s+/).filter(p => p.length >= 2);
+        if (val.length > 0 && partes.length >= 2) {
+            termNomeInput.style.borderColor = '#22c55e';
+            termNomeInput.style.boxShadow = '0 0 8px rgba(34, 197, 94, 0.3)';
+            if (errNomeEl) errNomeEl.style.display = 'none';
+        } else if (val.length > 0 && partes.length < 2) {
+            termNomeInput.style.borderColor = '#ef4444';
+            termNomeInput.style.boxShadow = '0 0 8px rgba(239, 68, 68, 0.3)';
+            if (errNomeEl) errNomeEl.style.display = 'block';
+        } else {
+            termNomeInput.style.borderColor = 'rgba(197, 160, 89, 0.4)';
+            termNomeInput.style.boxShadow = 'none';
+            if (errNomeEl) errNomeEl.style.display = 'none';
+        }
     });
 
     window.closeTermoModal = function() {
         // Se ainda não assinou e não é modo visualização, não permite fechar
         if (!legalTermSigned || !legalTermSigned.signed) {
-            alert('É obrigatório ler e aceitar o Termo de Responsabilidade para ter acesso ao painel e ao envio de materiais.');
             return;
         }
         const modal = document.getElementById('modal-termo-responsabilidade');
@@ -2916,27 +3317,49 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
 
     window.handleSignTermo = function(e) {
         e.preventDefault();
-        const name = document.getElementById('term-signer-name')?.value.trim();
-        const cpf = document.getElementById('term-signer-cpf')?.value.trim();
+        const inputNameEl = document.getElementById('term-signer-name');
+        const inputCpfEl = document.getElementById('term-signer-cpf');
+        const name = inputNameEl?.value.trim() || '';
+        const cpf = inputCpfEl?.value.trim() || '';
         const relationNarrator = document.getElementById('term-signer-relation-narrator')?.value.trim();
         const relationRecipient = document.getElementById('term-signer-relation-recipient')?.value.trim();
         const chk = document.getElementById('chk-term-accept')?.checked;
 
-        if (!name || !cpf || !relationNarrator || !relationRecipient || !chk) {
-            alert('Por favor, preencha todos os campos obrigatórios e marque o aceite do termo.');
-            return;
-        }
+        const errNomeEl = document.getElementById('errTermNome');
+        const errCpfEl = document.getElementById('errTermCpf');
 
         const partesNome = name.split(/\s+/).filter(p => p.length >= 2);
         if (partesNome.length < 2) {
-            alert('Por favor, informe seu nome e sobrenome completos.');
-            document.getElementById('term-signer-name')?.focus();
+            if (errNomeEl) errNomeEl.style.display = 'block';
+            if (inputNameEl) {
+                inputNameEl.readOnly = false;
+                inputNameEl.disabled = false;
+                inputNameEl.style.borderColor = '#ef4444';
+                inputNameEl.style.boxShadow = '0 0 8px rgba(239, 68, 68, 0.4)';
+                inputNameEl.focus();
+            }
             return;
+        } else {
+            if (errNomeEl) errNomeEl.style.display = 'none';
+            if (inputNameEl) inputNameEl.style.borderColor = '#22c55e';
         }
 
         if (!validarCpfOficial(cpf)) {
-            alert('O CPF digitado é inválido. Por favor, digite um CPF real com dígitos verificadores válidos.');
-            document.getElementById('term-signer-cpf')?.focus();
+            if (errCpfEl) errCpfEl.style.display = 'block';
+            if (inputCpfEl) {
+                inputCpfEl.readOnly = false;
+                inputCpfEl.disabled = false;
+                inputCpfEl.style.borderColor = '#ef4444';
+                inputCpfEl.style.boxShadow = '0 0 8px rgba(239, 68, 68, 0.4)';
+                inputCpfEl.focus();
+            }
+            return;
+        } else {
+            if (errCpfEl) errCpfEl.style.display = 'none';
+            if (inputCpfEl) inputCpfEl.style.borderColor = '#22c55e';
+        }
+
+        if (!relationNarrator || !relationRecipient || !chk) {
             return;
         }
 
@@ -2992,11 +3415,13 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
     if (galaxyBg) initGalaxy(galaxyBg, true);
 
     // 1. Limpeza automática de versões antigas de teste armazenadas no navegador
-    const STORAGE_BUILD_KEY = 'reviva_storage_build_v5';
+    const STORAGE_BUILD_KEY = 'reviva_storage_build_v6';
     const hasCleanParam = urlParams.has('reset') || urlParams.has('clean') || urlParams.has('novo') || urlParams.has('clear');
     
     if (hasCleanParam || localStorage.getItem('reviva_storage_build') !== STORAGE_BUILD_KEY) {
         window.resetarPainelCompleto(false);
+        localStorage.setItem('reviva_stage4_delivered', 'false');
+        localStorage.setItem('reviva_stage5_delivered', 'false');
         localStorage.setItem('reviva_storage_build', STORAGE_BUILD_KEY);
     } else {
         restoreFullSessionState(false);
@@ -3018,7 +3443,30 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         initialStep = currentStep;
     }
 
-    goToStep(initialStep, true);
+    if (initialStep === 4 && !isStage4ReadyFromTeam()) {
+        initialStep = 3;
+    } else if (initialStep === 5 && !isStage5ReadyFromTeam()) {
+        initialStep = 4;
+    }
+
+    const shouldShowCurtainOnEnter = localStorage.getItem('reviva_show_curtain_on_enter') === 'true' || urlParams.has('showCurtain');
+    if (shouldShowCurtainOnEnter) {
+        localStorage.removeItem('reviva_show_curtain_on_enter');
+        goToStep(initialStep, false); // dispara a cortina cinematográfica da etapa!
+    } else {
+        goToStep(initialStep, true);
+    }
+
+    // Reabertura do bloqueio se o cliente recarregar a página com produção pendente
+    const pendingWaiting = localStorage.getItem('reviva_waiting_active');
+    if (pendingWaiting) {
+        setTimeout(() => {
+            const stepVal = (!isNaN(parseInt(pendingWaiting)) && pendingWaiting !== 'revisao') 
+                ? parseInt(pendingWaiting) 
+                : pendingWaiting;
+            openWaitingTeamModal(stepVal);
+        }, 100);
+    }
 
     // 3. Se o termo de responsabilidade ainda não foi aceito, abre o modal imediatamente na entrada do painel
     if (!legalTermSigned || !legalTermSigned.signed) {
