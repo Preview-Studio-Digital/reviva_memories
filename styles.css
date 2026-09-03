@@ -3366,7 +3366,7 @@ span.section-tag.handwritten-title {
     -webkit-backdrop-filter: blur(16px) !important;
     border: 2px solid rgba(197, 160, 89, 0.25) !important;
     border-radius: var(--radius-lg) !important;
-    padding: 20px 20px 24px 20px !important;
+    padding: 16px 18px 18px 18px !important;
     transition: var(--transition-smooth) !important;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
     box-sizing: border-box !important;
@@ -3632,10 +3632,10 @@ span.section-tag.handwritten-title {
 .plan-features {
     list-style: none !important;
     padding: 0 !important;
-    margin: 0 0 12px 0 !important;
+    margin: 0 0 8px 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 5px !important;
+    gap: 4px !important;
 }
 
 .plan-features li {

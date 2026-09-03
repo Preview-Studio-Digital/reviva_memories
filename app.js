@@ -1109,16 +1109,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const format = activeFormatBtn ? activeFormatBtn.getAttribute('data-format') : 'horizontal';
                 const formatName = format === 'horizontal' ? 'Horizontal' : 'Vertical';
 
-                // Se foi um evento simulado (desmarcando por causa da troca de card), evita loop infinito
+                const pixLine = card.querySelector('.plan-pricing div span:first-child');
+
                 if (e.isTrigger || !upsellCheckbox.checked) {
                     const cardTotal = basePrice;
                     const pixTotal = Math.round(cardTotal * 0.90 * 100) / 100;
                     const parcela = (cardTotal / 6).toFixed(2).replace('.', ',');
                     
-                    const pixParts = pixTotal.toFixed(2).split('.');
-                    amountSpan.textContent = pixParts[0];
-                    if (centsSpan) centsSpan.textContent = ',' + pixParts[1];
-                    if (subtitleSpan) subtitleSpan.textContent = `ou 6x de R$ ${parcela} no cartão (R$ ${cardTotal.toLocaleString('pt-BR')},00)`;
+                    const cardParts = cardTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).split(',');
+                    amountSpan.textContent = cardParts[0];
+                    if (centsSpan) centsSpan.textContent = ',' + cardParts[1];
+                    if (pixLine) pixLine.textContent = `R$ ${pixTotal.toFixed(2).replace('.', ',')} no PIX`;
+                    if (subtitleSpan) subtitleSpan.textContent = `ou até 6x de R$ ${parcela} no cartão`;
                     return;
                 }
 
@@ -1130,19 +1132,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     const pixTotal = Math.round(cardTotal * 0.90 * 100) / 100;
                     const parcela = (cardTotal / 6).toFixed(2).replace('.', ',');
                     
-                    const pixParts = pixTotal.toFixed(2).split('.');
-                    amountSpan.textContent = pixParts[0];
-                    if (centsSpan) centsSpan.textContent = ',' + pixParts[1];
-                    if (subtitleSpan) subtitleSpan.textContent = `ou 6x de R$ ${parcela} no cartão (R$ ${cardTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`;
+                    const cardParts = cardTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).split(',');
+                    amountSpan.textContent = cardParts[0];
+                    if (centsSpan) centsSpan.textContent = ',' + cardParts[1];
+                    if (pixLine) pixLine.textContent = `R$ ${pixTotal.toFixed(2).replace('.', ',')} no PIX`;
+                    if (subtitleSpan) subtitleSpan.textContent = `ou até 6x de R$ ${parcela} no cartão`;
                 } else {
                     const cardTotal = basePrice;
                     const pixTotal = Math.round(cardTotal * 0.90 * 100) / 100;
                     const parcela = (cardTotal / 6).toFixed(2).replace('.', ',');
                     
-                    const pixParts = pixTotal.toFixed(2).split('.');
-                    amountSpan.textContent = pixParts[0];
-                    if (centsSpan) centsSpan.textContent = ',' + pixParts[1];
-                    if (subtitleSpan) subtitleSpan.textContent = `ou 6x de R$ ${parcela} no cartão (R$ ${cardTotal.toLocaleString('pt-BR')},00)`;
+                    const cardParts = cardTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).split(',');
+                    amountSpan.textContent = cardParts[0];
+                    if (centsSpan) centsSpan.textContent = ',' + cardParts[1];
+                    if (pixLine) pixLine.textContent = `R$ ${pixTotal.toFixed(2).replace('.', ',')} no PIX`;
+                    if (subtitleSpan) subtitleSpan.textContent = `ou até 6x de R$ ${parcela} no cartão`;
                 }
             });
         }
