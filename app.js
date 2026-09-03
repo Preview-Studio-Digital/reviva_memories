@@ -1258,12 +1258,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) {}
 
         modal.style.display = 'flex';
+        const navbar = document.querySelector('.navbar');
+        if (navbar) navbar.style.display = 'none';
         if (window.lucide) lucide.createIcons();
     };
 
     window.closeCheckoutModal = function() {
         const modal = document.getElementById('modal-checkout-simulado');
         if (modal) modal.style.display = 'none';
+        const navbar = document.querySelector('.navbar');
+        if (navbar) navbar.style.display = 'block';
     };
 
     // Máscara do CPF no Checkout
