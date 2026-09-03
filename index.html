@@ -1380,13 +1380,15 @@
                     <span id="pix-polling-status-text">Aguardando confirmação bancária em tempo real...</span>
                 </div>
 
-                <!-- Links extras -->
-                <div style="display: flex; justify-content: space-between; width: 100%; font-size: 0.68rem; padding-top: 2px;">
-                    <button type="button" onclick="cancelPixAndBackToForm()" style="background: none; border: none; color: #94a3b8; text-decoration: underline; cursor: pointer;">
-                        ← Voltar / Alterar Dados
+                <!-- Barra de Ações Inferiores Refinada -->
+                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding-top: 6px; border-top: 1px solid rgba(197, 160, 89, 0.15); margin-top: 4px;">
+                    <button type="button" onclick="cancelPixAndBackToForm()" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 4px; color: #94a3b8; font-size: 0.70rem; padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s ease;">
+                        <i data-lucide="arrow-left" style="width: 12px; height: 12px;"></i>
+                        <span>Alterar Dados</span>
                     </button>
-                    <a id="link-fatura-asaas" href="#" target="_blank" rel="noopener noreferrer" style="color: #e5c378; text-decoration: underline;">
-                        Pagar no Cartão de Crédito ↗
+                    <a id="link-fatura-asaas" href="#" target="_blank" rel="noopener noreferrer" style="background: rgba(197, 160, 89, 0.1); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 4px; color: #f6e3c5; font-size: 0.70rem; padding: 6px 12px; text-decoration: none; display: flex; align-items: center; gap: 5px; font-weight: 600; transition: all 0.2s ease;">
+                        <i data-lucide="credit-card" style="width: 12px; height: 12px; color: #e5c378;"></i>
+                        <span>Pagar com Cartão</span>
                     </a>
                 </div>
             </div>
