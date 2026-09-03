@@ -1617,7 +1617,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (linkFatura && result.invoiceUrl) linkFatura.href = result.invoiceUrl;
 
             if (statusTextEl) {
-                statusTextEl.innerHTML = `<i data-lucide="refresh-cw" style="width: 14px; height: 14px; animation: spin 2s linear infinite; color: #e5c378;"></i> <span>Aguardando pagamento... O painel liberará automaticamente na compensação bancária.</span>`;
+                statusTextEl.innerHTML = `<strong style="color: #f6e3c5;">Aguardando pagamento...</strong><br><span style="font-size: 0.72rem; color: #cbd5e1;">O painel liberará automaticamente na compensação bancária.</span>`;
             }
 
             if (formView) formView.style.display = 'none';
