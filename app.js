@@ -1226,16 +1226,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return true;
         };
 
-        // Se o formulário estiver vazio, preenche com dados padrão válidos de teste
+        // Limpar campos ou manter o que o cliente já digitou (sem dados fictícios)
         const nameInput = document.getElementById('chk-input-name');
         const cpfInput = document.getElementById('chk-input-cpf');
         const emailInput = document.getElementById('chk-input-email');
         const phoneInput = document.getElementById('chk-input-phone');
 
-        if (nameInput && !nameInput.value) nameInput.value = 'Mariana Silva Santos';
-        if (cpfInput && !cpfInput.value) cpfInput.value = '111.444.777-35';
-        if (emailInput && !emailInput.value) emailInput.value = 'mariana.silva@exemplo.com';
-        if (phoneInput && !phoneInput.value) phoneInput.value = '(11) 98765-4321';
+        // Se o usuário já tiver sessão salva, preenche os dados reais dele
+        try {
+            const rawUser = localStorage.getItem('reviva_session_user');
+            if (rawUser) {
+                const user = JSON.parse(rawUser);
+                if (nameInput && !nameInput.value && user.name) nameInput.value = user.name;
+                if (cpfInput && !cpfInput.value && user.cpf) cpfInput.value = user.cpf;
+                if (emailInput && !emailInput.value && user.email) emailInput.value = user.email;
+                if (phoneInput && !phoneInput.value && user.phone) phoneInput.value = user.phone;
+            }
+        } catch(e) {}
 
         modal.style.display = 'flex';
         if (window.lucide) lucide.createIcons();
@@ -1244,17 +1251,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.closeCheckoutModal = function() {
         const modal = document.getElementById('modal-checkout-simulado');
         if (modal) modal.style.display = 'none';
-    };
-
-    window.preencherDadosTesteCheckout = function() {
-        const nameInput = document.getElementById('chk-input-name');
-        const cpfInput = document.getElementById('chk-input-cpf');
-        const emailInput = document.getElementById('chk-input-email');
-        const phoneInput = document.getElementById('chk-input-phone');
-        if (nameInput) nameInput.value = 'Mariana Silva Santos';
-        if (cpfInput) cpfInput.value = '111.444.777-35';
-        if (emailInput) emailInput.value = 'mariana.silva@exemplo.com';
-        if (phoneInput) phoneInput.value = '(31) 9 9239-0851';
     };
 
     // Máscara do CPF no Checkout

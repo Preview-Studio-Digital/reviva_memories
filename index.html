@@ -1278,7 +1278,7 @@
                     CHECKOUT SEGURO • ASAAS PAGAMENTOS
                 </div>
                 <h3 style="font-family: var(--font-serif); font-size: 1.25rem; color: var(--gold-bright); letter-spacing: 1px; margin-bottom: 2px;">FINALIZAR CONTRATAÇÃO</h3>
-                <p style="font-size: 0.76rem; color: var(--text-secondary);">Gere seu PIX instantâneo oficial ou simule para testar o painel</p>
+                <p style="font-size: 0.76rem; color: var(--text-secondary);">Escolha pagar instantaneamente via PIX ou parcele no Cartão de Crédito</p>
             </div>
 
             <!-- Resumo do Pedido Selecionado -->
@@ -1298,17 +1298,14 @@
             <div id="checkout-form-view">
                 <form id="form-checkout-simulado" onsubmit="handleRealAsaasCheckout(event)" style="display: flex; flex-direction: column; gap: 12px;">
                     
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="margin-bottom: 2px;">
                         <span style="font-size: 0.74rem; color: var(--gold-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Dados do Contratante</span>
-                        <button type="button" onclick="preencherDadosTesteCheckout()" style="background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); color: var(--gold-bright); font-size: 0.65rem; padding: 3px 8px; border-radius: 4px; cursor: pointer;">
-                            ✨ Preencher Dados de Teste
-                        </button>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div>
                             <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">NOME COMPLETO *</label>
-                            <input type="text" id="chk-input-name" required placeholder="Ex: Mariana Silva Santos" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                            <input type="text" id="chk-input-name" required placeholder="Seu nome completo" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
                             <span id="err-chk-name" style="display: none; color: #f87171; font-size: 0.68rem; margin-top: 4px; line-height: 1.2;">Por favor, informe seu nome e sobrenome completos.</span>
                         </div>
                         <div>
@@ -1321,11 +1318,11 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div>
                             <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">E-MAIL *</label>
-                            <input type="email" id="chk-input-email" required placeholder="exemplo@email.com" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                            <input type="email" id="chk-input-email" required placeholder="seuemail@exemplo.com" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
                         </div>
                         <div>
                             <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">WHATSAPP *</label>
-                            <input type="tel" id="chk-input-phone" required placeholder="(11) 98765-4321" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                            <input type="tel" id="chk-input-phone" required placeholder="(00) 00000-0000" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
                         </div>
                     </div>
 
@@ -1345,12 +1342,6 @@
                             <span>CARTÃO ATÉ 12X</span>
                         </button>
                     </div>
-
-                    <!-- Opção Alternativa: Simular Teste Local -->
-                    <button type="button" onclick="handleSimulateCheckout(event)" style="width: 100%; padding: 8px; background: transparent; border: 1px dashed rgba(197, 160, 89, 0.4); border-radius: 6px; color: #cbd5e1; font-size: 0.70rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 2px;">
-                        <i data-lucide="play-circle" style="width: 13px; height: 13px; color: #e5c378;"></i>
-                        <span>Modo Desenvolvedor: Simular Aprovação Imediata (Sem Cobrança)</span>
-                    </button>
                 </form>
             </div>
 
