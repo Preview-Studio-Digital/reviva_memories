@@ -1754,7 +1754,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         asaasPixPollingInterval = setInterval(async () => {
             try {
-                const res = await fetch(`/api/asaas/check-status/${paymentId}`);
+                const res = await fetch(`/api/asaas/check-status?paymentId=${paymentId}`);
                 const data = await res.json();
 
                 if (data.success && data.isPaid) {
