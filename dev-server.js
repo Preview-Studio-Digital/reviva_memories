@@ -75,8 +75,9 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    if (pathname.startsWith('/api/asaas/check-status/') && req.method === 'GET') {
-        const paymentId = pathname.split('/').pop();
+    if (pathname.startsWith('/api/asaas/check-status') && req.method === 'GET') {
+        const queryParamId = reqUrl.searchParams.get('paymentId');
+        const paymentId = queryParamId || pathname.split('/').pop();
         (async () => {
             try {
                 const asaas = require('./asaas_service.js');
