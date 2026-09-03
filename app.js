@@ -1309,21 +1309,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const chkNameInput = document.getElementById('chk-input-name');
     const chkCpfInput = document.getElementById('chk-input-cpf');
 
-    chkNameInput?.addEventListener('input', function(e) {
-        const val = e.target.value.trim();
-        const errEl = document.getElementById('err-chk-name');
-        const partes = val.split(/\s+/).filter(p => p.length >= 2);
-        if (val.length > 0 && partes.length >= 2) {
-            chkNameInput.style.borderColor = '#22c55e';
-            if (errEl) errEl.style.display = 'none';
-        } else if (val.length > 0 && partes.length < 2) {
-            chkNameInput.style.borderColor = '#ef4444';
-            if (errEl) errEl.style.display = 'block';
-        } else {
-            chkNameInput.style.borderColor = 'rgba(197, 160, 89, 0.4)';
-            if (errEl) errEl.style.display = 'none';
-        }
-    });
+    // Máscaras automáticas para o formulário de Cartão de Crédito
+    const cardNumInput = document.getElementById('card-input-number');
+    if (cardNumInput) {
+        cardNumInput.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '').slice(0, 16);
+            v = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+            e.target.value = v;
+        });
+    }
+
+    const cardExpiryInput = document.getElementById('card-input-expiry');
+    if (cardExpiryInput) {
+        cardExpiryInput.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '').slice(0, 4);
+            if (v.length > 2) {
+                v = v.slice(0, 2) + '/' + v.slice(2);
+            }
+            e.target.value = v;
+        });
+    }
+
+    const cardCvvInput = document.getElementById('card-input-cvv');
+    if (cardCvvInput) {
+        cardCvvInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+        });
+    }
 
     window.handleSimulateCheckout = function(e) {
         if (e) e.preventDefault();
@@ -1699,7 +1711,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    window.handleRealAsaasCreditCard = async function(e) {
+    // Abre o formulário de Cartão de Crédito diretamente no site
+    window.handleRealAsaasCreditCard = function(e) {
         if (e) e.preventDefault();
         const nameEl = document.getElementById('chk-input-name');
         const cpfEl = document.getElementById('chk-input-cpf');
@@ -1718,63 +1731,260 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (!cpf || !window.validarCPF(cpf)) {
-            alert('Por favor, informe um CPF válido.');
+            alert('Por favor, informe um CPF válido com 11 dígitos.');
             cpfEl?.focus();
+            return;
+        }
+        if (!email || !email.includes('@')) {
+            alert('Por favor, informe um e-mail válido.');
+            emailEl?.focus();
+            return;
+        }
+
+        switchToCreditCardDirect();
+    };
+
+    window.switchToCreditCardDirect = function() {
+        const formView = document.getElementById('checkout-form-view');
+        const pixView = document.getElementById('checkout-pix-view');
+        const cardView = document.getElementById('checkout-card-view');
+        const cardNameInput = document.getElementById('card-input-name');
+        const userName = document.getElementById('chk-input-name')?.value || '';
+
+        if (cardNameInput && !cardNameInput.value && userName) {
+            cardNameInput.value = userName.toUpperCase();
+        }
+
+        // Popular opções de parcelamento de 1x até 6x no cartão
+        const planInfo = currentSelectedPlanData || { priceVal: 897 };
+        const totalVal = planInfo.priceVal || 897;
+        const installmentsSelect = document.getElementById('card-input-installments');
+        if (installmentsSelect) {
+            installmentsSelect.innerHTML = '';
+            for (let i = 1; i <= 6; i++) {
+                const parcela = (totalVal / i).toFixed(2).replace('.', ',');
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = i === 1 
+                    ? `1x de R$ ${totalVal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (à vista)`
+                    : `${i}x de R$ ${parcela} sem juros (total R$ ${totalVal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`;
+                installmentsSelect.appendChild(opt);
+            }
+        }
+
+        if (formView) formView.style.display = 'none';
+        if (pixView) pixView.style.display = 'none';
+        if (cardView) cardView.style.display = 'flex';
+        if (window.lucide) lucide.createIcons();
+    };
+
+    window.cancelCardAndBackToForm = function() {
+        const formView = document.getElementById('checkout-form-view');
+        const cardView = document.getElementById('checkout-card-view');
+        if (cardView) cardView.style.display = 'none';
+        if (formView) formView.style.display = 'flex';
+        if (window.lucide) lucide.createIcons();
+    };
+
+    // Submissão real do Cartão de Crédito
+    window.submitRealCreditCardPayment = async function(e) {
+        if (e) e.preventDefault();
+
+        const btnSubmit = document.getElementById('btn-pay-card-submit');
+        const btnText = document.getElementById('btn-pay-card-text');
+        const errorBox = document.getElementById('card-error-msg');
+
+        if (errorBox) {
+            errorBox.style.display = 'none';
+            errorBox.textContent = '';
+        }
+
+        const name = document.getElementById('chk-input-name')?.value?.trim() || '';
+        const cpf = document.getElementById('chk-input-cpf')?.value?.trim() || '';
+        const email = document.getElementById('chk-input-email')?.value?.trim() || '';
+        const phone = document.getElementById('chk-input-phone')?.value?.trim() || '';
+
+        const cardNumber = document.getElementById('card-input-number')?.value?.replace(/\D/g, '') || '';
+        const cardHolder = document.getElementById('card-input-name')?.value?.trim() || '';
+        const cardExpiry = document.getElementById('card-input-expiry')?.value?.trim() || '';
+        const cardCvv = document.getElementById('card-input-cvv')?.value?.trim() || '';
+        const installments = parseInt(document.getElementById('card-input-installments')?.value || '1', 10);
+
+        if (cardNumber.length < 13 || cardNumber.length > 19) {
+            if (errorBox) {
+                errorBox.textContent = 'Número do cartão inválido.';
+                errorBox.style.display = 'block';
+            }
+            return;
+        }
+
+        const [expMonth, expYear] = cardExpiry.split('/');
+        if (!expMonth || !expYear || expMonth.length !== 2 || (expYear.length !== 2 && expYear.length !== 4)) {
+            if (errorBox) {
+                errorBox.textContent = 'Validade do cartão inválida. Use o formato MM/AA.';
+                errorBox.style.display = 'block';
+            }
+            return;
+        }
+        const fullYear = expYear.length === 2 ? ('20' + expYear) : expYear;
+
+        if (cardCvv.length < 3) {
+            if (errorBox) {
+                errorBox.textContent = 'Código de segurança (CVV) inválido.';
+                errorBox.style.display = 'block';
+            }
             return;
         }
 
         const planInfo = currentSelectedPlanData || {
             planId: 'emocao',
             planName: 'Plano Legatum',
-            priceFormatted: 'R$ 897,00'
+            duration: '2 Minutos',
+            format: 'Formato Horizontal',
+            priceVal: 897
         };
 
-        let numericValue = 897.00;
-        try {
-            const cleanVal = planInfo.priceFormatted.replace(/[^\d,]/g, '').replace(',', '.');
-            const parsedVal = parseFloat(cleanVal);
-            if (!isNaN(parsedVal) && parsedVal > 0) numericValue = parsedVal;
-        } catch(e) {}
+        const totalValue = planInfo.priceVal || 897;
 
         let nextOrderSeq = 1001;
         try {
             const savedSeq = parseInt(localStorage.getItem('reviva_last_order_seq') || '1000', 10);
             nextOrderSeq = isNaN(savedSeq) ? 1001 : (savedSeq + 1);
             localStorage.setItem('reviva_last_order_seq', nextOrderSeq.toString());
-        } catch(e) {}
+        } catch(err) {}
         const orderId = 'REVIVA-' + nextOrderSeq;
 
+        // Feedback de carregamento
+        if (btnSubmit) btnSubmit.disabled = true;
+        if (btnText) btnText.textContent = 'PROCESSANDO CARTÃO...';
+
         try {
-            const res = await fetch('/api/asaas/create-pix', {
+            const response = await fetch('/api/asaas/pay-credit-card', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name, cpf, email, phone,
-                    value: numericValue,
+                    name,
+                    cpf,
+                    email,
+                    phone,
+                    value: totalValue,
                     orderId,
                     planName: planInfo.planName,
-                    description: `Homenagem Afetiva - ${planInfo.planName} (${orderId})`
+                    installmentCount: installments,
+                    creditCard: {
+                        holderName: cardHolder,
+                        number: cardNumber,
+                        expiryMonth: expMonth,
+                        expiryYear: fullYear,
+                        ccv: cardCvv
+                    },
+                    creditCardHolderInfo: {
+                        name: cardHolder,
+                        email: email,
+                        cpfCnpj: cpf,
+                        mobilePhone: phone
+                    }
                 })
             });
-            const result = await res.json();
-            if (result.success && result.invoiceUrl) {
-                // Abrir página de fatura com opção de Cartão em até 12x
-                window.open(result.invoiceUrl, '_blank');
-                // Deixar polling ativo aguardando o pagamento do cartão
-                startAsaasPaymentPolling(result.paymentId, {
-                    orderId, name, cpf, email, phone, planInfo
-                });
-            } else {
-                throw new Error(result.error || 'Erro ao gerar link de pagamento.');
+
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.error || 'Cartão não autorizado ou dados incorretos.');
             }
-        } catch(err) {
-            const btnCartao = e?.target?.closest('button');
-            if (btnCartao) {
-                btnCartao.disabled = false;
-                btnCartao.innerHTML = '<span>CARTÃO ATÉ 12X</span>';
+
+            // Pagamento APROVADO!
+            const orderMeta = {
+                orderId: orderId,
+                name: name,
+                cpf: cpf,
+                email: email,
+                phone: phone,
+                planInfo: {
+                    planId: planInfo.planId || 'emocao',
+                    planName: planInfo.planName,
+                    duration: planInfo.duration,
+                    format: planInfo.format,
+                    hasUpsell: !!planInfo.hasUpsell,
+                    totalValue: totalValue
+                }
+            };
+
+            // Salvar pedido e sessão
+            const paidOrderData = {
+                order_id: orderId,
+                customer_name: name,
+                customer_cpf: cpf,
+                customer_email: email,
+                customer_phone: phone,
+                plan_id: orderMeta.planInfo.planId,
+                plan_name: orderMeta.planInfo.planName,
+                plan_duration: orderMeta.planInfo.duration,
+                plan_format: orderMeta.planInfo.format,
+                has_upsell: orderMeta.planInfo.hasUpsell,
+                total_price: `R$ ${totalValue.toFixed(2).replace('.', ',')}`,
+                installments: installments,
+                payment_method: 'credit_card',
+                status: 'paid_confirmed',
+                paid_at: new Date().toISOString()
+            };
+            localStorage.setItem('reviva_order_data', JSON.stringify(paidOrderData));
+            localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone, role: 'client' }));
+
+            // Notificar Webhook n8n
+            try {
+                fetch('https://preview-digital.app.n8n.cloud/webhook/reviva-pagamento', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event: 'PAYMENT_RECEIVED',
+                        payment: {
+                            id: result.paymentId,
+                            billingType: 'CREDIT_CARD',
+                            value: totalValue,
+                            installments: installments,
+                            orderId: orderId,
+                            customer: { name, cpf, email, phone },
+                            confirmedAt: new Date().toISOString()
+                        }
+                    })
+                }).catch(() => {});
+            } catch(e) {}
+
+            // Exibir Sucesso e Redirecionar
+            const modalBody = document.querySelector('#modal-checkout-simulado > div');
+            if (modalBody) {
+                modalBody.innerHTML = `
+                    <div style="text-align: center; padding: 24px 12px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                        <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(34, 197, 94, 0.2); border: 2px solid #4ade80; display: flex; align-items: center; justify-content: center; color: #4ade80;">
+                            <i data-lucide="check" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--gold-bright); margin: 0;">PAGAMENTO APROVADO!</h3>
+                        <p style="font-size: 0.84rem; color: #cbd5e1; max-width: 420px; line-height: 1.5; margin: 0;">
+                            Seu pagamento em <strong>${installments}x de R$ ${(totalValue/installments).toFixed(2).replace('.', ',')}</strong> foi aprovado com sucesso pelo Asaas.
+                        </p>
+                        <div style="background: rgba(197, 160, 89, 0.1); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 8px; padding: 10px 16px; font-size: 0.78rem; color: #f6e3c5;">
+                            Código do Pedido: <strong>${orderId}</strong>
+                        </div>
+                        <button onclick="window.location.href='painel.html'" class="btn btn-primary" style="margin-top: 10px; padding: 12px 28px; font-size: 0.9rem; font-weight: 700; background: linear-gradient(135deg, #22c55e, #16a34a); border-color: #4ade80; color: #fff; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);">
+                            ACESSAR MEU PAINEL AGORA →
+                        </button>
+                    </div>
+                `;
                 if (window.lucide) lucide.createIcons();
             }
-            alert('Para pagar no Cartão de Crédito, é necessário concluir o pagamento na fatura segura do Asaas.');
+
+            setTimeout(() => {
+                window.location.href = 'painel.html';
+            }, 3000);
+
+        } catch (err) {
+            if (btnSubmit) btnSubmit.disabled = false;
+            if (btnText) btnText.textContent = 'CONFIRMAR E PAGAR AGORA';
+            if (errorBox) {
+                errorBox.textContent = err.message || 'Erro ao processar cartão.';
+                errorBox.style.display = 'block';
+            }
         }
     };
 
