@@ -401,6 +401,15 @@ img, video {
     stroke: #e5c378 !important;
 }
 
+#btn-submit-real-pix:hover,
+#btn-submit-real-pix:hover svg,
+#btn-submit-real-pix:hover i,
+#form-checkout-simulado button:hover svg,
+#form-checkout-simulado button:hover i {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
 /* Apenas preenche o triângulo de play com dourado - desativado por solicitação */
 .btn-primary:hover svg.lucide-play {
     fill: none !important;
