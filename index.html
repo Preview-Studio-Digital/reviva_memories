@@ -1380,6 +1380,12 @@
                     <span id="pix-polling-status-text">Aguardando pagamento... O painel liberará automaticamente na aprovação.</span>
                 </div>
 
+                <!-- Botão de Confirmação Pós-Pagamento -->
+                <button type="button" onclick="concludePaidOrderFromPixView()" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 13px; font-size: 0.84rem; font-weight: 700; background: linear-gradient(135deg, #c5a059 0%, #9c7247 100%); border: 1px solid #e5c378; border-radius: 8px; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 18px rgba(197, 160, 89, 0.4); margin-top: 4px;">
+                    <i data-lucide="check-circle-2"></i>
+                    <span>JÁ PAGUEI VIA PIX • PROSSEGUIR AGORA</span>
+                </button>
+
                 <!-- Links extras -->
                 <div style="display: flex; justify-content: space-between; width: 100%; font-size: 0.72rem; padding-top: 4px;">
                     <button type="button" onclick="cancelPixAndBackToForm()" style="background: none; border: none; color: #94a3b8; text-decoration: underline; cursor: pointer;">
@@ -1404,6 +1410,6 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.4.0"></script>
+    <script src="app.js?v=1.5.0"></script>
 </body>
 </html>
