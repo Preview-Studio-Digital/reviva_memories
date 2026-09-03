@@ -41,6 +41,56 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // =========================================================================
+    // ENDPOINTS DO ASAAS (BACKEND LOCAL SEGURO)
+    // =========================================================================
+    if (pathname === '/api/asaas/create-pix' && req.method === 'POST') {
+        let bodyStr = '';
+        req.on('data', chunk => bodyStr += chunk);
+        req.on('end', async () => {
+            try {
+                const asaas = require('./asaas_service.js');
+                const data = JSON.parse(bodyStr);
+                const customerId = await asaas.getOrCreateCustomer({
+                    name: data.name,
+                    cpfCnpj: data.cpf,
+                    email: data.email,
+                    phone: data.phone
+                });
+                const pixResult = await asaas.createPixPayment({
+                    customerId: customerId,
+                    value: data.value,
+                    orderId: data.orderId,
+                    planName: data.planName,
+                    description: data.description
+                });
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, ...pixResult }));
+            } catch (err) {
+                console.error('❌ [Asaas Endpoint Error]:', err);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: err?.message || err }));
+            }
+        });
+        return;
+    }
+
+    if (pathname.startsWith('/api/asaas/check-status/') && req.method === 'GET') {
+        const paymentId = pathname.split('/').pop();
+        (async () => {
+            try {
+                const asaas = require('./asaas_service.js');
+                const statusResult = await asaas.checkPaymentStatus(paymentId);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, ...statusResult }));
+            } catch (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: err?.message || err }));
+            }
+        })();
+        return;
+    }
+
     // Resolução de Arquivo com Suporte a URLs Limpas (/painel -> painel.html)
     let filePath = path.join(ROOT, pathname);
 
