@@ -1113,12 +1113,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (e.isTrigger || !upsellCheckbox.checked) {
                     const cardTotal = basePrice;
                     const pixTotal = Math.round(cardTotal * 0.90 * 100) / 100;
-                    const parcela = (cardTotal / 12).toFixed(2).replace('.', ',');
+                    const parcela = (cardTotal / 6).toFixed(2).replace('.', ',');
                     
                     const pixParts = pixTotal.toFixed(2).split('.');
                     amountSpan.textContent = pixParts[0];
                     if (centsSpan) centsSpan.textContent = ',' + pixParts[1];
-                    if (subtitleSpan) subtitleSpan.textContent = `ou 12x de R$ ${parcela} no cartão (R$ ${cardTotal.toLocaleString('pt-BR')},00)`;
+                    if (subtitleSpan) subtitleSpan.textContent = `ou 6x de R$ ${parcela} no cartão (R$ ${cardTotal.toLocaleString('pt-BR')},00)`;
                     return;
                 }
 
@@ -1128,21 +1128,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (upsellCheckbox.checked) {
                     const cardTotal = basePrice + upsellPrice;
                     const pixTotal = Math.round(cardTotal * 0.90 * 100) / 100;
-                    const parcela = (cardTotal / 12).toFixed(2).replace('.', ',');
+                    const parcela = (cardTotal / 6).toFixed(2).replace('.', ',');
                     
                     const pixParts = pixTotal.toFixed(2).split('.');
                     amountSpan.textContent = pixParts[0];
                     if (centsSpan) centsSpan.textContent = ',' + pixParts[1];
-                    if (subtitleSpan) subtitleSpan.textContent = `ou 12x de R$ ${parcela} no cartão (R$ ${cardTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`;
+                    if (subtitleSpan) subtitleSpan.textContent = `ou 6x de R$ ${parcela} no cartão (R$ ${cardTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`;
                 } else {
                     const cardTotal = basePrice;
                     const pixTotal = Math.round(cardTotal * 0.90 * 100) / 100;
-                    const parcela = (cardTotal / 12).toFixed(2).replace('.', ',');
+                    const parcela = (cardTotal / 6).toFixed(2).replace('.', ',');
                     
                     const pixParts = pixTotal.toFixed(2).split('.');
                     amountSpan.textContent = pixParts[0];
                     if (centsSpan) centsSpan.textContent = ',' + pixParts[1];
-                    if (subtitleSpan) subtitleSpan.textContent = `ou 12x de R$ ${parcela} no cartão (R$ ${cardTotal.toLocaleString('pt-BR')},00)`;
+                    if (subtitleSpan) subtitleSpan.textContent = `ou 6x de R$ ${parcela} no cartão (R$ ${cardTotal.toLocaleString('pt-BR')},00)`;
                 }
             });
         }
@@ -1206,12 +1206,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const baseValNum = currentSelectedPlanData.priceVal;
         const pixValNum = Math.round(baseValNum * 0.90 * 100) / 100;
-        const parcelaCard = (baseValNum / 12).toFixed(2).replace('.', ',');
+        const parcelaCard = (baseValNum / 6).toFixed(2).replace('.', ',');
 
         if (chkPlanName) chkPlanName.textContent = planName;
         if (chkPlanDetails) chkPlanDetails.textContent = `${duration} • ${formatText}`;
         if (chkPlanPricePix) chkPlanPricePix.textContent = 'R$ ' + pixValNum.toFixed(2).replace('.', ',');
-        if (chkPlanPriceCard) chkPlanPriceCard.textContent = `ou 12x de R$ ${parcelaCard} (total ${priceText})`;
+        if (chkPlanPriceCard) chkPlanPriceCard.textContent = `ou 6x de R$ ${parcelaCard} (total ${priceText})`;
 
         // Algoritmo Oficial da Receita Federal para Validação de CPF (Módulo 11)
         window.validarCPF = function(cpf) {
