@@ -4,7 +4,7 @@
 const https = require('https');
 
 const rawKey = process.env.ASAAS_API_KEY || '';
-const ASAAS_API_KEY = rawKey.trim().replace(/[\r\n\t]/g, '');
+const ASAAS_API_KEY = rawKey.replace(/[^\x20-\x7E]/g, '').trim().replace(/^["']|["']$/g, '');
 const ASAAS_HOST = 'api.asaas.com';
 
 function asaasRequest(method, path) {
