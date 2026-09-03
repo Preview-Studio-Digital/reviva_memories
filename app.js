@@ -1194,11 +1194,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const chkPlanName = document.getElementById('chk-plan-name');
         const chkPlanDetails = document.getElementById('chk-plan-details');
-        const chkPlanPrice = document.getElementById('chk-plan-price');
+        const chkPlanPricePix = document.getElementById('chk-plan-price-pix');
+        const chkPlanPriceCard = document.getElementById('chk-plan-price-card');
+
+        const baseValNum = currentSelectedPlanData.priceVal;
+        const pixValNum = Math.round(baseValNum * 0.90 * 100) / 100;
+        const parcelaCard = (baseValNum / 12).toFixed(2).replace('.', ',');
 
         if (chkPlanName) chkPlanName.textContent = planName;
         if (chkPlanDetails) chkPlanDetails.textContent = `${duration} • ${formatText}`;
-        if (chkPlanPrice) chkPlanPrice.textContent = priceText;
+        if (chkPlanPricePix) chkPlanPricePix.textContent = 'R$ ' + pixValNum.toFixed(2).replace('.', ',');
+        if (chkPlanPriceCard) chkPlanPriceCard.textContent = `ou 12x de R$ ${parcelaCard} (total ${priceText})`;
 
         // Algoritmo Oficial da Receita Federal para Validação de CPF (Módulo 11)
         window.validarCPF = function(cpf) {
@@ -1544,6 +1550,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isNaN(parsedVal) && parsedVal > 0) numericValue = parsedVal;
         } catch(e) {}
 
+        // APLICAÇÃO DE DESCONTO EXCLUSIVO NO PIX (10% DE DESCONTO À VISTA)
+        const numericValuePix = Math.round(numericValue * 0.90 * 100) / 100;
+        const valorPixFormatado = 'R$ ' + numericValuePix.toFixed(2).replace('.', ',');
+
         // Gerar número de pedido
         let nextOrderSeq = 1001;
         try {
@@ -1570,9 +1580,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     cpf: cpf,
                     email: email,
                     phone: phone,
-                    value: numericValue,
+                    value: numericValuePix,
                     orderId: orderId,
-                    planName: planInfo.planName,
+                    planName: `${planInfo.planName} (PIX com 10% OFF)`,
                     description: `Homenagem Afetiva - ${planInfo.planName} (${orderId})`
                 })
             });
