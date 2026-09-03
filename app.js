@@ -1703,8 +1703,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Aguardando confirmação bancária real (sem auto-liberação por tempo)
             if (statusTextEl) {
-                statusTextEl.innerHTML = `<i data-lucide="refresh-cw" style="width: 13px; height: 13px; animation: spin 1.5s linear infinite; color: #e5c378;"></i> <span>Aguardando confirmação bancária... O acesso só será liberado após a compensação do pagamento.</span>`;
-                if (window.lucide) lucide.createIcons();
+                statusTextEl.innerHTML = `<strong style="color: #f6e3c5;">Aguardando pagamento...</strong><br><span style="font-size: 0.72rem; color: #cbd5e1;">O painel liberará automaticamente na compensação bancária.</span>`;
             }
 
             return;
