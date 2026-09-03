@@ -3326,16 +3326,21 @@ span.section-tag.handwritten-title {
     color: var(--text-secondary) !important;
 }
 
+.contrate-section .slide-layout-container {
+    padding: clamp(14px, 2.2vh, 36px) 24px clamp(12px, 1.8vh, 26px) 24px !important;
+    justify-content: space-between !important;
+}
+
 .plans-grid {
     display: flex !important;
     flex-direction: row !important;
     justify-content: center !important;
     align-items: stretch !important;
-    gap: 20px !important;
+    gap: clamp(10px, 1.2vw, 20px) !important;
     width: 100% !important;
-    margin: 10px auto 6px auto !important; /* Margem enxuta */
+    margin: clamp(4px, 0.8vh, 10px) auto !important;
     flex: 1 1 auto !important;
-    min-height: 0 !important;
+    min-height: min-content !important; /* Impede terminantemente o flexbox de achatar o grid menor que os cards */
     max-height: none !important;
     box-sizing: border-box !important;
 }
@@ -3366,12 +3371,14 @@ span.section-tag.handwritten-title {
     -webkit-backdrop-filter: blur(16px) !important;
     border: 2px solid rgba(197, 160, 89, 0.25) !important;
     border-radius: var(--radius-lg) !important;
-    padding: 20px 18px 18px 18px !important;
+    padding: clamp(12px, 1.6vh, 20px) clamp(12px, 1.1vw, 18px) !important;
     transition: var(--transition-smooth) !important;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
     box-sizing: border-box !important;
     visibility: visible !important;
-    gap: 10px !important;
+    gap: clamp(5px, 0.9vh, 10px) !important;
+    height: auto !important; /* Sempre cresce o suficiente para englobar tudo */
+    min-height: fit-content !important; /* Borda sempre abraça 100% dos elementos internos */
 }
 
 .plan-card:hover {
@@ -3672,11 +3679,12 @@ span.section-tag.handwritten-title {
 /* Botão do card não selecionado (cinza discreto como a tag inativa) */
 .plan-card .plan-buy-btn {
     width: 100% !important;
-    padding: 11px 16px !important;
-    font-size: 0.86rem !important;
+    padding: clamp(8px, 1.2vh, 12px) 14px !important;
+    font-size: clamp(0.78rem, 0.9vw, 0.86rem) !important;
     font-weight: 700 !important;
     margin-top: auto !important;
     margin-bottom: 0 !important;
+    flex-shrink: 0 !important; /* NUNCA amassar ou empurrar para fora */
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -3777,18 +3785,101 @@ span.section-tag.handwritten-title {
     flex-shrink: 0 !important;
 }
 
-.contrate-section .hero-subtitle {
-    margin: 6px auto 4px auto !important;
-    font-size: 0.82rem !important;
-    line-height: 1.4 !important;
+/* =========================================================================
+   RESPONSIVIDADE INTELIGENTE POR ALTURA DE TELA (RESOLVE QUALQUER MONITOR)
+   ========================================================================= */
+@media (max-height: 880px) {
+    /* Em telas de altura reduzida (notebooks/escala 125%), economiza 60px ocultando o subtitulo redundante */
+    .contrate-section .hero-subtitle {
+        display: none !important;
+    }
+    .contrate-section .slide-layout-container {
+        padding: 14px 20px 10px 20px !important;
+    }
+    .contrate-section .hero-title {
+        font-size: 1.55rem !important;
+        margin-bottom: 2px !important;
+    }
+    .plans-grid {
+        margin: 4px auto !important;
+        gap: 12px !important;
+    }
+    .plan-card {
+        padding: 12px 14px !important;
+        gap: 6px !important;
+    }
+    .plan-top-info {
+        margin-bottom: 4px !important;
+    }
+    .plan-name {
+        font-size: 1.15rem !important;
+    }
+    .plan-desc {
+        font-size: 0.75rem !important;
+        line-height: 1.3 !important;
+    }
+    .plan-pricing {
+        padding: 5px 10px !important;
+        margin-bottom: 5px !important;
+    }
+    .price-display .amount {
+        font-size: 1.42rem !important;
+    }
+    .plan-options {
+        margin-bottom: 6px !important;
+    }
+    .option-group {
+        margin-bottom: 5px !important;
+    }
+    .format-btn {
+        padding: 5px 8px !important;
+        font-size: 0.74rem !important;
+    }
+    .upsell-box {
+        padding: 6px 10px !important;
+    }
+    .plan-features {
+        margin: 0 0 8px 0 !important;
+        gap: 3px !important;
+    }
+    .plan-features li {
+        font-size: 0.75rem !important;
+    }
+    .plan-card .plan-buy-btn {
+        padding: 8px 12px !important;
+        font-size: 0.80rem !important;
+    }
 }
 
-.contrate-footer-wrap {
-    width: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 10px !important;
+@media (max-height: 720px) {
+    .contrate-section .slide-layout-container {
+        padding: 8px 16px 8px 16px !important;
+    }
+    .contrate-section .hero-title {
+        font-size: 1.35rem !important;
+    }
+    .plan-card {
+        padding: 9px 11px !important;
+        gap: 4px !important;
+    }
+    .plan-desc {
+        font-size: 0.70rem !important;
+        line-height: 1.2 !important;
+    }
+    .plan-pricing {
+        padding: 4px 8px !important;
+        margin-bottom: 3px !important;
+    }
+    .price-display .amount {
+        font-size: 1.3rem !important;
+    }
+    .plan-features {
+        margin: 0 0 4px 0 !important;
+        gap: 2px !important;
+    }
+    .plan-features li {
+        font-size: 0.70rem !important;
+    }
 }
 
 @media (max-width: 992px), (max-aspect-ratio: 5/4) {
