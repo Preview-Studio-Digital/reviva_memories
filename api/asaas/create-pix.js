@@ -66,7 +66,13 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const { name, cpf, email, phone, value, orderId, planName, description } = req.body || {};
+        let bodyData = req.body;
+        if (typeof bodyData === 'string') {
+            try { bodyData = JSON.parse(bodyData); } catch(e) {}
+        }
+        bodyData = bodyData || {};
+
+        const { name, cpf, email, phone, value, orderId, planName, description } = bodyData;
         if (!name || !cpf || !value) {
             return res.status(400).json({ error: 'Dados obrigatórios incompletos (name, cpf, value)' });
         }
