@@ -1109,7 +1109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const format = activeFormatBtn ? activeFormatBtn.getAttribute('data-format') : 'horizontal';
                 const formatName = format === 'horizontal' ? 'Horizontal' : 'Vertical';
 
-                const pixLine = card.querySelector('.plan-pricing div span:first-child');
+                const pixLine = card.querySelector('.pix-price-tag');
 
                 if (e.isTrigger || !upsellCheckbox.checked) {
                     const cardTotal = basePrice;
