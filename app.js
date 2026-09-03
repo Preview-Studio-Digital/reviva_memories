@@ -1658,39 +1658,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.lucide) lucide.createIcons();
             }
 
-            // SIMULAÇÃO REAL: O cliente fica travado na tela do PIX sem nenhum botão para burlar
-            // O sistema simula a consulta bancária e SÓ libera quando o banco aprova (após 8 segundos)
+            // Aguardando confirmação bancária real (sem auto-liberação por tempo)
             if (statusTextEl) {
-                statusTextEl.innerHTML = `<i data-lucide="refresh-cw" style="width: 13px; height: 13px; animation: spin 1.5s linear infinite; color: #e5c378;"></i> <span>Aguardando compensação bancária... (Validando PIX)</span>`;
+                statusTextEl.innerHTML = `<i data-lucide="refresh-cw" style="width: 13px; height: 13px; animation: spin 1.5s linear infinite; color: #e5c378;"></i> <span>Aguardando confirmação bancária... O acesso só será liberado após a compensação do pagamento.</span>`;
                 if (window.lucide) lucide.createIcons();
             }
-
-            let tempoValidacao = 8; // 8 segundos de espera obrigatória do banco
-            const timerValidacao = setInterval(() => {
-                tempoValidacao--;
-                if (tempoValidacao > 0) {
-                    if (statusTextEl) {
-                        statusTextEl.innerHTML = `<i data-lucide="refresh-cw" style="width: 13px; height: 13px; animation: spin 1.5s linear infinite; color: #e5c378;"></i> <span>Aguardando confirmação do banco... (${tempoValidacao}s)</span>`;
-                    }
-                } else {
-                    clearInterval(timerValidacao);
-                    if (statusTextEl) {
-                        statusTextEl.innerHTML = `<span style="color: #4ade80; font-weight: 700;">✓ PAGAMENTO PIX CONFIRMADO PELO BANCO! LIBERANDO PAINEL...</span>`;
-                    }
-
-                    // Aprovado com sucesso pelo banco: conclui o pedido e avança para o termo
-                    setTimeout(() => {
-                        concludePaidOrder({
-                            orderId: orderId,
-                            name: name,
-                            cpf: cpf,
-                            email: email,
-                            phone: phone,
-                            planInfo: planInfo
-                        });
-                    }, 1400);
-                }
-            }, 1000);
 
             return;
         }
@@ -1766,29 +1738,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch(err) {
             const btnCartao = e?.target?.closest('button');
-            const originalText = btnCartao ? btnCartao.innerHTML : '';
             if (btnCartao) {
-                btnCartao.disabled = true;
-                btnCartao.innerHTML = '<i data-lucide="loader" style="animation: spin 1s linear infinite;"></i> AUTORIZANDO CARTÃO...';
+                btnCartao.disabled = false;
+                btnCartao.innerHTML = '<span>CARTÃO ATÉ 12X</span>';
                 if (window.lucide) lucide.createIcons();
             }
-
-            setTimeout(() => {
-                if (btnCartao) {
-                    btnCartao.innerHTML = '✓ CARTÃO APROVADO!';
-                    btnCartao.style.background = '#22c55e';
-                }
-                setTimeout(() => {
-                    concludePaidOrder({
-                        orderId: orderId,
-                        name: name,
-                        cpf: cpf,
-                        email: email,
-                        phone: phone,
-                        planInfo: planInfo
-                    });
-                }, 1000);
-            }, 3500);
+            alert('Para pagar no Cartão de Crédito, é necessário concluir o pagamento na fatura segura do Asaas.');
         }
     };
 
