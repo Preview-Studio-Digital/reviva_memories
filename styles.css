@@ -3331,12 +3331,12 @@ span.section-tag.handwritten-title {
     flex-direction: row !important;
     justify-content: center !important;
     align-items: stretch !important;
-    gap: 24px !important;
+    gap: 20px !important;
     width: 100% !important;
-    margin: 24px auto 10px auto !important; /* Afasta do título e aproxima do rodapé, igual ao slide 1 */
-    flex: 1 1 auto !important; /* Mesma altura flexível */
-    min-height: 220px;
-    max-height: 580px;
+    margin: 10px auto 6px auto !important; /* Margem enxuta */
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
     box-sizing: border-box !important;
 }
 
@@ -3366,11 +3366,12 @@ span.section-tag.handwritten-title {
     -webkit-backdrop-filter: blur(16px) !important;
     border: 2px solid rgba(197, 160, 89, 0.25) !important;
     border-radius: var(--radius-lg) !important;
-    padding: 16px 18px 18px 18px !important;
+    padding: 14px 16px 14px 16px !important;
     transition: var(--transition-smooth) !important;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
     box-sizing: border-box !important;
     visibility: visible !important;
+    gap: 6px !important;
 }
 
 .plan-card:hover {
@@ -3662,20 +3663,24 @@ span.section-tag.handwritten-title {
     display: inline-block !important;
 }
 
-.plan-buy-btn {
-    width: 100%;
-    padding: 9px 12px !important;
-    font-size: 0.82rem !important;
-    margin-top: auto;
-}
-
 /* Botão do card não selecionado (cinza discreto como a tag inativa) */
 .plan-card .plan-buy-btn {
+    width: 100% !important;
+    padding: 8px 12px !important;
+    font-size: 0.80rem !important;
+    margin-top: auto !important;
+    margin-bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    box-sizing: border-box !important;
     background: rgba(255, 255, 255, 0.08) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
     color: var(--text-secondary) !important; /* #b3b3b3 */
     box-shadow: none !important;
     text-shadow: none !important;
+    border-radius: var(--radius-sm) !important;
 }
 
 /* Hover no botão do card não selecionado */
@@ -3707,26 +3712,6 @@ span.section-tag.handwritten-title {
 
 .plan-card.featured .plan-buy-btn:hover svg {
     stroke: #e5c378 !important;
-}
-
-/* Ajuste de espaçamento para posicionar o botão mais acima com respiro na base do card */
-.plan-features {
-    flex: 0 1 auto !important;
-    margin-top: 10px !important;
-    margin-bottom: 12px !important;
-}
-
-.plan-buy-btn {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 6px !important;
-    width: 100% !important;
-    padding: 9px 14px !important;
-    font-size: 0.78rem !important;
-    margin-top: 6px !important;
-    margin-bottom: 10px !important;
-    box-sizing: border-box !important;
 }
 
 /* Customizações do card selecionado para tornar todos os acentos marrons em dourado brilhante */
