@@ -1606,17 +1606,57 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         } catch (err) {
-            console.warn('[Asaas Checkout]: Sem backend local ativo (ambiente de produção estático). Avançando para formalização do pedido...');
-            
-            // Gravar o pedido e usuário diretamente na sessão
-            concludePaidOrder({
-                orderId: orderId,
-                name: name,
-                cpf: cpf,
-                email: email,
-                phone: phone,
-                planInfo: planInfo
-            });
+            // Em ambiente de produção estático (GitHub Pages), exibe a tela do PIX imediatamente
+            const formView = document.getElementById('checkout-form-view');
+            const pixView = document.getElementById('checkout-pix-view');
+            const qrImg = document.getElementById('pix-qrcode-img');
+            const copiaColaInput = document.getElementById('pix-copia-cola-input');
+            const statusTextEl = document.getElementById('pix-polling-status-text');
+
+            // Chave PIX oficial registrada no Asaas da Preview Studio Digital
+            const pixKey = 'a019b9e8-e022-493b-b02f-79989bc9b69f';
+            const pixPayload = `00020126580014br.gov.bcb.pix0136${pixKey}520400005303986540${numericValue.toFixed(2)}5802BR5925PREVIEW STUDIO DIGITAL LTDA6009SAO PAULO62070503***6304`;
+
+            if (qrImg) {
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(pixPayload)}`;
+            }
+            if (copiaColaInput) {
+                copiaColaInput.value = pixPayload;
+            }
+            if (statusTextEl) {
+                statusTextEl.innerHTML = `<span>Valor: <strong>R$ ${numericValue.toFixed(2).replace('.', ',')}</strong> • Titular: <strong>Preview Studio Digital Ltda</strong></span>`;
+            }
+
+            // Salvar os dados do pedido localmente para o cliente não perder
+            const orderData = {
+                order_id: orderId,
+                customer_name: name,
+                customer_cpf: cpf,
+                customer_email: email,
+                customer_phone: phone,
+                plan_id: planInfo.planId || 'emocao',
+                plan_name: planInfo.planName || 'Plano Legatum',
+                plan_duration: planInfo.duration || '2 Minutos',
+                plan_format: planInfo.format || 'Formato Horizontal',
+                has_upsell: !!planInfo.hasUpsell,
+                total_price: `R$ ${numericValue.toFixed(2).replace('.', ',')}`,
+                status: 'pending_pix',
+                created_at: new Date().toISOString()
+            };
+            localStorage.setItem('reviva_order_data', JSON.stringify(orderData));
+            localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone }));
+
+            if (formView) formView.style.display = 'none';
+            if (pixView) {
+                pixView.style.display = 'flex';
+                if (window.lucide) lucide.createIcons();
+            }
+
+            if (btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = originalBtnHtml;
+                if (window.lucide) lucide.createIcons();
+            }
             return;
         }
     };
@@ -1773,6 +1813,30 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'termo.html';
         }, 1500);
     }
+
+    window.concludePaidOrderFromPixView = function() {
+        let order = null;
+        try {
+            const raw = localStorage.getItem('reviva_order_data');
+            if (raw) order = JSON.parse(raw);
+        } catch(e) {}
+
+        const user = JSON.parse(localStorage.getItem('reviva_session_user') || '{}');
+        concludePaidOrder({
+            orderId: order?.order_id || 'REVIVA-1001',
+            name: user.name || order?.customer_name || 'Cliente',
+            cpf: user.cpf || order?.customer_cpf || '',
+            email: user.email || order?.customer_email || '',
+            phone: user.phone || order?.customer_phone || '',
+            planInfo: {
+                planId: order?.plan_id,
+                planName: order?.plan_name,
+                duration: order?.plan_duration,
+                format: order?.plan_format,
+                priceFormatted: order?.total_price
+            }
+        });
+    };
 
     window.copyPixPayloadCode = function() {
         const input = document.getElementById('pix-copia-cola-input');
