@@ -3366,12 +3366,12 @@ span.section-tag.handwritten-title {
     -webkit-backdrop-filter: blur(16px) !important;
     border: 2px solid rgba(197, 160, 89, 0.25) !important;
     border-radius: var(--radius-lg) !important;
-    padding: 12px 14px 12px 14px !important;
+    padding: 20px 18px 18px 18px !important;
     transition: var(--transition-smooth) !important;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
     box-sizing: border-box !important;
     visibility: visible !important;
-    gap: 4px !important;
+    gap: 10px !important;
 }
 
 .plan-card:hover {
@@ -3411,7 +3411,7 @@ span.section-tag.handwritten-title {
 }
 
 .plan-top-info {
-    margin-bottom: 6px;
+    margin-bottom: 10px;
 }
 
 .plan-header-line {
@@ -3419,11 +3419,11 @@ span.section-tag.handwritten-title {
     justify-content: space-between !important;
     align-items: center !important;
     width: 100% !important;
-    margin-bottom: 2px !important;
+    margin-bottom: 6px !important;
 }
 
 .plan-name {
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--brand-gold); /* Titulo marrom por padrão */
     margin-bottom: 0;
@@ -3440,7 +3440,7 @@ span.section-tag.handwritten-title {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     font-weight: 600;
     color: var(--brand-gold); /* Marrom por padrão */
     margin-bottom: 0;
@@ -3452,24 +3452,24 @@ span.section-tag.handwritten-title {
 }
 
 .plan-duration svg {
-    width: 13px;
-    height: 13px;
+    width: 14px;
+    height: 14px;
 }
 
 .plan-desc {
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     color: var(--text-secondary);
-    line-height: 1.3;
+    line-height: 1.45;
     text-align: justify; /* Alinhamento justificado */
 }
 
-/* Área de Preço Compacta - Horizontal (Valor Cheio à Esquerda, PIX & Cartão à Direita) */
+/* Área de Preço - Horizontal (Valor Cheio à Esquerda, PIX & Cartão à Direita) */
 .plan-pricing {
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: var(--radius-sm);
-    padding: 6px 12px;
-    margin-bottom: 6px;
+    padding: 8px 14px;
+    margin-bottom: 10px;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
@@ -3519,13 +3519,13 @@ span.section-tag.handwritten-title {
     color: #e5c378 !important;
 }
 
-/* Opções de Formato e Upsell Compactas */
+/* Opções de Formato e Upsell */
 .plan-options {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .option-group {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
@@ -3534,7 +3534,7 @@ span.section-tag.handwritten-title {
 
 .option-label {
     display: inline-block !important;
-    font-size: 0.80rem;
+    font-size: 0.82rem;
     color: var(--text-primary);
     font-weight: 600;
     margin-bottom: 0 !important;
@@ -3543,10 +3543,10 @@ span.section-tag.handwritten-title {
 
 .format-selector {
     display: flex !important;
-    gap: 4px;
+    gap: 6px;
     width: auto !important;
     flex: 1 !important;
-    max-width: 185px !important;
+    max-width: 195px !important;
 }
 
 .format-btn {
@@ -3554,9 +3554,9 @@ span.section-tag.handwritten-title {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    padding: 6px 8px;
-    font-size: 0.78rem;
+    gap: 6px;
+    padding: 7px 10px;
+    font-size: 0.80rem;
     font-weight: 600;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border-subtle);
@@ -3567,8 +3567,8 @@ span.section-tag.handwritten-title {
 }
 
 .format-btn svg {
-    width: 13px;
-    height: 13px;
+    width: 14px;
+    height: 14px;
 }
 
 .format-btn.active {
@@ -3597,8 +3597,8 @@ span.section-tag.handwritten-title {
 .upsell-box {
     background: rgba(197, 160, 89, 0.08);
     border: 1px dashed rgba(197, 160, 89, 0.3);
-    border-radius: 4px;
-    padding: 6px 8px;
+    border-radius: 6px;
+    padding: 9px 12px;
 }
 
 .upsell-checkbox-container {
@@ -3610,8 +3610,8 @@ span.section-tag.handwritten-title {
 
 .upsell-checkbox-container input {
     display: block !important;
-    width: 14px !important;
-    height: 14px !important;
+    width: 15px !important;
+    height: 15px !important;
     accent-color: var(--brand-gold) !important;
     cursor: pointer !important;
 }
@@ -3622,16 +3622,16 @@ span.section-tag.handwritten-title {
 }
 
 .upsell-text {
-    font-size: 0.76rem;
+    font-size: 0.78rem;
     color: var(--text-primary);
-    line-height: 1.25;
+    line-height: 1.3;
     font-weight: 600;
 }
 
 .upsell-text small {
     display: block;
     color: var(--brand-gold);
-    font-size: 0.70rem;
+    font-size: 0.72rem;
     font-weight: 500;
 }
 
@@ -3639,17 +3639,17 @@ span.section-tag.handwritten-title {
 .plan-features {
     list-style: none !important;
     padding: 0 !important;
-    margin: 0 0 6px 0 !important;
+    margin: 0 0 14px 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 3px !important;
+    gap: 6px !important;
 }
 
 .plan-features li {
     display: flex !important;
     align-items: center !important;
-    gap: 6px !important;
-    font-size: 0.76rem !important;
+    gap: 7px !important;
+    font-size: 0.80rem !important;
     color: var(--text-secondary) !important;
     list-style-type: none !important;
     background: none !important;
@@ -3662,9 +3662,9 @@ span.section-tag.handwritten-title {
 }
 
 .plan-features li svg {
-    width: 14px !important;
-    height: 14px !important;
-    min-width: 14px !important;
+    width: 15px !important;
+    height: 15px !important;
+    min-width: 15px !important;
     color: var(--brand-gold) !important;
     display: inline-block !important;
 }
@@ -3672,14 +3672,15 @@ span.section-tag.handwritten-title {
 /* Botão do card não selecionado (cinza discreto como a tag inativa) */
 .plan-card .plan-buy-btn {
     width: 100% !important;
-    padding: 8px 12px !important;
-    font-size: 0.80rem !important;
+    padding: 11px 16px !important;
+    font-size: 0.86rem !important;
+    font-weight: 700 !important;
     margin-top: auto !important;
     margin-bottom: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 6px !important;
+    gap: 8px !important;
     box-sizing: border-box !important;
     background: rgba(255, 255, 255, 0.08) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
