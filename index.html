@@ -1267,77 +1267,77 @@
     </div>
 
     <!-- ================= MODAL DE CHECKOUT SIMULADO (AMBIENTE DE TESTE INTEGRADO) ================= -->
-    <div id="modal-checkout-simulado" style="position: fixed; inset: 0; background: rgba(5, 3, 2, 0.92); backdrop-filter: blur(16px); z-index: 100000; display: none; align-items: center; justify-content: center; padding: 16px;">
-        <div style="width: 100%; max-width: 580px; background: rgba(14, 9, 6, 0.98); border: 1.5px solid var(--border-gold); border-radius: var(--radius-md); padding: 26px 30px; box-shadow: 0 0 60px rgba(0,0,0,0.95), 0 0 30px rgba(229,195,120,0.22); max-height: 92vh; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; position: relative;">
+    <div id="modal-checkout-simulado" style="position: fixed; inset: 0; background: rgba(5, 3, 2, 0.92); backdrop-filter: blur(16px); z-index: 100000; display: none; align-items: center; justify-content: center; padding: 12px;">
+        <div style="width: 100%; max-width: 520px; background: rgba(14, 9, 6, 0.98); border: 1.5px solid var(--border-gold); border-radius: var(--radius-md); padding: 18px 24px; box-shadow: 0 0 60px rgba(0,0,0,0.95), 0 0 30px rgba(229,195,120,0.22); max-height: 96vh; display: flex; flex-direction: column; gap: 10px; overflow: hidden; position: relative;">
             
-            <button type="button" onclick="closeCheckoutModal()" style="position: absolute; top: 16px; right: 18px; background: none; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer; padding: 4px;">✕</button>
+            <button type="button" onclick="closeCheckoutModal()" style="position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; padding: 4px;">✕</button>
 
-            <div style="text-align: center; border-bottom: 1px solid rgba(197, 160, 89, 0.25); padding-bottom: 12px;">
-                <img src="logo.png" alt="Reviva Memories" style="height: 38px; margin: 0 auto 6px auto; display: block;">
-                <div style="display: inline-block; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); color: #4ade80; font-size: 0.62rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
+            <div style="text-align: center; border-bottom: 1px solid rgba(197, 160, 89, 0.25); padding-bottom: 8px;">
+                <img src="logo.png" alt="Reviva Memories" style="height: 28px; margin: 0 auto 4px auto; display: block;">
+                <div style="display: inline-block; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); color: #4ade80; font-size: 0.58rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">
                     CHECKOUT SEGURO • ASAAS PAGAMENTOS
                 </div>
-                <h3 style="font-family: var(--font-serif); font-size: 1.25rem; color: var(--gold-bright); letter-spacing: 1px; margin-bottom: 2px;">FINALIZAR CONTRATAÇÃO</h3>
-                <p style="font-size: 0.76rem; color: var(--text-secondary);">Escolha pagar instantaneamente via PIX ou parcele no Cartão de Crédito</p>
+                <h3 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--gold-bright); letter-spacing: 1px; margin-bottom: 2px;">FINALIZAR CONTRATAÇÃO</h3>
+                <p style="font-size: 0.72rem; color: var(--text-secondary);">Escolha pagar via PIX ou parcele no Cartão de Crédito</p>
             </div>
 
             <!-- Resumo do Pedido Selecionado -->
-            <div id="checkout-summary-box" style="background: rgba(197, 160, 89, 0.08); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: var(--radius-sm); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <div id="checkout-summary-box" style="background: rgba(197, 160, 89, 0.08); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: var(--radius-sm); padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div>
-                    <div style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Plano Selecionado</div>
-                    <div id="chk-plan-name" style="font-family: var(--font-serif); font-size: 1.05rem; color: var(--gold-bright); font-weight: 700;">Plano Legatum</div>
-                    <div id="chk-plan-details" style="font-size: 0.72rem; color: #e2e8f0; margin-top: 2px;">2 Minutos • Formato Horizontal</div>
+                    <div style="font-size: 0.60rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Plano Selecionado</div>
+                    <div id="chk-plan-name" style="font-family: var(--font-serif); font-size: 0.95rem; color: var(--gold-bright); font-weight: 700;">Plano Legatum</div>
+                    <div id="chk-plan-details" style="font-size: 0.68rem; color: #e2e8f0; margin-top: 1px;">2 Minutos • Formato Horizontal</div>
                 </div>
                 <div style="text-align: right;">
-                    <div style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase;">Valor Total</div>
-                    <div id="chk-plan-price" style="font-size: 1.25rem; color: #4ade80; font-weight: 800;">R$ 897,00</div>
+                    <div style="font-size: 0.60rem; color: #94a3b8; text-transform: uppercase;">Valor Total</div>
+                    <div id="chk-plan-price" style="font-size: 1.15rem; color: #4ade80; font-weight: 800;">R$ 897,00</div>
                 </div>
             </div>
 
             <!-- Contêiner do Formulário -->
             <div id="checkout-form-view">
-                <form id="form-checkout-simulado" onsubmit="handleRealAsaasCheckout(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                <form id="form-checkout-simulado" onsubmit="handleRealAsaasCheckout(event)" style="display: flex; flex-direction: column; gap: 8px;">
                     
-                    <div style="margin-bottom: 2px;">
-                        <span style="font-size: 0.74rem; color: var(--gold-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Dados do Contratante</span>
+                    <div>
+                        <span style="font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Dados do Contratante</span>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <div>
-                            <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">NOME COMPLETO *</label>
-                            <input type="text" id="chk-input-name" required placeholder="Seu nome completo" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
-                            <span id="err-chk-name" style="display: none; color: #f87171; font-size: 0.68rem; margin-top: 4px; line-height: 1.2;">Por favor, informe seu nome e sobrenome completos.</span>
+                            <label style="display: block; font-size: 0.62rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 2px;">NOME COMPLETO *</label>
+                            <input type="text" id="chk-input-name" required placeholder="Seu nome completo" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 6px 8px; color: #fff; font-size: 0.76rem; outline: none;">
+                            <span id="err-chk-name" style="display: none; color: #f87171; font-size: 0.62rem; margin-top: 2px; line-height: 1.2;">Informe seu nome completo.</span>
                         </div>
                         <div>
-                            <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">CPF *</label>
-                            <input type="text" id="chk-input-cpf" required placeholder="000.000.000-00" maxlength="14" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
-                            <span id="err-chk-cpf" style="display: none; color: #f87171; font-size: 0.68rem; margin-top: 4px; line-height: 1.2;">Por favor, informe um CPF válido com 11 dígitos.</span>
-                        </div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div>
-                            <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">E-MAIL *</label>
-                            <input type="email" id="chk-input-email" required placeholder="seuemail@exemplo.com" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
-                        </div>
-                        <div>
-                            <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px;">WHATSAPP *</label>
-                            <input type="tel" id="chk-input-phone" required placeholder="(00) 00000-0000" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #fff; font-size: 0.78rem; outline: none;">
+                            <label style="display: block; font-size: 0.62rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 2px;">CPF *</label>
+                            <input type="text" id="chk-input-cpf" required placeholder="000.000.000-00" maxlength="14" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 6px 8px; color: #fff; font-size: 0.76rem; outline: none;">
+                            <span id="err-chk-cpf" style="display: none; color: #f87171; font-size: 0.62rem; margin-top: 2px; line-height: 1.2;">CPF inválido com 11 dígitos.</span>
                         </div>
                     </div>
 
-                    <div style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.72rem; color: #cbd5e1; display: flex; align-items: center; gap: 8px;">
-                        <i data-lucide="shield-check" style="width: 18px; height: 18px; color: #4ade80; flex-shrink: 0;"></i>
-                        <span>Pagamento criptografado e seguro processado pelo Asaas para Preview Studio Digital Ltda.</span>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div>
+                            <label style="display: block; font-size: 0.62rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 2px;">E-MAIL *</label>
+                            <input type="email" id="chk-input-email" required placeholder="seuemail@exemplo.com" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 6px 8px; color: #fff; font-size: 0.76rem; outline: none;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.62rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 2px;">WHATSAPP *</label>
+                            <input type="tel" id="chk-input-phone" required placeholder="(00) 00000-0000" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 6px 8px; color: #fff; font-size: 0.76rem; outline: none;">
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: var(--radius-sm); padding: 6px 10px; font-size: 0.68rem; color: #cbd5e1; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="shield-check" style="width: 16px; height: 16px; color: #4ade80; flex-shrink: 0;"></i>
+                        <span>Pagamento criptografado processado pelo Asaas para Preview Studio Digital Ltda.</span>
                     </div>
 
                     <!-- Botões de Pagamento: PIX e Cartão de Crédito -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px;">
-                        <button type="submit" id="btn-submit-real-pix" class="btn btn-primary" style="justify-content: center; padding: 12px; font-size: 0.82rem; font-weight: 700; background: linear-gradient(135deg, #22c55e, #16a34a); border-color: #4ade80; color: #fff; box-shadow: 0 0 20px rgba(34, 197, 94, 0.35);">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 2px;">
+                        <button type="submit" id="btn-submit-real-pix" class="btn btn-primary" style="justify-content: center; padding: 10px; font-size: 0.78rem; font-weight: 700; background: linear-gradient(135deg, #22c55e, #16a34a); border-color: #4ade80; color: #fff; box-shadow: 0 0 16px rgba(34, 197, 94, 0.35);">
                             <i data-lucide="qr-code"></i>
                             <span>PAGAR VIA PIX</span>
                         </button>
-                        <button type="button" onclick="handleRealAsaasCreditCard(event)" class="btn btn-primary" style="justify-content: center; padding: 12px; font-size: 0.82rem; font-weight: 700; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-color: #60a5fa; color: #fff; box-shadow: 0 0 20px rgba(59, 130, 246, 0.35);">
+                        <button type="button" onclick="handleRealAsaasCreditCard(event)" class="btn btn-primary" style="justify-content: center; padding: 10px; font-size: 0.78rem; font-weight: 700; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-color: #60a5fa; color: #fff; box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);">
                             <i data-lucide="credit-card"></i>
                             <span>CARTÃO ATÉ 12X</span>
                         </button>
@@ -1346,48 +1346,42 @@
             </div>
 
             <!-- View da Tela do PIX Oficial do Asaas -->
-            <div id="checkout-pix-view" style="display: none; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 6px 0;">
-                <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid #4ade80; border-radius: 20px; padding: 4px 14px; font-size: 0.72rem; color: #4ade80; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-                    <span style="width: 8px; height: 8px; border-radius: 50%; background: #4ade80; animation: pulseDot 1.5s infinite;"></span>
+            <div id="checkout-pix-view" style="display: none; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 2px 0;">
+                <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid #4ade80; border-radius: 20px; padding: 2px 10px; font-size: 0.65rem; color: #4ade80; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulseDot 1.5s infinite;"></span>
                     PIX GERADO COM SUCESSO
                 </div>
 
-                <div style="font-family: var(--font-serif); font-size: 1.35rem; color: #f6e3c5; font-weight: 700;">
-                    Escaneie o QR Code no seu banco
+                <div style="font-family: var(--font-serif); font-size: 1.05rem; color: #f6e3c5; font-weight: 700;">
+                    Escaneie o QR Code no seu aplicativo do banco
                 </div>
 
                 <!-- Imagem do QR Code -->
-                <div style="background: #ffffff; padding: 14px; border-radius: 10px; box-shadow: 0 0 30px rgba(0,0,0,0.8), 0 0 15px rgba(229,195,120,0.3); display: inline-block;">
-                    <img id="pix-qrcode-img" src="" alt="QR Code PIX Asaas" style="width: 190px; height: 190px; display: block;">
+                <div style="background: #ffffff; padding: 8px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.8); display: inline-block;">
+                    <img id="pix-qrcode-img" src="" alt="QR Code PIX Asaas" style="width: 135px; height: 135px; display: block;">
                 </div>
 
-                <div style="font-size: 0.76rem; color: #cbd5e1; max-width: 420px; line-height: 1.4;">
-                    Abra o app do seu banco, escolha <strong>Pagar via PIX ➔ QR Code</strong> (ou use o código Copia e Cola abaixo).
+                <div style="font-size: 0.68rem; color: #cbd5e1; max-width: 380px; line-height: 1.3;">
+                    Pague via PIX usando o QR Code acima ou o código Copia e Cola.
                 </div>
 
                 <!-- Campo Copia e Cola -->
-                <div style="width: 100%; display: flex; gap: 8px;">
-                    <input type="text" id="pix-copia-cola-input" readonly style="flex: 1; background: rgba(0,0,0,0.7); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 8px 10px; color: #e2e8f0; font-size: 0.72rem; outline: none;">
-                    <button type="button" id="btn-copy-pix" onclick="copyPixPayloadCode()" class="btn btn-primary" style="padding: 0 16px; font-size: 0.74rem; font-weight: 700; white-space: nowrap;">
-                        <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
-                        <span id="btn-copy-pix-text">COPIAR PIX</span>
+                <div style="width: 100%; display: flex; gap: 6px;">
+                    <input type="text" id="pix-copia-cola-input" readonly style="flex: 1; background: rgba(0,0,0,0.7); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; padding: 6px 8px; color: #e2e8f0; font-size: 0.68rem; outline: none;">
+                    <button type="button" id="btn-copy-pix" onclick="copyPixPayloadCode()" class="btn btn-primary" style="padding: 0 12px; font-size: 0.70rem; font-weight: 700; white-space: nowrap;">
+                        <i data-lucide="copy" style="width: 12px; height: 12px;"></i>
+                        <span id="btn-copy-pix-text">COPIAR</span>
                     </button>
                 </div>
 
-                <!-- Status de Verificação Automática -->
-                <div style="background: rgba(14, 9, 6, 0.9); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 6px; padding: 10px 14px; width: 100%; box-sizing: border-box; font-size: 0.72rem; color: #e5c378; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <i data-lucide="refresh-cw" style="width: 14px; height: 14px; animation: spin 2s linear infinite;"></i>
-                    <span id="pix-polling-status-text">Aguardando pagamento... O painel liberará automaticamente na aprovação.</span>
+                <!-- Status de Verificação Automática (Sem botão de burla: aguarda confirmação real) -->
+                <div style="background: rgba(14, 9, 6, 0.9); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; font-size: 0.68rem; color: #e5c378; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="refresh-cw" style="width: 14px; height: 14px; animation: spin 2s linear infinite; color: #e5c378;"></i>
+                    <span id="pix-polling-status-text">Aguardando confirmação bancária em tempo real...</span>
                 </div>
 
-                <!-- Botão de Confirmação Pós-Pagamento -->
-                <button type="button" onclick="concludePaidOrderFromPixView()" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 13px; font-size: 0.84rem; font-weight: 700; background: linear-gradient(135deg, #c5a059 0%, #9c7247 100%); border: 1px solid #e5c378; border-radius: 8px; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 18px rgba(197, 160, 89, 0.4); margin-top: 4px;">
-                    <i data-lucide="check-circle-2"></i>
-                    <span>JÁ PAGUEI VIA PIX • PROSSEGUIR AGORA</span>
-                </button>
-
                 <!-- Links extras -->
-                <div style="display: flex; justify-content: space-between; width: 100%; font-size: 0.72rem; padding-top: 4px;">
+                <div style="display: flex; justify-content: space-between; width: 100%; font-size: 0.68rem; padding-top: 2px;">
                     <button type="button" onclick="cancelPixAndBackToForm()" style="background: none; border: none; color: #94a3b8; text-decoration: underline; cursor: pointer;">
                         ← Voltar / Alterar Dados
                     </button>
@@ -1410,6 +1404,6 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.5.0"></script>
+    <script src="app.js?v=1.6.0"></script>
 </body>
 </html>
