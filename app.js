@@ -1583,16 +1583,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(result.error || 'Não foi possível gerar o PIX no momento.');
             }
 
-            // Exibir a tela do PIX
+            // Exibir a tela do PIX oficial gerado pelo Asaas
             const formView = document.getElementById('checkout-form-view');
             const pixView = document.getElementById('checkout-pix-view');
             const qrImg = document.getElementById('pix-qrcode-img');
             const copiaColaInput = document.getElementById('pix-copia-cola-input');
             const linkFatura = document.getElementById('link-fatura-asaas');
+            const statusTextEl = document.getElementById('pix-polling-status-text');
 
             if (qrImg) qrImg.src = `data:image/png;base64,${result.encodedImage}`;
             if (copiaColaInput) copiaColaInput.value = result.payload;
             if (linkFatura && result.invoiceUrl) linkFatura.href = result.invoiceUrl;
+
+            if (statusTextEl) {
+                statusTextEl.innerHTML = `<i data-lucide="refresh-cw" style="width: 14px; height: 14px; animation: spin 2s linear infinite; color: #e5c378;"></i> <span>Aguardando pagamento... O painel liberará automaticamente na compensação bancária.</span>`;
+            }
 
             if (formView) formView.style.display = 'none';
             if (pixView) {
@@ -1600,7 +1605,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.lucide) lucide.createIcons();
             }
 
-            // Iniciar Polling de Status do Pagamento (Checa a cada 3 segundos se o cliente pagou)
+            // Iniciar Polling Real com o Asaas (a cada 3 segundos consulta a API)
+            // SÓ LIBERA QUANDO O ASAAS CONFIRMAR STATUS: RECEIVED!
             startAsaasPaymentPolling(result.paymentId, {
                 orderId, name, cpf, email, phone, planInfo
             });
