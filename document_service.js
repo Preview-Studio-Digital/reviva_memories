@@ -280,7 +280,7 @@
          * Empacota o dossie completo do pedido em formato .ZIP
          * Inclui: Termo Assinado em PDF + Roteiro Oficial + Diretrizes + Fotos e Audios
          */
-        async downloadFullOrderZip() {
+        async downloadFullOrderZip(customOrder = null) {
             if (!window.JSZip) {
                 alert('Carregando biblioteca de compactacao...');
                 return;
@@ -297,13 +297,21 @@
             } catch(e) {}
 
             const zip = new window.JSZip();
-            const orderId = orderData.order_id || state.orderData?.order_id || 'REVIVA-1001';
-            const clientName = orderData.customer_name || state.clientName || 'Cliente';
+            const orderId = customOrder?.id || orderData.order_id || state.orderData?.order_id || 'REVIVA-1001';
+            const clientName = customOrder?.clientName || orderData.customer_name || state.clientName || 'Cliente';
+            const clientCpf = customOrder?.clientCpf || orderData.customer_cpf || state.clientCpf || 'Nao informado';
+            const clientPhone = customOrder?.clientPhone || orderData.customer_phone || state.clientPhone || 'Nao informado';
+            const planName = customOrder?.planName || orderData.plan_name || 'Plano Legatum';
             const safeName = clientName.replace(/[^a-zA-Z0-9]/g, '_');
 
             // 1. Gerar e adicionar o Termo em PDF
             try {
-                const pdfDoc = await this.generateTermoPDF();
+                const pdfDoc = await this.generateTermoPDF({
+                    orderId: orderId,
+                    name: clientName,
+                    cpf: clientCpf,
+                    planName: planName
+                });
                 if (pdfDoc) {
                     const pdfBlob = pdfDoc.output('blob');
                     zip.file(`Termo_Responsabilidade_${orderId}.pdf`, pdfBlob);
@@ -313,15 +321,16 @@
             }
 
             // 2. Adicionar Roteiro e Dossie em Texto
-            const scriptText = state.approvedScript || document.getElementById('admin-script-text')?.innerText || 'Roteiro em fase de curadoria.';
+            const scriptEl = document.getElementById('admin-script-text');
+            const scriptText = scriptEl ? (scriptEl.innerText || scriptEl.textContent).trim() : (state.approvedScript || 'Roteiro em fase de curadoria.');
             const dossieText = `================================================================================\n` +
                 `DOSSIE DE PRODUCAO - REVIVA MEMORIES\n` +
                 `================================================================================\n\n` +
                 `Numero do Pedido: ${orderId}\n` +
                 `Cliente: ${clientName}\n` +
-                `CPF: ${orderData.customer_cpf || state.clientCpf || 'Nao informado'}\n` +
-                `WhatsApp: ${orderData.customer_phone || state.clientPhone || 'Nao informado'}\n` +
-                `Plano: ${orderData.plan_name || 'Plano Legatum'}\n` +
+                `CPF: ${clientCpf}\n` +
+                `WhatsApp: ${clientPhone}\n` +
+                `Plano: ${planName}\n` +
                 `Status: Em Producao / Lapidacao\n\n` +
                 `--------------------------------------------------------------------------------\n` +
                 `ROTEIRO OFICIAL APROVADO:\n` +

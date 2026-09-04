@@ -1261,10 +1261,265 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch(e) {}
 
+        // Resetar estado de cupom ao abrir o modal
+        const couponInput = document.getElementById('chk-input-coupon');
+        const couponTag = document.getElementById('coupon-feedback-tag');
+        const freeBtnBox = document.getElementById('btn-box-free-test');
+        const paymentButtonsBox = document.getElementById('box-payment-buttons');
+        if (couponInput) couponInput.value = '';
+        if (couponTag) {
+            couponTag.style.display = 'none';
+            couponTag.textContent = '';
+        }
+        if (freeBtnBox) freeBtnBox.style.display = 'none';
+        if (paymentButtonsBox) paymentButtonsBox.style.display = 'grid';
+
         modal.style.display = 'flex';
         const navbar = document.querySelector('.navbar');
         if (navbar) navbar.style.display = 'none';
         if (window.lucide) lucide.createIcons();
+    };
+
+    // =========================================================================
+    // LÓGICA DO CUPOM DE DESCONTO / MODO TESTE
+    // =========================================================================
+    window.activeCheckoutCoupon = null;
+
+    window.applyCheckoutCoupon = function() {
+        const couponInput = document.getElementById('chk-input-coupon');
+        const couponTag = document.getElementById('coupon-feedback-tag');
+        const freeBtnBox = document.getElementById('btn-box-free-test');
+        const paymentButtonsBox = document.getElementById('box-payment-buttons');
+        const pricePixEl = document.getElementById('chk-plan-price-pix');
+        const priceCardEl = document.getElementById('chk-plan-price-card');
+
+        if (!couponInput) return;
+        const code = (couponInput.value || '').trim().toUpperCase();
+
+        if (!code) {
+            if (couponTag) {
+                couponTag.style.display = 'inline-block';
+                couponTag.style.color = '#f87171';
+                couponTag.textContent = 'Digite um cupom válido';
+            }
+            return;
+        }
+
+        // Cupom de Teste Real / Homologação (100% OFF)
+        if (code === 'TESTE100' || code === 'DEVPREVIEW') {
+            window.activeCheckoutCoupon = {
+                code: code,
+                discountPercent: 100,
+                type: 'free_test'
+            };
+
+            if (couponTag) {
+                couponTag.style.display = 'inline-block';
+                couponTag.style.color = '#4ade80';
+                couponTag.innerHTML = '✓ CUPOM TESTE 100% ATIVADO!';
+            }
+
+            if (pricePixEl) pricePixEl.innerHTML = '<span style="text-decoration: line-through; font-size: 0.85rem; color: #94a3b8; margin-right: 6px;">' + (currentSelectedPlanData?.priceFormatted || 'R$ 897,00') + '</span> R$ 0,00';
+            if (priceCardEl) priceCardEl.textContent = 'Acesso Liberado para Teste Interno';
+
+            // Alternar para o botão de liberação direta de teste
+            if (freeBtnBox) freeBtnBox.style.display = 'block';
+            if (paymentButtonsBox) paymentButtonsBox.style.display = 'none';
+            if (window.lucide) lucide.createIcons();
+            return;
+        }
+
+        // Caso o cupom não exista
+        if (couponTag) {
+            couponTag.style.display = 'inline-block';
+            couponTag.style.color = '#f87171';
+            couponTag.textContent = '✕ Cupom inválido ou expirado';
+        }
+    };
+
+    // Submissão direta do pedido via cupom 100% OFF para teste do produto sem custos
+    window.submitFreeTestOrder = function(e) {
+        if (e) e.preventDefault();
+
+        const nameEl = document.getElementById('chk-input-name');
+        const cpfEl = document.getElementById('chk-input-cpf');
+        const emailEl = document.getElementById('chk-input-email');
+        const phoneEl = document.getElementById('chk-input-phone');
+
+        const name = (nameEl?.value || '').trim();
+        const cpf = (cpfEl?.value || '').trim();
+        const email = (emailEl?.value || '').trim();
+        const phone = (phoneEl?.value || '').trim();
+
+        const errNameEl = document.getElementById('err-chk-name');
+        const errCpfEl = document.getElementById('err-chk-cpf');
+
+        // Validação de Nome Completo
+        const partesNome = name.split(/\s+/).filter(p => p.length >= 2);
+        if (partesNome.length < 2) {
+            if (errNameEl) errNameEl.style.display = 'block';
+            nameEl?.focus();
+            return;
+        } else {
+            if (errNameEl) errNameEl.style.display = 'none';
+        }
+
+        // Validação de CPF
+        if (!cpf || !window.validarCPF(cpf)) {
+            if (errCpfEl) errCpfEl.style.display = 'block';
+            cpfEl?.focus();
+            return;
+        } else {
+            if (errCpfEl) errCpfEl.style.display = 'none';
+        }
+
+        const phoneDigits = phone.replace(/\D/g, '');
+        if (!phone || phoneDigits.length < 10) {
+            phoneEl?.focus();
+            return;
+        }
+
+        const planInfo = currentSelectedPlanData || {
+            planId: 'emocao',
+            planName: 'Plano Legatum',
+            duration: '2 Minutos',
+            format: 'Formato Horizontal',
+            hasUpsell: false,
+            priceFormatted: 'R$ 897,00'
+        };
+
+        // Gerar número de pedido sequencial organizado
+        let nextOrderSeq = 1001;
+        try {
+            const savedSeq = parseInt(localStorage.getItem('reviva_last_order_seq') || '1000', 10);
+            nextOrderSeq = isNaN(savedSeq) ? 1001 : (savedSeq + 1);
+            localStorage.setItem('reviva_last_order_seq', nextOrderSeq.toString());
+        } catch(err) {}
+        const orderId = 'REVIVA-' + nextOrderSeq;
+
+        // Criar registro de pedido pago/liberado via cupom
+        const orderData = {
+            order_id: orderId,
+            customer_name: name,
+            customer_cpf: cpf,
+            customer_email: email,
+            customer_phone: phone,
+            plan_id: planInfo.planId || 'emocao',
+            plan_name: planInfo.planName || 'Plano Legatum',
+            plan_duration: planInfo.duration || '2 Minutos',
+            plan_format: planInfo.format || 'Formato Horizontal',
+            has_upsell: !!planInfo.hasUpsell,
+            total_price: 'R$ 0,00 (Cupom TESTE100)',
+            original_price: planInfo.priceFormatted || 'R$ 897,00',
+            coupon_applied: 'TESTE100',
+            payment_method: 'coupon_free_test',
+            status: 'paid',
+            created_at: new Date().toISOString()
+        };
+
+        // Salvar na sessão local e inicializar estado
+        localStorage.setItem('reviva_order_data', JSON.stringify(orderData));
+        localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone, role: 'client' }));
+        localStorage.removeItem('reviva_legal_term'); // Exigir assinatura do termo com os dados digitados
+
+        let fullState = {};
+        try {
+            const raw = localStorage.getItem('reviva_full_session_state');
+            if (raw) fullState = JSON.parse(raw);
+        } catch(err) {}
+        fullState.orderData = orderData;
+        fullState.legalTermSigned = null;
+        fullState.clientName = name;
+        fullState.clientCpf = cpf;
+        fullState.clientEmail = email;
+        fullState.clientPhone = phone;
+        localStorage.setItem('reviva_full_session_state', JSON.stringify(fullState));
+
+        // Disparar envio de e-mail de confirmação e preparar WhatsApp
+        let notificationPromise = null;
+        if (window.RevivaNotifications) {
+            try {
+                const notifResult = window.RevivaNotifications.sendWelcomeNotifications(orderData, { name, cpf, email, phone });
+                if (notifResult && notifResult.emailPromise) {
+                    notificationPromise = notifResult.emailPromise;
+                }
+            } catch(e) {
+                console.warn('[Reviva] Erro ao disparar notificações do pedido:', e);
+            }
+        }
+
+        // Notificar webhook n8n para registro oficial do teste
+        try {
+            fetch('https://preview-digital.app.n8n.cloud/webhook/reviva-pagamento', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event: 'FREE_TEST_ORDER_CREATED',
+                    payment: {
+                        id: 'FREE-' + orderId,
+                        billingType: 'COUPON_TEST',
+                        value: 0,
+                        orderId: orderId,
+                        customer: { name, cpf, email, phone },
+                        coupon: 'TESTE100',
+                        confirmedAt: new Date().toISOString()
+                    }
+                })
+            }).catch(() => {});
+        } catch(err) {}
+
+        // Exibir tela de sucesso instantânea com status do e-mail
+        const modalBody = document.querySelector('#modal-checkout-simulado > div');
+        if (modalBody) {
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 20px 12px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(34, 197, 94, 0.2); border: 2px solid #4ade80; display: flex; align-items: center; justify-content: center; color: #4ade80; box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);">
+                        <i data-lucide="check" style="width: 32px; height: 32px;"></i>
+                    </div>
+                    <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--gold-bright); margin: 0;">ACESSO LIBERADO COM SUCESSO!</h3>
+                    <p style="font-size: 0.84rem; color: #cbd5e1; max-width: 440px; line-height: 1.5; margin: 0;">
+                        Olá <strong>${name}</strong>, o cupom de teste <strong>TESTE100</strong> foi processado. O pedido do <strong>${planInfo.planName}</strong> foi criado sem custos para você testar toda a plataforma.
+                    </p>
+                    <div style="background: rgba(197, 160, 89, 0.1); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 8px; padding: 10px 16px; font-size: 0.78rem; color: #f6e3c5;">
+                        Número do Pedido: <strong>${orderId}</strong>
+                    </div>
+                    <div id="chk-email-status-box" style="font-size: 0.76rem; color: #93c5fd; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 6px; padding: 8px 14px; margin-top: 4px;">
+                        <i data-lucide="mail" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
+                        Enviando confirmação para <strong>${email}</strong>...
+                    </div>
+                    <button onclick="window.location.href='termo.html'" class="btn btn-primary" style="margin-top: 10px; padding: 12px 28px; font-size: 0.9rem; font-weight: 700; background: linear-gradient(135deg, #c5a059 0%, #9c7247 100%); border-color: #e5c378; color: #fff; box-shadow: 0 0 20px rgba(197, 160, 89, 0.4); text-transform: uppercase;">
+                        ASSINAR TERMO E INICIAR PRODUÇÃO →
+                    </button>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+
+            if (notificationPromise) {
+                notificationPromise.then((results) => {
+                    const statusBox = document.getElementById('chk-email-status-box');
+                    if (statusBox) {
+                        const custRes = results[0];
+                        if (custRes.status === 'fulfilled') {
+                            statusBox.style.color = '#4ade80';
+                            statusBox.style.background = 'rgba(34, 197, 94, 0.15)';
+                            statusBox.style.borderColor = 'rgba(74, 222, 128, 0.4)';
+                            statusBox.innerHTML = `✓ E-mail de confirmação enviado para <strong>${email}</strong>!`;
+                        } else {
+                            statusBox.style.color = '#f87171';
+                            statusBox.style.background = 'rgba(239, 68, 68, 0.15)';
+                            statusBox.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                            const msg = custRes.reason?.text || custRes.reason?.message || 'Falha no EmailJS';
+                            statusBox.innerHTML = `⚠️ Não foi possível entregar o e-mail: ${msg}`;
+                        }
+                    }
+                });
+            }
+        }
+
+        // Aguarda 4.5s ou o clique no botão para redirecionar para o termo
+        setTimeout(() => {
+            window.location.href = 'termo.html';
+        }, 4500);
     };
 
     window.closeCheckoutModal = function() {
@@ -1273,6 +1528,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const navbar = document.querySelector('.navbar');
         if (navbar) navbar.style.display = 'block';
     };
+
+    // Atalho de tecla Enter no input de cupom
+    document.getElementById('chk-input-coupon')?.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            window.applyCheckoutCoupon();
+        }
+    });
 
     // Máscara do CPF no Checkout
     document.getElementById('chk-input-cpf')?.addEventListener('input', function(e) {
@@ -1628,9 +1891,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const linkFatura = document.getElementById('link-fatura-asaas');
             const statusTextEl = document.getElementById('pix-polling-status-text');
 
+            // Armazenar referências globais para simulação e abertura de fatura
+            window.currentAsaasPaymentId = result.paymentId;
+            window.currentAsaasInvoiceUrl = result.invoiceUrl;
+
             if (qrImg) qrImg.src = `data:image/png;base64,${result.encodedImage}`;
             if (copiaColaInput) copiaColaInput.value = result.payload;
-            if (linkFatura && result.invoiceUrl) linkFatura.href = result.invoiceUrl;
+            if (linkFatura && result.invoiceUrl) {
+                linkFatura.href = result.invoiceUrl;
+                linkFatura.setAttribute('data-url', result.invoiceUrl);
+            }
 
             if (statusTextEl) {
                 statusTextEl.innerHTML = `<strong style="color: #f6e3c5;">Aguardando pagamento...</strong><br><span style="font-size: 0.72rem; color: #cbd5e1;">O painel liberará automaticamente na compensação bancária.</span>`;
@@ -1930,6 +2200,13 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('reviva_order_data', JSON.stringify(paidOrderData));
             localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone, role: 'client' }));
 
+            // Enviar e-mail de confirmação e preparar WhatsApp
+            if (window.RevivaNotifications) {
+                try {
+                    window.RevivaNotifications.sendWelcomeNotifications(paidOrderData, { name, cpf, email, phone });
+                } catch(e) {}
+            }
+
             // Notificar Webhook n8n
             try {
                 fetch('https://preview-digital.app.n8n.cloud/webhook/reviva-pagamento', {
@@ -1987,6 +2264,56 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Abertura confiável da Fatura do Asaas em nova aba
+    window.openAsaasInvoiceUrl = function(e) {
+        if (e) e.preventDefault();
+        const url = window.currentAsaasInvoiceUrl || document.getElementById('link-fatura-asaas')?.getAttribute('data-url') || document.getElementById('link-fatura-asaas')?.href;
+        if (url && url !== '#' && !url.endsWith('#')) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        } else {
+            alert('Aguarde a emissão da cobrança pelo Asaas...');
+        }
+    };
+
+    // Simulação Imediata de Pagamento no Sandbox (Disparo Direto para API do Asaas)
+    window.simulateAsaasPaymentClick = async function() {
+        const btn = document.getElementById('btn-simulate-pix-pay');
+        const paymentId = window.currentAsaasPaymentId;
+        if (!paymentId) {
+            alert('Aguarde o PIX ser gerado no Asaas para simular o pagamento.');
+            return;
+        }
+
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> CONFIRMANDO NO ASAAS...';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        try {
+            const res = await fetch('/api/asaas/simulate-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentId: paymentId })
+            });
+            const data = await res.json();
+            console.log('⚡ [Asaas Simulação de Pagamento]:', data);
+
+            const statusTextEl = document.getElementById('pix-polling-status-text');
+            if (statusTextEl) {
+                statusTextEl.innerHTML = '<span style="color: #4ade80; font-weight: 700;">✓ PIX CONFIRMADO NO ASAAS COM SUCESSO! LIBERANDO...</span>';
+            }
+        } catch(err) {
+            console.error('Erro ao simular pagamento no Asaas:', err);
+            alert('Erro na simulação: ' + (err.message || err));
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="zap" style="width: 14px; height: 14px;"></i> SIMULAR CONFIRMAÇÃO DO PIX NO ASAAS';
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+    };
+
     function startAsaasPaymentPolling(paymentId, orderMeta) {
         if (asaasPixPollingInterval) clearInterval(asaasPixPollingInterval);
 
@@ -1997,7 +2324,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await fetch(`/api/asaas/check-status?paymentId=${paymentId}`);
                 const data = await res.json();
 
-                if (data.success && data.isPaid) {
+                const isConfirmed = data.success && (data.isPaid || data.status === 'RECEIVED' || data.status === 'CONFIRMED' || data.status === 'RECEIVED_IN_CASH');
+
+                if (isConfirmed) {
                     clearInterval(asaasPixPollingInterval);
                     asaasPixPollingInterval = null;
 
@@ -2048,15 +2377,32 @@ document.addEventListener('DOMContentLoaded', () => {
         fullState.clientPhone = phone;
         localStorage.setItem('reviva_full_session_state', JSON.stringify(fullState));
 
-        // Enviar notificações automáticas
+        // Enviar notificações automáticas e aguardar conclusão dos e-mails
+        let notifPromise = null;
         if (window.RevivaNotifications) {
-            window.RevivaNotifications.sendWelcomeNotifications(orderData, { name, cpf, email, phone });
+            try {
+                const resNotif = window.RevivaNotifications.sendWelcomeNotifications(orderData, { name, cpf, email, phone });
+                if (resNotif && resNotif.emailPromise) {
+                    notifPromise = resNotif.emailPromise;
+                }
+            } catch(e) {
+                console.warn('[Reviva] Erro ao disparar notificações:', e);
+            }
         }
 
-        // Redireciona suavemente para o Termo
-        setTimeout(() => {
+        // Aguarda os envios terminarem (ou no máximo 3.5s) antes de navegar para o termo
+        const proceedToTermo = () => {
             window.location.href = 'termo.html';
-        }, 1500);
+        };
+
+        if (notifPromise) {
+            Promise.race([
+                notifPromise,
+                new Promise(resolve => setTimeout(resolve, 3500))
+            ]).then(proceedToTermo).catch(proceedToTermo);
+        } else {
+            setTimeout(proceedToTermo, 1500);
+        }
     }
 
     window.concludePaidOrderFromPixView = function() {

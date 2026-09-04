@@ -13,7 +13,8 @@ try {
     }
 } catch(e) {}
 
-const ASAAS_HOST = 'api.asaas.com';
+// Se for chave de homologação/sandbox (_hmlg_), utiliza api-sandbox.asaas.com
+const ASAAS_HOST = ASAAS_API_KEY.includes('_hmlg_') ? 'api-sandbox.asaas.com' : 'api.asaas.com';
 
 function asaasRequest(method, path, body = null) {
     return new Promise((resolve, reject) => {
@@ -118,18 +119,84 @@ async function createPixPayment({ customerId, value, orderId, planName, descript
 // 3. Consultar Status do Pagamento
 async function checkPaymentStatus(paymentId) {
     const payment = await asaasRequest('GET', `/v3/payments/${paymentId}`);
+    const isPaid = payment.status === 'RECEIVED' || payment.status === 'CONFIRMED' || payment.status === 'RECEIVED_IN_CASH';
     return {
         id: payment.id,
-        status: payment.status, // RECEIVED, CONFIRMED, PENDING, etc.
-        isPaid: payment.status === 'RECEIVED' || payment.status === 'CONFIRMED',
+        status: payment.status, // RECEIVED, CONFIRMED, RECEIVED_IN_CASH, PENDING, etc.
+        isPaid: isPaid,
         paymentDate: payment.paymentDate,
         clientPaymentDate: payment.clientPaymentDate
     };
+}
+
+// 4. Simular Confirmação de Pagamento no Sandbox (recebimento oficial)
+async function simulatePayment(paymentId, value) {
+    const today = new Date().toISOString().split('T')[0];
+    let payValue = value;
+    if (!payValue) {
+        try {
+            const p = await asaasRequest('GET', `/v3/payments/${paymentId}`);
+            if (p && p.value) payValue = p.value;
+        } catch(e) {}
+    }
+    const res = await asaasRequest('POST', `/v3/payments/${paymentId}/receiveInCash`, {
+        paymentDate: today,
+        value: Number(payValue) || 897
+    });
+    return res;
+}
+
+// 5. Listar cobranças com dados dos clientes para o Painel do Produtor
+async function listPayments(limit = 20) {
+    const paymentsRes = await asaasRequest('GET', `/v3/payments?limit=${limit}&order=desc`);
+    if (!paymentsRes || !paymentsRes.data) return [];
+
+    const list = [];
+    for (const p of paymentsRes.data) {
+        let customerName = 'Cliente';
+        let customerEmail = '';
+        let customerPhone = '';
+        let customerCpf = '';
+
+        try {
+            if (p.customer) {
+                const c = await asaasRequest('GET', `/v3/customers/${p.customer}`);
+                if (c) {
+                    customerName = c.name || customerName;
+                    customerEmail = c.email || customerEmail;
+                    customerPhone = c.mobilePhone || c.phone || customerPhone;
+                    customerCpf = c.cpfCnpj || customerCpf;
+                }
+            }
+        } catch(e) {}
+
+        const isPaid = p.status === 'RECEIVED' || p.status === 'CONFIRMED' || p.status === 'RECEIVED_IN_CASH';
+
+        list.push({
+            id: p.id,
+            orderId: p.externalReference || p.id,
+            status: p.status,
+            isPaid: isPaid,
+            statusLabel: isPaid ? 'PAGO / CONFIRMADO' : (p.status === 'PENDING' ? 'AGUARDANDO PIX' : p.status),
+            value: p.value,
+            valueFormatted: `R$ ${Number(p.value).toFixed(2).replace('.', ',')}`,
+            description: p.description,
+            dateCreated: p.dateCreated,
+            clientName: customerName,
+            clientEmail: customerEmail,
+            clientPhone: customerPhone,
+            clientCpf: customerCpf
+        });
+    }
+
+    return list;
 }
 
 module.exports = {
     asaasRequest,
     getOrCreateCustomer,
     createPixPayment,
-    checkPaymentStatus
+    checkPaymentStatus,
+    simulatePayment,
+    listPayments
 };

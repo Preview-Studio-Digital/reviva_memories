@@ -98,8 +98,9 @@
     
     <!-- Cabeçalho Dourado / Nobre com Logotipo Centralizado -->
     <div style="background:linear-gradient(180deg, #1b110b 0%, #0e0906 100%); padding:32px 24px 24px 24px; text-align:center; border-bottom:1px solid rgba(197, 160, 89, 0.35);">
-      <img src="${origin && !origin.startsWith('file:') ? origin : 'https://revivamemories.com.br'}/logo.png" alt="Reviva Memories" style="height:52px; width:auto; margin:0 auto 10px auto; display:block; filter:drop-shadow(0 2px 8px rgba(0,0,0,0.8));">
-      <div style="font-family:'Cormorant Garamond', Georgia, serif; font-style:italic; font-size:15px; color:#e5c378; letter-spacing:1px; margin-bottom:4px;">Memórias que transcendem o tempo.</div>
+      <img src="https://revivamemories.com.br/logo.png" alt="Reviva Memories" style="height:52px; width:auto; margin:0 auto 10px auto; display:block; filter:drop-shadow(0 2px 8px rgba(0,0,0,0.8));">
+      <div style="font-family:'Cinzel', Georgia, serif; font-size:18px; font-weight:700; color:#f6e3c5; letter-spacing:2px; margin-bottom:4px;">REVIVA MEMORIES</div>
+      <div style="font-family:'Cormorant Garamond', Georgia, serif; font-style:italic; font-size:14px; color:#e5c378; letter-spacing:1px; margin-bottom:4px;">Memórias que transcendem o tempo.</div>
     </div>
 
     <!-- Faixa de Confirmação de Pagamento -->
@@ -281,25 +282,44 @@
 
                     console.log('🚀 [Reviva Notifications] Disparando e-mail para:', payload.customerEmail);
 
-                    window.emailjs.send(
+                    // 1) Disparo para o Cliente
+                    const pCustomer = window.emailjs.send(
                         this.config.emailjsServiceId,
                         this.config.emailjsTemplateId,
                         templateParams,
                         { publicKey: this.config.emailjsPublicKey }
                     ).then((response) => {
-                        console.log('✨ [Reviva Notifications] E-mail oficial de boas-vindas enviado com SUCESSO via EmailJS!', response.status, response.text);
-                        const statusEl = document.getElementById('email-delivery-status-tag');
-                        if (statusEl) {
-                            statusEl.innerHTML = '<span style="color:#4ade80; font-weight:700;">✓ E-mail Entregue com Sucesso pelo Gmail (200 OK)</span>';
-                        }
+                        console.log('✨ [Reviva Notifications] E-mail enviado com SUCESSO para o Cliente via EmailJS!', response.status, response.text);
+                        return response;
                     }).catch(err => {
-                        console.error('❌ [Reviva Notifications] Falha ao enviar via EmailJS:', err);
-                        const statusEl = document.getElementById('email-delivery-status-tag');
-                        if (statusEl) {
-                            const errDesc = err?.text || err?.message || JSON.stringify(err);
-                            statusEl.innerHTML = '<span style="color:#f87171; font-weight:700;">⚠️ Erro no envio do e-mail: ' + errDesc + '</span>';
-                        }
+                        console.error('❌ [Reviva Notifications] Falha ao enviar para o Cliente:', err);
+                        throw err;
                     });
+
+                    // 2) Disparo de Aviso de Venda para o Administrador (contato@revivamemories.com.br)
+                    const adminParams = {
+                        ...templateParams,
+                        to_name: 'Equipe Reviva Memories',
+                        name: 'Equipe Reviva Memories',
+                        to_email: this.config.supportEmail,
+                        email: this.config.supportEmail,
+                        user_email: this.config.supportEmail,
+                        recipient: this.config.supportEmail
+                    };
+                    const pAdmin = window.emailjs.send(
+                        this.config.emailjsServiceId,
+                        this.config.emailjsTemplateId,
+                        adminParams,
+                        { publicKey: this.config.emailjsPublicKey }
+                    ).then((adminRes) => {
+                        console.log('🔔 [Reviva Notifications] Aviso de Venda entregue ao Administrador com SUCESSO!', adminRes.status);
+                        return adminRes;
+                    }).catch(adminErr => {
+                        console.warn('⚠️ [Reviva Notifications] Erro ao enviar aviso de venda ao Admin:', adminErr);
+                        return null; // Não bloqueia fluxo se admin falhar
+                    });
+
+                    payload.emailPromise = Promise.allSettled([pCustomer, pAdmin]);
                 } catch(err) {
                     console.error('❌ [Reviva Notifications] Erro na chamada do EmailJS:', err);
                 }
@@ -366,9 +386,63 @@
                     console.warn('⚠️ [Meta WhatsApp API] Resposta da Meta:', data);
                     return { success: false, error: data };
                 }
-            } catch (err) {
-                console.error('❌ [Meta WhatsApp API] Erro na conexão com os servidores da Meta:', err);
-                return { success: false, error: err };
+        },
+
+        /**
+         * Dispara e-mail com o código de 4 dígitos (OTP) de acesso ao painel
+         */
+        async sendLoginOtpEmail(email, code, customerName = 'Cliente') {
+            const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>Código de Acesso - Reviva Memories</title></head>
+<body style="margin:0; padding:24px 10px; background-color:#050302; font-family:'Inter', sans-serif; color:#fdf6ec;">
+  <div style="max-width:520px; margin:0 auto; background:#0e0906; border:1px solid #c5a059; border-radius:12px; overflow:hidden; box-shadow:0 12px 50px rgba(0,0,0,0.85); text-align:center;">
+    <div style="background:linear-gradient(180deg, #1b110b 0%, #0e0906 100%); padding:28px 20px; border-bottom:1px solid rgba(197, 160, 89, 0.35);">
+      <img src="https://revivamemories.com.br/logo.png" alt="Reviva Memories" style="height:48px; width:auto; margin:0 auto 8px auto; display:block;">
+      <div style="font-family:'Cinzel', Georgia, serif; font-size:16px; font-weight:700; color:#f6e3c5; letter-spacing:2px;">REVIVA MEMORIES</div>
+      <div style="font-family:'Cormorant Garamond', Georgia, serif; font-style:italic; font-size:13px; color:#e5c378;">Código de Segurança de Acesso</div>
+    </div>
+    <div style="padding:28px 24px;">
+      <p style="font-size:15px; color:#e2e8f0; margin-top:0;">Olá, <strong>${customerName}</strong>!</p>
+      <p style="font-size:13.5px; color:#cbd5e1; line-height:1.5;">Você solicitou acesso ao seu Painel de Homenagem. Utilize o código de segurança abaixo para validar sua entrada:</p>
+      <div style="margin:24px auto; padding:16px 28px; background:rgba(197, 160, 89, 0.12); border:1.5px solid #c5a059; border-radius:10px; display:inline-block; letter-spacing:8px; font-size:2rem; font-weight:800; color:#f6e3c5; font-family:monospace;">
+        ${code}
+      </div>
+      <p style="font-size:12px; color:#94a3b8; margin-bottom:0;">Este código é válido para sua sessão atual. Se você não solicitou este acesso, ignore esta mensagem com segurança.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+            const text = `REVIVA MEMORIES | CÓDIGO DE ACESSO AO PAINEL\n\nOlá, ${customerName}!\n\nSeu código de confirmação de 4 dígitos é: ${code}\n\nDigite este código na tela de login para acessar seu painel.\n\nEquipe Reviva Memories`;
+
+            if (window.emailjs) {
+                try {
+                    window.emailjs.init({ publicKey: this.config.emailjsPublicKey });
+                    return await window.emailjs.send(
+                        this.config.emailjsServiceId,
+                        this.config.emailjsTemplateId,
+                        {
+                            to_name: customerName,
+                            name: customerName,
+                            to_email: email,
+                            email: email,
+                            user_email: email,
+                            recipient: email,
+                            reply_to: 'contato@revivamemories.com.br',
+                            order_id: 'ACESSO-LOGIN',
+                            plan_name: 'Código de Confirmação',
+                            total_price: code,
+                            access_link: `${window.location.origin}/login.html`,
+                            email_html_body: html,
+                            message: text
+                        },
+                        { publicKey: this.config.emailjsPublicKey }
+                    );
+                } catch(err) {
+                    console.error('[Reviva Notifications] Erro ao disparar código por e-mail:', err);
+                    throw err;
+                }
             }
         }
     };

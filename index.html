@@ -1345,13 +1345,37 @@
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 4px 0; font-size: 0.75rem; color: #94a3b8;">
-                        <i data-lucide="shield-check" style="width: 16px; height: 16px; color: #4ade80;"></i>
+                    <!-- Campo de Cupom de Desconto / Teste -->
+                    <div style="background: rgba(197, 160, 89, 0.05); border: 1px dashed rgba(197, 160, 89, 0.3); border-radius: 6px; padding: 8px 10px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                            <label for="chk-input-coupon" style="font-size: 0.70rem; color: var(--gold-primary); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                <i data-lucide="tag" style="width: 12px; height: 12px;"></i> POSSUI CUPOM DE DESCONTO?
+                            </label>
+                            <span id="coupon-feedback-tag" style="display: none; font-size: 0.65rem; font-weight: 700;"></span>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="chk-input-coupon" placeholder="Digite seu cupom" style="flex: 1; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 5px; padding: 6px 10px; color: #fff; font-size: 0.82rem; text-transform: uppercase; outline: none;">
+                            <button type="button" id="btn-apply-coupon" onclick="applyCheckoutCoupon()" style="background: rgba(197, 160, 89, 0.2); border: 1px solid var(--border-gold); color: #f6e3c5; border-radius: 5px; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+                                APLICAR
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 2px 0; font-size: 0.73rem; color: #94a3b8;">
+                        <i data-lucide="shield-check" style="width: 15px; height: 15px; color: #4ade80;"></i>
                         <span>Ambiente Seguro • Criptografia de 256 bits</span>
                     </div>
 
-                    <!-- Botões de Pagamento: PIX e Cartão de Crédito -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;">
+                    <!-- Botao Especial para Cupom 100% OFF (Aparece ao ativar cupom TESTE100) -->
+                    <div id="btn-box-free-test" style="display: none; margin-top: 4px;">
+                        <button type="button" onclick="submitFreeTestOrder(event)" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px 14px; font-size: 0.86rem; font-weight: 700; background: linear-gradient(135deg, #e5c378, #a47e38); border-color: #f6e3c5; color: #000; box-shadow: 0 0 20px rgba(229, 195, 120, 0.5); display: flex; align-items: center; gap: 8px; border-radius: 8px;">
+                            <i data-lucide="sparkles" style="width: 18px; height: 18px; color: #000;"></i>
+                            <span>LIBERAR ACESSO IMEDIATO (TESTE 100% OFF)</span>
+                        </button>
+                    </div>
+
+                    <!-- Botões de Pagamento Padrão: PIX e Cartão de Crédito -->
+                    <div id="box-payment-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;">
                         <button type="submit" id="btn-submit-real-pix" class="btn btn-primary" style="justify-content: center; padding: 12px 14px; font-size: 0.84rem; font-weight: 700; background: linear-gradient(135deg, #22c55e, #16a34a); border-color: #4ade80; color: #fff; box-shadow: 0 0 16px rgba(34, 197, 94, 0.35); display: flex; flex-direction: column; gap: 3px; line-height: 1.1; border-radius: 8px;">
                             <span style="display: flex; align-items: center; gap: 6px;"><i data-lucide="qr-code" style="width: 16px; height: 16px;"></i> PAGAR COM PIX</span>
                             <span style="font-size: 0.68rem; color: #bbf7d0; font-weight: 500;">(10% de desconto à vista)</span>
@@ -1393,12 +1417,22 @@
                     </button>
                 </div>
 
-                <!-- Status de Verificação Automática (Sem botão refresh, apenas texto limpo) -->
-                <div style="background: rgba(14, 9, 6, 0.9); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 8px; padding: 10px 14px; width: 100%; box-sizing: border-box; font-size: 0.78rem; color: #e5c378; display: flex; align-items: center; justify-content: center;">
+                <!-- Status de Verificação Automática & Botão de Simulação do Sandbox -->
+                <div style="background: rgba(14, 9, 6, 0.9); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 8px; padding: 12px 14px; width: 100%; box-sizing: border-box; font-size: 0.78rem; color: #e5c378; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
                     <div id="pix-polling-status-text" style="line-height: 1.35; text-align: center;">
                         <strong style="color: #f6e3c5;">Aguardando pagamento...</strong><br>
                         <span style="font-size: 0.72rem; color: #cbd5e1;">O painel liberará automaticamente na compensação bancária.</span>
                     </div>
+
+                    <!-- Botão Direto de Simulação Oficial de Homologação no Asaas -->
+                    <button type="button" id="btn-simulate-pix-pay" onclick="simulateAsaasPaymentClick()" style="background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%); border: 1px solid #4ade80; color: #fff; font-size: 0.78rem; font-weight: 700; padding: 9px 18px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 0 16px rgba(34, 197, 94, 0.4); text-transform: uppercase;">
+                        <i data-lucide="zap" style="width: 14px; height: 14px;"></i>
+                        <span>SIMULAR CONFIRMAÇÃO DO PIX NO ASAAS</span>
+                    </button>
+
+                    <a id="link-fatura-asaas" href="#" target="_blank" rel="noopener noreferrer" onclick="openAsaasInvoiceUrl(event)" style="font-size: 0.72rem; color: #93c5fd; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; cursor: pointer;">
+                        <span>Ou abrir fatura de teste no Asaas Sandbox ↗</span>
+                    </a>
                 </div>
 
                 <!-- Barra de Ações Inferiores Refinada -->
@@ -1477,6 +1511,12 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.6.0"></script>
+    <!-- EmailJS SDK Oficial v4 -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+    <!-- Sistema de Notificações da Reviva Memories -->
+    <script src="notifications.js?v=1.1.0"></script>
+
+    <script src="app.js?v=1.7.0"></script>
 </body>
 </html>

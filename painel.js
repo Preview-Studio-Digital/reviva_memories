@@ -2899,7 +2899,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         saveFullSessionState();
     });
 
-    // Ações Etapa 4 (A Lapidação: Avançar para a Sala de Revelação ou Notificar Ateliê)
+    // Ações Etapa 4 (A Lapidação: Avançar para a Sala de Revelação ou Notificar a Equipe de Produção)
     document.getElementById('btn-approve-lapidacao')?.addEventListener('click', async () => {
         if (photoDecision === 'pending' || voiceDecision === 'pending') {
             return; // Inativo / protegido
@@ -2918,7 +2918,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         if (photoDecision === 'rejected') {
             const photoTxt = photoRejectionFeedback?.value.trim();
             if (!photoTxt) {
-                alert('Por favor, descreva quais ajustes você gostaria de realizar na imagem antes de enviar ao ateliê.');
+                alert('Por favor, descreva quais ajustes você gostaria de realizar na imagem antes de enviar à equipe de produção.');
                 photoRejectionBox.style.display = 'flex';
                 photoRejectionFeedback?.focus();
                 return;
@@ -2940,7 +2940,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         if (voiceDecision === 'rejected') {
             const voiceTxt = voiceRejectionFeedback?.value.trim();
             if (!voiceTxt) {
-                alert('Por favor, descreva quais ajustes você gostaria de realizar no áudio/voz antes de enviar ao ateliê.');
+                alert('Por favor, descreva quais ajustes você gostaria de realizar no áudio/voz antes de enviar à equipe de produção.');
                 voiceRejectionBox.style.display = 'flex';
                 voiceRejectionFeedback?.focus();
                 return;
@@ -2986,9 +2986,43 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         return `${origin}/revelar.html?${params.toString()}`;
     }
 
+    function registerStage5Consumption() {
+        try {
+            const currentOrderId = (typeof orderData !== 'undefined' && orderData && orderData.id) ? orderData.id : 'REVIVA-1001';
+            localStorage.setItem('reviva_stage5_consumed_' + currentOrderId, 'true');
+            localStorage.setItem('reviva_stage5_consumed_REVIVA-1001', 'true');
+            localStorage.setItem('reviva_stage5_consumed', 'true');
+
+            // Atualiza histórico do CRM do pedido se já existir
+            const crmKey = 'reviva_crm_order_' + currentOrderId;
+            const rawCrm = localStorage.getItem(crmKey);
+            if (rawCrm) {
+                const crm = JSON.parse(rawCrm);
+                if (crm && !crm.stage5Consumed) {
+                    crm.stage5Consumed = true;
+                    crm.stage5ConsumedAt = new Date().toISOString();
+                    if (!crm.manualStageOverride) {
+                        crm.stage = 'entregues'; // Avança automaticamente para Pós-Venda
+                    }
+                    if (!Array.isArray(crm.history)) crm.history = [];
+                    crm.history.unshift({
+                        timestamp: new Date().toISOString(),
+                        dateFormatted: new Date().toLocaleString('pt-BR'),
+                        event: 'Cliente interagiu na Etapa 05 (visualizou, baixou ou compartilhou a homenagem)',
+                        type: 'delivery'
+                    });
+                    localStorage.setItem(crmKey, JSON.stringify(crm));
+                }
+            }
+        } catch(e) {
+            console.warn('Erro ao registrar consumo da Etapa 5:', e);
+        }
+    }
+
     const btnGoToRevealRoom = document.getElementById('btnGoToRevealRoom');
     if (btnGoToRevealRoom) {
         btnGoToRevealRoom.addEventListener('click', () => {
+            registerStage5Consumption();
             btnGoToRevealRoom.href = getRevealPageUrl();
         });
     }
@@ -2996,6 +3030,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
     // Função global explícita de cópia para garantir acionamento direto e feedback instantâneo
     window.copiarLinkWhatsApp = function(event) {
         if (event) event.preventDefault();
+        registerStage5Consumption();
         
         const btn = document.getElementById('btnCopyRevealLink');
         const textSpan = document.getElementById('btnCopyRevealLinkText');
@@ -3043,6 +3078,13 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         btnCopyRevealLink.onclick = window.copiarLinkWhatsApp;
     }
 
+    const btnDownloadFinalVideo = document.getElementById('btnDownloadFinalVideo');
+    if (btnDownloadFinalVideo) {
+        btnDownloadFinalVideo.addEventListener('click', () => {
+            registerStage5Consumption();
+        });
+    }
+
     // Fallback universal e garantido para cópia de links
     function fallbackCopyText(text, onSuccess) {
         try {
@@ -3067,6 +3109,11 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
     }
 
     const finalHomenagemVideo = document.getElementById('final-homenagem-video');
+    if (finalHomenagemVideo) {
+        finalHomenagemVideo.addEventListener('play', () => {
+            registerStage5Consumption();
+        });
+    }
 
     // =========================================================================
     // SISTEMA DE MÚSICA DE FUNDO E ONDAS SONORAS (IDÊNTICO AO SITE ORIGINAL)

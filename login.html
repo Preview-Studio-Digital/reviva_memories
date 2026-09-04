@@ -250,16 +250,7 @@
             <!-- ================= STEP 2: DIGITAR O CÓDIGO DE 4 DÍGITOS ================= -->
             <div id="step-2-verify-code" style="display: none;">
                 <h1 class="login-title">Confirme o Código</h1>
-                <p class="login-subtitle">Enviamos um código de segurança de 4 dígitos para o seu <strong>E-mail cadastrado</strong>.</p>
-
-                <!-- Box Informativo do Código -->
-                <div class="alert-info-code">
-                    <div style="font-weight: 700; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.5px; margin-bottom: 4px;">
-                        ✉️ CÓDIGO DE ACESSO RÁPIDO:
-                    </div>
-                    <div>Seu código de confirmação é: <strong id="simulated-code-display" style="font-size: 1.1rem; color: #ffffff; letter-spacing: 2px;">4829</strong></div>
-                    <div style="font-size: 0.72rem; opacity: 0.85; margin-top: 4px;">(Digite os 4 dígitos acima para validar seu acesso ao painel)</div>
-                </div>
+                <p class="login-subtitle">Enviamos um código de segurança de 4 dígitos para <strong id="user-email-target-label" style="color: #f6e3c5;">seu e-mail</strong>. Verifique sua caixa de entrada e spam.</p>
 
                 <div id="code-alert-error" class="alert-error">
                     <i data-lucide="alert-circle" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
@@ -294,8 +285,12 @@
         </div>
     </div>
 
+    <!-- EmailJS SDK Oficial v4 -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <!-- Notificações da Reviva -->
+    <script src="notifications.js?v=1.2.0"></script>
     <script src="supabase_client.js"></script>
-    <script src="app.js"></script>
+    <script src="app.js?v=1.7.0"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
@@ -310,7 +305,6 @@
 
             const formVerify = document.getElementById('form-verify-code');
             const codeError = document.getElementById('code-alert-error');
-            const simulatedCodeDisplay = document.getElementById('simulated-code-display');
             const btnBack = document.getElementById('btn-back-step1');
 
             const digits = [
@@ -396,21 +390,37 @@
                 // Em modo de testes ou encontrando o cliente cadastrado
                 if (matched || cleanTerm === '11144477735' || term.toLowerCase() === 'mariana@exemplo.com' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                     
-                    // Gerar código aleatório de 4 dígitos (ex: 4829)
+                    // Gerar código aleatório seguro de 4 dígitos
                     activeGeneratedCode = Math.floor(1000 + Math.random() * 9000).toString();
-                    simulatedCodeDisplay.textContent = activeGeneratedCode;
 
                     targetOrderData = orderData || {
                         order_id: 'REVIVA-ORD-DEMO',
-                        customer_name: sessionUser?.name || fullState?.clientName || 'Mariana Silva Santos',
-                        customer_cpf: cleanTerm.length === 11 ? term : '111.444.777-35',
-                        customer_email: isEmail ? term : 'mariana@exemplo.com',
+                        customer_name: sessionUser?.name || fullState?.clientName || 'Cliente',
+                        customer_cpf: cleanTerm.length === 11 ? term : (sessionUser?.cpf || '000.000.000-00'),
+                        customer_email: isEmail ? term : (sessionUser?.email || fullState?.clientEmail || 'preview.ia1@gmail.com'),
                         plan_id: 'legatum',
                         plan_name: 'Plano Legatum',
                         plan_duration: '2 Minutos',
                         plan_format: 'Formato Horizontal',
                         status: 'paid'
                     };
+
+                    const targetEmail = targetOrderData.customer_email || (isEmail ? term : 'seu e-mail');
+                    const targetName = targetOrderData.customer_name || 'Cliente';
+
+                    // Atualizar rótulo do e-mail na tela (sem mostrar o código)
+                    const emailTargetLabel = document.getElementById('user-email-target-label');
+                    if (emailTargetLabel) {
+                        emailTargetLabel.textContent = targetEmail;
+                    }
+
+                    // Disparar o e-mail real com o código de 4 dígitos via EmailJS
+                    if (window.RevivaNotifications && typeof window.RevivaNotifications.sendLoginOtpEmail === 'function') {
+                        console.log('🚀 [Reviva Login] Disparando código de segurança para:', targetEmail);
+                        window.RevivaNotifications.sendLoginOtpEmail(targetEmail, activeGeneratedCode, targetName)
+                            .then(() => console.log('✨ [Reviva Login] Código entregue com sucesso por e-mail!'))
+                            .catch(err => console.warn('⚠️ [Reviva Login] Falha no envio do código:', err));
+                    }
 
                     // Avançar para a Etapa 2 de digitação do código
                     step1.style.display = 'none';
