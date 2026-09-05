@@ -1422,6 +1422,13 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone, role: 'client' }));
         localStorage.removeItem('reviva_legal_term'); // Exigir assinatura do termo com os dados digitados
 
+        try {
+            let existingList = JSON.parse(localStorage.getItem('reviva_orders_list') || '[]');
+            existingList = existingList.filter(o => o.order_id !== orderData.order_id);
+            existingList.unshift(orderData);
+            localStorage.setItem('reviva_orders_list', JSON.stringify(existingList));
+        } catch(e) {}
+
         let fullState = {};
         try {
             const raw = localStorage.getItem('reviva_full_session_state');
@@ -1912,6 +1919,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.lucide) lucide.createIcons();
             }
 
+            // Salvar pedido localmente como aguardando PIX
+            const orderData = {
+                order_id: orderId,
+                payment_id: result.paymentId,
+                customer_name: name,
+                customer_cpf: cpf,
+                customer_email: email,
+                customer_phone: phone,
+                plan_id: planInfo.planId || 'emocao',
+                plan_name: planInfo.planName || 'Plano Legatum',
+                plan_duration: planInfo.duration || '2 Minutos',
+                plan_format: planInfo.format || 'Formato Horizontal',
+                has_upsell: !!planInfo.hasUpsell,
+                total_price: `R$ ${numericValuePix.toFixed(2).replace('.', ',')}`,
+                status: 'pending_pix',
+                created_at: new Date().toISOString()
+            };
+            localStorage.setItem('reviva_order_data', JSON.stringify(orderData));
+            localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone }));
+            try {
+                let existingList = JSON.parse(localStorage.getItem('reviva_orders_list') || '[]');
+                existingList = existingList.filter(o => o.order_id !== orderId);
+                existingList.unshift(orderData);
+                localStorage.setItem('reviva_orders_list', JSON.stringify(existingList));
+            } catch(e) {}
+
             // Iniciar Polling Real com o Asaas (a cada 3 segundos consulta a API)
             // SÓ LIBERA QUANDO O ASAAS CONFIRMAR STATUS: RECEIVED!
             startAsaasPaymentPolling(result.paymentId, {
@@ -1958,6 +1991,14 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             localStorage.setItem('reviva_order_data', JSON.stringify(orderData));
             localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone }));
+
+            // Salva na lista de historico de pedidos locais para o Painel de Producao
+            try {
+                let existingList = JSON.parse(localStorage.getItem('reviva_orders_list') || '[]');
+                existingList = existingList.filter(o => o.order_id !== orderId);
+                existingList.unshift(orderData);
+                localStorage.setItem('reviva_orders_list', JSON.stringify(existingList));
+            } catch(e) {}
 
             if (formView) formView.style.display = 'none';
             if (pixView) {

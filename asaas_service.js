@@ -6,25 +6,28 @@
 const https = require('https');
 
 let ASAAS_API_KEY = process.env.ASAAS_API_KEY || '';
+let ASAAS_API_KEY_PROD = process.env.ASAAS_API_KEY_PROD || '';
 try {
     const localCfg = require('./config.local.js');
-    if (localCfg && localCfg.ASAAS_API_KEY) {
-        ASAAS_API_KEY = localCfg.ASAAS_API_KEY;
+    if (localCfg) {
+        if (localCfg.ASAAS_API_KEY) ASAAS_API_KEY = localCfg.ASAAS_API_KEY;
+        if (localCfg.ASAAS_API_KEY_PROD) ASAAS_API_KEY_PROD = localCfg.ASAAS_API_KEY_PROD;
     }
 } catch(e) {}
 
 // Se for chave de homologação/sandbox (_hmlg_), utiliza api-sandbox.asaas.com
 const ASAAS_HOST = ASAAS_API_KEY.includes('_hmlg_') ? 'api-sandbox.asaas.com' : 'api.asaas.com';
 
-function asaasRequest(method, path, body = null) {
+function asaasRequestWithKey(apiKey, method, path, body = null) {
+    const host = apiKey.includes('_hmlg_') ? 'api-sandbox.asaas.com' : 'api.asaas.com';
     return new Promise((resolve, reject) => {
         const payload = body ? JSON.stringify(body) : null;
         const options = {
-            hostname: ASAAS_HOST,
+            hostname: host,
             path: path,
             method: method,
             headers: {
-                'access_token': ASAAS_API_KEY,
+                'access_token': apiKey,
                 'Content-Type': 'application/json',
                 'User-Agent': 'RevivaMemories'
             }
@@ -58,6 +61,10 @@ function asaasRequest(method, path, body = null) {
         if (payload) req.write(payload);
         req.end();
     });
+}
+
+function asaasRequest(method, path, body = null) {
+    return asaasRequestWithKey(ASAAS_API_KEY, method, path, body);
 }
 
 // 1. Encontrar ou Criar Cliente no Asaas
@@ -146,50 +153,87 @@ async function simulatePayment(paymentId, value) {
     return res;
 }
 
-// 5. Listar cobranças com dados dos clientes para o Painel do Produtor
-async function listPayments(limit = 20) {
-    const paymentsRes = await asaasRequest('GET', `/v3/payments?limit=${limit}&order=desc`);
-    if (!paymentsRes || !paymentsRes.data) return [];
+// 5. Listar cobranças com dados dos clientes para o Painel de Produção
+async function fetchPaymentsWithKey(apiKey, limit = 20) {
+    if (!apiKey) return [];
+    try {
+        const paymentsRes = await asaasRequestWithKey(apiKey, 'GET', `/v3/payments?limit=${limit}&order=desc`);
+        if (!paymentsRes || !paymentsRes.data) return [];
 
-    const list = [];
-    for (const p of paymentsRes.data) {
-        let customerName = 'Cliente';
-        let customerEmail = '';
-        let customerPhone = '';
-        let customerCpf = '';
+        const list = [];
+        for (const p of paymentsRes.data) {
+            let customerName = 'Cliente';
+            let customerEmail = '';
+            let customerPhone = '';
+            let customerCpf = '';
 
-        try {
-            if (p.customer) {
-                const c = await asaasRequest('GET', `/v3/customers/${p.customer}`);
-                if (c) {
-                    customerName = c.name || customerName;
-                    customerEmail = c.email || customerEmail;
-                    customerPhone = c.mobilePhone || c.phone || customerPhone;
-                    customerCpf = c.cpfCnpj || customerCpf;
+            try {
+                if (p.customer) {
+                    const c = await asaasRequestWithKey(apiKey, 'GET', `/v3/customers/${p.customer}`);
+                    if (c) {
+                        customerName = c.name || customerName;
+                        customerEmail = c.email || customerEmail;
+                        customerPhone = c.mobilePhone || c.phone || customerPhone;
+                        customerCpf = c.cpfCnpj || customerCpf;
+                    }
                 }
+            } catch(e) {}
+
+            const isPaid = p.status === 'RECEIVED' || p.status === 'CONFIRMED' || p.status === 'RECEIVED_IN_CASH';
+
+            list.push({
+                id: p.id,
+                orderId: p.externalReference || p.id,
+                status: p.status,
+                isPaid: isPaid,
+                statusLabel: isPaid ? 'PAGO / CONFIRMADO' : (p.status === 'PENDING' ? 'AGUARDANDO PIX' : p.status),
+                value: p.value,
+                valueFormatted: `R$ ${Number(p.value).toFixed(2).replace('.', ',')}`,
+                description: p.description,
+                dateCreated: p.dateCreated,
+                clientName: customerName,
+                clientEmail: customerEmail,
+                clientPhone: customerPhone,
+                clientCpf: customerCpf
+            });
+        }
+        return list;
+    } catch(err) {
+        console.warn('[Asaas fetchPaymentsWithKey error]:', err?.message || err);
+        return [];
+    }
+}
+
+async function listPayments(limit = 20) {
+    const combined = [];
+    const seenIds = new Set();
+
+    // 1. Consulta Chave de Produção (se configurada)
+    if (ASAAS_API_KEY_PROD) {
+        const prodList = await fetchPaymentsWithKey(ASAAS_API_KEY_PROD, limit);
+        for (const item of prodList) {
+            if (!seenIds.has(item.id)) {
+                seenIds.add(item.id);
+                combined.push(item);
             }
-        } catch(e) {}
-
-        const isPaid = p.status === 'RECEIVED' || p.status === 'CONFIRMED' || p.status === 'RECEIVED_IN_CASH';
-
-        list.push({
-            id: p.id,
-            orderId: p.externalReference || p.id,
-            status: p.status,
-            isPaid: isPaid,
-            statusLabel: isPaid ? 'PAGO / CONFIRMADO' : (p.status === 'PENDING' ? 'AGUARDANDO PIX' : p.status),
-            value: p.value,
-            valueFormatted: `R$ ${Number(p.value).toFixed(2).replace('.', ',')}`,
-            description: p.description,
-            dateCreated: p.dateCreated,
-            clientName: customerName,
-            clientEmail: customerEmail,
-            clientPhone: customerPhone,
-            clientCpf: customerCpf
-        });
+        }
     }
 
-    return list;
+    // 2. Consulta Chave Padrão / Sandbox
+    if (ASAAS_API_KEY && ASAAS_API_KEY !== ASAAS_API_KEY_PROD) {
+        const sandList = await fetchPaymentsWithKey(ASAAS_API_KEY, limit);
+        for (const item of sandList) {
+            if (!seenIds.has(item.id)) {
+                seenIds.add(item.id);
+                combined.push(item);
+            }
+        }
+    }
+
+    // Ordena do mais recente para o mais antigo por data de criação
+    combined.sort((a, b) => new Date(b.dateCreated || 0) - new Date(a.dateCreated || 0));
+
+    return combined.slice(0, limit);
 }
 
 module.exports = {
