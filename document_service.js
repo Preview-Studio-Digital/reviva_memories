@@ -320,9 +320,84 @@
                 console.warn('Erro ao embutir PDF no zip:', err);
             }
 
-            // 2. Adicionar Roteiro e Dossie em Texto
+            // 2. Mapeamento Oficial de Ambientes e Trilhas Sonoras
+            const BACKGROUND_MAP = {
+                'ceu': { name: 'Nuvens Celestiais', file: 'bg_ceu.jpg' },
+                'nuvens': { name: 'Nuvens Celestiais', file: 'bg_ceu.jpg' },
+                'montanhas': { name: 'Montanhas Serenas', file: 'bg_montanhas.jpg' },
+                'floresta': { name: 'Floresta Encantada', file: 'bg_floresta.jpg' },
+                'girassois': { name: 'Campo de Girassóis', file: 'bg_girassois.jpg' },
+                'lago': { name: 'Lago Cristalino', file: 'bg_lago.jpg' },
+                'palmeiras': { name: 'Palmeiras Tropicais', file: 'bg_palmeiras.jpg' },
+                'vale': { name: 'Vale Dourado', file: 'bg_vale.jpg' },
+                'descampado': { name: 'Descampado Verdejante', file: 'bg_descampado.jpg' }
+            };
+
+            const MUSIC_MAP = {
+                'sem_musica': 'Sons Naturais',
+                'violao': 'Violão Acústico',
+                'piano': 'Piano Suave',
+                'piano_emocao': 'Piano Suave',
+                'violino': 'Violino Emocionante',
+                'cordas_paz': 'Violino Emocionante',
+                'flauta': 'Flauta Celestial',
+                'saxofone': 'Saxofone Sereno',
+                'serenidade': 'Violão Acústico',
+                'guitarra': 'Guitarra Melódica',
+                'harpa': 'Harpa Angelical'
+            };
+
+            // Identificar escolhas do pedido atual e estágio
+            let orderStateObj = {};
+            try {
+                const rawOrderState = localStorage.getItem(`reviva_order_state_${orderId}`) ||
+                                      (orderId === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
+                if (rawOrderState) orderStateObj = JSON.parse(rawOrderState);
+            } catch(e) {}
+
+            let orderCrmData = null;
+            try {
+                const rawCrm = localStorage.getItem(`reviva_crm_order_${orderId}`);
+                if (rawCrm) orderCrmData = JSON.parse(rawCrm);
+            } catch(e) {}
+
+            const currentStage = customOrder?.stage || orderCrmData?.stage || 'pagamento_confirmado';
+            const isStage1 = currentStage === 'aguardando_pagamento';
+            const isStage2 = currentStage === 'pagamento_confirmado';
+            const isPreMaterialStage = isStage1 || isStage2;
+
+            const bgKey = (customOrder?.selectedBackground || orderStateObj?.selectedBackground || state.selectedBackground || 'ceu').toLowerCase();
+            const bgInfo = BACKGROUND_MAP[bgKey] || { name: 'Nuvens Celestiais', file: 'bg_ceu.jpg' };
+
+            const musicKey = (customOrder?.selectedMusic || orderStateObj?.selectedMusic || state.selectedMusic || 'sem_musica').toLowerCase();
+            const musicName = MUSIC_MAP[musicKey] || 'Sons Naturais';
+
+            let bgDossieText = `${bgInfo.name} (arquivo HD anexado no pacote)`;
+            let musicDossieText = `${musicName} (aplicar da matriz de audio)`;
+            let toneDossieText = (state.scriptTone || orderStateObj.scriptTone || 'Profundamente Emocionante');
             const scriptEl = document.getElementById('admin-script-text');
-            const scriptText = scriptEl ? (scriptEl.innerText || scriptEl.textContent).trim() : (state.approvedScript || 'Roteiro em fase de curadoria.');
+            let scriptText = (scriptEl ? (scriptEl.innerText || scriptEl.textContent).trim() : (state.approvedScript || 'Roteiro em fase de curadoria.'));
+            let statusDossieStr = 'Em Producao / Lapidacao';
+
+            if (isStage1) {
+                bgDossieText = 'Bloqueado (pedido ainda não contratado / aguardando pagamento)';
+                musicDossieText = 'Bloqueado (pedido ainda não contratado / aguardando pagamento)';
+                toneDossieText = 'Bloqueado (aguardando confirmação do pagamento)';
+                scriptText = 'Bloqueado (pedido ainda não contratado / aguardando confirmação do pagamento).';
+                statusDossieStr = 'Bloqueado - Aguardando Pagamento (Não Contratado)';
+            } else if (isStage2) {
+                bgDossieText = 'Pendente (o cliente ainda não enviou os materiais no painel)';
+                musicDossieText = 'Pendente (o cliente ainda não enviou os materiais no painel)';
+                toneDossieText = 'Pendente (aguardando preenchimento da entrevista no painel)';
+                scriptText = 'Pendente (o cliente ainda não enviou as fotos, áudios e roteiro no painel).';
+                statusDossieStr = 'Aguardando Envio de Materiais pelo Cliente';
+            }
+
+            // 3. Adicionar Roteiro e Dossie em Texto
+            const paymentMethodStr = customOrder?.paymentMethod || orderData.paymentMethod || 'Cartao';
+            const installments = customOrder?.installments || orderData.installments || 1;
+            const paymentDetailsStr = paymentMethodStr.toLowerCase().includes('cart') ? `Cartão - ${installments}x` : paymentMethodStr;
+
             const dossieText = `================================================================================\n` +
                 `DOSSIE DE PRODUCAO - REVIVA MEMORIES\n` +
                 `================================================================================\n\n` +
@@ -331,22 +406,49 @@
                 `CPF: ${clientCpf}\n` +
                 `WhatsApp: ${clientPhone}\n` +
                 `Plano: ${planName}\n` +
-                `Status: Em Producao / Lapidacao\n\n` +
+                `Forma de Pagamento: ${paymentDetailsStr}\n` +
+                `Status: ${statusDossieStr}\n\n` +
                 `--------------------------------------------------------------------------------\n` +
                 `ROTEIRO OFICIAL APROVADO:\n` +
                 `--------------------------------------------------------------------------------\n\n` +
                 `${scriptText}\n\n` +
                 `--------------------------------------------------------------------------------\n` +
-                `ESCOLHAS DE AMBIENTE & TRILHA:\n` +
+                `ESCOLHAS DE AMBIENTE & TRILHA DO CLIENTE:\n` +
                 `--------------------------------------------------------------------------------\n` +
-                `Cenario de Fundo: ${state.selectedBackground || 'Original / Selecionado no Painel'}\n` +
-                `Trilha Sonora: ${state.selectedMusic || 'Acustico Afeto'}\n` +
-                `Tom Emocional: ${state.scriptTone || 'Profundamente Emocionante'}\n\n` +
+                `Ambiente de Fundo Escolhido: ${bgDossieText}\n` +
+                `Trilha Sonora Escolhida: ${musicDossieText}\n` +
+                `Tom Emocional: ${toneDossieText}\n\n` +
                 `Reviva Memories (c) 2026. Todos os direitos reservados.\n`;
 
             zip.file(`Dossie_Pedido_${orderId}.txt`, dossieText);
 
-            // 3. Adicionar Fotos se existirem em base64 na sessao
+            // 4. Anexar o Ambiente de Fundo em Alta Resolução (HD) somente se o cliente já enviou os materiais (Etapa 3 em diante)
+            if (!isPreMaterialStage) {
+                try {
+                    let bgBlob = null;
+                    try {
+                        const respHd = await fetch(`assets/ambientes_hd/${bgInfo.file}`);
+                        if (respHd.ok) bgBlob = await respHd.blob();
+                    } catch(e) {}
+
+                    if (!bgBlob) {
+                        try {
+                            const respStd = await fetch(`assets/ambientes/${bgInfo.file}`);
+                            if (respStd.ok) bgBlob = await respStd.blob();
+                        } catch(e) {}
+                    }
+
+                    if (bgBlob) {
+                        const bgFolder = zip.folder("Ambiente_Fundo_HD");
+                        const safeBgName = bgInfo.name.replace(/[^a-zA-Z0-9]/g, '_');
+                        bgFolder.file(`${safeBgName}_HD.jpg`, bgBlob);
+                    }
+                } catch(bgErr) {
+                    console.warn('Não foi possível anexar imagem do ambiente HD ao zip:', bgErr);
+                }
+            }
+
+            // 5. Adicionar Fotos se existirem em base64 na sessao
             const photosFolder = zip.folder("Fotos_Originais");
             try {
                 const rawPhotos = localStorage.getItem('reviva_client_photos') || localStorage.getItem('reviva_uploaded_photos');

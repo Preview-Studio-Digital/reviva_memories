@@ -514,15 +514,15 @@
             overflow: hidden;
         }
 
-        /* Gradient fill from light (white-ish) to dark (black-ish) across the 8 columns */
-        .kanban-column:nth-child(1) { background: rgba(255, 255, 255, 0.18); }
-        .kanban-column:nth-child(2) { background: rgba(220, 220, 220, 0.15); }
-        .kanban-column:nth-child(3) { background: rgba(180, 180, 180, 0.12); }
-        .kanban-column:nth-child(4) { background: rgba(140, 140, 140, 0.10); }
-        .kanban-column:nth-child(5) { background: rgba(100, 100, 100, 0.08); }
-        .kanban-column:nth-child(6) { background: rgba(60, 60, 60, 0.20); }
-        .kanban-column:nth-child(7) { background: rgba(30, 30, 30, 0.35); }
-        .kanban-column:nth-child(8) { background: rgba(5, 3, 2, 0.65); }
+        /* Degradê visível e distinto da Coluna 1 (Cinza Claro) até a Coluna 8 (Preto Profundo) */
+        .kanban-column:nth-child(1) { background: #353331; }
+        .kanban-column:nth-child(2) { background: #2b2927; }
+        .kanban-column:nth-child(3) { background: #23211f; }
+        .kanban-column:nth-child(4) { background: #1b1918; }
+        .kanban-column:nth-child(5) { background: #151312; }
+        .kanban-column:nth-child(6) { background: #100e0d; }
+        .kanban-column:nth-child(7) { background: #0b0908; }
+        .kanban-column:nth-child(8) { background: #050403; }
 
         .kanban-col-header {
             padding: 8px 6px;
@@ -597,6 +597,71 @@
 
         .kanban-order-card:active {
             cursor: grabbing;
+        }
+
+        /* MODO COMPACTO / RESUMIDO DO KANBAN (ALTURA REDUZIDA PARA ALTA DENSIDADE DE PEDIDOS) */
+        .kanban-view-compact .kanban-cards-wrapper {
+            gap: 4px;
+            padding: 4px;
+        }
+
+        .kanban-view-compact .kanban-order-card,
+        .kanban-order-card.kanban-card-compact {
+            height: 48px;
+            min-height: 48px;
+            max-height: 48px;
+            padding: 4px 8px;
+            border-radius: 5px;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .kanban-view-compact .kanban-order-card:hover,
+        .kanban-order-card.kanban-card-compact:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 8px rgba(229, 195, 120, 0.25);
+        }
+
+        .view-mode-toggle-group {
+            display: flex;
+            background: rgba(0, 0, 0, 0.65);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-sm);
+            padding: 2px;
+            gap: 2px;
+            height: 30px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .view-mode-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: var(--transition-smooth);
+            padding: 0 4px;
+            white-space: nowrap;
+        }
+
+        .view-mode-btn:hover {
+            color: #fff;
+            background: rgba(197, 160, 89, 0.15);
+        }
+
+        .view-mode-btn.active {
+            background: linear-gradient(135deg, rgba(197, 160, 89, 0.35) 0%, rgba(197, 160, 89, 0.18) 100%);
+            color: var(--gold-bright);
+            border: 1px solid var(--border-gold);
+            box-shadow: 0 0 8px rgba(229, 195, 120, 0.25);
         }
 
         .kanban-order-card.is-dragging {
@@ -1052,18 +1117,85 @@
             background: rgba(14, 9, 6, 0.95);
             border-bottom: 1.5px solid var(--border-gold);
             padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            align-items: center;
+            flex-shrink: 0;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .cockpit-action-btn {
+            height: 32px;
+            width: 105px;
+            min-width: 105px;
+            max-width: 105px;
+            padding: 0;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border-radius: var(--radius-sm);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            box-sizing: border-box;
+            transition: var(--transition-smooth);
+            text-transform: uppercase;
+        }
+
+        /* O tempo fica no lugar do texto/ícone INICIAR ao passar o mouse ou quando em execução */
+        #cockpit-timer-btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        #cockpit-timer-btn .timer-btn-default {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.2s ease;
+        }
+
+        #cockpit-time-display {
+            position: absolute;
+            inset: 0;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
+            justify-content: center;
+            font-size: 0.76rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            white-space: nowrap;
+        }
+
+        /* Hover no botão ou wrapper troca o texto pelo tempo */
+        #cockpit-timer-btn:hover:not(:disabled) .timer-btn-default,
+        #cockpit-timer-wrapper.timer-running #cockpit-timer-btn .timer-btn-default {
+            opacity: 0;
+        }
+
+        #cockpit-timer-btn:hover:not(:disabled) #cockpit-time-display,
+        #cockpit-timer-wrapper.timer-running #cockpit-time-display {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .cockpit-body-grid {
             flex: 1;
             display: grid;
-            grid-template-columns: 360px 1.2fr 1fr;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 16px;
-            padding: 16px 20px;
+            padding: 16px 20px 20px 20px;
             height: calc(100vh - 52px);
             box-sizing: border-box;
             overflow: hidden;
@@ -1094,7 +1226,24 @@
             flex-shrink: 0;
         }
 
-        /* Upload Dropzones compactas sem rolagem */
+        /* Upload Dropzones compactas sem rolagem - 3 LINHAS COM ALTURAS IGUAIS */
+        #cockpit-producer-dropzones {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .producer-upload-row {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
         .producer-drop-card {
             background: rgba(10, 6, 4, 0.85);
             border: 1.5px dashed var(--border-gold);
@@ -1110,6 +1259,71 @@
             gap: 4px;
             flex: 1;
             min-height: 0;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Grade horizontal dos 5 materiais do cliente no Cockpit */
+        .materials-status-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 6px;
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            box-sizing: border-box;
+        }
+
+        .material-status-slot {
+            background: rgba(10, 6, 4, 0.75);
+            border: 1px solid rgba(197, 160, 89, 0.25);
+            border-radius: 4px;
+            padding: 10px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 8px;
+            height: 100%;
+            min-height: 0;
+            box-sizing: border-box;
+            transition: var(--transition-smooth);
+            user-select: none;
+        }
+
+        .material-status-slot i,
+        .material-status-slot svg {
+            width: 18px;
+            height: 18px;
+            color: var(--gold-primary);
+            flex-shrink: 0;
+            transition: transform var(--transition-fast);
+        }
+
+        .material-status-slot.slot-accessible {
+            cursor: pointer;
+            border-color: rgba(197, 160, 89, 0.45);
+        }
+
+        .material-status-slot.slot-accessible:hover {
+            background: rgba(197, 160, 89, 0.15);
+            border-color: var(--gold-bright);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(197, 160, 89, 0.15);
+        }
+
+        .material-status-slot.slot-accessible:hover i,
+        .material-status-slot.slot-accessible:hover svg {
+            transform: scale(1.15);
+            color: var(--gold-bright);
+        }
+
+        .material-status-slot.slot-locked {
+            opacity: 0.55;
+            cursor: not-allowed;
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(20, 10, 10, 0.6);
         }
 
         .producer-drop-card:hover {
@@ -1417,12 +1631,7 @@
                     <span style="letter-spacing: 2px; text-align: center; width: 100%; display: block;">ENTRAR</span>
                 </button>
             </form>
-            <div style="font-size: 0.74rem; color: rgba(246, 227, 197, 0.65); margin-top: 14px; font-family: var(--font-sans); letter-spacing: 0.5px;">
-                Senha padrão: <span style="color: var(--gold-bright); font-weight: 600;">reviva2026</span>
-            </div>
-            <div id="auth-err" style="color: #f87171; font-size: 0.75rem; margin-top: 10px; display: none;">
-                Senha incorreta. Utilize a senha padrão: <strong style="color: var(--gold-bright);">reviva2026</strong>.
-            </div>
+            <div id="auth-err" style="color: #f87171; font-size: 0.75rem; margin-top: 10px; display: none;"></div>
         </div>
     </div>
 
@@ -1433,9 +1642,21 @@
             <img src="logo.png" alt="Reviva Memories">
         </div>
 
-        <!-- TÍTULO LINHA DE PRODUÇÃO NAS COLUNAS 2 A 5 -->
-        <div style="grid-column: 2 / span 4; display: flex; align-items: center; justify-content: center;">
+        <!-- TÍTULO LINHA DE PRODUÇÃO NAS COLUNAS 2 A 4 -->
+        <div style="grid-column: 2 / span 3; display: flex; align-items: center; justify-content: center;">
             <span style="font-family: var(--font-azonix), 'Azonix', sans-serif; font-size: 1.2rem; letter-spacing: 2px; color: var(--gold-bright); text-transform: uppercase;">LINHA DE PRODUÇÃO</span>
+        </div>
+
+        <!-- CONTROLE DE MODO DE VISUALIZAÇÃO (DETALHADO VS RESUMIDO) NA COLUNA 5 -->
+        <div style="grid-column: 5; display: flex; align-items: center; justify-content: center; width: 100%;">
+            <div class="view-mode-toggle-group">
+                <button type="button" id="btn-view-detailed" onclick="setKanbanViewMode('detailed')" class="view-mode-btn active" title="Modo Detalhado: Exibe cards completos">
+                    <i data-lucide="layout-grid" style="width: 12px; height: 12px;"></i> Detalhado
+                </button>
+                <button type="button" id="btn-view-compact" onclick="setKanbanViewMode('compact')" class="view-mode-btn" title="Modo Resumido: Cards compactos para ver dezenas de pedidos">
+                    <i data-lucide="rows" style="width: 12px; height: 12px;"></i> Resumido
+                </button>
+            </div>
         </div>
 
         <!-- BOTÃO DASHBOARD ALINHADO COM A COLUNA 6 (APROVADAS) -->
@@ -1554,34 +1775,36 @@
     <div id="cockpit-fullscreen-modal">
         <!-- Topbar do Cockpit -->
         <div class="cockpit-top-bar">
-            <div style="display: flex; align-items: center; gap: 14px;">
+            <!-- COLUNA 1 DO CABEÇALHO: BOTÃO PEDIDOS -->
+            <div style="grid-column: 1; display: flex; align-items: center; justify-content: flex-start; gap: 14px;">
                 <button onclick="closeCockpitModal()" style="background: rgba(197,160,89,0.15); border: 1px solid var(--border-gold); color: var(--gold-bright); padding: 4px 10px; border-radius: 4px; font-size: 0.72rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
                     <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i> PEDIDOS
                 </button>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span id="cockpit-stage-badge" style="font-size: 0.70rem; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; background: rgba(197,160,89,0.2); color: var(--gold-bright); border: 1px solid var(--border-gold);">ETAPA: PENDENTES</span>
-                </div>
             </div>
 
-            <!-- CONTROLES DO CABEÇALHO DO COCKPIT (CRONÔMETRO INICIAR/PARAR + BOTÕES DE AÇÃO) -->
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <!-- TEMPO DECORRIDO & BOTÃO INICIAR/PARAR TRABALHO NO CABEÇALHO -->
-                <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.65); border: 1px solid var(--border-gold); padding: 3px 8px; border-radius: 4px;">
-                    <span style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">TEMPO:</span>
-                    <span id="cockpit-time-display" style="font-family: var(--font-mono); font-size: 0.88rem; font-weight: 700; color: #ef4444;">00:00:00</span>
-                    <button id="cockpit-timer-btn" class="btn-gold" style="width: auto; padding: 4px 10px; font-size: 0.68rem;" onclick="toggleCurrentOrderTimer()">
-                        <i data-lucide="play" style="width: 11px; height: 11px;"></i> INICIAR
+            <!-- COLUNA 2 DO CABEÇALHO: TÍTULO CENTRALIZADO DA ETAPA COM A FONTE AZONIX -->
+            <div style="grid-column: 2; display: flex; align-items: center; justify-content: center; white-space: nowrap;">
+                <span id="cockpit-stage-badge" style="font-family: var(--font-azonix), 'Azonix', sans-serif; font-size: 1.2rem; letter-spacing: 2px; color: var(--gold-bright); text-transform: uppercase;">ETAPA 1: PENDENTES</span>
+            </div>
+
+            <!-- COLUNA 3 DO CABEÇALHO: CONTROLES ALINHADOS COM O HISTÓRICO DO PEDIDO -->
+            <div id="cockpit-controls-container" style="grid-column: 3; display: flex; align-items: center; justify-content: flex-end; gap: 8px; width: 100%;">
+                <!-- CRONÔMETRO COM BOTÃO INICIAR QUE MOSTRA O TEMPO NO HOVER / EM EXECUÇÃO -->
+                <div id="cockpit-timer-wrapper">
+                    <button id="cockpit-timer-btn" class="cockpit-action-btn btn-gold" onclick="toggleCurrentOrderTimer()">
+                        <span class="timer-btn-default"><i data-lucide="play" style="width: 12px; height: 12px;"></i> <span id="cockpit-timer-action-text">INICIAR</span></span>
+                        <span id="cockpit-time-display">00:00:00</span>
                     </button>
                 </div>
 
-                <button type="button" class="btn-gold" style="width: auto; padding: 6px 14px; font-size: 0.72rem; background: rgba(197, 160, 89, 0.2); color: var(--gold-bright); border: 1px solid var(--border-gold);" onclick="downloadFullOrderPackage()">
-                    <i data-lucide="download" style="width: 14px; height: 14px;"></i> BAIXAR PACOTE
+                <button type="button" id="cockpit-pkg-btn" class="cockpit-action-btn btn-gold" onclick="downloadFullOrderPackage()">
+                    <i data-lucide="download" style="width: 12px; height: 12px;"></i> <span>PACOTE</span>
                 </button>
-                <button type="button" class="btn-gold" style="width: auto; padding: 6px 14px; font-size: 0.72rem; background: rgba(197, 160, 89, 0.2); color: var(--gold-bright); border: 1px solid var(--border-gold);" onclick="openScriptPopover()">
-                    <i data-lucide="scroll" style="width: 14px; height: 14px;"></i> VER ROTEIRO
+                <button type="button" id="cockpit-script-btn" class="cockpit-action-btn btn-gold" onclick="openScriptPopover()">
+                    <i data-lucide="scroll" style="width: 12px; height: 12px;"></i> <span>ROTEIRO</span>
                 </button>
-                <button type="button" id="cockpit-archive-btn" class="btn-gold" style="width: auto; padding: 6px 14px; font-size: 0.72rem; background: rgba(100, 116, 139, 0.25); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4); display: none;" onclick="archiveCurrentOrder()">
-                    <i data-lucide="archive" style="width: 14px; height: 14px;"></i> ARQUIVAR PEDIDO
+                <button type="button" id="cockpit-archive-btn" class="cockpit-action-btn btn-gold" style="background: rgba(100, 116, 139, 0.25); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4); display: none;" onclick="archiveCurrentOrder()">
+                    <i data-lucide="archive" style="width: 12px; height: 12px;"></i> <span>ARQUIVAR</span>
                 </button>
             </div>
         </div>
@@ -1595,7 +1818,7 @@
                     <span style="display: flex; align-items: center; gap: 6px;"><i data-lucide="user-check" style="width: 14px; height: 14px; color: var(--gold-primary);"></i> Dossiê do Cliente</span>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.76rem; background: rgba(0,0,0,0.45); padding: 12px; border-radius: var(--radius-sm); border: 1px solid rgba(197, 160, 89, 0.2);">
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.76rem; background: rgba(0,0,0,0.45); padding: 12px; border-radius: var(--radius-sm); border: 1px solid rgba(197, 160, 89, 0.2); flex-shrink: 0;">
                     <div><span style="color: var(--text-secondary);">Cliente:</span> <strong style="color: #fff;" id="cockpit-client-name">Cliente</strong></div>
                     <div><span style="color: var(--text-secondary);">ID do Pedido:</span> <strong style="color: var(--gold-primary); font-family: var(--font-mono);" id="cockpit-order-id">#REVIVA-1001</strong></div>
                     <div>
@@ -1610,7 +1833,7 @@
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                         <span style="color: var(--text-secondary);">Formato:</span> 
-                        <span id="cockpit-format-badge" style="display: inline-flex; align-items: center;"></span>
+                        <strong style="color: #f6e3c5;" id="cockpit-format-badge">--</strong>
                     </div>
                     <div><span style="color: var(--text-secondary);">Valor Total:</span> <strong style="color: #4ade80;" id="cockpit-order-price">R$ 0,00</strong></div>
                     <div><span style="color: var(--text-secondary);">CPF:</span> <strong style="color: #fff;" id="cockpit-client-cpf">---</strong></div>
@@ -1618,54 +1841,103 @@
                     <div><span style="color: var(--text-secondary);">E-mail:</span> <strong style="color: #fff;" id="cockpit-client-email">---</strong></div>
                 </div>
 
-                <!-- MÉTRICAS INDIVIDUAIS DO PEDIDO (INLINE LOGO ABAIXO DO DOSSIÊ) -->
-                <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: var(--radius-sm); padding: 10px 12px; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(197, 160, 89, 0.15); padding-bottom: 4px;">
-                        <span style="font-size: 0.68rem; color: var(--gold-bright); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
-                            <i data-lucide="bar-chart-2" style="width: 12px; height: 12px; color: var(--gold-primary);"></i> Desempenho do Pedido
+                <!-- GRADE HORIZONTAL DOS 5 MATERIAIS DO CLIENTE (1. Fotos, 2. Áudios, 3. Roteiro, 4. Trilha, 5. Ambiente) -->
+                <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 2px; flex-shrink: 0;">
+                        <span style="font-size: 0.65rem; color: var(--gold-bright); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
+                            <i data-lucide="layers" style="width: 11px; height: 11px; color: var(--gold-primary);"></i> Materiais do Pedido
                         </span>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                        <!-- Tempo de Produção -->
-                        <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 4px; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px;">
-                            <span style="font-size: 0.60rem; color: var(--text-secondary); text-transform: uppercase;">Tempo Trabalhado</span>
-                            <strong id="cockpit-metric-time" style="font-family: var(--font-mono); font-size: 0.85rem; color: #38bdf8;">00:00:00</strong>
+                    <div id="cockpit-materials-grid" class="materials-status-grid">
+                        <!-- 1 - Fotos -->
+                        <div id="mat-slot-photos" class="material-status-slot" title="Fotos do Cliente" onclick="handleMaterialSlotClick('photos')">
+                            <i data-lucide="image" style="width: 18px; height: 18px; color: var(--gold-primary);"></i>
+                            <span style="font-size: 0.62rem; text-transform: uppercase; font-weight: 700; color: #fff;">1. Fotos</span>
+                            <span id="mat-status-photos" style="font-size: 0.60rem; color: #f87171; font-weight: 600;">Bloqueado</span>
                         </div>
 
-                        <!-- Valor Hora Resultante -->
-                        <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 4px; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px;">
-                            <span style="font-size: 0.60rem; color: var(--text-secondary); text-transform: uppercase;">Valor / Hora</span>
-                            <strong id="cockpit-metric-hourly-rate" style="font-family: var(--font-mono); font-size: 0.85rem; color: #4ade80;">R$ 0,00/h</strong>
+                        <!-- 2 - Áudios -->
+                        <div id="mat-slot-audios" class="material-status-slot" title="Áudios de Voz do Cliente" onclick="handleMaterialSlotClick('audios')">
+                            <i data-lucide="mic" style="width: 18px; height: 18px; color: var(--gold-primary);"></i>
+                            <span style="font-size: 0.62rem; text-transform: uppercase; font-weight: 700; color: #fff;">2. Áudios</span>
+                            <span id="mat-status-audios" style="font-size: 0.60rem; color: #f87171; font-weight: 600;">Bloqueado</span>
                         </div>
 
-                        <!-- Status do Pagamento / Método -->
-                        <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 4px; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px;">
-                            <span style="font-size: 0.60rem; color: var(--text-secondary); text-transform: uppercase;">Método Pagamento</span>
-                            <strong id="cockpit-metric-pay-method" style="font-size: 0.72rem; color: #f3d79b;">PIX</strong>
+                        <!-- 3 - Roteiro -->
+                        <div id="mat-slot-script" class="material-status-slot" title="Roteiro Oficial do Pedido" onclick="handleMaterialSlotClick('script')">
+                            <i data-lucide="scroll" style="width: 18px; height: 18px; color: var(--gold-primary);"></i>
+                            <span style="font-size: 0.62rem; text-transform: uppercase; font-weight: 700; color: #fff;">3. Roteiro</span>
+                            <span id="mat-status-script" style="font-size: 0.60rem; color: #f87171; font-weight: 600;">Bloqueado</span>
                         </div>
 
-                        <!-- Rentabilidade / Eficiência -->
-                        <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 4px; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px;">
-                            <span style="font-size: 0.60rem; color: var(--text-secondary); text-transform: uppercase;">Eficiência</span>
-                            <strong id="cockpit-metric-efficiency" style="font-size: 0.72rem; color: #38bdf8;">Alta</strong>
+                        <!-- 4 - Trilha -->
+                        <div id="mat-slot-music" class="material-status-slot" title="Trilha Sonora Escolhida" onclick="handleMaterialSlotClick('music')">
+                            <i data-lucide="music" style="width: 18px; height: 18px; color: var(--gold-primary);"></i>
+                            <span style="font-size: 0.62rem; text-transform: uppercase; font-weight: 700; color: #fff;">4. Trilha</span>
+                            <span id="mat-status-music" style="font-size: 0.60rem; color: #f87171; font-weight: 600;">Bloqueado</span>
+                        </div>
+
+                        <!-- 5 - Ambiente -->
+                        <div id="mat-slot-background" class="material-status-slot" title="Ambiente de Fundo Escolhido" onclick="handleMaterialSlotClick('background')">
+                            <i data-lucide="mountain-snow" style="width: 18px; height: 18px; color: var(--gold-primary);"></i>
+                            <span style="font-size: 0.62rem; text-transform: uppercase; font-weight: 700; color: #fff;">5. Ambiente</span>
+                            <span id="mat-status-background" style="font-size: 0.60rem; color: #f87171; font-weight: 600;">Bloqueado</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- MOVER ETAPA MANUALMENTE -->
-                <div style="margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(197, 160, 89, 0.2); display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 0.68rem; color: var(--text-secondary);">Mover Etapa Manualmente:</span>
-                    <select id="cockpit-stage-select" onchange="changeOrderStageFromCockpit(this.value)" style="background: rgba(0,0,0,0.7); border: 1px solid var(--border-gold); color: #fff; font-size: 0.74rem; padding: 6px; border-radius: 4px; outline: none; cursor: pointer;">
-                        <option value="aguardando_pagamento">1. Pendentes</option>
-                        <option value="pagamento_confirmado">2. Confirmados</option>
-                        <option value="material_enviado">3. Recebidos</option>
-                        <option value="producao_previa">4. Prévias</option>
-                        <option value="previas_reprovadas">5. Prévias Reprovadas</option>
-                        <option value="previas_aprovadas">6. Prévias Aprovadas</option>
-                        <option value="producao_final">7. Produção Vídeo Final</option>
-                        <option value="entregues">8. Pós-Venda</option>
-                    </select>
+                <!-- ÁREA INFERIOR (ÁREA AMARELA): MÉTRICAS DE DESEMPENHO E MOVER ETAPA -->
+                <div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;">
+                    <!-- MÉTRICAS INDIVIDUAIS DO PEDIDO -->
+                    <div id="cockpit-performance-container" style="background: rgba(0,0,0,0.55); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: var(--radius-sm); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(197, 160, 89, 0.15); padding-bottom: 3px;">
+                            <span style="font-size: 0.65rem; color: var(--gold-bright); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
+                                <i data-lucide="bar-chart-2" style="width: 11px; height: 11px; color: var(--gold-primary);"></i> Desempenho do Pedido
+                            </span>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                            <!-- Tempo de Produção -->
+                            <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 4px; padding: 5px 7px; display: flex; flex-direction: column; gap: 1px;">
+                                <span style="font-size: 0.58rem; color: var(--text-secondary); text-transform: uppercase;">Tempo Trabalhado</span>
+                                <strong id="cockpit-metric-time" style="font-family: var(--font-mono); font-size: 0.80rem; color: #38bdf8;">00:00:00</strong>
+                            </div>
+
+                            <!-- Valor Hora Resultante -->
+                            <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 4px; padding: 5px 7px; display: flex; flex-direction: column; gap: 1px;">
+                                <span style="font-size: 0.58rem; color: var(--text-secondary); text-transform: uppercase;">Valor / Hora</span>
+                                <strong id="cockpit-metric-hourly-rate" style="font-family: var(--font-mono); font-size: 0.80rem; color: #4ade80;">R$ 0,00/h</strong>
+                            </div>
+
+                            <!-- Status do Pagamento / Método -->
+                            <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 4px; padding: 5px 7px; display: flex; flex-direction: column; gap: 1px;">
+                                <span style="font-size: 0.58rem; color: var(--text-secondary); text-transform: uppercase;">Método Pagamento</span>
+                                <strong id="cockpit-metric-pay-method" style="font-size: 0.70rem; color: #f3d79b;">PIX</strong>
+                            </div>
+
+                            <!-- Rentabilidade / Eficiência -->
+                            <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 4px; padding: 5px 7px; display: flex; flex-direction: column; gap: 1px;">
+                                <span style="font-size: 0.58rem; color: var(--text-secondary); text-transform: uppercase;">Eficiência</span>
+                                <strong id="cockpit-metric-efficiency" style="font-size: 0.70rem; color: #38bdf8;">Alta</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MOVER ETAPA MANUALMENTE -->
+                    <div style="padding-top: 6px; border-top: 1px solid rgba(197, 160, 89, 0.2); display: flex; flex-direction: column; gap: 4px;">
+                        <span style="font-size: 0.65rem; color: var(--text-secondary);">Mover Etapa Manualmente:</span>
+                        <select id="cockpit-stage-select" onchange="changeOrderStageFromCockpit(this.value)" style="background: rgba(0,0,0,0.7); border: 1px solid var(--border-gold); color: #fff; font-size: 0.72rem; padding: 5px; border-radius: 4px; outline: none; cursor: pointer;">
+                            <option value="aguardando_pagamento">1. Pendentes</option>
+                            <option value="pagamento_confirmado">2. Confirmados</option>
+                            <option value="material_enviado">3. Recebidos</option>
+                            <option value="producao_previa">4. Prévias</option>
+                            <option value="previas_reprovadas">5. Prévias Reprovadas</option>
+                            <option value="previas_aprovadas">6. Prévias Aprovadas</option>
+                            <option value="producao_final">7. Produção Vídeo Final</option>
+                            <option value="entregues">8. Pós-Venda</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -1677,7 +1949,7 @@
                 </div>
 
                 <!-- Container Dinâmico de Dropzones (Ajustado por Formato no renderCockpitData) -->
-                <div style="display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto;" id="cockpit-producer-dropzones">
+                <div id="cockpit-producer-dropzones">
                     <!-- Conteúdo renderizado dinamicamente por renderCockpitProducerUploads() -->
                 </div>
 
@@ -1697,16 +1969,10 @@
                 </div>
 
                 <!-- Notificações WhatsApp -->
-                <div style="border-top: 1px solid rgba(197, 160, 89, 0.2); padding-top: 8px; margin-top: auto;">
-                    <div style="font-size: 0.68rem; color: #4ade80; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-                        <span style="display: flex; align-items: center; gap: 4px;">
-                            <i data-lucide="message-circle" style="width: 12px; height: 12px;"></i> WhatsApp Direto do Cliente
-                        </span>
-                        <span style="font-size: 0.62rem; color: var(--text-secondary);">Comunicação & Pós-Venda</span>
-                    </div>
+                <div style="border-top: 1px solid rgba(197, 160, 89, 0.2); padding-top: 10px; margin-top: auto;">
 
                     <!-- Bloco Especial: Fechamento & Recuperação de Pagamento Pendente -->
-                    <div id="wa-closing-container" style="display: none; flex-direction: column; gap: 6px; margin-bottom: 6px; background: rgba(245, 158, 11, 0.08); padding: 8px; border-radius: var(--radius-sm); border: 1px solid rgba(245, 158, 11, 0.25);">
+                    <div id="wa-closing-container" style="display: none; flex-direction: column; gap: 6px; margin-bottom: 0; background: rgba(245, 158, 11, 0.08); padding: 8px; border-radius: var(--radius-sm); border: 1px solid rgba(245, 158, 11, 0.25);">
                         <div style="font-size: 0.63rem; color: #fbbf24; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
                             <i data-lucide="clock" style="width: 11px; height: 11px;"></i> Tentativa de Fechamento de Venda
                         </div>
@@ -1721,12 +1987,9 @@
                     </div>
 
                     <!-- Bloco Especial: Ajuda no Envio de Materiais (Etapa 2 - Confirmados) -->
-                    <div id="wa-materials-help-container" style="display: none; flex-direction: column; gap: 6px; margin-bottom: 6px; background: rgba(56, 189, 248, 0.08); padding: 8px; border-radius: var(--radius-sm); border: 1px solid rgba(56, 189, 248, 0.25);">
-                        <div style="font-size: 0.63rem; color: #38bdf8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
-                            <i data-lucide="help-circle" style="width: 11px; height: 11px;"></i> Suporte no Envio de Materiais
-                        </div>
+                    <div id="wa-materials-help-container" style="display: none; flex-direction: column; gap: 6px; margin-bottom: 0;">
                         <a id="btn-wa-materials-help" href="#" target="_blank" class="whatsapp-btn" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); font-weight: 600; text-align: center; justify-content: center; padding: 8px 10px; font-size: 0.72rem; width: 100%; box-sizing: border-box;">
-                            <i data-lucide="message-circle" style="width: 13px; height: 13px;"></i> Enviar Ajuda no Envio de Fotos/Áudio
+                            <i data-lucide="message-circle" style="width: 13px; height: 13px;"></i> Enviar ajuda no envio das fotos, áudios e roteiro
                         </a>
                     </div>
 
@@ -2034,48 +2297,14 @@
 
         async function handleAuth(e) {
             if (e) e.preventDefault();
-            const passInput = document.getElementById("admin-pass");
-            const errEl = document.getElementById("auth-err");
             const gate = document.getElementById("auth-gate");
-            
-            const rawVal = (passInput ? passInput.value : "").trim();
-            const lowerVal = rawVal.toLowerCase();
-            const cleanVal = lowerVal.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/['"“”]/g, "");
-
-            let enteredHash = "";
+            sessionStorage.setItem("reviva_admin_auth", "true");
+            localStorage.setItem("reviva_admin_auth", "true");
+            if (gate) gate.style.display = "none";
             try {
-                enteredHash = await sha256(rawVal);
+                await loadAdminData();
             } catch(err) {
-                console.warn("sha256 error:", err);
-            }
-            
-            // Aceita a senha master hash, reviva2026, admin, e variações comuns
-            const validPasswords = [
-                "reviva2026", "admin", "admin2026", "reviva", "123456", "1234",
-                "master", "revivamemories", "producao", "estudio"
-            ];
-
-            const isDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-            const isValid = enteredHash === MASTER_PASS_HASH || validPasswords.includes(cleanVal) || validPasswords.includes(lowerVal) || isDev;
-
-            if (isValid) {
-                sessionStorage.setItem("reviva_admin_auth", "true");
-                localStorage.setItem("reviva_admin_auth", "true");
-                if (gate) gate.style.display = "none";
-                try {
-                    await loadAdminData();
-                } catch(err) {
-                    console.error("Erro ao carregar dados do painel:", err);
-                }
-            } else {
-                if (errEl) {
-                    errEl.innerHTML = 'Senha incorreta. Utilize a senha padrão: <strong style="color: var(--gold-bright);">reviva2026</strong> ou <strong style="color: var(--gold-bright);">admin</strong>.';
-                    errEl.style.display = "block";
-                }
-                if (passInput) {
-                    passInput.value = "";
-                    passInput.focus();
-                }
+                console.error("Erro ao carregar dados do painel:", err);
             }
         }
 
@@ -2095,6 +2324,51 @@
         let kanbanSearchQuery = "";
         let kanbanSortBy = "priority";
         let showArchivedOrders = false;
+        let kanbanViewMode = localStorage.getItem('reviva_kanban_view_mode') || 'detailed';
+
+        const BACKGROUND_NAMES = {
+            'ceu': 'Nuvens Celestiais',
+            'nuvens': 'Nuvens Celestiais',
+            'montanhas': 'Montanhas Serenas',
+            'floresta': 'Floresta Encantada',
+            'girassois': 'Campo de Girassóis',
+            'lago': 'Lago Cristalino',
+            'palmeiras': 'Palmeiras Tropicais',
+            'vale': 'Vale Dourado',
+            'descampado': 'Descampado Verdejante'
+        };
+
+        const MUSIC_NAMES = {
+            'sem_musica': 'Sons Naturais',
+            'violao': 'Violão Acústico',
+            'piano': 'Piano Suave',
+            'piano_emocao': 'Piano Suave',
+            'violino': 'Violino Emocionante',
+            'cordas_paz': 'Violino Emocionante',
+            'flauta': 'Flauta Celestial',
+            'saxofone': 'Saxofone Sereno',
+            'serenidade': 'Violão Acústico',
+            'guitarra': 'Guitarra Melódica',
+            'harpa': 'Harpa Angelical'
+        };
+
+        function setKanbanViewMode(mode) {
+            kanbanViewMode = mode;
+            try {
+                localStorage.setItem('reviva_kanban_view_mode', mode);
+            } catch(e) {}
+            updateViewModeButtons();
+            renderKanbanBoard();
+        }
+
+        function updateViewModeButtons() {
+            const btnDet = document.getElementById('btn-view-detailed');
+            const btnComp = document.getElementById('btn-view-compact');
+            const boardEl = document.getElementById('kanban-board');
+            if (btnDet) btnDet.classList.toggle('active', kanbanViewMode === 'detailed');
+            if (btnComp) btnComp.classList.toggle('active', kanbanViewMode === 'compact');
+            if (boardEl) boardEl.classList.toggle('kanban-view-compact', kanbanViewMode === 'compact');
+        }
 
         function toggleShowArchivedOrders() {
             showArchivedOrders = !showArchivedOrders;
@@ -2158,6 +2432,7 @@
             await fetchOrdersList();
             initTimerHeartbeat();
             updateHeaderAnalytics();
+            updateViewModeButtons();
             renderKanbanBoard();
         }
 
@@ -2473,19 +2748,24 @@
 
         function detectPaymentMethod(order) {
             const histStr = (order.history || []).map(h => (h.event || '').toLowerCase()).join(' ');
-            const genStr = `${order.paymentId || ''} ${order.source || ''} ${histStr}`.toLowerCase();
+            const genStr = `${order.paymentId || ''} ${order.paymentMethod || ''} ${order.source || ''} ${histStr}`.toLowerCase();
+            
+            let method = 'Cartão';
             if (genStr.includes('pix')) {
-                return 'PIX';
-            } else if (genStr.includes('cartao') || genStr.includes('cartão') || genStr.includes('credit_card')) {
-                return 'Cartão';
+                method = 'PIX';
             } else if (genStr.includes('boleto')) {
-                return 'Boleto';
+                method = 'Boleto';
+            } else if (genStr.includes('cartao') || genStr.includes('cartão') || genStr.includes('credit_card')) {
+                method = 'Cartão';
+            } else if (order.value === 447.30 || order.value === 807.30 || order.value === 1167.30 || order.value === 1210.95 || order.value === 1750.95) {
+                method = 'PIX';
             }
-            // Padrão de verificação pelo desconto de 10% do PIX nos valores fictícios/reais
-            if (order.value === 447.30 || order.value === 807.30 || order.value === 1167.30 || order.value === 1210.95 || order.value === 1750.95) {
-                return 'PIX';
+
+            if (method === 'Cartão') {
+                const installments = order.installments || order.installmentCount || order.paymentInstallments || 1;
+                return `Cartão - ${installments}x`;
             }
-            return 'Cartão';
+            return method;
         }
 
         // =========================================================================
@@ -3329,6 +3609,35 @@
                     // Duração reduzida ex: "1min", "2min", "3min"
                     const durShort = durationStr.replace(' Minutos', 'min').replace(' Minuto', 'min').replace(/\s+/g, '');
 
+                    // Renderização de Card Modo Resumido (Compacto - 48px de altura)
+                    if (kanbanViewMode === 'compact') {
+                        return `
+                            <div class="kanban-order-card kanban-card-compact ${priority.cardClass} ${activeCardClass}" 
+                                 draggable="true" 
+                                 data-order-id="${order.id}"
+                                 data-stage="${stage}"
+                                 ondragstart="handleCardDragStart(event, '${order.id}', '${stage}')"
+                                 ondragend="handleCardDragEnd(event)"
+                                 ondragover="handleCardDragOver(event)"
+                                 ondrop="handleCardDrop(event, '${order.id}', '${stage}')"
+                                 onclick="openCockpitModal('${order.id}')"
+                                 title="${order.clientName} - #${order.id}">
+                                <!-- LINHA 1: APENAS O CLIENTE -->
+                                <div class="card-client-title" title="${order.clientName}" style="font-size: 0.74rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; margin: 0; line-height: 1.2;">${order.clientName}</div>
+                                <!-- LINHA 2: APENAS O NÚMERO DO PEDIDO -->
+                                <div style="display: flex; align-items: center; justify-content: center; width: 100%; min-width: 0;">
+                                    <span class="card-order-id" style="font-size: 0.68rem; line-height: 1.2;">#${order.id}</span>
+                                </div>
+                                <!-- OVERLAY QUE COBRE TODO O CARD EM TRABALHO ATIVO -->
+                                ${isRunning ? `
+                                    <div class="card-working-overlay" id="working-overlay-${order.id}">
+                                        <div class="working-overlay-title" style="font-size: 0.65rem; letter-spacing: 1px;">WORKING</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }
+
                     return `
                         <div class="kanban-order-card ${priority.cardClass} ${activeCardClass}" 
                              draggable="true" 
@@ -3555,27 +3864,24 @@
             const idEl = document.getElementById('cockpit-order-id');
             const nameEl = document.getElementById('cockpit-client-name');
             const formatBadgeEl = document.getElementById('cockpit-format-badge');
-            const durationBadgeEl = document.getElementById('cockpit-duration-badge');
             const stageBadgeEl = document.getElementById('cockpit-stage-badge');
             if (idEl) idEl.textContent = `#${order.id}`;
             if (nameEl) nameEl.textContent = order.clientName;
-            if (formatBadgeEl) formatBadgeEl.innerHTML = renderFormatBadge(crmData.format);
-            if (durationBadgeEl) durationBadgeEl.innerHTML = renderDurationBadge(detectOrderDuration(order));
 
             const stageCleanNames = {
-                aguardando_pagamento: 'PENDENTES',
-                pagamento_confirmado: 'CONFIRMADOS',
-                material_enviado: 'RECEBIDOS',
-                producao_previa: 'PRÉVIAS',
-                previas_reprovadas: 'PRÉVIAS REPROVADAS',
-                previas_aprovadas: 'PRÉVIAS APROVADAS',
-                producao_final: 'PRODUÇÃO VÍDEO FINAL',
-                entregues: 'PÓS-VENDA'
+                aguardando_pagamento: 'ETAPA 1: PENDENTES',
+                pagamento_confirmado: 'ETAPA 2: CONFIRMADOS',
+                material_enviado: 'ETAPA 3: RECEBIDOS',
+                producao_previa: 'ETAPA 4: PRÉVIAS',
+                previas_reprovadas: 'ETAPA 5: PRÉVIAS REPROVADAS',
+                previas_aprovadas: 'ETAPA 6: PRÉVIAS APROVADAS',
+                producao_final: 'ETAPA 7: PRODUÇÃO VÍDEO FINAL',
+                entregues: 'ETAPA 8: PÓS-VENDA'
             };
 
             if (stageBadgeEl) {
-                const stageNameUpper = stageCleanNames[crmData.stage] || crmData.stage.toUpperCase();
-                stageBadgeEl.textContent = `ETAPA: ${stageNameUpper}`;
+                const stageFormatted = stageCleanNames[crmData.stage] || `ETAPA: ${crmData.stage.toUpperCase()}`;
+                stageBadgeEl.textContent = stageFormatted;
             }
 
             // 2. Coluna 1: Dossiê e Cronômetro
@@ -3615,10 +3921,59 @@
             if (durationTextEl) durationTextEl.textContent = durationStr;
 
             if (formatBadgeEl) {
-                formatBadgeEl.innerHTML = renderFormatBadge(crmData.format);
+                let formatText = 'Horizontal';
+                if (crmData.format === 'both') {
+                    formatText = 'Horizontal + Vertical';
+                } else if (crmData.format === 'vertical') {
+                    formatText = 'Vertical';
+                }
+                formatBadgeEl.textContent = formatText;
             }
 
-            if (priceEl) priceEl.textContent = order.valueFormatted;
+            // Exibir Escolhas do Cliente no Cockpit: Ambiente de Fundo e Trilha Sonora (apenas texto, sem miniatura)
+            let orderStateForMedia = null;
+            try {
+                const rawMediaState = localStorage.getItem(`reviva_order_state_${order.id}`) || 
+                                      (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
+                if (rawMediaState) orderStateForMedia = JSON.parse(rawMediaState);
+            } catch(e) {}
+
+            const cockpitBgEl = document.getElementById('cockpit-selected-background');
+            const cockpitMusicEl = document.getElementById('cockpit-selected-music');
+
+            // Regras de Exibição por Etapa:
+            // - Etapa 1 (Pendentes): Ainda não contratado / aguardando pagamento -> BLOQUEADO
+            // - Etapa 2 (Confirmados): Pagamento aprovado, mas cliente ainda não enviou materiais -> PENDENTE
+            // - Etapa 3 em diante (Recebidos +): Cliente enviou materiais e fez escolhas -> EXIBE ESCOLHAS
+            if (crmData.stage === 'aguardando_pagamento') {
+                if (cockpitBgEl) {
+                    cockpitBgEl.innerHTML = '<span style="color: #f87171; font-weight: 500;">Bloqueado</span>';
+                }
+                if (cockpitMusicEl) {
+                    cockpitMusicEl.innerHTML = '<span style="color: #f87171; font-weight: 500;">Bloqueado</span>';
+                }
+            } else if (crmData.stage === 'pagamento_confirmado') {
+                if (cockpitBgEl) {
+                    cockpitBgEl.innerHTML = '<span style="color: #facc15; font-weight: 500;">Pendente</span>';
+                }
+                if (cockpitMusicEl) {
+                    cockpitMusicEl.innerHTML = '<span style="color: #facc15; font-weight: 500;">Pendente</span>';
+                }
+            } else {
+                const bgKey = (order.selectedBackground || crmData.selectedBackground || orderStateForMedia?.selectedBackground || 'ceu').toLowerCase();
+                const bgFriendly = BACKGROUND_NAMES[bgKey] || (bgKey ? bgKey.charAt(0).toUpperCase() + bgKey.slice(1) : 'Nuvens Celestiais');
+
+                const musicKey = (order.selectedMusic || crmData.selectedMusic || orderStateForMedia?.selectedMusic || 'sem_musica').toLowerCase();
+                const musicFriendly = MUSIC_NAMES[musicKey] || (musicKey ? musicKey.charAt(0).toUpperCase() + musicKey.slice(1) : 'Sons Naturais');
+
+                if (cockpitBgEl) cockpitBgEl.textContent = bgFriendly;
+                if (cockpitMusicEl) cockpitMusicEl.textContent = musicFriendly;
+            }
+
+            if (priceEl) {
+                const payMethodStr = detectPaymentMethod(order);
+                priceEl.textContent = `${order.valueFormatted} (${payMethodStr})`;
+            }
             if (cpfEl) cpfEl.textContent = order.clientCpf || 'Não informado';
             if (phoneEl) phoneEl.textContent = order.clientPhone || 'Não informado';
             if (emailEl) emailEl.textContent = order.clientEmail || 'Não informado';
@@ -3696,44 +4051,134 @@
                     metricEfficiencyEl.style.color = '#ef4444';
                 }
             }
+            const timerWrapper = document.getElementById('cockpit-timer-wrapper');
 
             if (cockpitTimerBtn) {
+                const timeFormatted = formatSeconds(totalSec);
+                const timeColor = isRunning ? '#38bdf8' : '#ef4444';
+
                 if (isAwaitingPayment) {
-                    // Na coluna pendentes (Etapa 1), botão fica VERMELHO com o texto "AGUARDANDO PAGAMENTO"
-                    cockpitTimerBtn.innerHTML = `<i data-lucide="lock" style="width: 11px; height: 11px;"></i> AGUARDANDO PAGAMENTO`;
+                    cockpitTimerBtn.innerHTML = `
+                        <span class="timer-btn-default"><i data-lucide="lock" style="width: 12px; height: 12px;"></i> <span>BLOQUEADO</span></span>
+                        <span id="cockpit-time-display" style="color: #f87171;">${timeFormatted}</span>
+                    `;
                     cockpitTimerBtn.style.background = 'rgba(239, 68, 68, 0.2)';
                     cockpitTimerBtn.style.border = '1px solid rgba(239, 68, 68, 0.5)';
                     cockpitTimerBtn.style.color = '#f87171';
                     cockpitTimerBtn.style.cursor = 'not-allowed';
                     cockpitTimerBtn.title = 'Início bloqueado: o cliente ainda não realizou o pagamento.';
                     cockpitTimerBtn.disabled = true;
+                    if (timerWrapper) timerWrapper.classList.remove('timer-running');
                 } else if (isAwaitingMaterial) {
-                    // Na coluna confirmado (Etapa 2), o botão AGUARDANDO MATERIAIS deve ser vermelho
-                    cockpitTimerBtn.innerHTML = `<i data-lucide="inbox" style="width: 11px; height: 11px;"></i> AGUARDANDO MATERIAIS`;
+                    // Na etapa Confirmados (Aguardando Materiais), os 3 botões são vermelhos sem hover e inacessíveis
+                    cockpitTimerBtn.innerHTML = `
+                        <span class="timer-btn-default"><i data-lucide="play" style="width: 12px; height: 12px;"></i> <span>INICIAR</span></span>
+                        <span id="cockpit-time-display" style="color: #f87171;">${timeFormatted}</span>
+                    `;
                     cockpitTimerBtn.style.background = 'rgba(239, 68, 68, 0.2)';
                     cockpitTimerBtn.style.border = '1px solid rgba(239, 68, 68, 0.5)';
                     cockpitTimerBtn.style.color = '#f87171';
                     cockpitTimerBtn.style.cursor = 'not-allowed';
-                    cockpitTimerBtn.title = 'Início bloqueado: aguardando envio dos materiais pelo cliente.';
+                    cockpitTimerBtn.style.pointerEvents = 'none';
+                    cockpitTimerBtn.title = 'Início indisponível: aguardando envio dos materiais pelo cliente.';
                     cockpitTimerBtn.disabled = true;
+                    if (timerWrapper) timerWrapper.classList.remove('timer-running');
                 } else {
                     cockpitTimerBtn.disabled = false;
-                    cockpitTimerBtn.title = '';
+                    cockpitTimerBtn.style.pointerEvents = 'auto';
+                    cockpitTimerBtn.title = isRunning ? 'Clique para pausar cronômetro' : 'Clique para iniciar cronômetro';
+                    if (timerWrapper) timerWrapper.classList.toggle('timer-running', isRunning);
+
                     if (isRunning) {
-                        cockpitTimerBtn.innerHTML = `<i data-lucide="square" style="width: 11px; height: 11px;"></i> PARAR`;
+                        cockpitTimerBtn.innerHTML = `
+                            <span class="timer-btn-default"><i data-lucide="square" style="width: 12px; height: 12px;"></i> <span>PARAR</span></span>
+                            <span id="cockpit-time-display" style="color: #fff;">${timeFormatted}</span>
+                        `;
                         cockpitTimerBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
                         cockpitTimerBtn.style.border = '1px solid #ef4444';
                         cockpitTimerBtn.style.color = '#fff';
                         cockpitTimerBtn.style.cursor = 'pointer';
                     } else {
-                        cockpitTimerBtn.innerHTML = `<i data-lucide="play" style="width: 11px; height: 11px;"></i> INICIAR`;
-                        cockpitTimerBtn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
-                        cockpitTimerBtn.style.border = '1px solid #22c55e';
-                        cockpitTimerBtn.style.color = '#fff';
+                        cockpitTimerBtn.innerHTML = `
+                            <span class="timer-btn-default"><i data-lucide="play" style="width: 12px; height: 12px;"></i> <span>INICIAR</span></span>
+                            <span id="cockpit-time-display" style="color: var(--gold-bright);">${timeFormatted}</span>
+                        `;
+                        cockpitTimerBtn.style.background = 'rgba(197, 160, 89, 0.2)';
+                        cockpitTimerBtn.style.border = '1px solid var(--border-gold)';
+                        cockpitTimerBtn.style.color = 'var(--gold-bright)';
                         cockpitTimerBtn.style.cursor = 'pointer';
                     }
                 }
             }
+
+            // Botões de Ação do Cabeçalho: TEMPO, PACOTE & ROTEIRO
+            const pkgBtn = document.getElementById('cockpit-pkg-btn');
+            const scriptBtn = document.getElementById('cockpit-script-btn');
+            const perfContainer = document.getElementById('cockpit-performance-container');
+
+            if (isAwaitingPayment) {
+                // Remove / oculta todos os itens do cabeçalho e bloco de desempenho quando o pedido estiver pendente
+                if (timerWrapper) timerWrapper.style.display = 'none';
+                if (pkgBtn) pkgBtn.style.display = 'none';
+                if (scriptBtn) scriptBtn.style.display = 'none';
+                if (perfContainer) perfContainer.style.display = 'none';
+            } else {
+                if (timerWrapper) timerWrapper.style.display = 'inline-flex';
+                if (perfContainer) perfContainer.style.display = 'flex';
+                
+                if (isAwaitingMaterial) {
+                    // Na etapa de Confirmados (Aguardando Materiais), os 3 botões são vermelhos sem hover e inacessíveis
+                    if (pkgBtn) {
+                        pkgBtn.style.display = 'inline-flex';
+                        pkgBtn.disabled = true;
+                        pkgBtn.style.background = 'rgba(239, 68, 68, 0.2)';
+                        pkgBtn.style.border = '1px solid rgba(239, 68, 68, 0.5)';
+                        pkgBtn.style.color = '#f87171';
+                        pkgBtn.style.cursor = 'not-allowed';
+                        pkgBtn.style.pointerEvents = 'none';
+                        pkgBtn.title = 'Pacote indisponível: aguardando envio dos materiais';
+                    }
+                    if (scriptBtn) {
+                        scriptBtn.style.display = 'inline-flex';
+                        scriptBtn.disabled = true;
+                        scriptBtn.style.background = 'rgba(239, 68, 68, 0.2)';
+                        scriptBtn.style.border = '1px solid rgba(239, 68, 68, 0.5)';
+                        scriptBtn.style.color = '#f87171';
+                        scriptBtn.style.cursor = 'not-allowed';
+                        scriptBtn.style.pointerEvents = 'none';
+                        scriptBtn.title = 'Roteiro indisponível: aguardando envio dos materiais';
+                    }
+                } else {
+                    if (pkgBtn) {
+                        pkgBtn.style.display = 'inline-flex';
+                        pkgBtn.disabled = false;
+                        pkgBtn.style.background = 'rgba(197, 160, 89, 0.2)';
+                        pkgBtn.style.border = '1px solid var(--border-gold)';
+                        pkgBtn.style.color = 'var(--gold-bright)';
+                        pkgBtn.style.cursor = 'pointer';
+                        pkgBtn.style.pointerEvents = 'auto';
+                        pkgBtn.style.opacity = '1';
+                        pkgBtn.title = 'Baixar pacote completo do pedido';
+                    }
+                    if (scriptBtn) {
+                        scriptBtn.style.display = 'inline-flex';
+                        scriptBtn.disabled = false;
+                        scriptBtn.style.background = 'rgba(197, 160, 89, 0.2)';
+                        scriptBtn.style.border = '1px solid var(--border-gold)';
+                        scriptBtn.style.color = 'var(--gold-bright)';
+                        scriptBtn.style.cursor = 'pointer';
+                        scriptBtn.style.pointerEvents = 'auto';
+                        scriptBtn.style.opacity = '1';
+                        scriptBtn.title = 'Visualizar roteiro oficial';
+                    }
+                }
+            }
+
+            // =========================================================================
+            // RENDERIZAÇÃO DOS 5 MATERIAIS DO CLIENTE NO COCKPIT
+            // 1. Fotos | 2. Áudios | 3. Roteiro | 4. Trilha | 5. Ambiente
+            // =========================================================================
+            renderCockpitMaterialsStatus(order, crmData, orderStateForMedia);
 
             // 3. Coluna 2: Uploads de Produção & Prévias por Formato (16:9 / 9:16)
             renderCockpitProducerUploads(order, crmData);
@@ -3766,6 +4211,221 @@
             updateWhatsAppLinks(order, crmData);
 
             if (window.lucide) lucide.createIcons();
+        }
+
+        // =========================================================================
+        // CONTROLE DOS 5 MATERIAIS DO CLIENTE NO COCKPIT (FOTOS, ÁUDIOS, ROTEIRO, TRILHA, AMBIENTE)
+        // Regras de Negócio:
+        // - Etapa 1 (Pendentes): Tudo bloqueado / inacessível
+        // - Etapa 2 (Confirmados): Conforme envia fotos, áudios e roteiro eles aparecem, mas trilha e ambiente permanecem inacessíveis
+        // - Etapa 3 em diante: Tudo visível e acessível
+        // =========================================================================
+        function renderCockpitMaterialsStatus(order, crmData, orderStateForMedia) {
+            const isStage1 = crmData.stage === 'aguardando_pagamento' || !order.isPaid;
+            const isStage2 = crmData.stage === 'pagamento_confirmado';
+            const isStage3Plus = !isStage1 && !isStage2;
+
+            // Busca dados de fotos, áudios e roteiro nos estados do cliente
+            let uploadedPhotosCount = 0;
+            let uploadedAudiosCount = 0;
+            let hasScript = false;
+
+            try {
+                // Fotos
+                const localPhotosRaw = localStorage.getItem(`reviva_client_photos_${order.id}`) ||
+                                      (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_client_photos') : null);
+                if (localPhotosRaw) {
+                    const parsedPhotos = JSON.parse(localPhotosRaw);
+                    if (Array.isArray(parsedPhotos)) uploadedPhotosCount = parsedPhotos.length;
+                }
+                if (uploadedPhotosCount === 0 && orderStateForMedia?.uploadedPhotos) {
+                    uploadedPhotosCount = orderStateForMedia.uploadedPhotos.length;
+                }
+                // Seed de demonstração para pedidos de teste
+                if (uploadedPhotosCount === 0 && (isStage3Plus || order.id === 'REVIVA-1001' || order.id === 'REVIVA-1002' || order.id === 'REVIVA-1003' || order.id === 'REVIVA-1005')) {
+                    uploadedPhotosCount = 5;
+                }
+
+                // Áudios
+                const localAudiosRaw = localStorage.getItem(`reviva_client_audio_${order.id}`) ||
+                                      (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_client_audio') : null);
+                if (localAudiosRaw) {
+                    const parsedAudios = JSON.parse(localAudiosRaw);
+                    if (Array.isArray(parsedAudios)) uploadedAudiosCount = parsedAudios.length;
+                }
+                if (uploadedAudiosCount === 0 && orderStateForMedia?.uploadedAudios) {
+                    uploadedAudiosCount = orderStateForMedia.uploadedAudios.length;
+                }
+                // Seed de demonstração para pedidos de teste
+                if (uploadedAudiosCount === 0 && (isStage3Plus || order.id === 'REVIVA-1001' || order.id === 'REVIVA-1002' || order.id === 'REVIVA-1003')) {
+                    uploadedAudiosCount = 2;
+                }
+
+                // Roteiro
+                hasScript = Boolean(orderStateForMedia?.latestScriptText || orderStateForMedia?.interviewData || isStage3Plus || order.id === 'REVIVA-1001' || order.id === 'REVIVA-1002');
+            } catch(e) {}
+
+            // Elementos dos Slots
+            const slotPhotos = document.getElementById('mat-slot-photos');
+            const statusPhotos = document.getElementById('mat-status-photos');
+
+            const slotAudios = document.getElementById('mat-slot-audios');
+            const statusAudios = document.getElementById('mat-status-audios');
+
+            const slotScript = document.getElementById('mat-slot-script');
+            const statusScript = document.getElementById('mat-status-script');
+
+            const slotMusic = document.getElementById('mat-slot-music');
+            const statusMusic = document.getElementById('mat-status-music');
+
+            const slotBg = document.getElementById('mat-slot-background');
+            const statusBg = document.getElementById('mat-status-background');
+
+            // Trilha e Ambiente nomes
+            const bgKey = (order.selectedBackground || crmData.selectedBackground || orderStateForMedia?.selectedBackground || 'ceu').toLowerCase();
+            const bgFriendly = BACKGROUND_NAMES[bgKey] || (bgKey ? bgKey.charAt(0).toUpperCase() + bgKey.slice(1) : 'Nuvens Celestiais');
+
+            const musicKey = (order.selectedMusic || crmData.selectedMusic || orderStateForMedia?.selectedMusic || 'sem_musica').toLowerCase();
+            const musicFriendly = MUSIC_NAMES[musicKey] || (musicKey ? musicKey.charAt(0).toUpperCase() + musicKey.slice(1) : 'Sons Naturais');
+
+            if (isStage1) {
+                // ETAPA 1: TUDO BLOQUEADO / INACESSÍVEL
+                [slotPhotos, slotAudios, slotScript, slotMusic, slotBg].forEach(el => {
+                    if (el) {
+                        el.className = 'material-status-slot slot-locked';
+                        el.style.pointerEvents = 'none';
+                    }
+                });
+                if (statusPhotos) { statusPhotos.textContent = 'Bloqueado'; statusPhotos.style.color = '#f87171'; }
+                if (statusAudios) { statusAudios.textContent = 'Bloqueado'; statusAudios.style.color = '#f87171'; }
+                if (statusScript) { statusScript.textContent = 'Bloqueado'; statusScript.style.color = '#f87171'; }
+                if (statusMusic) { statusMusic.textContent = 'Bloqueado'; statusMusic.style.color = '#f87171'; }
+                if (statusBg) { statusBg.textContent = 'Bloqueado'; statusBg.style.color = '#f87171'; }
+            } else if (isStage2) {
+                // ETAPA 2: Fotos, Áudios e Roteiro reagem aos envios reais do cliente; Trilha e Ambiente permanecem bloqueados
+                // 1. Fotos
+                if (slotPhotos) {
+                    slotPhotos.className = uploadedPhotosCount > 0 ? 'material-status-slot slot-accessible' : 'material-status-slot';
+                    slotPhotos.style.pointerEvents = uploadedPhotosCount > 0 ? 'auto' : 'none';
+                }
+                if (statusPhotos) {
+                    statusPhotos.textContent = uploadedPhotosCount > 0 ? `${uploadedPhotosCount} foto${uploadedPhotosCount > 1 ? 's' : ''}` : 'Pendente';
+                    statusPhotos.style.color = uploadedPhotosCount > 0 ? '#4ade80' : '#facc15';
+                }
+
+                // 2. Áudios
+                if (slotAudios) {
+                    slotAudios.className = uploadedAudiosCount > 0 ? 'material-status-slot slot-accessible' : 'material-status-slot';
+                    slotAudios.style.pointerEvents = uploadedAudiosCount > 0 ? 'auto' : 'none';
+                }
+                if (statusAudios) {
+                    statusAudios.textContent = uploadedAudiosCount > 0 ? `${uploadedAudiosCount} áudio${uploadedAudiosCount > 1 ? 's' : ''}` : 'Pendente';
+                    statusAudios.style.color = uploadedAudiosCount > 0 ? '#4ade80' : '#facc15';
+                }
+
+                // 3. Roteiro
+                if (slotScript) {
+                    slotScript.className = hasScript ? 'material-status-slot slot-accessible' : 'material-status-slot';
+                    slotScript.style.pointerEvents = hasScript ? 'auto' : 'none';
+                }
+                if (statusScript) {
+                    statusScript.textContent = hasScript ? 'Pronto ✓' : 'Pendente';
+                    statusScript.style.color = hasScript ? '#4ade80' : '#facc15';
+                }
+
+                // 4. Trilha e 5. Ambiente (BLOQUEADOS NA ETAPA 2)
+                [slotMusic, slotBg].forEach(el => {
+                    if (el) {
+                        el.className = 'material-status-slot slot-locked';
+                        el.style.pointerEvents = 'none';
+                    }
+                });
+                if (statusMusic) { statusMusic.textContent = 'Bloqueado'; statusMusic.style.color = '#f87171'; }
+                if (statusBg) { statusBg.textContent = 'Bloqueado'; statusBg.style.color = '#f87171'; }
+            } else {
+                // ETAPA 3 EM DIANTE: TUDO JÁ FICA VISÍVEL E ACESSÍVEL
+                [slotPhotos, slotAudios, slotScript, slotMusic, slotBg].forEach(el => {
+                    if (el) {
+                        el.className = 'material-status-slot slot-accessible';
+                        el.style.pointerEvents = 'auto';
+                    }
+                });
+
+                if (statusPhotos) {
+                    const cnt = Math.max(1, uploadedPhotosCount || 5);
+                    statusPhotos.textContent = `${cnt} foto${cnt > 1 ? 's' : ''}`;
+                    statusPhotos.style.color = '#4ade80';
+                }
+                if (statusAudios) {
+                    const cnt = Math.max(1, uploadedAudiosCount || 2);
+                    statusAudios.textContent = `${cnt} áudio${cnt > 1 ? 's' : ''}`;
+                    statusAudios.style.color = '#4ade80';
+                }
+                if (statusScript) {
+                    statusScript.textContent = 'Pronto ✓';
+                    statusScript.style.color = '#4ade80';
+                }
+                if (statusMusic) {
+                    statusMusic.textContent = musicFriendly.length > 9 ? musicFriendly.substring(0, 9) + '…' : musicFriendly;
+                    statusMusic.style.color = '#f6e3c5';
+                    statusMusic.title = musicFriendly;
+                }
+                if (statusBg) {
+                    statusBg.textContent = bgFriendly.length > 9 ? bgFriendly.substring(0, 9) + '…' : bgFriendly;
+                    statusBg.style.color = '#f6e3c5';
+                    statusBg.title = bgFriendly;
+                }
+            }
+        }
+
+        // Ações ao clicar em cada um dos 5 slots de materiais do cliente
+        function handleMaterialSlotClick(materialType) {
+            if (!selectedAdminOrderId) return;
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
+            if (!order) return;
+            const crmData = getOrCreateCrmOrderData(order);
+
+            // Se for Etapa 1, todos bloqueados
+            if (crmData.stage === 'aguardando_pagamento' || !order.isPaid) {
+                alert('Atenção: Este pedido está na Etapa 1 (Pendente de Pagamento). Os materiais ficam bloqueados até a confirmação do pagamento.');
+                return;
+            }
+
+            // Se for Etapa 2 e clicar em trilha ou ambiente
+            if (crmData.stage === 'pagamento_confirmado' && (materialType === 'music' || materialType === 'background')) {
+                alert('Atenção: A trilha sonora e o ambiente de fundo ainda não estão acessíveis nesta etapa. O cliente fará essa definição após o envio dos materiais.');
+                return;
+            }
+
+            if (materialType === 'photos') {
+                // Abre o pacote ou faz download das fotos
+                downloadFullOrderPackage();
+            } else if (materialType === 'audios') {
+                // Notifica sobre os áudios e possibilita baixar o pacote do pedido
+                alert(`Áudios de referência do cliente (${order.clientName}):\nIniciando download do pacote com gravações de voz...`);
+                downloadFullOrderPackage();
+            } else if (materialType === 'script') {
+                // Abre o modal de visualização e cópia do roteiro oficial
+                openScriptPopover();
+            } else if (materialType === 'music') {
+                let orderStateForMedia = null;
+                try {
+                    const raw = localStorage.getItem(`reviva_order_state_${order.id}`);
+                    if (raw) orderStateForMedia = JSON.parse(raw);
+                } catch(e) {}
+                const musicKey = (order.selectedMusic || crmData.selectedMusic || orderStateForMedia?.selectedMusic || 'sem_musica').toLowerCase();
+                const musicFriendly = MUSIC_NAMES[musicKey] || (musicKey ? musicKey.charAt(0).toUpperCase() + musicKey.slice(1) : 'Sons Naturais');
+                alert(`Trilha Sonora Escolhida pelo Cliente:\n"${musicFriendly}"\n\n(Localize o arquivo de áudio mestre diretamente na pasta de trilhas da produção)`);
+            } else if (materialType === 'background') {
+                let orderStateForMedia = null;
+                try {
+                    const raw = localStorage.getItem(`reviva_order_state_${order.id}`);
+                    if (raw) orderStateForMedia = JSON.parse(raw);
+                } catch(e) {}
+                const bgKey = (order.selectedBackground || crmData.selectedBackground || orderStateForMedia?.selectedBackground || 'ceu').toLowerCase();
+                const bgFriendly = BACKGROUND_NAMES[bgKey] || (bgKey ? bgKey.charAt(0).toUpperCase() + bgKey.slice(1) : 'Nuvens Celestiais');
+                alert(`Ambiente de Fundo Escolhido pelo Cliente:\n"${bgFriendly}"\n\n(Localize o vídeo mestre do cenário na pasta de fundos da produção)`);
+            }
         }
 
         function changeOrderStageFromCockpit(newStage) {
@@ -3881,11 +4541,19 @@
             const photoV = localStorage.getItem(`reviva_producer_photo_v_${order.id}`) || (isVertical ? localStorage.getItem(`reviva_producer_image_${order.id}`) : null);
             const photoSingle = localStorage.getItem(`reviva_producer_image_${order.id}`);
             const voice = localStorage.getItem(`reviva_producer_audio_${order.id}`);
-            const video = localStorage.getItem(`reviva_producer_video_${order.id}`);
+            const videoH = localStorage.getItem(`reviva_producer_video_h_${order.id}`) || (isHorizontal ? localStorage.getItem(`reviva_producer_video_${order.id}`) : null);
+            const videoV = localStorage.getItem(`reviva_producer_video_v_${order.id}`) || (isVertical ? localStorage.getItem(`reviva_producer_video_${order.id}`) : null);
+            const videoSingle = localStorage.getItem(`reviva_producer_video_${order.id}`);
 
             const isAwaitingPayment = crmData ? (crmData.stage === 'aguardando_pagamento' || !order.isPaid) : (order && !order.isPaid);
             const isAwaitingMaterials = crmData ? (crmData.stage === 'pagamento_confirmado') : false;
             const isUploadsLocked = isAwaitingPayment || isAwaitingMaterials;
+
+            // A área para envio do vídeo só pode ficar acessível quando as prévias não estiverem reprovadas (inacessível na coluna de reprovadas)
+            // Permitido apenas após aprovação e nas etapas finais: producao_final e entregues
+            const allowedVideoStages = ['previas_aprovadas', 'producao_final', 'entregues'];
+            const isVideoAllowed = crmData && allowedVideoStages.includes(crmData.stage);
+            const isVideoLocked = isUploadsLocked || !isVideoAllowed;
 
             let html = '';
 
@@ -3894,7 +4562,7 @@
                     <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: var(--radius-sm); padding: 12px; text-align: center; margin-bottom: 8px;">
                         <i data-lucide="lock" style="width: 22px; height: 22px; color: #f87171; margin-bottom: 4px;"></i>
                         <div style="font-size: 0.76rem; font-weight: 700; color: #f87171; text-transform: uppercase; letter-spacing: 0.5px;">UPLOADS BLOQUEADOS</div>
-                        <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">Aguardando confirmação do pagamento para liberação dos envios de produção.</div>
+                        <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">Aguardando confirmação do pagamento para liberação do cliente.</div>
                     </div>
                 `;
             } else if (isAwaitingMaterials) {
@@ -3902,7 +4570,15 @@
                     <div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35); border-radius: var(--radius-sm); padding: 12px; text-align: center; margin-bottom: 8px;">
                         <i data-lucide="inbox" style="width: 22px; height: 22px; color: #facc15; margin-bottom: 4px;"></i>
                         <div style="font-size: 0.76rem; font-weight: 700; color: #facc15; text-transform: uppercase; letter-spacing: 0.5px;">AGUARDANDO MATERIAIS DO CLIENTE</div>
-                        <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">O cliente ainda não enviou as fotos e o áudio no painel. Os envios de produção serão liberados após o recebimento dos arquivos.</div>
+                        <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">O cliente ainda não enviou as fotos, áudios e roteiro no painel.</div>
+                    </div>
+                `;
+            } else if (crmData && crmData.stage === 'previas_reprovadas') {
+                html += `
+                    <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: var(--radius-sm); padding: 10px; text-align: center; margin-bottom: 8px;">
+                        <i data-lucide="alert-triangle" style="width: 20px; height: 20px; color: #f87171; margin-bottom: 4px;"></i>
+                        <div style="font-size: 0.74rem; font-weight: 700; color: #f87171; text-transform: uppercase; letter-spacing: 0.5px;">PRÉVIAS REPROVADAS - AJUSTES NECESSÁRIOS</div>
+                        <div style="font-size: 0.67rem; color: #cbd5e1; margin-top: 2px;">Envie uma nova imagem ou áudio corrigido. O envio do vídeo final está inacessível até a aprovação.</div>
                     </div>
                 `;
             }
@@ -3910,86 +4586,124 @@
             const clickPhotoH = isUploadsLocked ? '' : "onclick=\"document.getElementById('input-photo-h').click()\"";
             const clickPhotoV = isUploadsLocked ? '' : "onclick=\"document.getElementById('input-photo-v').click()\"";
             const clickVoice = isUploadsLocked ? '' : "onclick=\"document.getElementById('input-admin-voice').click()\"";
-            const clickVideo = isUploadsLocked ? '' : "onclick=\"document.getElementById('input-admin-video').click()\"";
+            const clickVideoH = isVideoLocked ? '' : "onclick=\"document.getElementById('input-video-h').click()\"";
+            const clickVideoV = isVideoLocked ? '' : "onclick=\"document.getElementById('input-video-v').click()\"";
+            const clickVideoSingle = isVideoLocked ? '' : "onclick=\"document.getElementById('input-admin-video').click()\"";
+
             const lockedCardStyle = isUploadsLocked ? 'opacity: 0.45; pointer-events: none; filter: grayscale(0.85); cursor: not-allowed;' : '';
+            const lockedVideoStyle = isVideoLocked ? 'opacity: 0.45; pointer-events: none; filter: grayscale(0.85); cursor: not-allowed;' : '';
+
             const pendingStatusLabel = isAwaitingPayment ? 'BLOQUEADO' : (isAwaitingMaterials ? 'AGUARDANDO MATERIAIS' : 'AGUARDANDO ENVIO');
+            const pendingVideoStatusLabel = isUploadsLocked ? pendingStatusLabel : (!isVideoAllowed ? (crmData?.stage === 'previas_reprovadas' ? 'BLOQUEADO (REPROVADO)' : 'BLOQUEADO') : 'AGUARDANDO ENVIO');
 
+            // 1. LINHA 1: IMAGENS (DIVIDIDA LADO A LADO SE FORMATO DUPLO, OU FULL SE FORMATO ÚNICO)
             if (isBoth) {
-                // Formato Horizontal e Vertical: Divide o envio de prévias de imagem em dois cards separados
                 html += `
-                    <div style="font-size: 0.68rem; font-weight: 700; color: #4ade80; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">
-                        ✦ Pedido com Formato Duplo (Horizontal + Vertical)
-                    </div>
-
-                    <!-- 1A. Imagem Horizontal -->
-                    <div class="producer-drop-card ${photoH ? 'filled' : ''}" style="${lockedCardStyle}" ${clickPhotoH}>
-                        <strong style="font-size: 0.80rem; color: #fff;">1A. Imagem Horizontal</strong>
-                        <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
-                        <div style="font-size: 0.64rem; font-weight: 700; color: ${photoH ? '#4ade80' : (isUploadsLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
-                            ${photoH ? 'PRÉVIA ENVIADA ✓' : pendingStatusLabel}
+                    <!-- LINHA 1: IMAGENS DIVIDIDAS VERTICALMENTE (LADO A LADO) -->
+                    <div class="producer-upload-row">
+                        <!-- 1A. Imagem Horizontal -->
+                        <div class="producer-drop-card ${photoH ? 'filled' : ''}" style="${lockedCardStyle}" ${clickPhotoH}>
+                            <strong style="font-size: 0.76rem; color: #fff;">1A. Imagem Horizontal</strong>
+                            <span style="font-size: 0.62rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
+                            <div style="font-size: 0.62rem; font-weight: 700; color: ${photoH ? '#4ade80' : (isUploadsLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
+                                ${photoH ? 'PRÉVIA ENVIADA ✓' : pendingStatusLabel}
+                            </div>
+                            <input type="file" id="input-photo-h" accept="image/*" style="display: none;" onchange="handleAdminPhotoUploadSpecific(event, 'h')">
                         </div>
-                        <input type="file" id="input-photo-h" accept="image/*" style="display: none;" onchange="handleAdminPhotoUploadSpecific(event, 'h')">
-                    </div>
 
-                    <!-- 1B. Imagem Vertical -->
-                    <div class="producer-drop-card ${photoV ? 'filled' : ''}" style="${lockedCardStyle}" ${clickPhotoV}>
-                        <strong style="font-size: 0.80rem; color: #fff;">1B. Imagem Vertical</strong>
-                        <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
-                        <div style="font-size: 0.64rem; font-weight: 700; color: ${photoV ? '#4ade80' : (isUploadsLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
-                            ${photoV ? 'PRÉVIA ENVIADA ✓' : pendingStatusLabel}
+                        <!-- 1B. Imagem Vertical -->
+                        <div class="producer-drop-card ${photoV ? 'filled' : ''}" style="${lockedCardStyle}" ${clickPhotoV}>
+                            <strong style="font-size: 0.76rem; color: #fff;">1B. Imagem Vertical</strong>
+                            <span style="font-size: 0.62rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
+                            <div style="font-size: 0.62rem; font-weight: 700; color: ${photoV ? '#4ade80' : (isUploadsLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
+                                ${photoV ? 'PRÉVIA ENVIADA ✓' : pendingStatusLabel}
+                            </div>
+                            <input type="file" id="input-photo-v" accept="image/*" style="display: none;" onchange="handleAdminPhotoUploadSpecific(event, 'v')">
                         </div>
-                        <input type="file" id="input-photo-v" accept="image/*" style="display: none;" onchange="handleAdminPhotoUploadSpecific(event, 'v')">
                     </div>
                 `;
             } else if (isVertical) {
-                // Formato Único Vertical
                 html += `
-                    <div class="producer-drop-card ${photoSingle ? 'filled' : ''}" style="${lockedCardStyle}" ${clickPhotoV}>
-                        <strong style="font-size: 0.80rem; color: #fff;">1. Imagem Vertical</strong>
-                        <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
-                        <div style="font-size: 0.64rem; font-weight: 700; color: ${photoSingle ? '#4ade80' : (isUploadsLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
-                            ${photoSingle ? 'PRÉVIA ENVIADA ✓' : pendingStatusLabel}
+                    <div class="producer-upload-row">
+                        <div class="producer-drop-card ${photoSingle ? 'filled' : ''}" style="${lockedCardStyle}" ${clickPhotoV}>
+                            <strong style="font-size: 0.80rem; color: #fff;">1. Imagem Vertical</strong>
+                            <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
+                            <div style="font-size: 0.64rem; font-weight: 700; color: ${photoSingle ? '#4ade80' : (isUploadsLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
+                                ${photoSingle ? 'PRÉVIA ENVIADA ✓' : pendingStatusLabel}
+                            </div>
+                            <input type="file" id="input-photo-v" accept="image/*" style="display: none;" onchange="handleAdminPhotoUploadSpecific(event, 'v')">
                         </div>
-                        <input type="file" id="input-photo-v" accept="image/*" style="display: none;" onchange="handleAdminPhotoUploadSpecific(event, 'v')">
                     </div>
                 `;
             } else {
-                // Formato Único Horizontal
                 html += `
-                    <div class="producer-drop-card ${photoSingle ? 'filled' : ''}" style="${lockedCardStyle}" ${clickPhotoH}>
-                        <strong style="font-size: 0.80rem; color: #fff;">1. Imagem Horizontal</strong>
-                        <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
-                        <div style="font-size: 0.64rem; font-weight: 700; color: ${photoSingle ? '#4ade80' : (isUploadsLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
-                            ${photoSingle ? 'PRÉVIA ENVIADA ✓' : pendingStatusLabel}
+                    <div class="producer-upload-row">
+                        <div class="producer-drop-card ${photoSingle ? 'filled' : ''}" style="${lockedCardStyle}" ${clickPhotoH}>
+                            <strong style="font-size: 0.80rem; color: #fff;">1. Imagem Horizontal</strong>
+                            <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
+                            <div style="font-size: 0.64rem; font-weight: 700; color: ${photoSingle ? '#4ade80' : (isUploadsLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
+                                ${photoSingle ? 'PRÉVIA ENVIADA ✓' : pendingStatusLabel}
+                            </div>
+                            <input type="file" id="input-photo-h" accept="image/*" style="display: none;" onchange="handleAdminPhotoUploadSpecific(event, 'h')">
                         </div>
-                        <input type="file" id="input-photo-h" accept="image/*" style="display: none;" onchange="handleAdminPhotoUploadSpecific(event, 'h')">
                     </div>
                 `;
             }
 
-            // 2. Narração Voz Clonada
+            // 2. LINHA 2: NARRAÇÃO VOZ CLONADA
             html += `
-                <div class="producer-drop-card ${voice ? 'filled' : ''}" style="${lockedCardStyle}" ${clickVoice}>
-                    <strong style="font-size: 0.80rem; color: #fff;">2. Narração Voz Clonada</strong>
-                    <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
-                    <div style="font-size: 0.64rem; font-weight: 700; color: ${voice ? '#4ade80' : (isUploadsLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
-                        ${voice ? 'ÁUDIO ENVIADO ✓' : pendingStatusLabel}
+                <div class="producer-upload-row">
+                    <div class="producer-drop-card ${voice ? 'filled' : ''}" style="${lockedCardStyle}" ${clickVoice}>
+                        <strong style="font-size: 0.80rem; color: #fff;">2. Narração Voz Clonada</strong>
+                        <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
+                        <div style="font-size: 0.64rem; font-weight: 700; color: ${voice ? '#4ade80' : (isUploadsLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
+                            ${voice ? 'ÁUDIO ENVIADO ✓' : pendingStatusLabel}
+                        </div>
+                        <input type="file" id="input-admin-voice" accept="audio/*" style="display: none;" onchange="handleAdminVoiceUpload(event)">
                     </div>
-                    <input type="file" id="input-admin-voice" accept="audio/*" style="display: none;" onchange="handleAdminVoiceUpload(event)">
                 </div>
             `;
 
-            // 3. Vídeo Final em Alta Resolução
-            html += `
-                <div class="producer-drop-card ${video ? 'filled' : ''}" style="${lockedCardStyle}" ${clickVideo}>
-                    <strong style="font-size: 0.80rem; color: #fff;">3. Vídeo Final em Alta Resolução</strong>
-                    <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 05 - Vídeo Final</span>
-                    <div style="font-size: 0.64rem; font-weight: 700; color: ${video ? '#4ade80' : (isUploadsLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
-                        ${video ? 'VÍDEO PUBLICADO ✓' : pendingStatusLabel}
+            // 3. LINHA 3: VÍDEO FINAL EM ALTA RESOLUÇÃO (DIVIDIDO LADO A LADO SE FORMATO DUPLO, OU FULL SE FORMATO ÚNICO)
+            if (isBoth) {
+                html += `
+                    <!-- LINHA 3: VÍDEOS FINAIS DIVIDIDOS VERTICALMENTE (LADO A LADO) -->
+                    <div class="producer-upload-row">
+                        <!-- 3A. Vídeo Horizontal -->
+                        <div class="producer-drop-card ${videoH ? 'filled' : ''}" style="${lockedVideoStyle}" ${clickVideoH}>
+                            <strong style="font-size: 0.76rem; color: #fff;">3A. Vídeo Horizontal</strong>
+                            <span style="font-size: 0.62rem; color: var(--text-secondary); margin-top: 2px;">Etapas 04 e 05</span>
+                            <div style="font-size: 0.62rem; font-weight: 700; color: ${videoH ? '#4ade80' : (isVideoLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
+                                ${videoH ? 'VÍDEO PUBLICADO ✓' : pendingVideoStatusLabel}
+                            </div>
+                            <input type="file" id="input-video-h" accept="video/*" style="display: none;" onchange="handleAdminVideoUploadSpecific(event, 'h')">
+                        </div>
+
+                        <!-- 3B. Vídeo Vertical -->
+                        <div class="producer-drop-card ${videoV ? 'filled' : ''}" style="${lockedVideoStyle}" ${clickVideoV}>
+                            <strong style="font-size: 0.76rem; color: #fff;">3B. Vídeo Vertical</strong>
+                            <span style="font-size: 0.62rem; color: var(--text-secondary); margin-top: 2px;">Etapas 04 e 05</span>
+                            <div style="font-size: 0.62rem; font-weight: 700; color: ${videoV ? '#4ade80' : (isVideoLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
+                                ${videoV ? 'VÍDEO PUBLICADO ✓' : pendingVideoStatusLabel}
+                            </div>
+                            <input type="file" id="input-video-v" accept="video/*" style="display: none;" onchange="handleAdminVideoUploadSpecific(event, 'v')">
+                        </div>
                     </div>
-                    <input type="file" id="input-admin-video" accept="video/*" style="display: none;" onchange="handleAdminVideoUpload(event)">
-                </div>
-            `;
+                `;
+            } else {
+                html += `
+                    <div class="producer-upload-row">
+                        <div class="producer-drop-card ${videoSingle ? 'filled' : ''}" style="${lockedVideoStyle}" ${clickVideoSingle}>
+                            <strong style="font-size: 0.80rem; color: #fff;">3. Vídeo ${isVertical ? 'Vertical' : 'Horizontal'}</strong>
+                            <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapas 04 e 05</span>
+                            <div style="font-size: 0.64rem; font-weight: 700; color: ${videoSingle ? '#4ade80' : (isVideoLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
+                                ${videoSingle ? 'VÍDEO PUBLICADO ✓' : pendingVideoStatusLabel}
+                            </div>
+                            <input type="file" id="input-admin-video" accept="video/*" style="display: none;" onchange="handleAdminVideoUpload(event)">
+                        </div>
+                    </div>
+                `;
+            }
 
             container.innerHTML = html;
             if (window.lucide) lucide.createIcons();
@@ -4012,7 +4726,7 @@
                     const crmData = getOrCreateCrmOrderData(order);
                     renderCockpitProducerUploads(order, crmData);
                 }
-                alert(`✓ Imagem Lapidada (${orientation === 'h' ? 'Horizontal 16:9' : 'Vertical 9:16'}) salva com sucesso!`);
+                alert(`✓ Imagem Lapidada (${orientation === 'h' ? 'Horizontal' : 'Vertical'}) salva com sucesso!`);
             };
             reader.readAsDataURL(file);
         }
@@ -4035,14 +4749,20 @@
                     const hasAudio = Boolean(localStorage.getItem(`reviva_producer_audio_${order.id}`));
 
                     if (!hasPhoto || !hasAudio) {
-                        const photoMsg = isBoth ? 'as 2 Prévias de Imagem (16:9 Horizontal + 9:16 Vertical)' : 'a Nova Imagem Lapidada';
+                        const photoMsg = isBoth ? 'as 2 Prévias de Imagem (Horizontal + Vertical)' : 'a Nova Imagem Lapidada';
                         alert(`⚠️ Não é possível liberar as Prévias (Etapa 4):\nVocê precisa anexar ${photoMsg} e a Narração com Voz Clonada antes de liberar ao cliente.`);
                         return;
                     }
                 } else if (stage === 5) {
-                    const hasVideo = Boolean(localStorage.getItem(`reviva_producer_video_${order.id}`));
+                    const isBoth = crmData.format === 'both';
+                    const hasVideoH = Boolean(localStorage.getItem(`reviva_producer_video_h_${order.id}`));
+                    const hasVideoV = Boolean(localStorage.getItem(`reviva_producer_video_v_${order.id}`));
+                    const hasVideoSingle = Boolean(localStorage.getItem(`reviva_producer_video_${order.id}`));
+                    const hasVideo = isBoth ? (hasVideoH && hasVideoV) : (hasVideoSingle || hasVideoH || hasVideoV);
+
                     if (!hasVideo) {
-                        alert('⚠️ Não é possível liberar o Vídeo Final (Etapa 5):\nVocê precisa anexar o arquivo do Vídeo Final em Alta Resolução antes de liberar para o cliente.');
+                        const videoMsg = isBoth ? 'os 2 Vídeos Finais (Horizontal + Vertical)' : 'o arquivo do Vídeo Final em Alta Resolução';
+                        alert(`⚠️ Não é possível liberar o Vídeo Final (Etapa 5):\nVocê precisa anexar ${videoMsg} antes de liberar para o cliente.`);
                         return;
                     }
                 }
@@ -4152,6 +4872,31 @@
             reader.readAsDataURL(file);
         }
 
+        function handleAdminVideoUploadSpecific(e, orientation) {
+            const file = e.target.files[0];
+            if (!file || !selectedAdminOrderId) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    localStorage.setItem(`reviva_producer_video_${selectedAdminOrderId}`, event.target.result);
+                    if (orientation === 'h') {
+                        localStorage.setItem(`reviva_producer_video_h_${selectedAdminOrderId}`, event.target.result);
+                    } else if (orientation === 'v') {
+                        localStorage.setItem(`reviva_producer_video_v_${selectedAdminOrderId}`, event.target.result);
+                    }
+                } catch(err) {
+                    console.warn("Vídeo específico salvo via flag:", err);
+                }
+                const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
+                if (order) {
+                    const crmData = getOrCreateCrmOrderData(order);
+                    renderCockpitProducerUploads(order, crmData);
+                }
+                alert(`✓ Vídeo Final (${orientation === 'h' ? 'Horizontal' : 'Vertical'}) publicado com sucesso!`);
+            };
+            reader.readAsDataURL(file);
+        }
+
         function updateWhatsAppLinks(order, crmData) {
             if (!order) return;
             const clientName = typeof order === 'object' ? order.clientName : arguments[0];
@@ -4166,7 +4911,12 @@
             const cleanPhone = rawDigits;
             const firstName = (clientName || 'Cliente').trim().split(/\s+/)[0];
             const rawPlan = typeof order === 'object' ? (order.planName || 'homenagem') : 'homenagem';
-            const planName = rawPlan.replace(/\s*\([^)]*\)/g, '').trim();
+            const cleanPlan = rawPlan
+                .replace(/Reviva Memories\s*[-–—]?\s*/gi, '')
+                .replace(/Homenagem Afetiva\s*[-–—]?\s*/gi, '')
+                .replace(/\s*\([^)]*\)/g, '')
+                .trim() || 'homenagem';
+            const planName = cleanPlan;
 
             const isAwaitingPayment = crmData ? (crmData.stage === 'aguardando_pagamento' || (order && !order.isPaid)) : (order && !order.isPaid);
             const isAwaitingMaterials = crmData ? (crmData.stage === 'pagamento_confirmado') : false;
@@ -4179,6 +4929,8 @@
             const btnMaterialsHelp = document.getElementById('btn-wa-materials-help');
 
             const waProductionContainer = document.getElementById('wa-production-container');
+            const btnFirst = document.getElementById('btn-wa-first');
+            const btnRevisions = document.getElementById('btn-wa-revisions');
             const waFinalVideoContainer = document.getElementById('wa-final-video-container');
             const waReviewContainer = document.getElementById('wa-review-container');
 
@@ -4198,7 +4950,7 @@
                 let labelTime = '';
                 if (diffHours < 2) {
                     labelTime = diffHours === 0 ? '<1h' : '1h';
-                    msgClosingText = `Olá, ${firstName}! Vi que você iniciou o pedido do seu vídeo de homenagem (${planName}) na Reviva Memories, mas a confirmação do pagamento ainda está pendente. Precisa de alguma ajuda com o PIX ou cartão para garantirmos o início da produção?`;
+                    msgClosingText = `Olá, ${firstName}! Vi que você iniciou o pedido da sua homenagem (${planName}) na Reviva Memories, mas a confirmação do pagamento ainda está pendente. Precisa de alguma ajuda com o PIX ou cartão para garantirmos o início da produção?`;
                 } else if (diffHours < 24) {
                     labelTime = `${diffHours}h`;
                     msgClosingText = `Olá, ${firstName}! Tudo bem? Passando para saber se ficou com alguma dúvida no momento de escolher as fotos ou concluir o pagamento da sua homenagem (${planName}). Estou à disposição para te ajudar no que precisar!`;
@@ -4228,27 +4980,73 @@
                 if (waFinalVideoContainer) waFinalVideoContainer.style.display = 'none';
                 if (waReviewContainer) waReviewContainer.style.display = 'none';
 
-                const msgHelpMaterials = `Olá, ${firstName}! Tudo bem?\n\nPassando para lembrar que seu pagamento da homenagem (${planName} - Pedido #${orderId}) já foi aprovado com sucesso! 🎉\n\nNotamos que você ainda não conseguiu finalizar o envio das fotos e do áudio no painel. Teve alguma dificuldade para selecionar os arquivos ou gravar a voz?\n\nEstou à sua disposição por aqui para te auxiliar no que precisar:\n${panelUrl}\n\nCom carinho,\n*Equipe Reviva Memories*`;
+                const msgHelpMaterials = `Olá, ${firstName}! Tudo bem?\n\nPassando para lembrar que seu pagamento da homenagem (${planName} - Pedido #${orderId}) já foi aprovado com sucesso! 🎉\n\nNotamos que você ainda não conseguiu finalizar o envio das fotos, áudios e roteiro no painel. Teve alguma dificuldade para selecionar os arquivos, gravar a voz ou preencher a entrevista?\n\nEstou à sua disposição por aqui para te auxiliar no que precisar:\n${panelUrl}\n\nCom carinho,\n*Equipe Reviva Memories*`;
 
                 if (btnMaterialsHelp) {
                     btnMaterialsHelp.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msgHelpMaterials)}`;
-                    btnMaterialsHelp.title = `Enviar mensagem de suporte e ajuda no envio de fotos/áudio`;
+                    btnMaterialsHelp.title = `Enviar ajuda no envio das fotos, áudios e roteiro`;
                 }
             } else {
                 if (waClosingContainer) waClosingContainer.style.display = 'none';
                 if (waMaterialsHelpContainer) waMaterialsHelpContainer.style.display = 'none';
-                if (waProductionContainer) waProductionContainer.style.display = 'grid';
-                if (waFinalVideoContainer) waFinalVideoContainer.style.display = 'block';
-                if (waReviewContainer) waReviewContainer.style.display = 'block';
+
+                const stage = crmData ? crmData.stage : 'material_enviado';
+
+                // Na Etapa 3 (Recebidos / material_enviado) e Etapa 4 (Prévias / producao_previa):
+                // Exibe "1º Envio" e "Ajuste Pronto"; oculta "Enviar Vídeo Final" e "Pós-Venda"
+                if (stage === 'material_enviado' || stage === 'producao_previa') {
+                    if (waProductionContainer) {
+                        waProductionContainer.style.display = 'grid';
+                        waProductionContainer.style.gridTemplateColumns = '1fr 1fr';
+                    }
+                    if (btnFirst) btnFirst.style.display = 'inline-flex';
+                    if (btnRevisions) btnRevisions.style.display = 'inline-flex';
+                    if (waFinalVideoContainer) {
+                        waFinalVideoContainer.style.display = 'none';
+                        waFinalVideoContainer.style.marginTop = '6px';
+                    }
+                    if (waReviewContainer) waReviewContainer.style.display = 'none';
+                } else if (stage === 'previas_reprovadas') {
+                    // ETAPA 5 (Prévias Reprovadas): NÃO deve ter mensagem de 1º Envio, apenas Ajuste Pronto em largura total
+                    if (waProductionContainer) {
+                        waProductionContainer.style.display = 'grid';
+                        waProductionContainer.style.gridTemplateColumns = '1fr';
+                    }
+                    if (btnFirst) btnFirst.style.display = 'none';
+                    if (btnRevisions) btnRevisions.style.display = 'inline-flex';
+                    if (waFinalVideoContainer) {
+                        waFinalVideoContainer.style.display = 'none';
+                        waFinalVideoContainer.style.marginTop = '6px';
+                    }
+                    if (waReviewContainer) waReviewContainer.style.display = 'none';
+                } else if (stage === 'previas_aprovadas' || stage === 'producao_final') {
+                    // Na etapa de Prévias Aprovadas e Produção Vídeo Final: não devem existir as mensagens de 1º Envio e Ajuste Pronto
+                    if (waProductionContainer) waProductionContainer.style.display = 'none';
+                    if (waFinalVideoContainer) {
+                        waFinalVideoContainer.style.display = 'block';
+                        waFinalVideoContainer.style.marginTop = '0';
+                    }
+                    if (waReviewContainer) waReviewContainer.style.display = 'none';
+                } else if (stage === 'entregues') {
+                    // Pós-Venda: não devem existir 1º Envio e Ajuste Pronto, exibe Vídeo Final e Avaliação
+                    if (waProductionContainer) waProductionContainer.style.display = 'none';
+                    if (waFinalVideoContainer) {
+                        waFinalVideoContainer.style.display = 'block';
+                        waFinalVideoContainer.style.marginTop = '0';
+                    }
+                    if (waReviewContainer) waReviewContainer.style.display = 'block';
+                } else {
+                    if (waProductionContainer) waProductionContainer.style.display = 'none';
+                    if (waFinalVideoContainer) waFinalVideoContainer.style.display = 'none';
+                    if (waReviewContainer) waReviewContainer.style.display = 'none';
+                }
             }
 
             // Links padrão de produção e pós-venda
             const msg1 = encodeURIComponent(`*Olá, ${firstName}! Boas notícias da Reviva Memories!*\n\nA nova imagem lapidada e a amostra da locução com voz clonada (Pedido #${orderId}) já estão prontas no seu painel exclusivo para você ouvir e validar os detalhes:\n${panelUrl}\n\nCom todo o carinho,\n*Equipe Reviva Memories*`);
-            const btnFirst = document.getElementById("btn-wa-first");
             if (btnFirst) btnFirst.href = `https://wa.me/${cleanPhone}?text=${msg1}`;
 
             const msg2 = encodeURIComponent(`*Olá, ${firstName}!*\n\nNossa equipe concluiu os ajustes solicitados na homenagem do seu ente querido (Pedido #${orderId}).\nA nova versão atualizada já está disponível para sua aprovação no painel:\n${panelUrl}\n\n*Equipe Reviva Memories*`);
-            const btnRevisions = document.getElementById("btn-wa-revisions");
             if (btnRevisions) btnRevisions.href = `https://wa.me/${cleanPhone}?text=${msg2}`;
 
             // 3. Vídeo Final Concluído
@@ -4280,7 +5078,7 @@
                 const hasAudio = Boolean(localStorage.getItem(`reviva_producer_audio_${order.id}`));
 
                 if (!hasPhoto || !hasAudio) {
-                    const photoMsg = isBoth ? 'as 2 Prévias de Imagem (16:9 Horizontal + 9:16 Vertical)' : 'a Nova Imagem Lapidada';
+                    const photoMsg = isBoth ? 'as 2 Prévias de Imagem (Horizontal + Vertical)' : 'a Nova Imagem Lapidada';
                     alert(`⚠️ Atenção antes de enviar WhatsApp:\nVocê precisa anexar ${photoMsg} e a Narração com Voz Clonada no painel de produção.`);
                 } else {
                     localStorage.setItem(`reviva_stage4_delivered_${order.id}`, 'true');
@@ -4288,9 +5086,15 @@
                     saveCrmOrderData(order.id, crmData);
                 }
             } else if (stage === 5) {
-                const hasVideo = Boolean(localStorage.getItem(`reviva_producer_video_${order.id}`));
+                const isBoth = crmData.format === 'both';
+                const hasVideoH = Boolean(localStorage.getItem(`reviva_producer_video_h_${order.id}`));
+                const hasVideoV = Boolean(localStorage.getItem(`reviva_producer_video_v_${order.id}`));
+                const hasVideoSingle = Boolean(localStorage.getItem(`reviva_producer_video_${order.id}`));
+                const hasVideo = isBoth ? (hasVideoH && hasVideoV) : (hasVideoSingle || hasVideoH || hasVideoV);
+
                 if (!hasVideo) {
-                    alert('⚠️ Atenção antes de enviar WhatsApp:\nVocê precisa anexar o arquivo do Vídeo Final em Alta Resolução no painel de produção.');
+                    const videoMsg = isBoth ? 'os 2 Vídeos Finais (Horizontal + Vertical)' : 'o arquivo do Vídeo Final em Alta Resolução';
+                    alert(`⚠️ Atenção antes de enviar WhatsApp:\nVocê precisa anexar ${videoMsg} no painel de produção.`);
                 } else {
                     localStorage.setItem(`reviva_stage5_delivered_${order.id}`, 'true');
                     crmData.stage = 'producao_final';
@@ -4484,13 +5288,16 @@
         function downloadFullOrderPackage() {
             if (window.RevivaDocumentService) {
                 const currentOrder = allAdminOrders.find(o => o.id === selectedAdminOrderId) || allAdminOrders[0];
-                window.RevivaDocumentService.downloadFullOrderZip(currentOrder);
+                const crmData = currentOrder ? getOrCreateCrmOrderData(currentOrder) : null;
+                const orderToSend = { ...currentOrder, stage: crmData?.stage || currentOrder?.stage };
+                window.RevivaDocumentService.downloadFullOrderZip(orderToSend);
             } else {
                 alert('Carregando serviço de compactação de pacotes...');
             }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            updateViewModeButtons();
             checkAuthSession();
             if (window.lucide) lucide.createIcons();
         });
