@@ -428,9 +428,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentStep = step;
         resolveClientIdentity();
         
-        // Persistir etapa ativa imediatamente para recarregamento em tempo real
+        // Persistir etapa ativa e marco de avanço máximo alcançado
         try {
             localStorage.setItem('reviva_active_step', step.toString());
+            let maxReached = parseInt(localStorage.getItem('reviva_max_step_reached')) || 1;
+            if (step > maxReached) {
+                localStorage.setItem('reviva_max_step_reached', step.toString());
+            }
             history.replaceState(null, '', '#step-' + step);
         } catch (e) {}
 
@@ -533,7 +537,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (step === 4) {
-            const producerImg = localStorage.getItem('reviva_producer_image');
+            const ordIdent = (orderData?.order_id || orderData?.id || 1);
+            if (typeof isPhotoPermanentlyApproved === 'function' && isPhotoPermanentlyApproved()) {
+                photoDecision = 'approved';
+            }
+            if (typeof isVoicePermanentlyApproved === 'function' && isVoicePermanentlyApproved()) {
+                voiceDecision = 'approved';
+            }
+
+            const producerImg = localStorage.getItem(`reviva_producer_image_${ordIdent}`) || localStorage.getItem('reviva_producer_image');
             const photoSrc = producerImg || (uploadedPhotos && uploadedPhotos.length > 0 ? uploadedPhotos[0].dataUrl : '');
             const previewAvatarImg = document.getElementById('preview-avatar-img');
             const previewAvatarPlaceholder = document.getElementById('preview-avatar-placeholder');
@@ -549,7 +561,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
 
-            const producerAudio = localStorage.getItem('reviva_producer_audio');
+            const producerAudio = localStorage.getItem(`reviva_producer_audio_${ordIdent}`) || localStorage.getItem('reviva_producer_audio');
             const voiceAudioSrc = producerAudio || (uploadedAudios && uploadedAudios.length > 0 && uploadedAudios[0].dataUrl ? uploadedAudios[0].dataUrl : '');
             const voiceSampleAudio = document.getElementById('voiceSampleAudio');
             if (voiceSampleAudio) {
@@ -664,12 +676,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =========================================================================
     function isStage4ReadyFromTeam() {
         // A Etapa 04 SÓ fica liberada se a equipe explicitamente liberou ou enviou prévias
-        return localStorage.getItem('reviva_stage4_delivered') === 'true';
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+        return localStorage.getItem('reviva_stage4_delivered') === 'true' ||
+               localStorage.getItem(`reviva_stage4_delivered_${ordIdent}`) === 'true' ||
+               localStorage.getItem('reviva_stage4_delivered_REVIVA-1001') === 'true';
     }
 
     function isStage5ReadyFromTeam() {
         // A Etapa 05 SÓ fica liberada se a equipe explicitamente liberou ou publicou o vídeo
-        return localStorage.getItem('reviva_stage5_delivered') === 'true';
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+        return localStorage.getItem('reviva_stage5_delivered') === 'true' ||
+               localStorage.getItem(`reviva_stage5_delivered_${ordIdent}`) === 'true' ||
+               localStorage.getItem('reviva_stage5_delivered_REVIVA-1001') === 'true';
     }
 
     let currentWaitingStep = null;
@@ -849,6 +867,41 @@ document.addEventListener('DOMContentLoaded', async () => {
                 : '✓ Homenagem finalizada pela equipe! Liberando Sala de Revelação...';
         }
 
+        if (targetStep === 4) {
+            const ordIdent = (orderData?.order_id || orderData?.id || 1);
+            const isPhotoLocked = (
+                localStorage.getItem(`reviva_photo_permanently_approved_${ordIdent}`) === 'true' ||
+                localStorage.getItem('reviva_photo_permanently_approved') === 'true'
+            );
+            const isVoiceLocked = (
+                localStorage.getItem(`reviva_voice_permanently_approved_${ordIdent}`) === 'true' ||
+                localStorage.getItem('reviva_voice_permanently_approved') === 'true'
+            );
+
+            // Se a mídia não estava travada como aprovada anteriormente, reinicia como pendente
+            if (!isPhotoLocked) {
+                photoDecision = 'pending';
+                latestPhotoFeedback = '';
+                const pFeed = document.getElementById('photo-rejection-feedback');
+                if (pFeed) pFeed.value = '';
+                const pBox = document.getElementById('photo-rejection-box');
+                if (pBox) pBox.style.display = 'none';
+            } else {
+                photoDecision = 'approved';
+            }
+
+            if (!isVoiceLocked) {
+                voiceDecision = 'pending';
+                latestVoiceFeedback = '';
+                const vFeed = document.getElementById('voice-rejection-feedback');
+                if (vFeed) vFeed.value = '';
+                const vBox = document.getElementById('voice-rejection-box');
+                if (vBox) vBox.style.display = 'none';
+            } else {
+                voiceDecision = 'approved';
+            }
+        }
+
         setTimeout(() => {
             const modal = document.getElementById('modal-aguardando-equipe');
             if (modal) modal.style.display = 'none';
@@ -873,13 +926,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function simulateTeamDelivery() {
         if (!currentWaitingStep) return;
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
         if (currentWaitingStep === 4 || currentWaitingStep === 'revisao') {
             localStorage.setItem('reviva_stage4_delivered', 'true');
+            localStorage.setItem(`reviva_stage4_delivered_${ordIdent}`, 'true');
             if (!localStorage.getItem('reviva_producer_image') && uploadedPhotos.length > 0) {
                 localStorage.setItem('reviva_producer_image', uploadedPhotos[0].dataUrl);
             }
         } else if (currentWaitingStep === 5) {
             localStorage.setItem('reviva_stage5_delivered', 'true');
+            localStorage.setItem(`reviva_stage5_delivered_${ordIdent}`, 'true');
         }
         checkAndHandleTeamDelivery();
     }
@@ -900,6 +956,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     function goToStep(step, immediate = false) {
         // Interrompe imediatamente qualquer trilha sonora ou áudio que esteja tocando no momento em que o usuário avança
         stopAllAudios();
+
+        // BLOQUEIO RIGOROSO DE RETROCESSO: O cliente nunca pode retroceder para etapas anteriores
+        const maxReached = parseInt(localStorage.getItem('reviva_max_step_reached')) || currentStep || 1;
+        if (currentStep && step < currentStep) {
+            console.warn(`[Reviva] Tentativa de retroceder da etapa ${currentStep} para a etapa ${step} bloqueada.`);
+            history.replaceState(null, '', `#step-${currentStep}`);
+            return;
+        }
+        if (maxReached && step < maxReached) {
+            console.warn(`[Reviva] Tentativa de retroceder para etapa ${step} (etapa máxima já atingida: ${maxReached}) bloqueada.`);
+            history.replaceState(null, '', `#step-${maxReached}`);
+            step = maxReached;
+        }
 
         // 1. Bloqueio da Etapa 04: depende dos envios da equipe (prévias de imagem e voz)
         if (step === 4 && !isStage4ReadyFromTeam()) {
@@ -924,22 +993,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.goToStep = goToStep;
 
-    // Navegação interativa pelas bolinhas da linha do tempo:
-    // Habilitada LIVREMENTE no localhost para seus testes rápidos.
-    // BLOQUEADA no site publicado para que clientes e amigos sigam rigorosamente as etapas oficiais.
+    // Linha do tempo de progresso (indicativa): não permite retroceder em nenhuma circunstância
     document.querySelectorAll('.step-item').forEach(item => {
-        if (!isLocalhost) {
-            item.style.cursor = 'default';
-        }
+        item.style.cursor = 'default';
         item.addEventListener('click', (e) => {
-            if (!isLocalhost) {
-                // Em produção / site publicado, a linha do tempo é apenas indicativa
-                return;
-            }
-            const targetStep = parseInt(item.dataset.step);
-            if (targetStep && !isNaN(targetStep)) {
-                goToStep(targetStep);
-            }
+            e.preventDefault();
+            // A linha do tempo é exclusivamente indicativa de progresso - não permite retroceder
+            return false;
         });
     });
 
@@ -1322,8 +1382,31 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
     let voiceDecision = 'pending'; // 'pending' | 'approved' | 'rejected'
     const SESSION_KEY = 'reviva_order_state_' + (orderData?.id || 1);
 
+    function isPhotoPermanentlyApproved() {
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+        return (
+            localStorage.getItem(`reviva_photo_permanently_approved_${ordIdent}`) === 'true' ||
+            localStorage.getItem('reviva_photo_permanently_approved') === 'true'
+        );
+    }
+
+    function isVoicePermanentlyApproved() {
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+        return (
+            localStorage.getItem(`reviva_voice_permanently_approved_${ordIdent}`) === 'true' ||
+            localStorage.getItem('reviva_voice_permanently_approved') === 'true'
+        );
+    }
+
     function saveFullSessionState() {
         try {
+            const ordIdent = (orderData?.order_id || orderData?.id || 1);
+            const isPhotoLocked = isPhotoPermanentlyApproved();
+            const isVoiceLocked = isVoicePermanentlyApproved();
+
+            const effectivePhotoDecision = isPhotoLocked ? 'approved' : photoDecision;
+            const effectiveVoiceDecision = isVoiceLocked ? 'approved' : voiceDecision;
+
             const state = {
                 currentStep,
                 uploadedPhotos,
@@ -1337,19 +1420,26 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
                 isScriptApproved,
                 mediaRevisionsHistory,
                 latestPhotoFeedback,
+                latestVoiceFeedback: typeof latestVoiceFeedback !== 'undefined' ? latestVoiceFeedback : '',
                 legalTermSigned,
-                photoDecision,
-                voiceDecision,
-                isPhotoApprovedState: photoDecision === 'approved',
-                isVoiceApprovedState: voiceDecision === 'approved',
+                photoDecision: effectivePhotoDecision,
+                voiceDecision: effectiveVoiceDecision,
+                photoPermanentlyApproved: isPhotoLocked,
+                voicePermanentlyApproved: isVoiceLocked,
+                isPhotoApprovedState: isPhotoLocked || photoDecision === 'approved',
+                isVoiceApprovedState: isVoiceLocked || voiceDecision === 'approved',
                 interviewData: typeof interviewData !== 'undefined' ? interviewData : null,
                 currentQuestionStep: typeof currentQuestionStep !== 'undefined' ? currentQuestionStep : 'ask_protagonista',
                 chatHtml: interviewChatBox ? interviewChatBox.innerHTML : '',
-                photoApproved: photoDecision === 'approved',
-                voiceApproved: voiceDecision === 'approved',
+                photoApproved: isPhotoLocked || photoDecision === 'approved',
+                voiceApproved: isVoiceLocked || voiceDecision === 'approved',
                 timestamp: new Date().toISOString()
             };
             localStorage.setItem(SESSION_KEY, JSON.stringify(state));
+            localStorage.setItem('reviva_full_session_state', JSON.stringify(state));
+            localStorage.setItem(`reviva_order_state_${ordIdent}`, JSON.stringify(state));
+            localStorage.setItem('reviva_order_state_REVIVA-1001', JSON.stringify(state));
+            localStorage.setItem('reviva_order_state_1', JSON.stringify(state));
         } catch (e) {
             console.warn('Erro ao salvar sessão completa:', e);
         }
@@ -1442,7 +1532,13 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
                 if (vFeed) vFeed.value = latestVoiceFeedback;
             }
 
-            if (state.photoDecision) {
+            const isPhotoLocked = isPhotoPermanentlyApproved() || Boolean(state.photoPermanentlyApproved);
+            const isVoiceLocked = isVoicePermanentlyApproved() || Boolean(state.voicePermanentlyApproved);
+
+            if (isPhotoLocked) {
+                photoDecision = 'approved';
+                if (typeof updatePhotoApprovalUI === 'function') updatePhotoApprovalUI('approved');
+            } else if (state.photoDecision) {
                 photoDecision = state.photoDecision;
                 if (typeof updatePhotoApprovalUI === 'function') updatePhotoApprovalUI(photoDecision);
             } else if (typeof state.photoApproved === 'boolean' || typeof state.isPhotoApprovedState === 'boolean') {
@@ -1450,7 +1546,10 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
                 if (typeof updatePhotoApprovalUI === 'function') updatePhotoApprovalUI(pApp ? 'approved' : 'pending');
             }
 
-            if (state.voiceDecision) {
+            if (isVoiceLocked) {
+                voiceDecision = 'approved';
+                if (typeof updateVoiceApprovalUI === 'function') updateVoiceApprovalUI('approved');
+            } else if (state.voiceDecision) {
                 voiceDecision = state.voiceDecision;
                 if (typeof updateVoiceApprovalUI === 'function') updateVoiceApprovalUI(voiceDecision);
             } else if (typeof state.voiceApproved === 'boolean' || typeof state.isVoiceApprovedState === 'boolean') {
@@ -1603,7 +1702,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
             const keysToRemove = [];
             for (let i = 0; i < localStorage.length; i++) {
                 const k = localStorage.key(i);
-                if (k && (k.startsWith('reviva_order_state_') || k.startsWith('reviva_full_session_state') || k === 'reviva_active_step' || k === 'reviva_chat_session' || k.startsWith('reviva_producer_') || k.startsWith('reviva_stage') || k === 'reviva_media_revisions')) {
+                if (k && (k.startsWith('reviva_order_state_') || k.startsWith('reviva_full_session_state') || k === 'reviva_active_step' || k === 'reviva_chat_session' || k.startsWith('reviva_producer_') || k.startsWith('reviva_stage') || k === 'reviva_media_revisions' || k.startsWith('reviva_photo_permanently_approved') || k.startsWith('reviva_voice_permanently_approved'))) {
                     keysToRemove.push(k);
                 }
             }
@@ -2681,34 +2780,57 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         const rejectionBox = document.getElementById('photo-rejection-box');
         const photoCard = document.getElementById('preview-card-panel');
 
+        const isLocked = isPhotoPermanentlyApproved();
+
         // Resetar estilos inline que possam conflitar
         if (btnApprove) {
             btnApprove.style.background = '';
             btnApprove.style.borderColor = '';
             btnApprove.style.color = '';
             btnApprove.style.opacity = '';
+            btnApprove.style.cursor = isLocked ? 'default' : 'pointer';
+            btnApprove.style.pointerEvents = isLocked ? 'none' : 'auto';
+            btnApprove.disabled = isLocked;
         }
         if (btnReject) {
             btnReject.style.background = '';
             btnReject.style.borderColor = '';
             btnReject.style.color = '';
-            btnReject.style.opacity = '';
-            btnReject.style.pointerEvents = 'auto';
-            btnReject.disabled = false;
+            btnReject.style.opacity = isLocked ? '0.35' : '';
+            btnReject.style.pointerEvents = isLocked ? 'none' : 'auto';
+            btnReject.style.cursor = isLocked ? 'not-allowed' : 'pointer';
+            btnReject.disabled = isLocked;
+            btnReject.title = isLocked ? 'A fotografia já foi aprovada em rodada anterior e validada definitivamente.' : '';
         }
 
         if (photoCard) {
             photoCard.classList.remove('card-approved', 'card-rejected', 'zone-filled', 'zone-empty');
         }
 
-        if (status === 'approved' || status === true) {
+        if (isLocked || status === 'approved' || status === true) {
             photoDecision = 'approved';
             isPhotoApprovedState = true;
             if (photoCard) photoCard.classList.add('card-approved', 'zone-filled');
-            if (btnApprove) btnApprove.classList.add('is-selected');
+            if (btnApprove) {
+                btnApprove.classList.add('is-selected');
+                if (isLocked) {
+                    btnApprove.disabled = true;
+                    btnApprove.style.cursor = 'default';
+                    btnApprove.style.pointerEvents = 'none';
+                }
+            }
             if (btnApproveText) btnApproveText.textContent = 'IMAGEM APROVADA ✓';
             
-            if (btnReject) btnReject.classList.remove('is-selected');
+            if (btnReject) {
+                btnReject.classList.remove('is-selected');
+                if (isLocked) {
+                    btnReject.disabled = true;
+                    btnReject.style.opacity = '0.35';
+                    btnReject.style.pointerEvents = 'none';
+                    btnReject.style.cursor = 'not-allowed';
+                    btnReject.title = 'A fotografia já foi aprovada em rodada anterior e validada definitivamente.';
+                }
+            }
             if (btnRejectText) btnRejectText.textContent = 'REPROVAR';
             if (rejectionBox) rejectionBox.style.display = 'none';
         } else if (status === 'rejected') {
@@ -2746,34 +2868,57 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         const rejectionBox = document.getElementById('voice-rejection-box');
         const voiceCard = document.getElementById('preview-voice-card-panel');
 
+        const isLocked = isVoicePermanentlyApproved();
+
         // Resetar estilos inline que possam conflitar
         if (btnApprove) {
             btnApprove.style.background = '';
             btnApprove.style.borderColor = '';
             btnApprove.style.color = '';
             btnApprove.style.opacity = '';
+            btnApprove.style.cursor = isLocked ? 'default' : 'pointer';
+            btnApprove.style.pointerEvents = isLocked ? 'none' : 'auto';
+            btnApprove.disabled = isLocked;
         }
         if (btnReject) {
             btnReject.style.background = '';
             btnReject.style.borderColor = '';
             btnReject.style.color = '';
-            btnReject.style.opacity = '';
-            btnReject.style.pointerEvents = 'auto';
-            btnReject.disabled = false;
+            btnReject.style.opacity = isLocked ? '0.35' : '';
+            btnReject.style.pointerEvents = isLocked ? 'none' : 'auto';
+            btnReject.style.cursor = isLocked ? 'not-allowed' : 'pointer';
+            btnReject.disabled = isLocked;
+            btnReject.title = isLocked ? 'A locução/voz já foi aprovada em rodada anterior e validada definitivamente.' : '';
         }
 
         if (voiceCard) {
             voiceCard.classList.remove('card-approved', 'card-rejected', 'zone-filled', 'zone-empty');
         }
 
-        if (status === 'approved' || status === true) {
+        if (isLocked || status === 'approved' || status === true) {
             voiceDecision = 'approved';
             isVoiceApprovedState = true;
             if (voiceCard) voiceCard.classList.add('card-approved', 'zone-filled');
-            if (btnApprove) btnApprove.classList.add('is-selected');
+            if (btnApprove) {
+                btnApprove.classList.add('is-selected');
+                if (isLocked) {
+                    btnApprove.disabled = true;
+                    btnApprove.style.cursor = 'default';
+                    btnApprove.style.pointerEvents = 'none';
+                }
+            }
             if (btnApproveText) btnApproveText.textContent = 'VOZ APROVADA ✓';
 
-            if (btnReject) btnReject.classList.remove('is-selected');
+            if (btnReject) {
+                btnReject.classList.remove('is-selected');
+                if (isLocked) {
+                    btnReject.disabled = true;
+                    btnReject.style.opacity = '0.35';
+                    btnReject.style.pointerEvents = 'none';
+                    btnReject.style.cursor = 'not-allowed';
+                    btnReject.title = 'A locução/voz já foi aprovada em rodada anterior e validada definitivamente.';
+                }
+            }
             if (btnRejectText) btnRejectText.textContent = 'REPROVAR';
             if (rejectionBox) rejectionBox.style.display = 'none';
         } else if (status === 'rejected') {
@@ -2806,37 +2951,33 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
     const photoRejectionFeedback = document.getElementById('photo-rejection-feedback');
 
     btnApprovePhotoStatus?.addEventListener('click', () => {
-        if (photoDecision === 'approved') {
-            // Desmarca ao clicar novamente
-            updatePhotoApprovalUI('pending');
-            saveFullSessionState();
+        // Bloqueio apenas se já foi aprovada e validada definitivamente em rodada anterior avançada
+        if (isPhotoPermanentlyApproved()) {
             return;
         }
 
-        // Se a caixa de reprovação estava aberta, fecha ao aprovar
-        if (photoRejectionBox) photoRejectionBox.style.display = 'none';
-
-        const approveEntry = {
-            id: 'rev_' + Date.now(),
-            mediaType: 'photo',
-            status: 'approved',
-            feedback: 'Imagem aprovada pelo cliente.',
-            dateFormatted: new Date().toLocaleString('pt-BR'),
-            timestamp: new Date().toISOString()
-        };
-        if (!Array.isArray(mediaRevisionsHistory)) mediaRevisionsHistory = [];
-        mediaRevisionsHistory.unshift(approveEntry);
-
-        updatePhotoApprovalUI('approved');
+        if (photoDecision === 'approved') {
+            // Se já estava aprovado nesta rodada e clicou de novo, alterna para pendente
+            updatePhotoApprovalUI('pending');
+        } else {
+            // Se a caixa de reprovação estava aberta, fecha ao aprovar
+            if (photoRejectionBox) photoRejectionBox.style.display = 'none';
+            updatePhotoApprovalUI('approved');
+        }
         saveFullSessionState();
     });
 
     btnRejectPhotoModal?.addEventListener('click', () => {
+        // Bloqueio apenas se já foi aprovada e validada definitivamente em rodada anterior avançada
+        if (isPhotoPermanentlyApproved()) {
+            return;
+        }
+
         if (photoDecision === 'rejected') {
-            // Se já estava reprovado, desmarca
+            // Se já estava reprovado, desmarca para pendente
             updatePhotoApprovalUI('pending');
         } else {
-            // Marca como reprovado e abre a caixa
+            // Marca como reprovado e abre a caixa de feedback
             updatePhotoApprovalUI('rejected');
             if (photoRejectionFeedback) photoRejectionFeedback.focus();
         }
@@ -2856,37 +2997,33 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
     const voiceRejectionFeedback = document.getElementById('voice-rejection-feedback');
 
     btnApproveVoiceStatus?.addEventListener('click', () => {
-        if (voiceDecision === 'approved') {
-            // Desmarca ao clicar novamente
-            updateVoiceApprovalUI('pending');
-            saveFullSessionState();
+        // Bloqueio apenas se já foi aprovada e validada definitivamente em rodada anterior avançada
+        if (isVoicePermanentlyApproved()) {
             return;
         }
 
-        // Se a caixa de reprovação estava aberta, fecha ao aprovar
-        if (voiceRejectionBox) voiceRejectionBox.style.display = 'none';
-
-        const approveEntry = {
-            id: 'rev_' + Date.now(),
-            mediaType: 'voice',
-            status: 'approved',
-            feedback: 'Locução na voz aprovada pelo cliente.',
-            dateFormatted: new Date().toLocaleString('pt-BR'),
-            timestamp: new Date().toISOString()
-        };
-        if (!Array.isArray(mediaRevisionsHistory)) mediaRevisionsHistory = [];
-        mediaRevisionsHistory.unshift(approveEntry);
-
-        updateVoiceApprovalUI('approved');
+        if (voiceDecision === 'approved') {
+            // Se já estava aprovado nesta rodada e clicou de novo, alterna para pendente
+            updateVoiceApprovalUI('pending');
+        } else {
+            // Se a caixa de reprovação estava aberta, fecha ao aprovar
+            if (voiceRejectionBox) voiceRejectionBox.style.display = 'none';
+            updateVoiceApprovalUI('approved');
+        }
         saveFullSessionState();
     });
 
     btnRejectVoiceModal?.addEventListener('click', () => {
+        // Bloqueio apenas se já foi aprovada e validada definitivamente em rodada anterior avançada
+        if (isVoicePermanentlyApproved()) {
+            return;
+        }
+
         if (voiceDecision === 'rejected') {
-            // Se já estava reprovado, desmarca
+            // Se já estava reprovado, desmarca para pendente
             updateVoiceApprovalUI('pending');
         } else {
-            // Marca como reprovado e abre a caixa
+            // Marca como reprovado e abre a caixa de feedback
             updateVoiceApprovalUI('rejected');
             if (voiceRejectionFeedback) voiceRejectionFeedback.focus();
         }
@@ -2905,18 +3042,56 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
             return; // Inativo / protegido
         }
 
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+
+        // Se a foto foi aprovada pelo cliente nesta rodada, registra como travada definitivamente
+        if (photoDecision === 'approved') {
+            localStorage.setItem(`reviva_photo_permanently_approved_${ordIdent}`, 'true');
+            localStorage.setItem('reviva_photo_permanently_approved', 'true');
+        }
+
+        // Se o áudio/voz foi aprovado pelo cliente nesta rodada, registra como travado definitivamente
+        if (voiceDecision === 'approved') {
+            localStorage.setItem(`reviva_voice_permanently_approved_${ordIdent}`, 'true');
+            localStorage.setItem('reviva_voice_permanently_approved', 'true');
+        }
+
         // Se ambos foram aprovados: avança diretamente para a Sala de Revelação
         if (photoDecision === 'approved' && voiceDecision === 'approved') {
             if (window.revivaData?.saveMediaApproval) {
                 await window.revivaData.saveMediaApproval(orderData?.id || 1, true, true);
             }
+            // Sincronização direta com o Painel de Produção (CRM)
+            ['reviva_crm_order_' + ordIdent, 'reviva_crm_order_REVIVA-1001', 'reviva_crm_order_1'].forEach(k => {
+                try {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        const c = JSON.parse(raw);
+                        c.stage = 'previas_aprovadas';
+                        c.photoApproved = true;
+                        c.voiceApproved = true;
+                        if (!Array.isArray(c.history)) c.history = [];
+                        c.history.unshift({
+                            timestamp: new Date().toISOString(),
+                            dateFormatted: new Date().toLocaleString('pt-BR'),
+                            event: 'Cliente aprovou integralmente as prévias de imagem e de voz clonada! Pedido liberado para renderização final.',
+                            type: 'stage'
+                        });
+                        localStorage.setItem(k, JSON.stringify(c));
+                    }
+                } catch(e) {}
+            });
+            saveFullSessionState();
             goToStep(5);
             return;
         }
 
+        let photoTxt = '';
+        let voiceTxt = '';
+
         // Se imagem foi reprovada, valida se digitou algo
         if (photoDecision === 'rejected') {
-            const photoTxt = photoRejectionFeedback?.value.trim();
+            photoTxt = photoRejectionFeedback?.value.trim() || '';
             if (!photoTxt) {
                 alert('Por favor, descreva quais ajustes você gostaria de realizar na imagem antes de enviar à equipe de produção.');
                 photoRejectionBox.style.display = 'flex';
@@ -2938,7 +3113,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
 
         // Se voz foi reprovada, valida se digitou algo
         if (voiceDecision === 'rejected') {
-            const voiceTxt = voiceRejectionFeedback?.value.trim();
+            voiceTxt = voiceRejectionFeedback?.value.trim() || '';
             if (!voiceTxt) {
                 alert('Por favor, descreva quais ajustes você gostaria de realizar no áudio/voz antes de enviar à equipe de produção.');
                 voiceRejectionBox.style.display = 'flex';
@@ -2960,7 +3135,40 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
 
         // Se houver reprovação de imagem ou voz: marca etapa como aguardando nova entrega da equipe
         localStorage.setItem('reviva_stage4_delivered', 'false');
+        localStorage.setItem(`reviva_stage4_delivered_${ordIdent}`, 'false');
+        localStorage.setItem('reviva_stage4_delivered_REVIVA-1001', 'false');
         saveFullSessionState();
+
+        // Sincronização direta com o Painel de Produção (CRM)
+        ['reviva_crm_order_' + ordIdent, 'reviva_crm_order_REVIVA-1001', 'reviva_crm_order_1'].forEach(k => {
+            try {
+                const raw = localStorage.getItem(k);
+                if (raw) {
+                    const c = JSON.parse(raw);
+                    c.stage = 'previas_reprovadas';
+                    c.photoApproved = (photoDecision === 'approved');
+                    c.voiceApproved = (voiceDecision === 'approved');
+
+                    let feedText = '';
+                    if (photoDecision === 'rejected' && voiceDecision === 'approved') {
+                        feedText = `[Ajuste de Imagem]: ${photoTxt} (Fotografia rejeitada | Locução/voz aprovada definitivamente ✓)`;
+                    } else if (voiceDecision === 'rejected' && photoDecision === 'approved') {
+                        feedText = `[Ajuste de Locução/Voz]: ${voiceTxt} (Fotografia aprovada definitivamente ✓ | Locução/voz rejeitada)`;
+                    } else {
+                        feedText = `[Ajuste de Imagem]: ${photoTxt} | [Ajuste de Locução/Voz]: ${voiceTxt}`;
+                    }
+                    c.feedback = feedText;
+                    if (!Array.isArray(c.history)) c.history = [];
+                    c.history.unshift({
+                        timestamp: new Date().toISOString(),
+                        dateFormatted: new Date().toLocaleString('pt-BR'),
+                        event: `Cliente enviou solicitação de ajustes: ${feedText}`,
+                        type: 'feedback'
+                    });
+                    localStorage.setItem(k, JSON.stringify(c));
+                }
+            } catch(e) {}
+        });
 
         // Abre diretamente a tela de bloqueio nobre informando que a equipe está cuidando dos ajustes
         openWaitingTeamModal('revisao');
@@ -3522,12 +3730,21 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         }, 350);
     }
 
-    // 3. Suporte a navegação por histórico/hash (voltar/avançar no navegador)
+    // 3. Suporte a navegação segura: impede qualquer tentativa de voltar no navegador
+    window.addEventListener('popstate', (e) => {
+        history.pushState(null, '', `#step-${currentStep}`);
+    });
+
     window.addEventListener('hashchange', () => {
         const match = window.location.hash.match(/step-(\d+)/);
         if (match) {
             const target = parseInt(match[1]);
-            if (target && target !== currentStep && target >= 1 && target <= 5) {
+            if (target && target < currentStep) {
+                // Bloqueia retrocesso e restaura hash da etapa atual
+                history.replaceState(null, '', `#step-${currentStep}`);
+                return;
+            }
+            if (target && target > currentStep && target <= 5) {
                 goToStep(target, true);
             }
         }

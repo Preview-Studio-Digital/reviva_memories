@@ -323,7 +323,7 @@ img, video {
 }
 
 .logo-img {
-    height: 42px;
+    height: 32px;
     width: auto;
     object-fit: contain;
 }
@@ -450,8 +450,12 @@ img, video {
     left: 0;
     right: 10px;
     width: auto;
+    height: 58px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
     z-index: 200000;
-    padding: 16px 0;
+    padding: 0;
     transition: var(--transition-fast);
     background: transparent;
     border-bottom: none;

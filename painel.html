@@ -82,6 +82,7 @@
 
         /* Topbar Nobre Flutuante 100% Transparente (Acima do Vídeo Modal em todas as Etapas) */
         .painel-topbar {
+            height: 58px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -91,11 +92,12 @@
             background: transparent;
             backdrop-filter: none;
             border-radius: 0;
-            padding: 4px 12px 2px 12px;
+            padding: 0 12px;
             width: 100%;
             max-width: 1040px;
             margin: 0 auto;
             box-sizing: border-box;
+            flex-shrink: 0;
         }
 
         .painel-header-title {
@@ -1156,15 +1158,15 @@
             stroke: #ffffff !important;
         }
         .btn-decision-reject.is-selected {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-            border-color: #f87171 !important;
-            color: #ffffff !important;
-            box-shadow: 0 0 18px rgba(239, 68, 68, 0.7), 0 4px 14px rgba(239, 68, 68, 0.4) !important;
+            background: rgba(36, 12, 10, 0.75) !important;
+            border: 1.5px solid rgba(248, 113, 113, 0.8) !important;
+            color: #f87171 !important;
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.35), inset 0 0 10px rgba(239, 68, 68, 0.2) !important;
             opacity: 1 !important;
             font-weight: 700;
         }
         .btn-decision-reject.is-selected svg {
-            stroke: #ffffff !important;
+            stroke: #f87171 !important;
         }
 
         .btn-decision-approve {
@@ -1192,15 +1194,15 @@
             stroke: #ffffff !important;
         }
         .btn-decision-approve.is-selected {
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
-            border-color: #4ade80 !important;
-            color: #ffffff !important;
-            box-shadow: 0 0 18px rgba(34, 197, 94, 0.7), 0 4px 14px rgba(34, 197, 94, 0.4) !important;
+            background: rgba(10, 32, 16, 0.75) !important;
+            border: 1.5px solid rgba(74, 222, 128, 0.8) !important;
+            color: #4ade80 !important;
+            box-shadow: 0 0 16px rgba(34, 197, 94, 0.35), inset 0 0 10px rgba(34, 197, 94, 0.2) !important;
             opacity: 1 !important;
             font-weight: 700;
         }
         .btn-decision-approve.is-selected svg {
-            stroke: #ffffff !important;
+            stroke: #4ade80 !important;
         }
 
         .btn-chat-approve-script {
@@ -2547,7 +2549,7 @@
         <header class="painel-topbar">
             <!-- Esquerda: Apenas a Logo Oficial Flutuante (Não clicável no painel) -->
             <div style="display: flex; align-items: center; user-select: none;">
-                <img src="logo.png" alt="Reviva Memories" style="height: 42px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7)); cursor: default; pointer-events: none;">
+                <img src="logo.png" alt="Reviva Memories" style="height: 32px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7)); cursor: default; pointer-events: none;">
             </div>
 
             <!-- Centro: Painel do Cliente (Fonte nobre dos títulos) -->
