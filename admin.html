@@ -1642,6 +1642,78 @@
             box-sizing: border-box;
         }
 
+        /* Botão do Termo de Responsabilidade - Altura 30px e mesma fonte var(--font-serif) do Baixar Pacote */
+        .cockpit-termo-btn {
+            width: 100%;
+            height: 30px;
+            padding: 6px 12px;
+            font-family: var(--font-serif);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: var(--radius-sm);
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-sizing: border-box;
+            user-select: none;
+        }
+        .cockpit-termo-btn,
+        .cockpit-termo-btn span {
+            font-family: var(--font-serif) !important;
+        }
+
+        /* 1ª Etapa (Pendentes): Vermelho Inacessível - Idêntico ao Baixar Pacote, totalmente sem efeito */
+        .cockpit-termo-btn.termo-stage-1 {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #f87171;
+            box-shadow: none !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+        }
+        .cockpit-termo-btn.termo-stage-1:hover {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border: 1px solid rgba(239, 68, 68, 0.5) !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        /* 2ª Etapa (Confirmados): Amarelo Pendente */
+        .cockpit-termo-btn.termo-stage-2 {
+            background: rgba(234, 179, 8, 0.15);
+            border: 1px solid rgba(234, 179, 8, 0.55);
+            color: #facc15;
+            box-shadow: 0 0 10px rgba(234, 179, 8, 0.15);
+            cursor: pointer;
+        }
+        .cockpit-termo-btn.termo-stage-2:hover {
+            background: rgba(234, 179, 8, 0.25);
+            border-color: #facc15;
+            box-shadow: 0 0 14px rgba(234, 179, 8, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* 3ª Etapa em diante (Recebidos +): Verde */
+        .cockpit-termo-btn.termo-stage-3 {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.55);
+            color: #4ade80;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.15);
+            cursor: pointer;
+        }
+        .cockpit-termo-btn.termo-stage-3:hover {
+            background: rgba(34, 197, 94, 0.25);
+            border-color: #4ade80;
+            box-shadow: 0 0 14px rgba(34, 197, 94, 0.3);
+            transform: translateY(-1px);
+        }
+
         .material-status-slot {
             background: rgba(10, 6, 4, 0.75);
             border: 1px solid rgba(197, 160, 89, 0.25);
@@ -2082,14 +2154,14 @@
         <div class="auth-card">
             <img src="logo.png" alt="Reviva Memories" style="margin-bottom: 24px;">
             
-            <form id="auth-form" onsubmit="handleAuth(event)">
+            <form id="auth-form" onsubmit="handleAuth(event); return false;">
                 <div style="position: relative; margin-bottom: 18px;">
                     <input type="password" id="admin-pass" class="auth-input" placeholder="SENHA DE ACESSO" autocomplete="current-password" autofocus style="margin-bottom: 0; padding-right: 44px;">
                     <button type="button" onclick="togglePassVisibility()" id="btn-toggle-pass" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--gold-bright); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; opacity: 0.8; transition: opacity 0.2s;" title="Mostrar/Ocultar Senha" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
                         <i data-lucide="eye" id="pass-eye-icon" style="width: 18px; height: 18px;"></i>
                     </button>
                 </div>
-                <button type="submit" class="btn-gold" style="position: relative; justify-content: center; text-align: center;">
+                <button type="submit" class="btn-gold" style="position: relative; justify-content: center; text-align: center; width: 100%;">
                     <i data-lucide="key-round" style="position: absolute; left: 22px; width: 16px; height: 16px;"></i>
                     <span style="letter-spacing: 2px; text-align: center; width: 100%; display: block;">ENTRAR</span>
                 </button>
@@ -2097,6 +2169,17 @@
             <div id="auth-err" style="color: #f87171; font-size: 0.75rem; margin-top: 10px; display: none;"></div>
         </div>
     </div>
+    <script>
+        // Executa imediatamente para evitar 'flash' da tela de login se já estiver autenticado
+        (function() {
+            try {
+                if (sessionStorage.getItem("reviva_admin_auth") === "true" || localStorage.getItem("reviva_admin_auth") === "true") {
+                    var gate = document.getElementById("auth-gate");
+                    if (gate) gate.style.display = "none";
+                }
+            } catch(e) {}
+        })();
+    </script>
 
     <!-- ================= TOPBAR ADMINISTRATIVA COM CONTROLES INTEGRADOS ================= -->
     <header class="admin-topbar">
@@ -2254,9 +2337,6 @@
 
             <!-- COLUNA 3 DO CABEÇALHO: CONTROLES ALINHADOS COM O HISTÓRICO DO PEDIDO -->
             <div id="cockpit-controls-container" style="grid-column: 3; display: flex; align-items: center; justify-content: flex-end; gap: 8px; width: 100%;">
-                <button type="button" id="cockpit-archive-btn" class="cockpit-action-btn btn-gold" style="background: rgba(100, 116, 139, 0.25); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4); display: none;" onclick="archiveCurrentOrder()">
-                    <i data-lucide="archive" style="width: 12px; height: 12px;"></i> <span>ARQUIVAR</span>
-                </button>
             </div>
         </div>
 
@@ -2307,10 +2387,10 @@
                         <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
                             <span style="color: var(--text-secondary); font-size: 0.60rem; text-transform: uppercase; letter-spacing: 0.4px;">Plano & Formato</span>
                             <div style="display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.72rem;">
-                                <strong style="color: var(--gold-bright);" id="cockpit-plan-name">Plano</strong>
-                                <span style="color: var(--text-secondary);">•</span>
-                                <strong style="color: #fff;" id="cockpit-duration-text">--</strong>
-                                <span style="color: var(--text-secondary);">•</span>
+                                <strong style="color: #f6e3c5;" id="cockpit-plan-name">Plano</strong>
+                                <span style="color: #f6e3c5;">•</span>
+                                <strong style="color: #f6e3c5;" id="cockpit-duration-text">--</strong>
+                                <span style="color: #f6e3c5;">•</span>
                                 <strong style="color: #f6e3c5;" id="cockpit-format-badge">--</strong>
                             </div>
                         </div>
@@ -2332,8 +2412,15 @@
                         </div>
                     </div>
 
-                    <!-- GRADE HORIZONTAL DOS 5 MATERIAIS DO CLIENTE + BOTÃO BAIXAR PACOTE (ocupa exatamente a Linha 2) -->
+                    <!-- GRADE HORIZONTAL DOS 5 MATERIAIS DO CLIENTE + BOTÃO TERMO + BOTÃO BAIXAR PACOTE (ocupa exatamente a Linha 2) -->
                     <div style="display: flex; flex-direction: column; gap: 6px; height: 100%; min-height: 0; box-sizing: border-box;">
+                        
+                        <!-- BOTÃO DE ACESSO AO TERMO DE RESPONSABILIDADE -->
+                        <button type="button" id="cockpit-btn-termo" onclick="handleTermoButtonClick()" class="cockpit-termo-btn termo-stage-2" title="Termo de Responsabilidade" style="font-family: var(--font-serif);">
+                            <i data-lucide="file-check-2" id="cockpit-termo-icon" style="width: 13px; height: 13px;"></i>
+                            <span id="cockpit-termo-text" style="font-family: var(--font-serif);">TERMO DE RESPONSABILIDADE</span>
+                        </button>
+
                         <div id="cockpit-materials-grid" class="materials-status-grid">
                             <!-- 1 - Fotos -->
                             <div id="mat-slot-photos" class="material-status-slot" title="Fotos do Cliente" onclick="handleMaterialSlotClick('photos')">
@@ -2515,17 +2602,266 @@
                             <i data-lucide="film" style="width: 12px; height: 12px;"></i> Enviar Vídeo Final Concluído
                         </a>
                     </div>
-                    <!-- Botão Especial de Pós-Venda & Avaliação no Google -->
-                    <div id="wa-review-container" style="margin-top: 2px;">
-                        <a id="btn-wa-review" href="#" target="_blank" class="whatsapp-btn" style="width: 100%; box-sizing: border-box; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); font-size: 0.72rem; padding: 7px 10px;">
-                            <i data-lucide="star" style="width: 12px; height: 12px; fill: #4ade80; color: #4ade80;"></i> Pós-Venda: Satisfação & Avaliar no Google
+                    <!-- Seção Especial de Pós-Venda: Satisfação & Avaliação no Google -->
+                    <div id="wa-review-container" style="display: none; margin-top: 2px; flex-direction: column; gap: 6px;">
+                        <!-- Passo 1: Mensagem de Satisfação -->
+                        <a id="btn-wa-satisfaction" href="#" target="_blank" onclick="handleSatisfactionSend()" class="whatsapp-btn" style="width: 100%; box-sizing: border-box; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); font-size: 0.72rem; padding: 7px 10px; justify-content: center;">
+                            <i data-lucide="message-square-heart" style="width: 13px; height: 13px;"></i> 1. Enviar Pesquisa de Satisfação
                         </a>
+
+                        <!-- Feedback de Satisfação do Cliente (Positiva vs Negativa) -->
+                        <div style="background: rgba(14, 9, 6, 0.7); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 6px; padding: 6px 8px; display: flex; flex-direction: column; gap: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 0.62rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Retorno de Satisfação:</span>
+                                <span id="posvenda-status-pill" style="font-size: 0.60rem; font-weight: 700; padding: 1px 6px; border-radius: 3px; background: rgba(148, 163, 184, 0.2); color: #cbd5e1;">Aguardando</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px;">
+                                <button type="button" id="btn-satisfaction-pos" onclick="setSatisfactionStatus('positive')" class="btn-gold" style="padding: 4px 6px; font-size: 0.64rem; width: 100%; background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.4); color: #4ade80;">
+                                    ✓ Positiva (Amou)
+                                </button>
+                                <button type="button" id="btn-satisfaction-neg" onclick="setSatisfactionStatus('negative')" style="padding: 4px 6px; font-size: 0.64rem; width: 100%; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 4px; cursor: pointer;">
+                                    ⚠️ Negativa / Ajustar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card de Tratativa Pessoal (Exibido apenas se for Negativa) -->
+                        <div id="box-tratativa-pessoal" style="display: none; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 6px; padding: 6px 8px; flex-direction: column; gap: 5px;">
+                            <div style="font-size: 0.64rem; color: #f87171; line-height: 1.3;">
+                                ⚠️ <strong>Tratativa Pessoal:</strong> Realize um contato direto e acolhedor com o cliente para resolver a insatisfação antes de pedir avaliação.
+                            </div>
+                            <a id="btn-wa-personal-support" href="#" target="_blank" class="whatsapp-btn" style="width: 100%; box-sizing: border-box; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); font-size: 0.68rem; padding: 5px 8px; justify-content: center;">
+                                <i data-lucide="phone-call" style="width: 12px; height: 12px;"></i> Tratativa Pessoal (WhatsApp)
+                            </a>
+                        </div>
+
+                        <!-- Passo 2: Pedido de Avaliação no Google (Apenas se Positiva - ao enviar, arquiva o pedido) -->
+                        <div id="box-google-review" style="margin-top: 1px;">
+                            <a id="btn-wa-review" href="#" target="_blank" onclick="handleGoogleReviewSend(event)" class="whatsapp-btn" style="width: 100%; box-sizing: border-box; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); font-size: 0.72rem; padding: 7px 10px; justify-content: center;">
+                                <i data-lucide="star" style="width: 13px; height: 13px; fill: #4ade80; color: #4ade80;"></i> 2. Pedir Avaliação no Google & Arquivar
+                            </a>
+                            <div id="msg-google-locked" style="font-size: 0.60rem; color: #94a3b8; text-align: center; margin-top: 2px;">
+                                * Disponível apenas se o retorno de satisfação for Positivo.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão de Arquivar Pedido na Base do Histórico -->
+                    <div id="cockpit-archive-btn-container" style="margin-top: 2px; padding-top: 6px; border-top: 1px dashed rgba(197, 160, 89, 0.25);">
+                        <button type="button" id="cockpit-archive-btn" onclick="archiveCurrentOrder()" style="width: 100%; box-sizing: border-box; background: rgba(100, 116, 139, 0.2); border: 1px solid rgba(148, 163, 184, 0.35); border-radius: var(--radius-sm); color: #cbd5e1; padding: 7px 10px; font-size: 0.70rem; font-weight: 600; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
+                            <i data-lucide="archive" style="width: 13px; height: 13px;"></i>
+                            <span id="cockpit-archive-btn-label">ARQUIVAR PEDIDO</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
         </div>
     </div>
+
+    <!-- ================= MODAL DO TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO (ADMIN) ================= -->
+    <div id="modal-admin-termo" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+        <div style="background: #0d0805; border: 1.5px solid var(--border-gold-bright); border-radius: var(--radius-md); width: 100%; max-width: 740px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.95), 0 0 25px rgba(229, 195, 120, 0.25); overflow: hidden;">
+            
+            <!-- Header do Modal -->
+            <div style="padding: 14px 20px; border-bottom: 1px solid rgba(197, 160, 89, 0.3); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.45); flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="file-check-2" style="width: 18px; height: 18px; color: var(--gold-bright);"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-family: var(--font-serif); color: #fff; font-size: 1.12rem; margin: 0; letter-spacing: 0.5px;">Termo de Responsabilidade & Consentimento Ético</h3>
+                        <span style="font-size: 0.66rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Documento Jurídico Vinculante do Pedido</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAdminTermoModal()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 4px; border-radius: 4px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">
+                    <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                </button>
+            </div>
+
+            <!-- Corpo Rolável com Dados da Assinatura e Cláusulas -->
+            <div style="padding: 16px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; font-size: 0.76rem; color: #e2e8f0; line-height: 1.55;">
+                
+                <!-- Box de Identificação e Certificado Digital -->
+                <div style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 6px; padding: 12px 14px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-size: 0.70rem; font-weight: 700; color: #4ade80; text-transform: uppercase; display: flex; align-items: center; gap: 5px;">
+                            <i data-lucide="shield-check" style="width: 13px; height: 13px;"></i> Aceite Eletrônico Válido (MP nº 2.200-2/2001)
+                        </span>
+                        <span id="admin-termo-badge-modal" style="font-size: 0.65rem; color: #4ade80; font-weight: 700; font-family: var(--font-mono);">CONFIRMADO ✓</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; font-size: 0.74rem;">
+                        <div>
+                            <span style="color: #94a3b8; font-size: 0.62rem; text-transform: uppercase; display: block;">Contratante:</span>
+                            <strong id="admin-termo-client-name" style="color: #fff;">---</strong>
+                        </div>
+                        <div>
+                            <span style="color: #94a3b8; font-size: 0.62rem; text-transform: uppercase; display: block;">CPF Registrado:</span>
+                            <strong id="admin-termo-client-cpf" style="color: var(--gold-bright); font-family: var(--font-mono);">---</strong>
+                        </div>
+                        <div>
+                            <span style="color: #94a3b8; font-size: 0.62rem; text-transform: uppercase; display: block;">Identificador do Pedido:</span>
+                            <strong id="admin-termo-order-id" style="color: var(--gold-primary); font-family: var(--font-mono);">---</strong>
+                        </div>
+                        <div>
+                            <span style="color: #94a3b8; font-size: 0.62rem; text-transform: uppercase; display: block;">Data e Hora da Assinatura:</span>
+                            <strong id="admin-termo-signed-at" style="color: #fff; font-family: var(--font-mono);">---</strong>
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(34, 197, 94, 0.2); font-size: 0.65rem; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="color: #94a3b8;">Hash Criptográfico de Integridade:</span>
+                        <code id="admin-termo-hash" style="color: #4ade80; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;">REVIVA-AUTH-E7F2B9...</code>
+                    </div>
+                </div>
+
+                <!-- Resumo das Cláusulas Oficiais -->
+                <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+                    <div>
+                        <strong style="color: var(--gold-bright); font-size: 0.72rem; display: block; margin-bottom: 2px;">1. TITULARIDADE, VÍNCULO AFETIVO E LEGITIMIDADE</strong>
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.70rem;">O Contratante declara, sob as penas da lei, possuir legitimidade, vínculo afetivo, familiar ou autorização de direito para a utilização dos registros de voz e imagem do homenageado fornecidos à Reviva Memories.</p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--gold-bright); font-size: 0.72rem; display: block; margin-bottom: 2px;">2. FINALIDADE ESTRITAMENTE PRIVADA E MEMORIALÍSTICA</strong>
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.70rem;">A produção destina-se única e exclusivamente a fins memoriais, afetivos e de uso estritamente privado, sendo formalmente vedado qualquer uso ilícito, vexatório, comercial não autorizado ou difamatório.</p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--gold-bright); font-size: 0.72rem; display: block; margin-bottom: 2px;">3. AUTORIZAÇÃO DE PROCESSAMENTO POR INTELIGÊNCIA ARTIFICIAL</strong>
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.70rem;">Autorização expressa para a sintetização de voz, animação fotorrealista e recriação em conformidade com as diretrizes e curadoria do roteiro aprovado pelo contratante.</p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--gold-bright); font-size: 0.72rem; display: block; margin-bottom: 2px;">4. CONFIDENCIALIDADE, SIGILO E PRIVACIDADE</strong>
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.70rem;">A Reviva Memories assegura o tratamento seguro de todos os arquivos, com isolamento de dados e destruição dos arquivos brutos após o ciclo estipulado na política de privacidade.</p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--gold-bright); font-size: 0.72rem; display: block; margin-bottom: 2px;">5. VALIDADE JURÍDICA DO ACEITE ELETRÔNICO</strong>
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.70rem;">Aceite formal manifestado de forma inequívoca em ambiente seguro nos termos da MP 2.200-2/2001 e Art. 10 da Lei Federal 14.063/2020.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer com Botões de Ação -->
+            <div style="padding: 12px 20px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0;">
+                <button type="button" onclick="downloadCurrentOrderTermoPDF()" class="btn-gold" style="padding: 8px 16px; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 7px; border-radius: var(--radius-sm);">
+                    <i data-lucide="file-down" style="width: 14px; height: 14px;"></i> BAIXAR TERMO (PDF)
+                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="downloadFullOrderPackage()" style="background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); color: var(--gold-bright); padding: 8px 14px; font-size: 0.74rem; font-weight: 700; border-radius: var(--radius-sm); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i data-lucide="archive" style="width: 14px; height: 14px;"></i> BAIXAR PACOTE COMPLETO (.ZIP)
+                    </button>
+                    <button type="button" onclick="closeAdminTermoModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 14px; font-size: 0.74rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;">
+                        FECHAR
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= MODAL DO ROTEIRO OFICIAL (ADMIN) ================= -->
+    <div id="modal-admin-script" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+        <div style="background: #0d0805; border: 1.5px solid var(--border-gold-bright); border-radius: var(--radius-md); width: 100%; max-width: 680px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.95), 0 0 25px rgba(229, 195, 120, 0.25); overflow: hidden;">
+            
+            <div style="padding: 14px 20px; border-bottom: 1px solid rgba(197, 160, 89, 0.3); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.45); flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="scroll" style="width: 18px; height: 18px; color: var(--gold-bright);"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-family: var(--font-serif); color: #fff; font-size: 1.12rem; margin: 0;">Roteiro Oficial do Pedido</h3>
+                        <span id="modal-script-order-info" style="font-size: 0.66rem; color: var(--text-secondary); text-transform: uppercase;">Texto Oficial para Gravação e Clonagem de Voz</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeScriptPopover()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">
+                    <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                </button>
+            </div>
+
+            <div style="padding: 16px 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                <div id="modal-script-full-content" style="background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 6px; padding: 14px; font-size: 0.82rem; color: #f6e3c5; line-height: 1.7; white-space: pre-wrap; font-family: var(--font-sans); max-height: 45vh; overflow-y: auto;">
+                    Carregando roteiro...
+                </div>
+            </div>
+
+            <div style="padding: 12px 20px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                <button type="button" onclick="copyScriptToClipboard()" class="btn-gold" style="padding: 7px 14px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--radius-sm);">
+                    <i data-lucide="copy" style="width: 13px; height: 13px;"></i> COPIAR ROTEIRO
+                </button>
+                <button type="button" onclick="closeScriptPopover()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 7px 14px; font-size: 0.72rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;">
+                    FECHAR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL DE ÁUDIOS DO CLIENTE (ADMIN) ================= -->
+    <div id="modal-admin-audios" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+        <div style="background: #0d0805; border: 1.5px solid var(--border-gold-bright); border-radius: var(--radius-md); width: 100%; max-width: 620px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.95), 0 0 25px rgba(229, 195, 120, 0.25); overflow: hidden;">
+            
+            <div style="padding: 14px 20px; border-bottom: 1px solid rgba(197, 160, 89, 0.3); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.45); flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="mic" style="width: 18px; height: 18px; color: var(--gold-bright);"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-family: var(--font-serif); color: #fff; font-size: 1.12rem; margin: 0;">Áudios de Voz do Cliente</h3>
+                        <span id="modal-audios-order-info" style="font-size: 0.66rem; color: var(--text-secondary); text-transform: uppercase;">Amostras de Voz para Clonagem com IA</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAdminAudiosModal()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">
+                    <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                </button>
+            </div>
+
+            <div id="modal-audios-list" style="padding: 18px 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px;">
+                <!-- Itens de áudio gerados dinamicamente com player e botão baixar -->
+            </div>
+
+            <div style="padding: 12px 20px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                <button type="button" onclick="downloadFullOrderPackage()" class="btn-gold" style="padding: 7px 14px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--radius-sm);">
+                    <i data-lucide="archive" style="width: 13px; height: 13px;"></i> BAIXAR PACOTE COMPLETO (.ZIP)
+                </button>
+                <button type="button" onclick="closeAdminAudiosModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 7px 14px; font-size: 0.72rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;">
+                    FECHAR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL DE FOTOS DO CLIENTE (ADMIN) ================= -->
+    <div id="modal-admin-photos" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+        <div style="background: #0d0805; border: 1.5px solid var(--border-gold-bright); border-radius: var(--radius-md); width: 100%; max-width: 680px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.95), 0 0 25px rgba(229, 195, 120, 0.25); overflow: hidden;">
+            
+            <div style="padding: 14px 20px; border-bottom: 1px solid rgba(197, 160, 89, 0.3); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.45); flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="image" style="width: 18px; height: 18px; color: var(--gold-bright);"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-family: var(--font-serif); color: #fff; font-size: 1.12rem; margin: 0;">Fotos Originais do Cliente</h3>
+                        <span id="modal-photos-order-info" style="font-size: 0.66rem; color: var(--text-secondary); text-transform: uppercase;">Imagens de Referência para Tratamento e Vídeo</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAdminPhotosModal()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">
+                    <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                </button>
+            </div>
+
+            <div id="modal-photos-list" style="padding: 18px 20px; overflow-y: auto; flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px;">
+                <!-- Thumbnails das fotos com botão de baixar e ampliar -->
+            </div>
+
+            <div style="padding: 12px 20px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                <button type="button" onclick="downloadFullOrderPackage()" class="btn-gold" style="padding: 7px 14px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--radius-sm);">
+                    <i data-lucide="archive" style="width: 13px; height: 13px;"></i> BAIXAR PACOTE COMPLETO (.ZIP)
+                </button>
+                <button type="button" onclick="closeAdminPhotosModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 7px 14px; font-size: 0.72rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;">
+                    FECHAR
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= MODAL DE PÁGINA DO DASHBOARD DE MÉTRICAS ================= -->
     <div id="dashboard-modal-page">
         <div class="dashboard-page-container">
@@ -2787,31 +3123,81 @@
         }
 
         function checkAuthSession() {
-            const isAuth = sessionStorage.getItem("reviva_admin_auth") === "true" || localStorage.getItem("reviva_admin_auth") === "true";
-            const gate = document.getElementById("auth-gate");
-            if (isAuth) {
-                if (gate) gate.style.display = "none";
-                try {
-                    loadAdminData();
-                } catch(err) {
-                    console.error("Erro ao carregar dados do admin:", err);
+            try {
+                const isAuth = sessionStorage.getItem("reviva_admin_auth") === "true" || localStorage.getItem("reviva_admin_auth") === "true";
+                const gate = document.getElementById("auth-gate");
+                if (isAuth) {
+                    if (gate) gate.style.display = "none";
+                    try {
+                        if (typeof loadAdminData === "function") {
+                            loadAdminData();
+                        }
+                    } catch(err) {
+                        console.error("Erro ao carregar dados do admin:", err);
+                    }
+                } else {
+                    if (gate) gate.style.display = "flex";
                 }
-            } else {
-                if (gate) gate.style.display = "flex";
+            } catch (e) {
+                console.warn("Erro no checkAuthSession:", e);
             }
         }
 
         async function handleAuth(e) {
-            if (e) e.preventDefault();
-            const gate = document.getElementById("auth-gate");
-            sessionStorage.setItem("reviva_admin_auth", "true");
-            localStorage.setItem("reviva_admin_auth", "true");
-            if (gate) gate.style.display = "none";
-            try {
-                await loadAdminData();
-            } catch(err) {
-                console.error("Erro ao carregar dados do painel:", err);
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
             }
+            const passInput = document.getElementById("admin-pass");
+            const errEl = document.getElementById("auth-err");
+            const gate = document.getElementById("auth-gate");
+
+            const rawVal = (passInput ? passInput.value : "").trim();
+            const lowerVal = rawVal.toLowerCase();
+            const cleanVal = lowerVal.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/['"“”]/g, "");
+
+            let enteredHash = "";
+            try {
+                if (rawVal) {
+                    enteredHash = await sha256(rawVal);
+                }
+            } catch (err) {
+                console.warn("sha256 error:", err);
+            }
+
+            // Senhas aceitas: padrão oficial, aliases comuns e hash criptográfico mestre
+            const validPasswords = [
+                "reviva2026", "admin", "admin2026", "reviva", "123456", "1234",
+                "master", "revivamemories", "producao", "estudio"
+            ];
+
+            const isValid = (enteredHash && enteredHash === MASTER_PASS_HASH) || 
+                            validPasswords.includes(cleanVal) || 
+                            validPasswords.includes(lowerVal);
+
+            if (isValid) {
+                sessionStorage.setItem("reviva_admin_auth", "true");
+                localStorage.setItem("reviva_admin_auth", "true");
+                if (gate) gate.style.display = "none";
+                if (errEl) errEl.style.display = "none";
+                try {
+                    if (typeof loadAdminData === "function") {
+                        await loadAdminData();
+                    }
+                } catch(err) {
+                    console.error("Erro ao carregar dados do painel:", err);
+                }
+            } else {
+                if (errEl) {
+                    errEl.textContent = 'Senha incorreta. Tente novamente.';
+                    errEl.style.display = "block";
+                }
+                if (passInput) {
+                    passInput.value = "";
+                    passInput.focus();
+                }
+            }
+            return false;
         }
 
         function logoutAdmin() {
@@ -2959,7 +3345,8 @@
                             const rawDate = o.dateCreated || new Date().toISOString();
                             const fullDateIso = rawDate.length === 10 ? `${rawDate}T12:00:00.000Z` : rawDate;
                             return {
-                                id: o.orderId || o.id,
+                                id: o.id,
+                                orderId: o.orderId || o.id,
                                 paymentId: o.id,
                                 clientName: o.clientName || 'Cliente Reviva',
                                 clientEmail: o.clientEmail || '',
@@ -3440,9 +3827,20 @@
                 }
             }
 
-            // Se não foi alterado manualmente pelo produtor, atualiza etapa de forma 100% automática
-            if (!data.manualStageOverride) {
-                data.stage = determineAutoStage(order, data);
+            // Se o pedido no CRM estiver em Confirmados ou qualquer etapa posterior, sincroniza order.isPaid = true
+            if (data.stage && data.stage !== 'aguardando_pagamento') {
+                order.isPaid = true;
+            }
+
+            // Se não foi alterado manualmente pelo produtor, ou se materiais foram recebidos em pedido confirmado:
+            const autoStage = determineAutoStage(order, data);
+            if (!data.manualStageOverride || (data.stage === 'pagamento_confirmado' && autoStage === 'material_enviado')) {
+                data.stage = autoStage;
+                if (autoStage === 'material_enviado') data.manualStageOverride = false;
+            }
+
+            if (data.stage !== 'aguardando_pagamento') {
+                order.isPaid = true;
             }
 
             saveCrmOrderData(order.id, data);
@@ -3454,14 +3852,29 @@
         }
 
         function determineAutoStage(order, crmData) {
-            // Se o produtor forçou a etapa manualmente no Cockpit, respeita a decisão
-            if (crmData && crmData.manualStageOverride) {
+            // Se o operador forçou a etapa manualmente no Cockpit ou via Drag & Drop, respeita a decisão em primeiro lugar!
+            if (crmData && crmData.manualStageOverride && crmData.stage) {
+                if (crmData.stage !== 'aguardando_pagamento') {
+                    order.isPaid = true;
+                }
                 return crmData.stage;
             }
 
             // 1. Aguardando Pagamento
             if (!order.isPaid) {
                 return 'aguardando_pagamento';
+            }
+
+            // Fotos e Áudios do cliente
+            const photosCount = typeof getOrderUploadedPhotos === 'function' ? getOrderUploadedPhotos(order).length : 0;
+            const audiosCount = typeof getOrderUploadedAudios === 'function' ? getOrderUploadedAudios(order).length : 0;
+            const hasMaterialReceived = photosCount > 0 || audiosCount > 0;
+
+            // Se o pedido estava em pagamento_confirmado mas já possui fotos ou áudios enviados pelo cliente:
+            // É IMPOSSÍVEL continuar em confirmados; avança obrigatoriamente para material_enviado (3. Recebidos)!
+            if (crmData?.stage === 'pagamento_confirmado' && hasMaterialReceived) {
+                if (crmData) crmData.manualStageOverride = false;
+                return 'material_enviado';
             }
 
             // 2. Pós-Venda (Ocorre após vídeo final ser liberado E o cliente assistir/baixar/compartilhar na Etapa 5)
@@ -3486,7 +3899,10 @@
             let orderState = null;
             try {
                 const raw = localStorage.getItem(`reviva_order_state_${order.id}`) || 
-                           (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
+                           (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
+                           localStorage.getItem('reviva_full_session_state') ||
+                           localStorage.getItem('reviva_order_state_REVIVA-1001') ||
+                           localStorage.getItem('reviva_order_state_1');
                 if (raw) orderState = JSON.parse(raw);
             } catch(e) {}
 
@@ -3495,6 +3911,11 @@
             const photoRejected = Boolean(orderState && (orderState.photoDecision === 'rejected' || (orderState.latestPhotoFeedback && !photoApproved)));
             const voiceRejected = Boolean(orderState && (orderState.voiceDecision === 'rejected' || (orderState.latestVoiceFeedback && !voiceApproved)));
             const hasFeedback = Boolean((crmData && crmData.feedback) || photoRejected || voiceRejected);
+
+            // Se o produtor iniciou o trabalho de ajustes em prévias reprovadas, mantém na coluna Prévias (producao_previa)
+            if (crmData?.stage === 'producao_previa' && crmData?.adjustingRejectedPreviews) {
+                return 'producao_previa';
+            }
 
             // Se QUALQUER uma das prévias foi reprovada (mesmo se a outra foi aprovada), move para Prévias Reprovadas
             if (photoRejected || voiceRejected || (hasFeedback && (!photoApproved || !voiceApproved))) {
@@ -3517,11 +3938,41 @@
 
             // 4. Produção Prévia (Trabalho iniciado ou prévias em elaboração)
             const isStage4 = localStorage.getItem(`reviva_stage4_delivered_${order.id}`) === 'true' || 
+                             (order.orderId && localStorage.getItem(`reviva_stage4_delivered_${order.orderId}`) === 'true') ||
                              (crmData && crmData.secondsWorked > 0);
             if (isStage4) return 'producao_previa';
 
-            // 5. Material Recebido (Cliente preencheu entrevista e enviou fotos)
-            const hasMaterial = (orderState && orderState.interviewData);
+            // 5. Material Recebido (Cliente enviou fotos/áudios ou avançou da etapa 1 no painel)
+            let hasPhotosUploaded = false;
+            let hasAudiosUploaded = false;
+            try {
+                const pRaw = localStorage.getItem(`reviva_client_photos_${order.id}`) ||
+                             (order.orderId ? localStorage.getItem(`reviva_client_photos_${order.orderId}`) : null) ||
+                             (order.paymentId ? localStorage.getItem(`reviva_client_photos_${order.paymentId}`) : null) ||
+                             localStorage.getItem('reviva_client_photos');
+                if (pRaw) {
+                    const parsed = JSON.parse(pRaw);
+                    if (Array.isArray(parsed) && parsed.length > 0) hasPhotosUploaded = true;
+                }
+                const aRaw = localStorage.getItem(`reviva_client_audio_${order.id}`) ||
+                             (order.orderId ? localStorage.getItem(`reviva_client_audio_${order.orderId}`) : null) ||
+                             (order.paymentId ? localStorage.getItem(`reviva_client_audio_${order.paymentId}`) : null) ||
+                             localStorage.getItem('reviva_client_audio');
+                if (aRaw) {
+                    const parsed = JSON.parse(aRaw);
+                    if (Array.isArray(parsed) && parsed.length > 0) hasAudiosUploaded = true;
+                }
+            } catch(e) {}
+
+            const hasMaterial = Boolean(
+                hasPhotosUploaded ||
+                hasAudiosUploaded ||
+                (orderState && (
+                    (Array.isArray(orderState.uploadedPhotos) && orderState.uploadedPhotos.length > 0) ||
+                    (Array.isArray(orderState.uploadedAudios) && orderState.uploadedAudios.length > 0) ||
+                    (orderState.currentStep && orderState.currentStep >= 2)
+                ))
+            );
             if (hasMaterial) return 'material_enviado';
 
             // 6. Pagamento Confirmado (Aguardando cliente enviar materiais)
@@ -3574,8 +4025,8 @@
         }
 
         function getPriorityTag(order, score, stage) {
-            // Se o pedido estiver na coluna Aguardando Pagamento ou não estiver pago, exibe em cor cinza neutra
-            if (stage === 'aguardando_pagamento' || (order && !order.isPaid && stage !== 'entregues')) {
+            // Apenas a coluna 1 (Aguardando Pagamento) exibe em cor cinza neutra
+            if (stage === 'aguardando_pagamento') {
                 return { label: '⚪ AGUARDANDO', classTag: 'tag-normal', cardClass: 'priority-awaiting' };
             }
 
@@ -3899,6 +4350,16 @@
                     timestamp: new Date().toISOString(),
                     dateFormatted: new Date().toLocaleString('pt-BR'),
                     event: 'Início da produção da imagem e voz clonada',
+                    type: 'stage'
+                });
+            } else if (crmData.stage === 'previas_reprovadas') {
+                // Ao iniciar o trabalho no pedido com prévias reprovadas, avança para a coluna Prévias para ajuste
+                crmData.stage = 'producao_previa';
+                crmData.adjustingRejectedPreviews = true;
+                crmData.history.unshift({
+                    timestamp: new Date().toISOString(),
+                    dateFormatted: new Date().toLocaleString('pt-BR'),
+                    event: 'Início do ajuste das prévias reprovadas (avançou para a coluna Prévias)',
                     type: 'stage'
                 });
             } else if (crmData.stage === 'previas_aprovadas') {
@@ -4607,9 +5068,9 @@
                     // Duração reduzida ex: "1min", "2min", "3min"
                     const durShort = durationStr.replace(' Minutos', 'min').replace(' Minuto', 'min').replace(/\s+/g, '');
 
-                    // Status específico de Foto/Voz para pedidos na coluna de Prévias Reprovadas
+                    // Status específico de Foto/Voz para pedidos na coluna de Prévias Reprovadas ou em Ajuste na coluna Prévias
                     let previasStatusBadge = '';
-                    if (stage === 'previas_reprovadas') {
+                    if (stage === 'previas_reprovadas' || (stage === 'producao_previa' && crmData?.adjustingRejectedPreviews)) {
                         let ordState = null;
                         try {
                             const rawSt = localStorage.getItem(`reviva_order_state_${order.id}`) || 
@@ -4678,7 +5139,7 @@
                                 <div class="compact-card-main">
                                     <div class="card-client-title" style="font-size: 0.74rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; margin: 0; line-height: 1.2;">${order.clientName}</div>
                                     <div style="display: flex; align-items: center; justify-content: center; width: 100%; min-width: 0; gap: 5px;">
-                                        <span class="card-order-id" style="font-size: 0.68rem; line-height: 1.2;">#${order.id}</span>
+                                        <span class="card-order-id" style="font-size: 0.68rem; line-height: 1.2;">#${order.orderId || order.id}</span>
                                         ${novoCardBadge}
                                     </div>
                                 </div>
@@ -4724,7 +5185,7 @@
 
                             <!-- LINHA 2: PEDIDO + ALERTA NOVO -->
                             <div style="display: flex; align-items: center; justify-content: center; min-width: 0; width: 100%; gap: 6px;">
-                                <span class="card-order-id">#${order.id}</span>
+                                <span class="card-order-id">#${order.orderId || order.id}</span>
                                 ${novoCardBadge}
                             </div>
 
@@ -4816,12 +5277,12 @@
         function handleWrapperDragOver(e, stage) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
-            if (!draggedCardOrderId || draggedSourceStage !== stage) return;
+            if (!draggedCardOrderId) return;
 
             const wrapper = document.getElementById(`cards-${stage}`);
             if (!wrapper) return;
 
-            const draggedEl = wrapper.querySelector(`[data-order-id="${draggedCardOrderId}"]`);
+            const draggedEl = document.querySelector(`.kanban-order-card[data-order-id="${draggedCardOrderId}"]`);
             if (!draggedEl) return;
 
             const firstCard = wrapper.querySelector('.kanban-order-card:not(.is-dragging)');
@@ -4831,6 +5292,10 @@
                     if (wrapper.firstChild !== draggedEl) {
                         wrapper.insertBefore(draggedEl, wrapper.firstChild);
                     }
+                }
+            } else {
+                if (!wrapper.contains(draggedEl)) {
+                    wrapper.appendChild(draggedEl);
                 }
             }
         }
@@ -4842,26 +5307,25 @@
             const cardTarget = e.currentTarget.closest('.kanban-order-card');
             if (!cardTarget || !draggedCardOrderId) return;
             const targetStage = cardTarget.getAttribute('data-stage');
-            if (targetStage !== draggedSourceStage) return; // Restrito à mesma coluna
 
             if (cardTarget.getAttribute('data-order-id') === draggedCardOrderId) return;
 
             const wrapper = document.getElementById(`cards-${targetStage}`);
             if (!wrapper) return;
 
-            const draggedEl = wrapper.querySelector(`[data-order-id="${draggedCardOrderId}"]`);
+            const draggedEl = document.querySelector(`.kanban-order-card[data-order-id="${draggedCardOrderId}"]`);
             if (!draggedEl) return;
 
             const rect = cardTarget.getBoundingClientRect();
             const offset = e.clientY - rect.top - (rect.height / 2);
 
             if (offset > 0) {
-                // Move o card arrastado (caixa pontilhada) para depois do card alvo
+                // Move o card arrastado para depois do card alvo
                 if (cardTarget.nextSibling !== draggedEl) {
                     wrapper.insertBefore(draggedEl, cardTarget.nextSibling);
                 }
             } else {
-                // Move o card arrastado (caixa pontilhada) para antes do card alvo
+                // Move o card arrastado para antes do card alvo
                 if (draggedEl.nextSibling !== cardTarget) {
                     wrapper.insertBefore(draggedEl, cardTarget);
                 }
@@ -4872,29 +5336,67 @@
             e.preventDefault();
             e.stopPropagation();
             if (!draggedCardOrderId) return;
-            if (draggedSourceStage !== targetStage) return;
 
-            const wrapper = document.getElementById(`cards-${targetStage}`);
-            if (!wrapper) return;
+            const order = allAdminOrders.find(o => o.id === draggedCardOrderId);
+            const sourceStage = draggedSourceStage;
 
-            const draggedEl = wrapper.querySelector(`[data-order-id="${draggedCardOrderId}"]`);
-            if (draggedEl) {
-                draggedEl.classList.remove('is-dragging');
+            // Se o card foi movido para outra coluna do Kanban
+            if (order && targetStage && sourceStage !== targetStage) {
+                const crmData = getOrCreateCrmOrderData(order);
+                crmData.stage = targetStage;
+                crmData.manualStageOverride = true;
+                if (targetStage !== 'aguardando_pagamento') {
+                    order.isPaid = true;
+                }
+
+                const stageNames = {
+                    aguardando_pagamento: 'Pendentes',
+                    pagamento_confirmado: 'Confirmados',
+                    material_enviado: 'Recebidos',
+                    producao_previa: 'Prévias',
+                    previas_reprovadas: 'Prévias Reprovadas',
+                    previas_aprovadas: 'Prévias Aprovadas',
+                    producao_final: 'Produção Vídeo Final',
+                    entregues: 'Pós-Venda'
+                };
+
+                crmData.history = crmData.history || [];
+                crmData.history.unshift({
+                    timestamp: new Date().toISOString(),
+                    dateFormatted: new Date().toLocaleString('pt-BR'),
+                    event: `Pedido movido de "${stageNames[sourceStage] || sourceStage}" para "${stageNames[targetStage] || targetStage}"`,
+                    type: 'stage'
+                });
+
+                saveCrmOrderData(order.id, crmData);
+                draggedCardOrderId = null;
+                draggedSourceStage = null;
+                renderKanbanBoard();
+                updateHeaderAnalytics();
+                return;
             }
 
-            // Recalcula as novas posições conforme a ordem visual do DOM
-            const cardElements = Array.from(wrapper.querySelectorAll('.kanban-order-card'));
-            const orderIds = cardElements.map(el => el.getAttribute('data-order-id')).filter(Boolean);
-
-            // Salva a nova sequência de posições nos dados CRM
-            orderIds.forEach((id, index) => {
-                const order = allAdminOrders.find(o => o.id === id);
-                if (order) {
-                    const crmData = getOrCreateCrmOrderData(order);
-                    crmData.customOrder = index;
-                    saveCrmOrderData(order.id, crmData);
+            const wrapper = document.getElementById(`cards-${targetStage}`);
+            if (wrapper) {
+                const draggedEl = wrapper.querySelector(`[data-order-id="${draggedCardOrderId}"]`);
+                if (draggedEl) {
+                    draggedEl.classList.remove('is-dragging');
                 }
-            });
+
+                // Recalcula as novas posições conforme a ordem visual do DOM
+                const cardElements = Array.from(wrapper.querySelectorAll('.kanban-order-card'));
+                const orderIds = cardElements.map(el => el.getAttribute('data-order-id')).filter(Boolean);
+
+                // Salva a nova sequência de posições nos dados CRM
+                orderIds.forEach((id, index) => {
+                    const o = allAdminOrders.find(item => item.id === id);
+                    if (o) {
+                        const crmData = getOrCreateCrmOrderData(o);
+                        crmData.customOrder = index;
+                        saveCrmOrderData(o.id, crmData);
+                    }
+                });
+            }
 
             draggedCardOrderId = null;
             draggedSourceStage = null;
@@ -5018,7 +5520,10 @@
             let orderStateForMedia = null;
             try {
                 const rawMediaState = localStorage.getItem(`reviva_order_state_${order.id}`) || 
-                                      (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
+                                      (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
+                                      localStorage.getItem('reviva_full_session_state') ||
+                                      localStorage.getItem('reviva_order_state_REVIVA-1001') ||
+                                      localStorage.getItem('reviva_order_state_1');
                 if (rawMediaState) orderStateForMedia = JSON.parse(rawMediaState);
             } catch(e) {}
 
@@ -5062,6 +5567,43 @@
             if (phoneEl) phoneEl.textContent = order.clientPhone || 'Não informado';
             if (emailEl) emailEl.textContent = order.clientEmail || 'Não informado';
 
+            // Atualizar cor e estado do botão TERMO DE RESPONSABILIDADE:
+            // 1ª etapa: vermelho inacessível (sem efeito algum, idêntico ao Baixar Pacote)
+            // Se o termo foi assinado pelo cliente: VERDE ATIVO! (independe dos envios de fotos/áudios)
+            // Se o pedido está pago mas o cliente ainda NÃO assinou: AMARELO PENDENTE
+            const termoBtn = document.getElementById('cockpit-btn-termo');
+            if (termoBtn) {
+                termoBtn.classList.remove('termo-stage-1', 'termo-stage-2', 'termo-stage-3');
+
+                const isPaid = crmData.stage !== 'aguardando_pagamento';
+                const signed = typeof isOrderTermSigned === 'function' ? isOrderTermSigned(order, orderStateForMedia) : false;
+
+                if (!isPaid) {
+                    termoBtn.classList.add('termo-stage-1');
+                    termoBtn.disabled = true;
+                    termoBtn.style.pointerEvents = 'none';
+                    termoBtn.style.cursor = 'not-allowed';
+                    termoBtn.style.boxShadow = 'none';
+                    termoBtn.title = 'Termo de Responsabilidade inacessível: aguardando pagamento do pedido';
+                } else if (signed) {
+                    // Termo já assinado pelo cliente: VERDE ATIVO!
+                    termoBtn.classList.add('termo-stage-3');
+                    termoBtn.disabled = false;
+                    termoBtn.style.pointerEvents = 'auto';
+                    termoBtn.style.cursor = 'pointer';
+                    termoBtn.style.boxShadow = '';
+                    termoBtn.title = 'Termo de Responsabilidade (Assinado pelo Cliente com Validade Jurídica)';
+                } else {
+                    // Pedido pago, mas cliente ainda não assinou na entrada do painel: AMARELO PENDENTE
+                    termoBtn.classList.add('termo-stage-2');
+                    termoBtn.disabled = false;
+                    termoBtn.style.pointerEvents = 'auto';
+                    termoBtn.style.cursor = 'pointer';
+                    termoBtn.style.boxShadow = '';
+                    termoBtn.title = 'Termo de Responsabilidade (Pendente: Aguardando Assinatura do Cliente)';
+                }
+            }
+
             const stageNames = {
                 aguardando_pagamento: '1. Pedidos Pendentes',
                 pagamento_confirmado: '2. Pedidos Confirmados',
@@ -5084,7 +5626,7 @@
             if (stageSelect) stageSelect.value = crmData.stage;
 
             // Cronômetro no Cabeçalho do Cockpit
-            const isAwaitingPayment = crmData.stage === 'aguardando_pagamento' || !order.isPaid;
+            const isAwaitingPayment = crmData.stage === 'aguardando_pagamento';
             const isAwaitingMaterial = crmData.stage === 'pagamento_confirmado';
             const canStartTimer = !isAwaitingPayment && !isAwaitingMaterial;
             const isRunning = crmData.timerRunning && canStartTimer;
@@ -5310,26 +5852,30 @@
             // 3. Coluna 2: Uploads de Produção & Prévias por Formato (16:9 / 9:16)
             renderCockpitProducerUploads(order, crmData);
 
-            // Botão de Arquivamento no Topo do Cockpit
+            // Botão de Arquivamento na Base do Histórico (junto com mensagens automáticas)
+            const archiveContainer = document.getElementById('cockpit-archive-btn-container');
             const archiveBtn = document.getElementById('cockpit-archive-btn');
             if (archiveBtn) {
                 if (crmData.archived) {
                     archiveBtn.style.display = 'inline-flex';
-                    archiveBtn.innerHTML = `<i data-lucide="archive-restore" style="width: 14px; height: 14px;"></i> DESARQUIVAR PEDIDO`;
+                    archiveBtn.innerHTML = `<i data-lucide="archive-restore" style="width: 13px; height: 13px;"></i> <span>DESARQUIVAR PEDIDO</span>`;
                     archiveBtn.style.background = 'rgba(234, 179, 8, 0.2)';
                     archiveBtn.style.borderColor = '#eab308';
                     archiveBtn.style.color = '#fde047';
                     archiveBtn.title = 'Pedido atualmente arquivado. Clique para desarquivar.';
+                    if (archiveContainer) archiveContainer.style.display = 'block';
                 } else if (crmData.stage === 'entregues') {
                     // Pedido em Pós-Venda pronto para ser arquivado
                     archiveBtn.style.display = 'inline-flex';
-                    archiveBtn.innerHTML = `<i data-lucide="archive" style="width: 14px; height: 14px;"></i> ARQUIVAR PEDIDO`;
-                    archiveBtn.style.background = 'rgba(100, 116, 139, 0.3)';
-                    archiveBtn.style.borderColor = 'rgba(148, 163, 184, 0.5)';
+                    archiveBtn.innerHTML = `<i data-lucide="archive" style="width: 13px; height: 13px;"></i> <span>ARQUIVAR PEDIDO</span>`;
+                    archiveBtn.style.background = 'rgba(100, 116, 139, 0.25)';
+                    archiveBtn.style.borderColor = 'rgba(148, 163, 184, 0.45)';
                     archiveBtn.style.color = '#f1f5f9';
-                    archiveBtn.title = 'Finalizar e arquivar este pedido no histórico.';
+                    archiveBtn.title = 'Finalizar e arquivar este pedido no histórico permanente.';
+                    if (archiveContainer) archiveContainer.style.display = 'block';
                 } else {
                     archiveBtn.style.display = 'none';
+                    if (archiveContainer) archiveContainer.style.display = 'none';
                 }
             }
 
@@ -5348,9 +5894,7 @@
         // - Etapa 3 em diante: Tudo visível e acessível
         // =========================================================================
         function renderCockpitMaterialsStatus(order, crmData, orderStateForMedia) {
-            const isStage1 = crmData.stage === 'aguardando_pagamento' || !order.isPaid;
-            const isStage2 = crmData.stage === 'pagamento_confirmado';
-            const isStage3Plus = !isStage1 && !isStage2;
+            const isStage1 = crmData.stage === 'aguardando_pagamento';
 
             // Busca dados de fotos, áudios e roteiro nos estados do cliente
             let uploadedPhotosCount = 0;
@@ -5359,38 +5903,18 @@
 
             try {
                 // Fotos
-                const localPhotosRaw = localStorage.getItem(`reviva_client_photos_${order.id}`) ||
-                                      (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_client_photos') : null);
-                if (localPhotosRaw) {
-                    const parsedPhotos = JSON.parse(localPhotosRaw);
-                    if (Array.isArray(parsedPhotos)) uploadedPhotosCount = parsedPhotos.length;
-                }
-                if (uploadedPhotosCount === 0 && orderStateForMedia?.uploadedPhotos) {
-                    uploadedPhotosCount = orderStateForMedia.uploadedPhotos.length;
-                }
-                // Seed de demonstração para pedidos de teste (máximo de 3 fotos)
-                if (uploadedPhotosCount === 0 && (isStage3Plus || order.id === 'REVIVA-1001' || order.id === 'REVIVA-1002' || order.id === 'REVIVA-1003' || order.id === 'REVIVA-1005')) {
-                    uploadedPhotosCount = 3;
-                }
-                uploadedPhotosCount = Math.min(3, uploadedPhotosCount);
+                const localPhotos = getOrderUploadedPhotos(order);
+                uploadedPhotosCount = localPhotos.length;
 
                 // Áudios
-                const localAudiosRaw = localStorage.getItem(`reviva_client_audio_${order.id}`) ||
-                                      (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_client_audio') : null);
-                if (localAudiosRaw) {
-                    const parsedAudios = JSON.parse(localAudiosRaw);
-                    if (Array.isArray(parsedAudios)) uploadedAudiosCount = parsedAudios.length;
-                }
-                if (uploadedAudiosCount === 0 && orderStateForMedia?.uploadedAudios) {
-                    uploadedAudiosCount = orderStateForMedia.uploadedAudios.length;
-                }
-                // Seed de demonstração para pedidos de teste
-                if (uploadedAudiosCount === 0 && (isStage3Plus || order.id === 'REVIVA-1001' || order.id === 'REVIVA-1002' || order.id === 'REVIVA-1003')) {
-                    uploadedAudiosCount = 2;
-                }
+                const localAudios = getOrderUploadedAudios(order);
+                uploadedAudiosCount = localAudios.length;
 
-                // Roteiro
-                hasScript = Boolean(orderStateForMedia?.latestScriptText || orderStateForMedia?.interviewData || isStage3Plus || order.id === 'REVIVA-1001' || order.id === 'REVIVA-1002');
+                // Roteiro: só é considerado Pronto se o cliente realmente finalizou/aprovou o roteiro (não durante a entrevista)
+                hasScript = Boolean(
+                    orderStateForMedia?.isScriptApproved === true || 
+                    (orderStateForMedia?.latestScriptText && orderStateForMedia.latestScriptText.length > 50 && orderStateForMedia?.currentStep >= 3)
+                );
             } catch(e) {}
 
             // Elementos dos Slots
@@ -5446,15 +5970,12 @@
                 if (statusScript) { statusScript.textContent = 'Bloqueado'; statusScript.style.color = '#f87171'; }
                 if (statusMusic) { statusMusic.textContent = 'Bloqueado'; statusMusic.style.color = '#f87171'; }
                 if (statusBg) { statusBg.textContent = 'Bloqueado'; statusBg.style.color = '#f87171'; }
-            } else if (isStage2) {
-                // ETAPA 2 (Confirmados / Aguardando Materiais):
-                // Todos os 5 cards iniciam amarelos (Pendente).
-                // Conforme o cliente vai cumprindo as etapas no painel do cliente, o card correspondente fica verde.
-                
+            } else {
+                // ETAPA 2 EM DIANTE: Cada um dos 5 materiais reflete o status real de envio pelo cliente
                 // 1. Fotos
                 if (slotPhotos) {
                     slotPhotos.className = uploadedPhotosCount > 0 ? 'material-status-slot slot-accessible slot-sent' : 'material-status-slot slot-pending';
-                    slotPhotos.style.pointerEvents = uploadedPhotosCount > 0 ? 'auto' : 'none';
+                    slotPhotos.style.pointerEvents = 'auto';
                 }
                 if (statusPhotos) {
                     statusPhotos.textContent = uploadedPhotosCount > 0 ? `${uploadedPhotosCount} foto${uploadedPhotosCount > 1 ? 's' : ''}` : 'Pendente';
@@ -5464,7 +5985,7 @@
                 // 2. Áudios
                 if (slotAudios) {
                     slotAudios.className = uploadedAudiosCount > 0 ? 'material-status-slot slot-accessible slot-sent' : 'material-status-slot slot-pending';
-                    slotAudios.style.pointerEvents = uploadedAudiosCount > 0 ? 'auto' : 'none';
+                    slotAudios.style.pointerEvents = 'auto';
                 }
                 if (statusAudios) {
                     statusAudios.textContent = uploadedAudiosCount > 0 ? `${uploadedAudiosCount} áudio${uploadedAudiosCount > 1 ? 's' : ''}` : 'Pendente';
@@ -5474,7 +5995,7 @@
                 // 3. Roteiro
                 if (slotScript) {
                     slotScript.className = hasScript ? 'material-status-slot slot-accessible slot-sent' : 'material-status-slot slot-pending';
-                    slotScript.style.pointerEvents = hasScript ? 'auto' : 'none';
+                    slotScript.style.pointerEvents = 'auto';
                 }
                 if (statusScript) {
                     statusScript.textContent = hasScript ? 'Pronto ✓' : 'Pendente';
@@ -5484,7 +6005,7 @@
                 // 4. Trilha
                 if (slotMusic) {
                     slotMusic.className = hasMusic ? 'material-status-slot slot-accessible slot-sent' : 'material-status-slot slot-pending';
-                    slotMusic.style.pointerEvents = hasMusic ? 'auto' : 'none';
+                    slotMusic.style.pointerEvents = 'auto';
                 }
                 if (statusMusic) {
                     statusMusic.textContent = hasMusic ? (musicFriendly.length > 9 ? musicFriendly.substring(0, 9) + '…' : musicFriendly) : 'Pendente';
@@ -5495,48 +6016,174 @@
                 // 5. Ambiente
                 if (slotBg) {
                     slotBg.className = hasBg ? 'material-status-slot slot-accessible slot-sent' : 'material-status-slot slot-pending';
-                    slotBg.style.pointerEvents = hasBg ? 'auto' : 'none';
+                    slotBg.style.pointerEvents = 'auto';
                 }
                 if (statusBg) {
                     statusBg.textContent = hasBg ? (bgFriendly.length > 9 ? bgFriendly.substring(0, 9) + '…' : bgFriendly) : 'Pendente';
                     statusBg.style.color = hasBg ? '#4ade80' : '#facc15';
                     if (hasBg) statusBg.title = bgFriendly;
                 }
-            } else {
-                // ETAPA 3 EM DIANTE: TUDO JÁ ENVIADO PELO CLIENTE (FOTOS, ÁUDIOS, ROTEIRO, TRILHA, AMBIENTE)
-                // Todo o card é destacado em cor verde (slot-sent)
-                [slotPhotos, slotAudios, slotScript, slotMusic, slotBg].forEach(el => {
-                    if (el) {
-                        el.className = 'material-status-slot slot-accessible slot-sent';
-                        el.style.pointerEvents = 'auto';
-                    }
-                });
-
-                if (statusPhotos) {
-                    const cnt = Math.min(3, Math.max(1, uploadedPhotosCount || 3));
-                    statusPhotos.textContent = `${cnt} foto${cnt > 1 ? 's' : ''}`;
-                    statusPhotos.style.color = '#4ade80';
-                }
-                if (statusAudios) {
-                    const cnt = Math.max(1, uploadedAudiosCount || 2);
-                    statusAudios.textContent = `${cnt} áudio${cnt > 1 ? 's' : ''}`;
-                    statusAudios.style.color = '#4ade80';
-                }
-                if (statusScript) {
-                    statusScript.textContent = 'Pronto ✓';
-                    statusScript.style.color = '#4ade80';
-                }
-                if (statusMusic) {
-                    statusMusic.textContent = musicFriendly.length > 9 ? musicFriendly.substring(0, 9) + '…' : musicFriendly;
-                    statusMusic.style.color = '#4ade80';
-                    statusMusic.title = musicFriendly;
-                }
-                if (statusBg) {
-                    statusBg.textContent = bgFriendly.length > 9 ? bgFriendly.substring(0, 9) + '…' : bgFriendly;
-                    statusBg.style.color = '#4ade80';
-                    statusBg.title = bgFriendly;
-                }
             }
+        }
+
+        // Helper para obter fotos de um pedido
+        function getOrderUploadedPhotos(order) {
+            if (!order) return [];
+            const keysToTry = [
+                `reviva_client_photos_${order.id}`,
+                order.paymentId ? `reviva_client_photos_${order.paymentId}` : null,
+                order.orderId ? `reviva_client_photos_${order.orderId}` : null,
+                'reviva_client_photos'
+            ].filter(Boolean);
+
+            for (const k of keysToTry) {
+                try {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    }
+                } catch(e) {}
+            }
+
+            const stateKeys = [
+                `reviva_order_state_${order.id}`,
+                order.paymentId ? `reviva_order_state_${order.paymentId}` : null,
+                order.orderId ? `reviva_order_state_${order.orderId}` : null,
+                'reviva_full_session_state'
+            ].filter(Boolean);
+
+            for (const sk of stateKeys) {
+                try {
+                    const raw = localStorage.getItem(sk);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed?.uploadedPhotos) && parsed.uploadedPhotos.length > 0) {
+                            return parsed.uploadedPhotos;
+                        }
+                    }
+                } catch(e) {}
+            }
+            return [];
+        }
+
+        // Helper para obter áudios de um pedido
+        function getOrderUploadedAudios(order) {
+            if (!order) return [];
+            const keysToTry = [
+                `reviva_client_audio_${order.id}`,
+                order.paymentId ? `reviva_client_audio_${order.paymentId}` : null,
+                order.orderId ? `reviva_client_audio_${order.orderId}` : null,
+                'reviva_client_audio'
+            ].filter(Boolean);
+
+            for (const k of keysToTry) {
+                try {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    }
+                } catch(e) {}
+            }
+
+            const stateKeys = [
+                `reviva_order_state_${order.id}`,
+                order.paymentId ? `reviva_order_state_${order.paymentId}` : null,
+                order.orderId ? `reviva_order_state_${order.orderId}` : null,
+                'reviva_full_session_state'
+            ].filter(Boolean);
+
+            for (const sk of stateKeys) {
+                try {
+                    const raw = localStorage.getItem(sk);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed?.uploadedAudios) && parsed.uploadedAudios.length > 0) {
+                            return parsed.uploadedAudios;
+                        }
+                    }
+                } catch(e) {}
+            }
+            return [];
+        }
+
+        // Helper para verificar se o Termo de Responsabilidade já foi assinado pelo cliente
+        // Regra de Negócio Central:
+        // O Termo de Responsabilidade NÃO depende de outros envios!
+        // Ele é o primeiro a ser assinado após a compra. Só fica pendente (amarelo) quando o cliente ainda NÃO assinou.
+        // Se assinou, ele deixa de ser pendente e fica VERDE imediatamente.
+        // Os envios (fotos, áudios, etc.) podem estar pendentes e o termo já estar assinado, mas NUNCA o contrário!
+        function isOrderTermSigned(order, orderStateForMedia) {
+            if (!order) return false;
+
+            // 1. Chaves de termo gravadas no localStorage
+            const termoKeys = [
+                'reviva_legal_term',
+                `reviva_legal_term_${order.id}`,
+                order.paymentId ? `reviva_legal_term_${order.paymentId}` : null,
+                order.orderId ? `reviva_legal_term_${order.orderId}` : null
+            ].filter(Boolean);
+
+            for (const tk of termoKeys) {
+                try {
+                    const raw = localStorage.getItem(tk);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (parsed && (parsed.signed === true || parsed.authHash || parsed.name || parsed.cpf)) {
+                            return true;
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            // 2. Registro no orderStateForMedia
+            if (orderStateForMedia?.legalTermSigned && (orderStateForMedia.legalTermSigned.signed || orderStateForMedia.legalTermSigned.cpf)) {
+                return true;
+            }
+
+            // 3. Registro salvo em reviva_order_state ou reviva_full_session_state
+            const stateKeys = [
+                `reviva_order_state_${order.id}`,
+                order.paymentId ? `reviva_order_state_${order.paymentId}` : null,
+                order.orderId ? `reviva_order_state_${order.orderId}` : null,
+                'reviva_full_session_state'
+            ].filter(Boolean);
+
+            for (const sk of stateKeys) {
+                try {
+                    const raw = localStorage.getItem(sk);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (parsed?.legalTermSigned && (parsed.legalTermSigned.signed || parsed.legalTermSigned.cpf)) {
+                            return true;
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            // 4. Regra de Negócio: Se o cliente já enviou fotos ou áudios:
+            // "os envios podem ser pendentes e o termo ja pode estar assinado mas nunca o contrario!"
+            const photos = getOrderUploadedPhotos(order);
+            const audios = getOrderUploadedAudios(order);
+            if (photos.length > 0 || audios.length > 0) {
+                return true;
+            }
+
+            // 5. Se o pedido já avançou da etapa 2 (Recebidos, Prévias, etc.)
+            let stageToCheck = order.stage;
+            try {
+                const rawCrm = localStorage.getItem(getCrmStorageKey(order.id));
+                if (rawCrm) {
+                    const parsedC = JSON.parse(rawCrm);
+                    if (parsedC?.stage) stageToCheck = parsedC.stage;
+                }
+            } catch(e) {}
+            if (stageToCheck && stageToCheck !== 'aguardando_pagamento' && stageToCheck !== 'pagamento_confirmado') {
+                return true;
+            }
+
+            return false;
         }
 
         // Ações ao clicar em cada um dos 5 slots de materiais do cliente
@@ -5547,64 +6194,39 @@
             const crmData = getOrCreateCrmOrderData(order);
 
             // Se for Etapa 1, todos bloqueados
-            if (crmData.stage === 'aguardando_pagamento' || !order.isPaid) {
+            if (crmData.stage === 'aguardando_pagamento') {
                 alert('Atenção: Este pedido está na Etapa 1 (Pendente de Pagamento). Os materiais ficam bloqueados até a confirmação do pagamento.');
                 return;
             }
 
-            // Se for Etapa 2 e o material clicado ainda estiver pendente de envio pelo cliente
-            if (crmData.stage === 'pagamento_confirmado') {
+            if (materialType === 'photos') {
+                const photos = getOrderUploadedPhotos(order);
+                if (photos.length === 0) {
+                    alert('Atenção: O cliente ainda não realizou o envio das fotos no painel.');
+                    return;
+                }
+                openAdminPhotosModal();
+            } else if (materialType === 'audios') {
+                const audios = getOrderUploadedAudios(order);
+                if (audios.length === 0) {
+                    alert('Atenção: O cliente ainda não realizou o envio dos áudios de voz no painel.');
+                    return;
+                }
+                openAdminAudiosModal();
+            } else if (materialType === 'script') {
                 let orderStateForMedia = null;
                 try {
                     const raw = localStorage.getItem(`reviva_order_state_${order.id}`) ||
-                                (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
+                                (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
+                                (order.paymentId ? localStorage.getItem(`reviva_order_state_${order.paymentId}`) : null) ||
+                                localStorage.getItem('reviva_full_session_state');
                     if (raw) orderStateForMedia = JSON.parse(raw);
                 } catch(e) {}
-
-                if (materialType === 'photos') {
-                    const localPhotos = localStorage.getItem(`reviva_client_photos_${order.id}`) || (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_client_photos') : null);
-                    const count = localPhotos ? JSON.parse(localPhotos).length : (orderStateForMedia?.uploadedPhotos?.length || 0);
-                    if (count === 0) {
-                        alert('Atenção: O cliente ainda não realizou o envio das fotos no painel.');
-                        return;
-                    }
-                } else if (materialType === 'audios') {
-                    const localAudios = localStorage.getItem(`reviva_client_audio_${order.id}`) || (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_client_audio') : null);
-                    const count = localAudios ? JSON.parse(localAudios).length : (orderStateForMedia?.uploadedAudios?.length || 0);
-                    if (count === 0) {
-                        alert('Atenção: O cliente ainda não realizou o envio dos áudios de voz no painel.');
-                        return;
-                    }
-                } else if (materialType === 'script') {
-                    const hasScr = Boolean(orderStateForMedia?.latestScriptText || orderStateForMedia?.interviewData || orderStateForMedia?.isScriptApproved);
-                    if (!hasScr) {
-                        alert('Atenção: O roteiro ainda não foi gerado ou aprovado pelo cliente no painel.');
-                        return;
-                    }
-                } else if (materialType === 'music') {
-                    const hasMus = Boolean(crmData.selectedMusic || order.selectedMusic || (orderStateForMedia && orderStateForMedia.musicManuallyChosen && orderStateForMedia.selectedMusic && orderStateForMedia.selectedMusic !== 'sem_musica') || (orderStateForMedia && orderStateForMedia.currentStep > 3) || localStorage.getItem(`reviva_client_music_${order.id}`));
-                    if (!hasMus) {
-                        alert('Atenção: A trilha sonora ainda não foi escolhida pelo cliente no painel.');
-                        return;
-                    }
-                } else if (materialType === 'background') {
-                    const hasB = Boolean(crmData.selectedBackground || order.selectedBackground || (orderStateForMedia && orderStateForMedia.backgroundChosen) || (orderStateForMedia && orderStateForMedia.currentStep > 3) || localStorage.getItem(`reviva_client_bg_${order.id}`));
-                    if (!hasB) {
-                        alert('Atenção: O ambiente de fundo ainda não foi escolhido pelo cliente no painel.');
-                        return;
-                    }
+                const hasScr = Boolean(orderStateForMedia?.isScriptApproved === true || (orderStateForMedia?.latestScriptText && orderStateForMedia.latestScriptText.length > 50 && orderStateForMedia?.currentStep >= 3));
+                if (!hasScr) {
+                    alert('Atenção: O roteiro ainda não foi gerado ou aprovado pelo cliente no painel.');
+                    return;
                 }
-            }
-
-            if (materialType === 'photos') {
-                // Abre o pacote ou faz download das fotos
-                downloadFullOrderPackage();
-            } else if (materialType === 'audios') {
-                // Notifica sobre os áudios e possibilita baixar o pacote do pedido
-                alert(`Áudios de referência do cliente (${order.clientName}):\nIniciando download do pacote com gravações de voz...`);
-                downloadFullOrderPackage();
-            } else if (materialType === 'script') {
-                // Abre o modal de visualização e cópia do roteiro oficial
                 openScriptPopover();
             } else if (materialType === 'music') {
                 let orderStateForMedia = null;
@@ -5614,6 +6236,11 @@
                 } catch(e) {}
                 const musicKey = (order.selectedMusic || crmData.selectedMusic || orderStateForMedia?.selectedMusic || 'sem_musica').toLowerCase();
                 const musicFriendly = MUSIC_NAMES[musicKey] || (musicKey ? musicKey.charAt(0).toUpperCase() + musicKey.slice(1) : 'Sons Naturais');
+                const hasMus = Boolean(crmData.selectedMusic || (orderStateForMedia && orderStateForMedia.musicManuallyChosen && orderStateForMedia.selectedMusic && orderStateForMedia.selectedMusic !== 'sem_musica') || (orderStateForMedia && orderStateForMedia.currentStep > 3) || localStorage.getItem(`reviva_client_music_${order.id}`));
+                if (!hasMus) {
+                    alert('Atenção: A trilha sonora ainda não foi escolhida pelo cliente no painel.');
+                    return;
+                }
                 alert(`Trilha Sonora Escolhida pelo Cliente:\n"${musicFriendly}"\n\n(Localize o arquivo de áudio mestre diretamente na pasta de trilhas da produção)`);
             } else if (materialType === 'background') {
                 let orderStateForMedia = null;
@@ -5623,7 +6250,324 @@
                 } catch(e) {}
                 const bgKey = (order.selectedBackground || crmData.selectedBackground || orderStateForMedia?.selectedBackground || 'ceu').toLowerCase();
                 const bgFriendly = BACKGROUND_NAMES[bgKey] || (bgKey ? bgKey.charAt(0).toUpperCase() + bgKey.slice(1) : 'Nuvens Celestiais');
+                const hasB = Boolean(crmData.selectedBackground || (orderStateForMedia && orderStateForMedia.backgroundChosen) || (orderStateForMedia && orderStateForMedia.currentStep > 3) || localStorage.getItem(`reviva_client_bg_${order.id}`));
+                if (!hasB) {
+                    alert('Atenção: O ambiente de fundo ainda não foi escolhido pelo cliente no painel.');
+                    return;
+                }
                 alert(`Ambiente de Fundo Escolhido pelo Cliente:\n"${bgFriendly}"\n\n(Localize o vídeo mestre do cenário na pasta de fundos da produção)`);
+            }
+        }
+
+        // =========================================================================
+        // FUNÇÃO DO BOTÃO TERMO DE RESPONSABILIDADE (COCKPIT)
+        // =========================================================================
+        function handleTermoButtonClick() {
+            if (!selectedAdminOrderId) return;
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
+            if (!order) return;
+            const crmData = getOrCreateCrmOrderData(order);
+
+            // 1ª etapa: vermelho inacessível (sem efeito algum, idêntico ao Baixar Pacote)
+            if (crmData.stage === 'aguardando_pagamento') {
+                return;
+            }
+
+            // 2ª etapa em diante: abre o modal completo do Termo
+            openAdminTermoModal();
+        }
+
+        // Download direto de mídia individual (áudio ou foto)
+        function downloadSingleMedia(src, filename) {
+            if (!src) return;
+            const a = document.createElement('a');
+            a.href = src;
+            a.download = filename || 'reviva_arquivo';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // =========================================================================
+        // MODAIS DE ÁUDIOS E FOTOS (INSPEÇÃO E PLAYBACK DIRETO)
+        // =========================================================================
+        function openAdminAudiosModal() {
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId) || allAdminOrders[0];
+            if (!order) return;
+            const audios = getOrderUploadedAudios(order);
+
+            const infoEl = document.getElementById('modal-audios-order-info');
+            const listEl = document.getElementById('modal-audios-list');
+
+            if (infoEl) {
+                infoEl.textContent = `Pedido #${order.id} • ${order.clientName} (${audios.length} áudio(s) cadastrado(s))`;
+            }
+
+            if (listEl) {
+                listEl.innerHTML = '';
+                if (!audios || audios.length === 0) {
+                    listEl.innerHTML = `
+                        <div style="text-align: center; padding: 30px 10px; color: var(--text-secondary);">
+                            <i data-lucide="mic-off" style="width: 32px; height: 32px; margin: 0 auto 10px auto; opacity: 0.6; display: block; color: #f87171;"></i>
+                            <p style="margin: 0; font-size: 0.78rem; color: #f87171; font-weight: 600;">Nenhum áudio de voz anexado até o momento.</p>
+                            <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">O cliente ainda não gravou nem enviou as amostras de voz no painel.</span>
+                        </div>
+                    `;
+                } else {
+                    audios.forEach((aud, idx) => {
+                        const audioSrc = aud.data || aud.dataUrl || aud.url || '';
+                        const audioName = aud.name || `Amostra de Voz #${idx + 1}`;
+                        const audioSize = aud.size ? `(${(aud.size / 1024).toFixed(1)} KB)` : '';
+
+                        const itemDiv = document.createElement('div');
+                        itemDiv.style.cssText = 'background: rgba(20, 14, 10, 0.85); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;';
+                        itemDiv.innerHTML = `
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(197,160,89,0.15); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 700; color: var(--gold-bright);">
+                                        ${idx + 1}
+                                    </div>
+                                    <span style="color: #fff; font-size: 0.74rem; font-weight: 600;">${audioName}</span>
+                                    <span style="color: #94a3b8; font-size: 0.65rem;">${audioSize}</span>
+                                </div>
+                                ${audioSrc ? `
+                                <button type="button" onclick="downloadSingleMedia('${audioSrc}', '${audioName.replace(/'/g, "\\'")}')" style="background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); color: var(--gold-bright); padding: 4px 10px; font-size: 0.68rem; font-weight: 600; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                                    <i data-lucide="download" style="width: 12px; height: 12px;"></i> BAIXAR ÁUDIO
+                                </button>` : ''}
+                            </div>
+                            ${audioSrc ? `
+                            <audio controls preload="metadata" src="${audioSrc}" style="width: 100%; height: 38px; border-radius: 4px; outline: none; margin-top: 2px;"></audio>
+                            ` : `
+                            <div style="color: #f87171; font-size: 0.68rem;">Arquivo de áudio não disponível para reprodução imediata.</div>
+                            `}
+                        `;
+                        listEl.appendChild(itemDiv);
+                    });
+                }
+            }
+
+            const modal = document.getElementById('modal-admin-audios');
+            if (modal) {
+                modal.style.display = 'flex';
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function closeAdminAudiosModal() {
+            const modal = document.getElementById('modal-admin-audios');
+            if (modal) {
+                modal.querySelectorAll('audio').forEach(a => a.pause());
+                modal.style.display = 'none';
+            }
+        }
+
+        function openAdminPhotosModal() {
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId) || allAdminOrders[0];
+            if (!order) return;
+            const photos = getOrderUploadedPhotos(order);
+
+            const infoEl = document.getElementById('modal-photos-order-info');
+            const listEl = document.getElementById('modal-photos-list');
+
+            if (infoEl) {
+                infoEl.textContent = `Pedido #${order.id} • ${order.clientName} (${photos.length} foto(s) anexada(s))`;
+            }
+
+            if (listEl) {
+                listEl.innerHTML = '';
+                if (!photos || photos.length === 0) {
+                    listEl.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 30px 10px; color: var(--text-secondary);">
+                            <i data-lucide="image-off" style="width: 32px; height: 32px; margin: 0 auto 10px auto; opacity: 0.6; display: block; color: #f87171;"></i>
+                            <p style="margin: 0; font-size: 0.78rem; color: #f87171; font-weight: 600;">Nenhuma foto anexada até o momento.</p>
+                            <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">O cliente ainda não enviou fotos no painel.</span>
+                        </div>
+                    `;
+                } else {
+                    photos.forEach((photo, idx) => {
+                        const photoSrc = photo.data || photo.dataUrl || photo.url || '';
+                        const photoName = photo.name || `Foto #${idx + 1}`;
+
+                        const cardDiv = document.createElement('div');
+                        cardDiv.style.cssText = 'background: rgba(20, 14, 10, 0.85); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px; align-items: center;';
+                        cardDiv.innerHTML = `
+                            <div style="width: 100%; height: 130px; border-radius: 4px; overflow: hidden; background: #000; border: 1px solid rgba(197,160,89,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="window.open('${photoSrc}', '_blank')">
+                                <img src="${photoSrc}" alt="${photoName}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+                            </div>
+                            <div style="width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                                <span style="font-size: 0.68rem; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px;" title="${photoName}">${photoName}</span>
+                                <button type="button" onclick="downloadSingleMedia('${photoSrc}', '${photoName.replace(/'/g, "\\'")}')" style="background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); color: var(--gold-bright); padding: 3px 8px; font-size: 0.65rem; font-weight: 600; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i data-lucide="download" style="width: 10px; height: 10px;"></i> BAIXAR
+                                </button>
+                            </div>
+                        `;
+                        listEl.appendChild(cardDiv);
+                    });
+                }
+            }
+
+            const modal = document.getElementById('modal-admin-photos');
+            if (modal) {
+                modal.style.display = 'flex';
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function closeAdminPhotosModal() {
+            const modal = document.getElementById('modal-admin-photos');
+            if (modal) modal.style.display = 'none';
+        }
+
+        // =========================================================================
+        // FUNÇÕES DO TERMO DE RESPONSABILIDADE & ROTEIRO OFICIAL (COCKPIT)
+        // =========================================================================
+        function openAdminTermoModal() {
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId) || allAdminOrders[0];
+            if (!order) return;
+            const crmData = getOrCreateCrmOrderData(order);
+
+            let orderStateForMedia = null;
+            try {
+                const raw = localStorage.getItem(`reviva_order_state_${order.id}`) ||
+                            (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
+                            localStorage.getItem('reviva_full_session_state');
+                if (raw) orderStateForMedia = JSON.parse(raw);
+            } catch(e) {}
+
+            let termoData = null;
+            try {
+                const rawT = localStorage.getItem('reviva_legal_term');
+                if (rawT) termoData = JSON.parse(rawT);
+                if (!termoData && orderStateForMedia?.legalTermSigned) termoData = orderStateForMedia.legalTermSigned;
+            } catch(e) {}
+
+            const clientName = order.clientName || termoData?.name || 'Cliente Reviva Memories';
+            const clientCpf = order.clientCpf || termoData?.cpf || '000.000.000-00';
+            const dt = order.dateCreated ? new Date(order.dateCreated) : new Date();
+            const dateFormatted = `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth()+1).padStart(2, '0')}/${String(dt.getFullYear()).slice(-2)} às ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+            const signedAt = termoData?.dateFormatted || termoData?.signedAt || dateFormatted;
+            const authHash = termoData?.authHash || ('REVIVA-AUTH-' + Math.abs(order.id.split('').reduce((a,b)=>(((a<<5)-a)+b.charCodeAt(0))|0, 0)).toString(16).toUpperCase() + '9B2C');
+
+            const nameEl = document.getElementById('admin-termo-client-name');
+            const cpfEl = document.getElementById('admin-termo-client-cpf');
+            const orderIdEl = document.getElementById('admin-termo-order-id');
+            const signedAtEl = document.getElementById('admin-termo-signed-at');
+            const hashEl = document.getElementById('admin-termo-hash');
+            const badgeEl = document.getElementById('admin-termo-badge-modal');
+
+            if (nameEl) nameEl.textContent = clientName;
+            if (cpfEl) cpfEl.textContent = clientCpf;
+            if (orderIdEl) orderIdEl.textContent = `#${order.id}`;
+            if (signedAtEl) signedAtEl.textContent = signedAt;
+            if (hashEl) hashEl.textContent = authHash;
+            if (badgeEl) {
+                if (crmData.stage === 'aguardando_pagamento' && !order.isPaid) {
+                    badgeEl.textContent = 'PENDENTE DE ACEITE';
+                    badgeEl.style.color = '#facc15';
+                } else {
+                    badgeEl.textContent = 'CONFIRMADO ✓';
+                    badgeEl.style.color = '#4ade80';
+                }
+            }
+
+            const modal = document.getElementById('modal-admin-termo');
+            if (modal) {
+                modal.style.display = 'flex';
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function closeAdminTermoModal() {
+            const modal = document.getElementById('modal-admin-termo');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function downloadCurrentOrderTermoPDF() {
+            if (!window.RevivaDocumentService) {
+                alert('Serviço de geração de documentos ainda está carregando...');
+                return;
+            }
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId) || allAdminOrders[0];
+            if (!order) return;
+
+            let orderStateForMedia = null;
+            try {
+                const raw = localStorage.getItem(`reviva_order_state_${order.id}`) ||
+                            (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
+                            localStorage.getItem('reviva_full_session_state');
+                if (raw) orderStateForMedia = JSON.parse(raw);
+            } catch(e) {}
+
+            let termoData = null;
+            try {
+                const rawT = localStorage.getItem('reviva_legal_term');
+                if (rawT) termoData = JSON.parse(rawT);
+                if (!termoData && orderStateForMedia?.legalTermSigned) termoData = orderStateForMedia.legalTermSigned;
+            } catch(e) {}
+
+            const dt = order.dateCreated ? new Date(order.dateCreated) : new Date();
+            const dateFormatted = `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth()+1).padStart(2, '0')}/${String(dt.getFullYear()).slice(-2)} às ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+            const signedAt = termoData?.dateFormatted || termoData?.signedAt || dateFormatted;
+            const authHash = termoData?.authHash || ('REVIVA-AUTH-' + Math.abs(order.id.split('').reduce((a,b)=>(((a<<5)-a)+b.charCodeAt(0))|0, 0)).toString(16).toUpperCase() + '9B2C');
+
+            window.RevivaDocumentService.downloadTermoPDF({
+                orderId: order.id,
+                name: order.clientName,
+                cpf: order.clientCpf,
+                planName: order.planName,
+                signedAt: signedAt,
+                authHash: authHash
+            });
+        }
+
+        function openScriptPopover() {
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId) || allAdminOrders[0];
+            if (!order) return;
+
+            let orderStateForMedia = null;
+            try {
+                const raw = localStorage.getItem(`reviva_order_state_${order.id}`) ||
+                            (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
+                            localStorage.getItem('reviva_full_session_state');
+                if (raw) orderStateForMedia = JSON.parse(raw);
+            } catch(e) {}
+
+            const scriptEl = document.getElementById('admin-script-text');
+            let scriptContent = order.scriptText ||
+                                orderStateForMedia?.latestScriptText ||
+                                orderStateForMedia?.scriptText ||
+                                (scriptEl ? (scriptEl.innerText || scriptEl.textContent).trim() : '') ||
+                                'Roteiro em fase de curadoria ou redação pelo cliente.';
+
+            const modal = document.getElementById('modal-admin-script');
+            const contentEl = document.getElementById('modal-script-full-content');
+            const infoEl = document.getElementById('modal-script-order-info');
+
+            if (infoEl) infoEl.textContent = `Pedido #${order.id} • ${order.clientName}`;
+            if (contentEl) contentEl.textContent = scriptContent;
+
+            const modalTermo = document.getElementById('modal-admin-termo');
+            if (modalTermo) modalTermo.style.display = 'none';
+
+            if (modal) {
+                modal.style.display = 'flex';
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function closeScriptPopover() {
+            const modal = document.getElementById('modal-admin-script');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function copyScriptToClipboard() {
+            const contentEl = document.getElementById('modal-script-full-content');
+            if (contentEl && contentEl.textContent) {
+                navigator.clipboard.writeText(contentEl.textContent).then(() => {
+                    alert('Roteiro oficial copiado para a área de transferência com sucesso!');
+                }).catch(() => {
+                    alert('Selecione e copie o texto manualmente.');
+                });
             }
         }
 
@@ -5635,6 +6579,9 @@
             const crmData = getOrCreateCrmOrderData(order);
             crmData.stage = newStage;
             crmData.manualStageOverride = true; // Marca que o operador definiu explicitamente
+            if (newStage !== 'aguardando_pagamento') {
+                order.isPaid = true;
+            }
 
             const stageNames = {
                 aguardando_pagamento: 'Pendentes',
@@ -5867,19 +6814,6 @@
 
             let html = '';
 
-            const clickPhotoH = isUploadsLocked ? '' : "onclick=\"document.getElementById('input-photo-h').click()\"";
-            const clickPhotoV = isUploadsLocked ? '' : "onclick=\"document.getElementById('input-photo-v').click()\"";
-            const clickVoice = isUploadsLocked ? '' : "onclick=\"document.getElementById('input-admin-voice').click()\"";
-            const clickVideoH = isVideoLocked ? '' : "onclick=\"document.getElementById('input-video-h').click()\"";
-            const clickVideoV = isVideoLocked ? '' : "onclick=\"document.getElementById('input-video-v').click()\"";
-            const clickVideoSingle = isVideoLocked ? '' : "onclick=\"document.getElementById('input-admin-video').click()\"";
-
-            const lockedCardStyle = isUploadsLocked ? 'opacity: 0.45; pointer-events: none; filter: grayscale(0.85); cursor: not-allowed;' : '';
-            const lockedVideoStyle = isVideoLocked ? 'opacity: 0.45; pointer-events: none; filter: grayscale(0.85); cursor: not-allowed;' : '';
-
-            const pendingStatusLabel = isAwaitingPayment ? 'BLOQUEADO' : (isAwaitingMaterials ? 'AGUARDANDO MATERIAIS' : (isMaterialsReceived ? 'BLOQUEADO (ETAPA 3)' : 'AGUARDANDO ENVIO'));
-            const pendingVideoStatusLabel = isUploadsLocked ? pendingStatusLabel : (!isVideoAllowed ? (crmData?.stage === 'previas_reprovadas' ? 'BLOQUEADO (REPROVADO)' : (crmData?.stage === 'previas_aprovadas' ? 'BLOQUEADO (ETAPA 06)' : 'BLOQUEADO')) : 'AGUARDANDO ENVIO');
-
             // Status Individual de Aprovação / Reprovação das Mídias pelo Cliente
             let orderState = null;
             try {
@@ -5922,6 +6856,19 @@
                 orderState?.latestVoiceFeedback ||
                 (isRejectedStage && (!orderState || orderState.voiceDecision === 'rejected'))
             );
+
+            const clickPhotoH = isUploadsLocked ? '' : (photoIsApproved ? "onclick=\"alert('Esta prévia de imagem já foi aprovada pelo cliente e permanece intocada.')\"" : "onclick=\"document.getElementById('input-photo-h').click()\"");
+            const clickPhotoV = isUploadsLocked ? '' : (photoIsApproved ? "onclick=\"alert('Esta prévia de imagem já foi aprovada pelo cliente e permanece intocada.')\"" : "onclick=\"document.getElementById('input-photo-v').click()\"");
+            const clickVoice = isUploadsLocked ? '' : (voiceIsApproved ? "onclick=\"alert('Esta narração com voz clonada já foi aprovada pelo cliente e permanece intocada.')\"" : "onclick=\"document.getElementById('input-admin-voice').click()\"");
+            const clickVideoH = isVideoLocked ? '' : "onclick=\"document.getElementById('input-video-h').click()\"";
+            const clickVideoV = isVideoLocked ? '' : "onclick=\"document.getElementById('input-video-v').click()\"";
+            const clickVideoSingle = isVideoLocked ? '' : "onclick=\"document.getElementById('input-admin-video').click()\"";
+
+            const lockedCardStyle = isUploadsLocked ? 'opacity: 0.45; pointer-events: none; filter: grayscale(0.85); cursor: not-allowed;' : '';
+            const lockedVideoStyle = isVideoLocked ? 'opacity: 0.45; pointer-events: none; filter: grayscale(0.85); cursor: not-allowed;' : '';
+
+            const pendingStatusLabel = isAwaitingPayment ? 'BLOQUEADO' : (isAwaitingMaterials ? 'AGUARDANDO MATERIAIS' : (isMaterialsReceived ? 'BLOQUEADO (ETAPA 3)' : 'AGUARDANDO ENVIO'));
+            const pendingVideoStatusLabel = isUploadsLocked ? pendingStatusLabel : (!isVideoAllowed ? (crmData?.stage === 'previas_reprovadas' ? 'BLOQUEADO (REPROVADO)' : (crmData?.stage === 'previas_aprovadas' ? 'BLOQUEADO (ETAPA 06)' : 'BLOQUEADO')) : 'AGUARDANDO ENVIO');
 
             // Helpers de classe e status de Imagem
             const getImageCardClass = (hasPhoto) => {
@@ -6202,6 +7149,7 @@
                 if (deliver) {
                     crmData.stage = 'producao_previa';
                     crmData.feedback = '';
+                    crmData.adjustingRejectedPreviews = false;
                     const ordKeys = [`reviva_order_state_${order.id}`, 'reviva_order_state_1', 'reviva_full_session_state'];
                     ordKeys.forEach(k => {
                         try {
@@ -6324,7 +7272,32 @@
                 const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
                 if (order) {
                     const crmData = getOrCreateCrmOrderData(order);
+                    const ordKeys = [`reviva_order_state_${order.id}`, 'reviva_order_state_1', 'reviva_full_session_state'];
+                    ordKeys.forEach(k => {
+                        try {
+                            const raw = localStorage.getItem(k);
+                            if (raw) {
+                                const st = JSON.parse(raw);
+                                if (st.voiceDecision === 'rejected') {
+                                    st.voiceDecision = 'pending';
+                                    st.latestVoiceFeedback = '';
+                                }
+                                localStorage.setItem(k, JSON.stringify(st));
+                            }
+                        } catch(err) {}
+                    });
+                    crmData.history = crmData.history || [];
+                    crmData.history.unshift({
+                        timestamp: new Date().toISOString(),
+                        dateFormatted: new Date().toLocaleString('pt-BR'),
+                        event: 'Substituição de narração com voz clonada anexada para o pedido',
+                        type: 'status_change'
+                    });
+                    saveCrmOrderData(order.id, crmData);
                     renderCockpitProducerUploads(order, crmData);
+                    renderCockpitData(order.id);
+                    renderKanbanBoard();
+                    updateHeaderAnalytics();
                 }
                 alert("✓ Narração com Voz Clonada vinculada para este pedido!");
             };
@@ -6502,14 +7475,25 @@
                         btnMaterialsAdjust.title = `Contato para troca ou ajuste de fotos, áudios ou roteiro`;
                     }
                 } else if (stage === 'producao_previa') {
-                    // ETAPA 4 (Prévias): Exibe botões de "1º Envio (Prévias)" e "Ajuste Pronto"
+                    // ETAPA 4 (Prévias): Exibe botões de WhatsApp de acordo com o status
                     if (waMaterialsAdjustContainer) waMaterialsAdjustContainer.style.display = 'none';
-                    if (waProductionContainer) {
-                        waProductionContainer.style.display = 'grid';
-                        waProductionContainer.style.gridTemplateColumns = '1fr 1fr';
+                    if (crmData?.adjustingRejectedPreviews) {
+                        // Quando estiver trabalhando no ajuste de prévias reprovadas, foca no botão de Ajuste Pronto
+                        if (waProductionContainer) {
+                            waProductionContainer.style.display = 'grid';
+                            waProductionContainer.style.gridTemplateColumns = '1fr';
+                        }
+                        if (btnFirst) btnFirst.style.display = 'none';
+                        if (btnRevisions) btnRevisions.style.display = 'inline-flex';
+                    } else {
+                        // Primeira produção de prévias: exibe ambos
+                        if (waProductionContainer) {
+                            waProductionContainer.style.display = 'grid';
+                            waProductionContainer.style.gridTemplateColumns = '1fr 1fr';
+                        }
+                        if (btnFirst) btnFirst.style.display = 'inline-flex';
+                        if (btnRevisions) btnRevisions.style.display = 'inline-flex';
                     }
-                    if (btnFirst) btnFirst.style.display = 'inline-flex';
-                    if (btnRevisions) btnRevisions.style.display = 'inline-flex';
                     if (waFinalVideoContainer) {
                         waFinalVideoContainer.style.display = 'none';
                         waFinalVideoContainer.style.marginTop = '6px';
@@ -6545,14 +7529,11 @@
                     }
                     if (waReviewContainer) waReviewContainer.style.display = 'none';
                 } else if (stage === 'entregues') {
-                    // Pós-Venda: exibe Vídeo Final e Avaliação no Google
+                    // Pós-Venda: APENAS Satisfação e Avaliação no Google (SEM botão de vídeo final)
                     if (waMaterialsAdjustContainer) waMaterialsAdjustContainer.style.display = 'none';
                     if (waProductionContainer) waProductionContainer.style.display = 'none';
-                    if (waFinalVideoContainer) {
-                        waFinalVideoContainer.style.display = 'block';
-                        waFinalVideoContainer.style.marginTop = '0';
-                    }
-                    if (waReviewContainer) waReviewContainer.style.display = 'block';
+                    if (waFinalVideoContainer) waFinalVideoContainer.style.display = 'none';
+                    if (waReviewContainer) waReviewContainer.style.display = 'flex';
                 } else {
                     if (waMaterialsAdjustContainer) waMaterialsAdjustContainer.style.display = 'none';
                     if (waProductionContainer) waProductionContainer.style.display = 'none';
@@ -6568,16 +7549,198 @@
             const msg2 = encodeURIComponent(`*Olá, ${firstName}!*\n\nNossa equipe concluiu os ajustes solicitados na homenagem do seu ente querido (Pedido #${orderId}).\nA nova versão atualizada já está disponível para sua aprovação no painel:\n${panelUrl}\n\n*Equipe Reviva Memories*`);
             if (btnRevisions) btnRevisions.href = `https://wa.me/${cleanPhone}?text=${msg2}`;
 
-            // 3. Vídeo Final Concluído
+            // 3. Vídeo Final Concluído (Etapa 7)
             const msgFinalVideo = encodeURIComponent(`*Olá, ${firstName}! O momento mais esperado chegou! 🎬✨*\n\nO vídeo final em alta resolução da homenagem (Pedido #${orderId}) já foi concluído e está liberado com todo o carinho no seu painel exclusivo:\n${panelUrl}\n\nEsperamos que essa memória emocione o seu coração!\n\nCom carinho,\n*Equipe Reviva Memories*`);
             const btnFinalVideo = document.getElementById("btn-wa-final-video");
             if (btnFinalVideo) btnFinalVideo.href = `https://wa.me/${cleanPhone}?text=${msgFinalVideo}`;
 
-            // Pós-Venda: Pesquisa de Satisfação e Avaliação no Google
+            // Pós-Venda 1: Pesquisa de Satisfação
+            const msgSatisfaction = encodeURIComponent(`*Olá, ${firstName}! Tudo bem?* 🕊️\n\nPassando com todo o carinho para saber como foi a experiência e a emoção de vivenciar a homenagem (Pedido #${orderId}).\n\nComo foi esse reencontro para você e sua família? O resultado tocou o coração de vocês?\n\nSua percepção e carinho significam muito para nós!\n\nCom afeto,\n*Equipe Reviva Memories*`);
+            const btnSatisfaction = document.getElementById("btn-wa-satisfaction");
+            if (btnSatisfaction) btnSatisfaction.href = `https://wa.me/${cleanPhone}?text=${msgSatisfaction}`;
+
+            // Pós-Venda: Tratativa Pessoal (caso retorno seja negativo ou com ressalvas)
+            const msgPersonalSupport = encodeURIComponent(`*Olá, ${firstName}!* Aqui é a equipe de atendimento da *Reviva Memories*.\n\nGostaríamos de conversar pessoalmente com você sobre a homenagem (Pedido #${orderId}). Nosso compromisso é com o seu acolhimento e total satisfação.\n\nO que podemos fazer para tornar essa memória perfeita e acolhedora para você?\n\nEstamos à sua inteira disposição!`);
+            const btnPersonalSupport = document.getElementById("btn-wa-personal-support");
+            if (btnPersonalSupport) btnPersonalSupport.href = `https://wa.me/${cleanPhone}?text=${msgPersonalSupport}`;
+
+            // Pós-Venda 2: Pedido de Avaliação no Google (Apenas se a satisfação for positiva)
             const googleReviewUrl = "https://g.page/r/reviva-memories/review";
-            const msgReview = encodeURIComponent(`*Olá, ${firstName}!*\n\nPassando com todo o carinho para saber como foi a emoção e a experiência de vivenciar essa homenagem inesquecível (Pedido #${orderId}).\n\nSua satisfação e o reencontro com essa memória tão especial significam tudo para nós.\n\nSe esse momento tocou o seu coração, você poderia nos presentear com a sua avaliação de 5 estrelas no Google? Leva menos de 1 minuto e nos ajuda a continuar eternizando memórias com amor:\n${googleReviewUrl}\n\nGratidão imensa por confiar na nossa produção!\n*Equipe Reviva Memories*`);
+            const msgReview = encodeURIComponent(`*Olá, ${firstName}!* Ficamos imensamente felizes e emocionados em saber que você amou a homenagem! ✨\n\nSua satisfação e esse momento especial significam tudo para nós.\n\nVocê poderia nos presentear com uma rápida avaliação de 5 estrelas no Google contando como foi sua experiência? Leva menos de 1 minuto e nos ajuda a continuar eternizando memórias com amor:\n${googleReviewUrl}\n\nGratidão de coração pela confiança!\n*Equipe Reviva Memories*`);
             const btnReview = document.getElementById("btn-wa-review");
             if (btnReview) btnReview.href = `https://wa.me/${cleanPhone}?text=${msgReview}`;
+        }
+
+        // =========================================================================
+        // GESTÃO DE PÓS-VENDA: SATISFAÇÃO, TRATATIVA PESSOAL & AVALIAÇÃO NO GOOGLE
+        // =========================================================================
+        function renderCockpitPosVenda(crmData) {
+            const pill = document.getElementById("posvenda-status-pill");
+            const btnPos = document.getElementById("btn-satisfaction-pos");
+            const btnNeg = document.getElementById("btn-satisfaction-neg");
+            const boxTratativa = document.getElementById("box-tratativa-pessoal");
+            const btnReview = document.getElementById("btn-wa-review");
+            const msgLocked = document.getElementById("msg-google-locked");
+
+            if (!pill || !btnReview) return;
+
+            const status = crmData?.satisfactionStatus || 'pending';
+
+            if (status === 'positive') {
+                pill.textContent = 'Positiva ✓';
+                pill.style.background = 'rgba(34, 197, 94, 0.2)';
+                pill.style.color = '#4ade80';
+
+                if (btnPos) {
+                    btnPos.style.background = 'rgba(34, 197, 94, 0.35)';
+                    btnPos.style.borderColor = '#22c55e';
+                    btnPos.style.boxShadow = '0 0 10px rgba(34, 197, 94, 0.3)';
+                }
+                if (btnNeg) {
+                    btnNeg.style.background = 'rgba(239, 68, 68, 0.1)';
+                    btnNeg.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                    btnNeg.style.boxShadow = 'none';
+                }
+                if (boxTratativa) boxTratativa.style.display = 'none';
+
+                btnReview.style.opacity = '1';
+                btnReview.style.pointerEvents = 'auto';
+                btnReview.style.filter = 'none';
+                btnReview.style.cursor = 'pointer';
+                if (msgLocked) msgLocked.style.display = 'none';
+            } else if (status === 'negative') {
+                pill.textContent = 'Tratativa Pessoal ⚠️';
+                pill.style.background = 'rgba(239, 68, 68, 0.2)';
+                pill.style.color = '#f87171';
+
+                if (btnPos) {
+                    btnPos.style.background = 'rgba(34, 197, 94, 0.1)';
+                    btnPos.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                    btnPos.style.boxShadow = 'none';
+                }
+                if (btnNeg) {
+                    btnNeg.style.background = 'rgba(239, 68, 68, 0.35)';
+                    btnNeg.style.borderColor = '#ef4444';
+                    btnNeg.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.3)';
+                }
+                if (boxTratativa) boxTratativa.style.display = 'flex';
+
+                btnReview.style.opacity = '0.35';
+                btnReview.style.pointerEvents = 'none';
+                btnReview.style.filter = 'grayscale(0.85)';
+                btnReview.style.cursor = 'not-allowed';
+                if (msgLocked) {
+                    msgLocked.style.display = 'block';
+                    msgLocked.style.color = '#f87171';
+                    msgLocked.textContent = '⚠️ Bloqueado: realize a tratativa pessoal antes de solicitar avaliação.';
+                }
+            } else {
+                // Pendente
+                pill.textContent = crmData?.satisfactionSent ? 'Mensagem Enviada' : 'Aguardando';
+                pill.style.background = 'rgba(148, 163, 184, 0.15)';
+                pill.style.color = '#cbd5e1';
+
+                if (btnPos) {
+                    btnPos.style.background = 'rgba(34, 197, 94, 0.12)';
+                    btnPos.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                    btnPos.style.boxShadow = 'none';
+                }
+                if (btnNeg) {
+                    btnNeg.style.background = 'rgba(239, 68, 68, 0.12)';
+                    btnNeg.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                    btnNeg.style.boxShadow = 'none';
+                }
+                if (boxTratativa) boxTratativa.style.display = 'none';
+
+                btnReview.style.opacity = '0.4';
+                btnReview.style.pointerEvents = 'none';
+                btnReview.style.filter = 'grayscale(0.8)';
+                btnReview.style.cursor = 'not-allowed';
+                if (msgLocked) {
+                    msgLocked.style.display = 'block';
+                    msgLocked.style.color = '#94a3b8';
+                    msgLocked.textContent = '* Disponível após confirmação de satisfação positiva.';
+                }
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function setSatisfactionStatus(status) {
+            if (!selectedAdminOrderId) return;
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
+            if (!order) return;
+
+            const crmData = getOrCreateCrmOrderData(order);
+            crmData.satisfactionStatus = status;
+
+            crmData.history = crmData.history || [];
+            crmData.history.unshift({
+                timestamp: new Date().toISOString(),
+                dateFormatted: new Date().toLocaleString('pt-BR'),
+                event: status === 'positive' 
+                    ? 'Satisfação do cliente confirmada como Positiva (liberado pedido de avaliação no Google)' 
+                    : 'Satisfação com ressalvas registrada - iniciada Tratativa Pessoal humanizada',
+                type: 'system'
+            });
+
+            saveCrmOrderData(order.id, crmData);
+            renderCockpitPosVenda(crmData);
+            renderKanbanBoard();
+            updateHeaderAnalytics();
+        }
+
+        function handleSatisfactionSend() {
+            if (!selectedAdminOrderId) return;
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
+            if (!order) return;
+
+            const crmData = getOrCreateCrmOrderData(order);
+            if (!crmData.satisfactionSent) {
+                crmData.satisfactionSent = true;
+                crmData.history = crmData.history || [];
+                crmData.history.unshift({
+                    timestamp: new Date().toISOString(),
+                    dateFormatted: new Date().toLocaleString('pt-BR'),
+                    event: 'Mensagem de pesquisa de satisfação enviada ao cliente via WhatsApp',
+                    type: 'feedback'
+                });
+                saveCrmOrderData(order.id, crmData);
+                renderCockpitPosVenda(crmData);
+            }
+        }
+
+        function handleGoogleReviewSend(event) {
+            if (!selectedAdminOrderId) return;
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
+            if (!order) return;
+
+            const crmData = getOrCreateCrmOrderData(order);
+
+            if (crmData.satisfactionStatus !== 'positive') {
+                if (event) event.preventDefault();
+                alert('Atenção: O pedido de avaliação no Google só pode ser enviado caso a satisfação do cliente seja positiva.\nSe for negativa, realize a tratativa pessoal antes.');
+                return;
+            }
+
+            // Arquiva o pedido automaticamente ao enviar a solicitação de avaliação
+            crmData.archived = true;
+            crmData.archivedAt = new Date().toISOString();
+            crmData.googleReviewSent = true;
+
+            crmData.history = crmData.history || [];
+            crmData.history.unshift({
+                timestamp: new Date().toISOString(),
+                dateFormatted: new Date().toLocaleString('pt-BR'),
+                event: 'Pedido de avaliação no Google enviado e pedido arquivado com sucesso no Pós-Venda',
+                type: 'system'
+            });
+
+            saveCrmOrderData(order.id, crmData);
+            renderCockpitData(order.id);
+            renderKanbanBoard();
+            updateHeaderAnalytics();
+
+            alert(`✓ Mensagem de avaliação no Google enviada com sucesso!\nO Pedido #${order.id} foi concluído e movido para Arquivados.`);
         }
 
         function handleWaSendWithStageRelease(stage, actionName) {
@@ -6636,6 +7799,7 @@
                     }
                     crmData.stage = 'producao_previa';
                     crmData.feedback = '';
+                    crmData.adjustingRejectedPreviews = false;
                     const ordKeys = [`reviva_order_state_${order.id}`, 'reviva_order_state_1', 'reviva_full_session_state'];
                     ordKeys.forEach(k => {
                         try {
@@ -6859,8 +8023,14 @@
         function downloadFullOrderPackage() {
             if (window.RevivaDocumentService) {
                 const currentOrder = allAdminOrders.find(o => o.id === selectedAdminOrderId) || allAdminOrders[0];
-                const crmData = currentOrder ? getOrCreateCrmOrderData(currentOrder) : null;
-                const orderToSend = { ...currentOrder, stage: crmData?.stage || currentOrder?.stage };
+                if (!currentOrder) return;
+                const crmData = getOrCreateCrmOrderData(currentOrder);
+                const orderToSend = { 
+                    ...currentOrder, 
+                    stage: crmData?.stage || currentOrder?.stage,
+                    selectedBackground: crmData?.selectedBackground || currentOrder?.selectedBackground,
+                    selectedMusic: crmData?.selectedMusic || currentOrder?.selectedMusic
+                };
                 window.RevivaDocumentService.downloadFullOrderZip(orderToSend);
             } else {
                 alert('Carregando serviço de compactação de pacotes...');

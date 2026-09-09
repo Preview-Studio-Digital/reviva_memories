@@ -1094,10 +1094,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // Atualizar legenda com o formato escolhido (se o addon multiformato não estiver ativo)
-                if (subtitleSpan && (!upsellCheckbox || !upsellCheckbox.checked)) {
-                    const formatName = format === 'horizontal' ? 'Horizontal' : 'Vertical';
-                    subtitleSpan.textContent = `Formato ${formatName}`;
+                // Mantém a legenda de parcelamento atualizada
+                if (subtitleSpan) {
+                    const cardTotal = (upsellCheckbox && upsellCheckbox.checked) ? (basePrice + upsellPrice) : basePrice;
+                    const parcela = (cardTotal / 6).toFixed(2).replace('.', ',');
+                    subtitleSpan.textContent = `ou até 6x de R$ ${parcela} no cartão`;
                 }
             });
         });
@@ -2886,10 +2887,47 @@ void main() {
         });
         const mesh = new Mesh(gl, { geometry, program });
 
+        // ==========================================================================
+        // DETECÇÃO INTELIGENTE DE HARDWARE & ADAPTAÇÃO DINÂMICA
+        // ==========================================================================
+        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        const cpuCores = navigator.hardwareConcurrency || 4;
+        const deviceMemory = navigator.deviceMemory || 4; // GB de RAM (quando disponível)
+
+        // Detecção da GPU via extensão WebGL
+        let isHighEndGPU = true;
+        let gpuRendererName = '';
+        try {
+            const dbgExt = gl.getExtension('WEBGL_debug_renderer_info');
+            if (dbgExt) {
+                gpuRendererName = gl.getParameter(dbgExt.UNMASKED_RENDERER_WEBGL) || '';
+                const lower = gpuRendererName.toLowerCase();
+                // GPUs dedicadas ou Apple Silicon potentes
+                if (lower.includes('nvidia') || lower.includes('geforce') || lower.includes('rtx') || 
+                    lower.includes('radeon') || lower.includes('apple m') || lower.includes('apple gpu') ||
+                    lower.includes('adreno (tm) 7') || lower.includes('adreno (tm) 8')) {
+                    isHighEndGPU = true;
+                } else if (lower.includes('intel hd') || lower.includes('mali-g5') || lower.includes('mali-4') || lower.includes('adreno 5') || lower.includes('adreno 6')) {
+                    isHighEndGPU = false;
+                }
+            }
+        } catch (e) {
+            isHighEndGPU = (cpuCores >= 6);
+        }
+
+        // Define perfil inicial seguro e fluido
+        let targetDPR = 1.5;
+        if (isTouchDevice) {
+            // Em celulares, 1.0 é extremamente nítido e economiza bateria/aquecimento
+            targetDPR = isHighEndGPU ? 1.2 : 0.9;
+        } else {
+            // Em desktops/laptops
+            targetDPR = isHighEndGPU ? Math.min(window.devicePixelRatio || 1, 1.5) : 1.0;
+        }
+
         const updatePlacement = () => {
             if (!ctn) return;
-            // OTIMIZAÇÃO: Limita DPR a 1.0 para evitar sobrecarga em telas 2K/4K/Retina de laptops
-            renderer.dpr = Math.min(window.devicePixelRatio || 1, 1.0);
+            renderer.dpr = targetDPR;
             const wCSS = ctn.clientWidth;
             const hCSS = ctn.clientHeight;
             renderer.setSize(wCSS, hCSS);
@@ -2922,12 +2960,37 @@ void main() {
         let isRunning = false;
         let isCtnVisible = true;
 
+        // Benchmark de FPS nos primeiros segundos para autoajuste imperceptível
+        let frameCount = 0;
+        let benchmarkStartTime = 0;
+        let isBenchmarkActive = true;
+        let dynamicOptimized = false;
+
         const loop = (t) => {
             if (!isRunning) return;
             animationFrameId = requestAnimationFrame(loop);
 
-            // OTIMIZAÇÃO DE PERFORMANCE: Pausa a renderização WebGL se o canvas não estiver visível
-            if (!isCtnVisible) return;
+            // Pausa a renderização se o elemento estiver fora ou o documento oculto (aba em background)
+            if (!isCtnVisible || document.hidden || document.body.classList.contains('video-modal-open')) return;
+
+            // Medição de FPS para autoajuste silencioso em máquinas com dificuldade
+            if (isBenchmarkActive) {
+                if (!benchmarkStartTime) benchmarkStartTime = t;
+                frameCount++;
+                const elapsedBenchmark = t - benchmarkStartTime;
+                // Após 1.5 segundo de navegação ativa:
+                if (elapsedBenchmark > 1500) {
+                    const currentFPS = (frameCount * 1000) / elapsedBenchmark;
+                    // Se o FPS estiver sofrendo (abaixo de 42 FPS) num PC ou celular modesto:
+                    if (currentFPS < 42 && !dynamicOptimized) {
+                        dynamicOptimized = true;
+                        targetDPR = Math.max(0.75, targetDPR * 0.75);
+                        uniforms.uDensity.value = Math.max(0.12, uniforms.uDensity.value * 0.75);
+                        updatePlacement();
+                    }
+                    isBenchmarkActive = false; // Finaliza o teste silencioso
+                }
+            }
 
             const timeSeconds = t * 0.001;
             uniforms.uTime.value = timeSeconds;
@@ -2963,6 +3026,15 @@ void main() {
                 animationFrameId = null;
             }
         };
+
+        // Gerencia visibilidade da aba do navegador para economizar 100% de CPU/GPU quando inativa
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stopLoop();
+            } else {
+                startLoop();
+            }
+        });
 
         // Inicia o loop e escuta visibilidade da tela
         startLoop();
@@ -3007,7 +3079,7 @@ void main() {
                     if (itemData.type === 'video') {
                         mediaContainer.innerHTML = `
                             <img class="ag-card-poster" src="${itemData.poster || ''}" alt="" draggable="false">
-                            <video class="ag-card-video" src="${itemData.src}" poster="${itemData.poster || ''}" playsinline muted preload="auto"></video>
+                            <video class="ag-card-video" src="${itemData.src}" poster="${itemData.poster || ''}" playsinline muted preload="metadata"></video>
                         `;
                         // Cria botão de play circular sem texto na base do vídeo
                         const playBtn = document.createElement('button');
@@ -3848,11 +3920,7 @@ void main() {
         const selected = testimonialsPool.slice(startIdx, startIdx + 4);
 
         const cards = testimonialsContainer.querySelectorAll('.testimonial-card');
-
-        if (cards.length === 0) {
-            renderTestimonialsCards(testimonialsContainer, selected);
-            return;
-        }
+        if (cards.length === 0) return;
 
         if (withAnimation && window.gsap) {
             gsap.killTweensOf(cards);
@@ -3896,6 +3964,11 @@ void main() {
     const initialContainer = document.querySelector('.testimonials-row');
     if (initialContainer) {
         const initialSelected = testimonialsPool.slice(0, 4);
-        renderTestimonialsCards(initialContainer, initialSelected);
+        const cards = initialContainer.querySelectorAll('.testimonial-card');
+        cards.forEach((card, idx) => {
+            if (initialSelected[idx]) {
+                updateTestimonialCardData(card, initialSelected[idx]);
+            }
+        });
     }
 });

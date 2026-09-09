@@ -65,7 +65,6 @@ input:focus::placeholder, textarea:focus::placeholder {
 }
 
 html {
-    scroll-behavior: smooth;
     font-family: var(--font-primary);
     background-color: var(--bg-main);
     color: var(--text-primary);
@@ -123,7 +122,10 @@ body::before {
     background-attachment: fixed;
     background-repeat: no-repeat;
     filter: blur(10px); /* Ajuste o valor para mais ou menos desfoque */
-    transform: scale(1.04); /* Escala ligeiramente para evitar que as bordas da tela fiquem brancas/borradas */
+    transform: scale(1.04) translateZ(0); /* Escala e ativa aceleração por hardware da GPU */
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform, opacity;
     pointer-events: none;
     transition: opacity 0.8s ease-in-out;
     opacity: 1;
@@ -3344,8 +3346,8 @@ span.section-tag.handwritten-title {
     width: 100% !important;
     margin: 10px auto 8px auto !important;
     flex: 1 1 auto !important;
-    max-height: 530px !important; /* Impede o card de se esticar em um tubo gigante e criar vácuo */
-    min-height: 450px !important; /* Garante altura nobre e equilibrada */
+    max-height: clamp(560px, 72vh, 680px) !important;
+    min-height: 480px !important;
     box-sizing: border-box !important;
 }
 
@@ -3375,7 +3377,7 @@ span.section-tag.handwritten-title {
     -webkit-backdrop-filter: blur(16px) !important;
     border: 2px solid rgba(197, 160, 89, 0.25) !important;
     border-radius: var(--radius-lg) !important;
-    padding: 18px 18px 16px 18px !important;
+    padding: clamp(14px, 1.8vh, 20px) clamp(14px, 1.3vw, 20px) !important;
     transition: var(--transition-smooth) !important;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
     box-sizing: border-box !important;
@@ -3473,60 +3475,145 @@ span.section-tag.handwritten-title {
     margin-bottom: 0;
 }
 
-/* Área de Preço - Horizontal (Valor Cheio à Esquerda, PIX & Cartão à Direita) */
+/* Área de Preço - Contida, Elegante e Sem Vazamentos */
 .plan-pricing {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: var(--radius-sm);
-    padding: 7px 12px;
-    margin: 8px 0;
+    background: rgba(16, 12, 9, 0.6) !important;
+    border: 1.5px solid rgba(197, 160, 89, 0.3) !important;
+    border-radius: 10px !important;
+    padding: 10px 12px !important;
+    margin: 6px 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+    transition: var(--transition-smooth) !important;
+}
+
+.plan-card.featured .plan-pricing {
+    background: rgba(26, 18, 12, 0.72) !important;
+    border-color: rgba(229, 195, 120, 0.6) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 0 18px rgba(229, 195, 120, 0.1) !important;
+}
+
+.price-display-wrap {
     display: flex !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    gap: 8px !important;
-    text-align: left;
-    box-sizing: border-box;
+    justify-content: flex-start !important;
+    width: 100% !important;
 }
 
 .price-display {
-    display: flex;
-    align-items: baseline;
-    justify-content: flex-start;
-    gap: 2px;
-    color: #ffffff;
-    flex-shrink: 0;
+    display: inline-flex !important;
+    align-items: baseline !important;
+    justify-content: flex-start !important;
+    gap: 3px !important;
+    color: #ffffff !important;
+    flex-shrink: 0 !important;
 }
 
 .price-display .currency {
-    font-size: 0.90rem;
-    font-weight: 600;
-    color: var(--brand-gold);
+    font-size: clamp(0.95rem, 1.1vw, 1.15rem) !important;
+    font-weight: 700 !important;
+    color: var(--brand-gold) !important;
 }
 
 .price-display .amount {
-    font-size: 1.55rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
+    font-size: clamp(1.8rem, 2.2vw, 2.35rem) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px !important;
+    line-height: 1 !important;
 }
 
 .price-display .cents {
-    font-size: 0.90rem;
-    font-weight: 700;
-    color: var(--text-secondary);
+    font-size: clamp(0.95rem, 1.1vw, 1.15rem) !important;
+    font-weight: 700 !important;
+    color: #cbd5e1 !important;
+}
+
+/* Faixa dedicada de Destaque para Pagamento à Vista via PIX */
+.pix-badge-box {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    background: rgba(34, 197, 94, 0.08) !important;
+    border: 1px solid rgba(74, 222, 128, 0.28) !important;
+    border-radius: 6px !important;
+    padding: 4px 8px !important;
+    box-sizing: border-box !important;
+    transition: var(--transition-smooth) !important;
+}
+
+.pix-left-wrap {
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+}
+
+.pix-icon {
+    font-size: 0.88rem !important;
+    line-height: 1 !important;
+    filter: drop-shadow(0 0 4px rgba(74, 222, 128, 0.4)) !important;
+}
+
+.pix-price-tag {
+    color: #4ade80 !important;
+    font-weight: 700 !important;
+    font-size: clamp(0.80rem, 0.9vw, 0.90rem) !important;
+    letter-spacing: 0.2px !important;
+    white-space: nowrap !important;
+}
+
+.pix-discount-badge {
+    background: rgba(34, 197, 94, 0.22) !important;
+    border: 1px solid rgba(74, 222, 128, 0.45) !important;
+    color: #86efac !important;
+    font-size: 0.65rem !important;
+    font-weight: 800 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    letter-spacing: 0.5px !important;
+    white-space: nowrap !important;
+    text-transform: uppercase !important;
+}
+
+.plan-pricing-bottom {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    border-top: 1px dashed rgba(197, 160, 89, 0.25) !important;
+    padding-top: 5px !important;
+    margin-top: 1px !important;
+    box-sizing: border-box !important;
 }
 
 .price-subtitle {
-    display: block;
-    font-size: 0.65rem;
-    color: var(--text-secondary);
-    margin-top: 1px;
+    display: block !important;
+    font-size: clamp(0.70rem, 0.80vw, 0.78rem) !important;
+    color: #94a3b8 !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.2px !important;
+    text-align: left !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
 }
 
-/* Quadro de valor dourado no card selecionado */
 .plan-card.featured .price-display .currency,
-.plan-card.featured .price-display .cents,
-.plan-card.featured .price-subtitle {
+.plan-card.featured .price-display .cents {
     color: #e5c378 !important;
+}
+
+.plan-card.featured .pix-badge-box {
+    background: rgba(34, 197, 94, 0.12) !important;
+    border-color: rgba(74, 222, 128, 0.4) !important;
+}
+
+.plan-card.featured .price-subtitle {
+    color: #cbd5e1 !important;
 }
 
 /* Opções de Formato e Upsell */
@@ -3649,17 +3736,17 @@ span.section-tag.handwritten-title {
 .plan-features {
     list-style: none !important;
     padding: 0 !important;
-    margin: 0 0 14px 0 !important;
+    margin: 0 0 clamp(10px, 1.4vh, 16px) 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 6px !important;
+    gap: clamp(5px, 0.8vh, 8px) !important;
 }
 
 .plan-features li {
     display: flex !important;
     align-items: center !important;
     gap: 7px !important;
-    font-size: 0.80rem !important;
+    font-size: clamp(0.78rem, 0.9vw, 0.84rem) !important;
     color: var(--text-secondary) !important;
     list-style-type: none !important;
     background: none !important;
@@ -3682,10 +3769,10 @@ span.section-tag.handwritten-title {
 /* Botão do card não selecionado (cinza discreto como a tag inativa) */
 .plan-card .plan-buy-btn {
     width: 100% !important;
-    padding: 11px 16px !important;
-    font-size: 0.86rem !important;
+    padding: clamp(10px, 1.4vh, 13px) 16px !important;
+    font-size: clamp(0.82rem, 0.95vw, 0.88rem) !important;
     font-weight: 700 !important;
-    margin-top: auto !important;
+    margin-top: 0 !important; /* Sem vácuo artificial */
     margin-bottom: 0 !important;
     flex-shrink: 0 !important; /* NUNCA amassar ou empurrar para fora */
     display: flex !important;

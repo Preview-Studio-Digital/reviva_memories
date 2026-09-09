@@ -1066,6 +1066,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 processedCount++;
                 if (processedCount === filesToProcess.length) {
                     renderPhotoPreviews();
+                    saveFullSessionState();
                 }
             };
             reader.readAsDataURL(file);
@@ -1210,6 +1211,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         uploadedPhotos.splice(index, 1);
         renderPhotoPreviews();
         updateNextStep1ButtonState();
+        saveFullSessionState();
     };
 
     document.querySelectorAll('#scenariosContainer .scenario-name-btn').forEach(card => {
@@ -1274,6 +1276,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        saveFullSessionState();
         goToStep(2);
     });
 
@@ -1440,6 +1443,70 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
             localStorage.setItem(`reviva_order_state_${ordIdent}`, JSON.stringify(state));
             localStorage.setItem('reviva_order_state_REVIVA-1001', JSON.stringify(state));
             localStorage.setItem('reviva_order_state_1', JSON.stringify(state));
+
+            // Salvar fotos, áudios e termo de responsabilidade separadamente para integração direta com admin e downloads
+            localStorage.setItem('reviva_client_photos', JSON.stringify(uploadedPhotos));
+            localStorage.setItem('reviva_client_audio', JSON.stringify(uploadedAudios));
+            localStorage.setItem(`reviva_client_photos_${ordIdent}`, JSON.stringify(uploadedPhotos));
+            localStorage.setItem(`reviva_client_audio_${ordIdent}`, JSON.stringify(uploadedAudios));
+            if (legalTermSigned && legalTermSigned.signed) {
+                localStorage.setItem('reviva_legal_term', JSON.stringify(legalTermSigned));
+                localStorage.setItem(`reviva_legal_term_${ordIdent}`, JSON.stringify(legalTermSigned));
+            }
+            if (orderData?.payment_id) {
+                localStorage.setItem(`reviva_order_state_${orderData.payment_id}`, JSON.stringify(state));
+                localStorage.setItem(`reviva_client_photos_${orderData.payment_id}`, JSON.stringify(uploadedPhotos));
+                localStorage.setItem(`reviva_client_audio_${orderData.payment_id}`, JSON.stringify(uploadedAudios));
+                if (legalTermSigned && legalTermSigned.signed) {
+                    localStorage.setItem(`reviva_legal_term_${orderData.payment_id}`, JSON.stringify(legalTermSigned));
+                }
+            }
+            if (orderData?.order_id) {
+                localStorage.setItem(`reviva_order_state_${orderData.order_id}`, JSON.stringify(state));
+                localStorage.setItem(`reviva_client_photos_${orderData.order_id}`, JSON.stringify(uploadedPhotos));
+                localStorage.setItem(`reviva_client_audio_${orderData.order_id}`, JSON.stringify(uploadedAudios));
+                if (legalTermSigned && legalTermSigned.signed) {
+                    localStorage.setItem(`reviva_legal_term_${orderData.order_id}`, JSON.stringify(legalTermSigned));
+                }
+            }
+
+            // Sincronizar avanço de etapa no CRM (Painel Admin):
+            // Quando fotos e áudios forem enviados ou o cliente estiver da Etapa 2 em diante, move para "material_enviado" (3. Recebidos)
+            if (currentStep >= 2 || (uploadedPhotos && uploadedPhotos.length > 0 && uploadedAudios && uploadedAudios.length > 0)) {
+                const crmKeys = [
+                    'reviva_crm_order_' + ordIdent,
+                    'reviva_crm_order_REVIVA-1001',
+                    'reviva_crm_order_1'
+                ];
+                if (orderData?.payment_id) crmKeys.push('reviva_crm_order_' + orderData.payment_id);
+                if (orderData?.order_id) crmKeys.push('reviva_crm_order_' + orderData.order_id);
+
+                crmKeys.forEach(k => {
+                    try {
+                        const rawCrm = localStorage.getItem(k);
+                        let c = rawCrm ? JSON.parse(rawCrm) : null;
+                        if (!c) {
+                            c = {
+                                stage: 'material_enviado',
+                                manualStageOverride: false,
+                                history: []
+                            };
+                        }
+                        if (c.stage === 'pagamento_confirmado' || c.stage === 'aguardando_pagamento' || !c.stage) {
+                            c.stage = 'material_enviado';
+                            c.manualStageOverride = false;
+                            if (!Array.isArray(c.history)) c.history = [];
+                            c.history.unshift({
+                                timestamp: new Date().toISOString(),
+                                dateFormatted: new Date().toLocaleString('pt-BR'),
+                                event: `Cliente enviou ${uploadedPhotos?.length || 0} foto(s) e ${uploadedAudios?.length || 0} áudio(s). Materiais recebidos pela Produção.`,
+                                type: 'stage'
+                            });
+                        }
+                        localStorage.setItem(k, JSON.stringify(c));
+                    } catch(e) {}
+                });
+            }
         } catch (e) {
             console.warn('Erro ao salvar sessão completa:', e);
         }
@@ -2295,16 +2362,26 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         if (remainingSlots <= 0) return;
 
         const filesToProcess = Array.from(files).slice(0, remainingSlots);
+        let processed = 0;
         filesToProcess.forEach(file => {
             const url = URL.createObjectURL(file);
-            uploadedAudios.push({
-                name: file.name,
-                size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
-                url: url,
-                file: file
-            });
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedAudios.push({
+                    name: file.name,
+                    size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
+                    url: url,
+                    data: e.target.result,
+                    file: file
+                });
+                processed++;
+                if (processed === filesToProcess.length) {
+                    renderAudioPreviews();
+                    saveFullSessionState();
+                }
+            };
+            reader.readAsDataURL(file);
         });
-        renderAudioPreviews();
     }
 
     window.togglePlayAttachedAudio = function(index, event) {
@@ -2468,6 +2545,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         }
         renderAudioPreviews();
         updateNextStep1ButtonState();
+        saveFullSessionState();
     };
 
     // Player de Amostra de Trilha Sonora com Pause Imediato e Fade Out nos últimos 5 segundos
@@ -3146,6 +3224,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
                 if (raw) {
                     const c = JSON.parse(raw);
                     c.stage = 'previas_reprovadas';
+                    c.adjustingRejectedPreviews = false;
                     c.photoApproved = (photoDecision === 'approved');
                     c.voiceApproved = (voiceDecision === 'approved');
 
@@ -3627,6 +3706,17 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
             signedAt: new Date().toISOString(),
             dateFormatted: new Date().toLocaleString('pt-BR')
         };
+
+        localStorage.setItem('reviva_legal_term', JSON.stringify(legalTermSigned));
+        if (typeof ordIdent !== 'undefined' && ordIdent) {
+            localStorage.setItem(`reviva_legal_term_${ordIdent}`, JSON.stringify(legalTermSigned));
+        }
+        if (typeof orderData !== 'undefined' && orderData?.payment_id) {
+            localStorage.setItem(`reviva_legal_term_${orderData.payment_id}`, JSON.stringify(legalTermSigned));
+        }
+        if (typeof orderData !== 'undefined' && orderData?.order_id) {
+            localStorage.setItem(`reviva_legal_term_${orderData.order_id}`, JSON.stringify(legalTermSigned));
+        }
 
         updateTermoUI();
         const modal = document.getElementById('modal-termo-responsabilidade');

@@ -386,6 +386,10 @@
                     console.warn('⚠️ [Meta WhatsApp API] Resposta da Meta:', data);
                     return { success: false, error: data };
                 }
+            } catch (err) {
+                console.error('❌ [Meta WhatsApp API] Erro na requisição:', err);
+                return { success: false, error: err?.message || err };
+            }
         },
 
         /**

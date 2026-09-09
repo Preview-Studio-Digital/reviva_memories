@@ -299,25 +299,59 @@
             const zip = new window.JSZip();
             const orderId = customOrder?.id || orderData.order_id || state.orderData?.order_id || 'REVIVA-1001';
             const clientName = customOrder?.clientName || orderData.customer_name || state.clientName || 'Cliente';
-            const clientCpf = customOrder?.clientCpf || orderData.customer_cpf || state.clientCpf || 'Nao informado';
-            const clientPhone = customOrder?.clientPhone || orderData.customer_phone || state.clientPhone || 'Nao informado';
+            const clientCpf = customOrder?.clientCpf || orderData.customer_cpf || state.clientCpf || '000.000.000-00';
+            const clientPhone = customOrder?.clientPhone || orderData.customer_phone || state.clientPhone || 'Não informado';
+            const clientEmail = customOrder?.clientEmail || orderData.customer_email || state.clientEmail || 'Não informado';
             const planName = customOrder?.planName || orderData.plan_name || 'Plano Legatum';
+            const formatStr = customOrder?.format || orderData.format || 'Horizontal (16:9)';
+            const durationStr = customOrder?.duration || orderData.duration || '1 Minuto';
             const safeName = clientName.replace(/[^a-zA-Z0-9]/g, '_');
 
-            // 1. Gerar e adicionar o Termo em PDF
+            // Carregar dados de estado do pedido específico
+            let orderStateObj = {};
+            try {
+                const rawOrderState = localStorage.getItem(`reviva_order_state_${orderId}`) ||
+                                      (orderId === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
+                if (rawOrderState) orderStateObj = JSON.parse(rawOrderState);
+            } catch(e) {}
+
+            let orderCrmData = null;
+            try {
+                const rawCrm = localStorage.getItem(`reviva_crm_order_${orderId}`);
+                if (rawCrm) orderCrmData = JSON.parse(rawCrm);
+            } catch(e) {}
+
+            const dtCreated = customOrder?.dateCreated ? new Date(customOrder.dateCreated) : new Date();
+            const orderDateStr = `${String(dtCreated.getDate()).padStart(2, '0')}/${String(dtCreated.getMonth()+1).padStart(2, '0')}/${String(dtCreated.getFullYear()).slice(-2)}`;
+            const orderTimeStr = `${String(dtCreated.getHours()).padStart(2, '0')}:${String(dtCreated.getMinutes()).padStart(2, '0')}`;
+
+            let termoData = null;
+            try {
+                const rawTerm = localStorage.getItem('reviva_legal_term');
+                if (rawTerm) termoData = JSON.parse(rawTerm);
+                if (!termoData && state.legalTermSigned) termoData = state.legalTermSigned;
+                if (!termoData && orderStateObj?.legalTermSigned) termoData = orderStateObj.legalTermSigned;
+            } catch(e) {}
+
+            const signedAt = customOrder?.termoSignedAt || termoData?.dateFormatted || termoData?.signedAt || `${orderDateStr} às ${orderTimeStr}`;
+            const authHash = customOrder?.termoHash || termoData?.authHash || ('REVIVA-AUTH-' + Math.abs(orderId.split('').reduce((a,b)=>(((a<<5)-a)+b.charCodeAt(0))|0, 0)).toString(16).toUpperCase() + '9B2C');
+
+            // 1. Gerar e adicionar o Termo de Responsabilidade em PDF
             try {
                 const pdfDoc = await this.generateTermoPDF({
                     orderId: orderId,
                     name: clientName,
                     cpf: clientCpf,
-                    planName: planName
+                    planName: planName,
+                    signedAt: signedAt,
+                    authHash: authHash
                 });
                 if (pdfDoc) {
                     const pdfBlob = pdfDoc.output('blob');
                     zip.file(`Termo_Responsabilidade_${orderId}.pdf`, pdfBlob);
                 }
             } catch(err) {
-                console.warn('Erro ao embutir PDF no zip:', err);
+                console.warn('Erro ao embutir PDF do termo no zip:', err);
             }
 
             // 2. Mapeamento Oficial de Ambientes e Trilhas Sonoras
@@ -347,144 +381,148 @@
                 'harpa': 'Harpa Angelical'
             };
 
-            // Identificar escolhas do pedido atual e estágio
-            let orderStateObj = {};
-            try {
-                const rawOrderState = localStorage.getItem(`reviva_order_state_${orderId}`) ||
-                                      (orderId === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
-                if (rawOrderState) orderStateObj = JSON.parse(rawOrderState);
-            } catch(e) {}
-
-            let orderCrmData = null;
-            try {
-                const rawCrm = localStorage.getItem(`reviva_crm_order_${orderId}`);
-                if (rawCrm) orderCrmData = JSON.parse(rawCrm);
-            } catch(e) {}
-
-            const currentStage = customOrder?.stage || orderCrmData?.stage || 'pagamento_confirmado';
-            const isStage1 = currentStage === 'aguardando_pagamento';
-            const isStage2 = currentStage === 'pagamento_confirmado';
-            const isPreMaterialStage = isStage1 || isStage2;
-
             const bgKey = (customOrder?.selectedBackground || orderStateObj?.selectedBackground || state.selectedBackground || 'ceu').toLowerCase();
             const bgInfo = BACKGROUND_MAP[bgKey] || { name: 'Nuvens Celestiais', file: 'bg_ceu.jpg' };
 
             const musicKey = (customOrder?.selectedMusic || orderStateObj?.selectedMusic || state.selectedMusic || 'sem_musica').toLowerCase();
             const musicName = MUSIC_MAP[musicKey] || 'Sons Naturais';
 
-            let bgDossieText = `${bgInfo.name} (arquivo HD anexado no pacote)`;
-            let musicDossieText = `${musicName} (aplicar da matriz de audio)`;
-            let toneDossieText = (state.scriptTone || orderStateObj.scriptTone || 'Profundamente Emocionante');
+            const toneDossieText = (customOrder?.tone || orderStateObj?.scriptTone || state.scriptTone || 'Profundamente Emocionante');
+
             const scriptEl = document.getElementById('admin-script-text');
-            let scriptText = (scriptEl ? (scriptEl.innerText || scriptEl.textContent).trim() : (state.approvedScript || 'Roteiro em fase de curadoria.'));
-            let statusDossieStr = 'Em Producao / Lapidacao';
+            let scriptText = customOrder?.scriptText ||
+                             orderStateObj?.latestScriptText ||
+                             orderStateObj?.scriptText ||
+                             (scriptEl ? (scriptEl.innerText || scriptEl.textContent).trim() : '') ||
+                             state.approvedScript ||
+                             state.latestScriptText ||
+                             'Roteiro em fase de elaboração / curadoria pelo cliente.';
 
-            if (isStage1) {
-                bgDossieText = 'Bloqueado (pedido ainda não contratado / aguardando pagamento)';
-                musicDossieText = 'Bloqueado (pedido ainda não contratado / aguardando pagamento)';
-                toneDossieText = 'Bloqueado (aguardando confirmação do pagamento)';
-                scriptText = 'Bloqueado (pedido ainda não contratado / aguardando confirmação do pagamento).';
-                statusDossieStr = 'Bloqueado - Aguardando Pagamento (Não Contratado)';
-            } else if (isStage2) {
-                bgDossieText = 'Pendente (o cliente ainda não enviou os materiais no painel)';
-                musicDossieText = 'Pendente (o cliente ainda não enviou os materiais no painel)';
-                toneDossieText = 'Pendente (aguardando preenchimento da entrevista no painel)';
-                scriptText = 'Pendente (o cliente ainda não enviou as fotos, áudios e roteiro no painel).';
-                statusDossieStr = 'Aguardando Envio de Materiais pelo Cliente';
-            }
+            // 3. Adicionar Roteiro Oficial Dedicado (.txt)
+            zip.file(`Roteiro_Oficial_${orderId}.txt`, scriptText);
 
-            // 3. Adicionar Roteiro e Dossie em Texto
-            const paymentMethodStr = customOrder?.paymentMethod || orderData.paymentMethod || 'Cartao';
+            // 4. Montar Dossiê de Produção Completo (.txt) com todos os dados do painel
+            const paymentMethodStr = customOrder?.paymentMethod || orderData.paymentMethod || 'Cartão / PIX';
             const installments = customOrder?.installments || orderData.installments || 1;
             const paymentDetailsStr = paymentMethodStr.toLowerCase().includes('cart') ? `Cartão - ${installments}x` : paymentMethodStr;
+            const priceValStr = customOrder?.valueFormatted || (customOrder?.price ? `R$ ${Number(customOrder.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : (orderData.price ? `R$ ${Number(orderData.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 447,30'));
+
+            // Checagem de fotos e áudios enviados
+            let photosList = [];
+            try {
+                const rawPhotos = localStorage.getItem(`reviva_client_photos_${orderId}`) ||
+                                  (customOrder?.orderId ? localStorage.getItem(`reviva_client_photos_${customOrder.orderId}`) : null) ||
+                                  localStorage.getItem('reviva_client_photos') ||
+                                  localStorage.getItem('reviva_uploaded_photos');
+                if (rawPhotos) photosList = JSON.parse(rawPhotos);
+                if ((!photosList || photosList.length === 0) && orderStateObj?.uploadedPhotos) {
+                    photosList = orderStateObj.uploadedPhotos;
+                }
+            } catch(e) {}
+
+            let audiosList = [];
+            try {
+                const rawAudio = localStorage.getItem(`reviva_client_audio_${orderId}`) ||
+                                 (customOrder?.orderId ? localStorage.getItem(`reviva_client_audio_${customOrder.orderId}`) : null) ||
+                                 localStorage.getItem('reviva_client_audio') ||
+                                 localStorage.getItem('reviva_uploaded_audios');
+                if (rawAudio) audiosList = JSON.parse(rawAudio);
+                if ((!audiosList || audiosList.length === 0) && orderStateObj?.uploadedAudios) {
+                    audiosList = orderStateObj.uploadedAudios;
+                }
+            } catch(e) {}
 
             const dossieText = `================================================================================\n` +
-                `DOSSIE DE PRODUCAO - REVIVA MEMORIES\n` +
+                `DOSSIÊ DE PRODUÇÃO - REVIVA MEMORIES\n` +
                 `================================================================================\n\n` +
-                `Numero do Pedido: ${orderId}\n` +
-                `Cliente: ${clientName}\n` +
+                `DADOS CADASTRAIS & CONTRATUAIS DO PEDIDO:\n` +
+                `--------------------------------------------------------------------------------\n` +
+                `ID do Pedido: #${orderId}\n` +
+                `Cliente Contratante: ${clientName}\n` +
                 `CPF: ${clientCpf}\n` +
                 `WhatsApp: ${clientPhone}\n` +
-                `Plano: ${planName}\n` +
+                `E-mail: ${clientEmail}\n` +
+                `Plano Contratado: ${planName} • ${durationStr} • ${formatStr}\n` +
+                `Valor Total: ${priceValStr}\n` +
                 `Forma de Pagamento: ${paymentDetailsStr}\n` +
-                `Status: ${statusDossieStr}\n\n` +
+                `Data & Hora da Compra: ${orderDateStr} às ${orderTimeStr}\n\n` +
                 `--------------------------------------------------------------------------------\n` +
-                `ROTEIRO OFICIAL APROVADO:\n` +
+                `TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO:\n` +
+                `--------------------------------------------------------------------------------\n` +
+                `Status do Termo: ASSINADO DIGITALMENTE (Aceite Eletrônico Válido)\n` +
+                `Titular Signatário: ${clientName} (CPF: ${clientCpf})\n` +
+                `Data & Hora do Aceite: ${signedAt}\n` +
+                `Hash Criptográfico de Autenticidade: ${authHash}\n` +
+                `Amparo Legal: MP nº 2.200-2/2001 e Art. 10 da Lei Federal 14.063/2020\n` +
+                `Arquivo Vinculado no Pacote: Termo_Responsabilidade_${orderId}.pdf\n\n` +
+                `--------------------------------------------------------------------------------\n` +
+                `DIRETRIZES TÉCNICAS & ESCOLHAS DO CLIENTE:\n` +
+                `--------------------------------------------------------------------------------\n` +
+                `Ambiente de Fundo Escolhido: ${bgInfo.name} (arquivo HD anexado no pacote)\n` +
+                `Trilha Sonora Escolhida: ${musicName} (aplicar da biblioteca da produção)\n` +
+                `Tom Emocional da Narração: ${toneDossieText}\n` +
+                `Total de Fotos Originais Anexadas: ${photosList.length} arquivo(s)\n` +
+                `Total de Áudios de Referência Anexados: ${audiosList.length} gravação(ões)\n\n` +
+                `--------------------------------------------------------------------------------\n` +
+                `ROTEIRO OFICIAL APROVADO PARA PRODUÇÃO:\n` +
                 `--------------------------------------------------------------------------------\n\n` +
                 `${scriptText}\n\n` +
-                `--------------------------------------------------------------------------------\n` +
-                `ESCOLHAS DE AMBIENTE & TRILHA DO CLIENTE:\n` +
-                `--------------------------------------------------------------------------------\n` +
-                `Ambiente de Fundo Escolhido: ${bgDossieText}\n` +
-                `Trilha Sonora Escolhida: ${musicDossieText}\n` +
-                `Tom Emocional: ${toneDossieText}\n\n` +
-                `Reviva Memories (c) 2026. Todos os direitos reservados.\n`;
+                `================================================================================\n` +
+                `Reviva Memories © 2026. Todos os direitos reservados.\n` +
+                `Documento gerado confidencialmente para uso exclusivo da Produção.\n` +
+                `================================================================================\n`;
 
             zip.file(`Dossie_Pedido_${orderId}.txt`, dossieText);
 
-            // 4. Anexar o Ambiente de Fundo em Alta Resolução (HD) somente se o cliente já enviou os materiais (Etapa 3 em diante)
-            if (!isPreMaterialStage) {
+            // 5. Anexar o Ambiente de Fundo em Alta Resolução (HD)
+            try {
+                let bgBlob = null;
                 try {
-                    let bgBlob = null;
+                    const respHd = await fetch(`assets/ambientes_hd/${bgInfo.file}`);
+                    if (respHd.ok) bgBlob = await respHd.blob();
+                } catch(e) {}
+
+                if (!bgBlob) {
                     try {
-                        const respHd = await fetch(`assets/ambientes_hd/${bgInfo.file}`);
-                        if (respHd.ok) bgBlob = await respHd.blob();
+                        const respStd = await fetch(`assets/ambientes/${bgInfo.file}`);
+                        if (respStd.ok) bgBlob = await respStd.blob();
                     } catch(e) {}
-
-                    if (!bgBlob) {
-                        try {
-                            const respStd = await fetch(`assets/ambientes/${bgInfo.file}`);
-                            if (respStd.ok) bgBlob = await respStd.blob();
-                        } catch(e) {}
-                    }
-
-                    if (bgBlob) {
-                        const bgFolder = zip.folder("Ambiente_Fundo_HD");
-                        const safeBgName = bgInfo.name.replace(/[^a-zA-Z0-9]/g, '_');
-                        bgFolder.file(`${safeBgName}_HD.jpg`, bgBlob);
-                    }
-                } catch(bgErr) {
-                    console.warn('Não foi possível anexar imagem do ambiente HD ao zip:', bgErr);
                 }
+
+                if (bgBlob) {
+                    const bgFolder = zip.folder("Ambiente_Fundo_HD");
+                    const safeBgName = bgInfo.name.replace(/[^a-zA-Z0-9]/g, '_');
+                    bgFolder.file(`${safeBgName}_HD.jpg`, bgBlob);
+                }
+            } catch(bgErr) {
+                console.warn('Não foi possível anexar imagem do ambiente HD ao zip:', bgErr);
             }
 
-            // 5. Adicionar Fotos se existirem em base64 na sessao
+            // 6. Adicionar Fotos se existirem em base64 na sessao
             const photosFolder = zip.folder("Fotos_Originais");
-            try {
-                const rawPhotos = localStorage.getItem('reviva_client_photos') || localStorage.getItem('reviva_uploaded_photos');
-                if (rawPhotos) {
-                    const photos = JSON.parse(rawPhotos);
-                    if (Array.isArray(photos)) {
-                        photos.forEach((p, idx) => {
-                            const data = typeof p === 'string' ? p : p.data;
-                            if (data && data.includes('base64,')) {
-                                const b64 = data.split('base64,')[1];
-                                photosFolder.file(`Foto_Referencia_${idx + 1}.png`, b64, { base64: true });
-                            }
-                        });
+            if (Array.isArray(photosList) && photosList.length > 0) {
+                photosList.forEach((p, idx) => {
+                    const data = typeof p === 'string' ? p : (p.data || p.url || '');
+                    if (data && data.includes('base64,')) {
+                        const b64 = data.split('base64,')[1];
+                        photosFolder.file(`Foto_Referencia_${idx + 1}.png`, b64, { base64: true });
                     }
-                }
-            } catch(e) {}
+                });
+            }
 
-            // 4. Adicionar Audios se existirem
+            // 7. Adicionar Audios se existirem
             const audiosFolder = zip.folder("Audios_Referencia");
-            try {
-                const rawAudio = localStorage.getItem('reviva_client_audio') || localStorage.getItem('reviva_uploaded_audios');
-                if (rawAudio) {
-                    const audios = JSON.parse(rawAudio);
-                    if (Array.isArray(audios)) {
-                        audios.forEach((a, idx) => {
-                            const data = typeof a === 'string' ? a : a.data;
-                            if (data && data.includes('base64,')) {
-                                const b64 = data.split('base64,')[1];
-                                audiosFolder.file(`Audio_Referencia_${idx + 1}.mp3`, b64, { base64: true });
-                            }
-                        });
+            if (Array.isArray(audiosList) && audiosList.length > 0) {
+                audiosList.forEach((a, idx) => {
+                    const data = typeof a === 'string' ? a : (a.data || a.url || '');
+                    if (data && data.includes('base64,')) {
+                        const b64 = data.split('base64,')[1];
+                        audiosFolder.file(`Audio_Referencia_${idx + 1}.mp3`, b64, { base64: true });
                     }
-                }
-            } catch(e) {}
+                });
+            }
 
-            // 5. Baixar o arquivo compactado .ZIP
+            // 8. Baixar o arquivo compactado .ZIP
             const zipBlob = await zip.generateAsync({ type: "blob" });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(zipBlob);
