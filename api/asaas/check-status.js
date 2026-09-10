@@ -3,9 +3,13 @@
  */
 const https = require('https');
 
-const rawKey = process.env.ASAAS_API_KEY || '';
+let rawKey = process.env.ASAAS_API_KEY || '';
+try {
+    const localCfg = require('../../config.local.js');
+    if (localCfg && localCfg.ASAAS_API_KEY) rawKey = localCfg.ASAAS_API_KEY;
+} catch(e) {}
 const ASAAS_API_KEY = rawKey.replace(/[^\x20-\x7E]/g, '').trim().replace(/^["']|["']$/g, '');
-const ASAAS_HOST = 'api.asaas.com';
+const ASAAS_HOST = ASAAS_API_KEY.includes('_hmlg_') ? 'api-sandbox.asaas.com' : 'api.asaas.com';
 
 function asaasRequest(method, path) {
     return new Promise((resolve, reject) => {

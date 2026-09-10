@@ -400,7 +400,15 @@
             if (btnDown) btnDown.href = producerVideo;
         }
 
+        function markRevealConsumed() {
+            try {
+                localStorage.setItem('reviva_stage5_consumed', 'true');
+                localStorage.setItem('reviva_stage5_consumed_REVIVA-1001', 'true');
+            } catch(e) {}
+        }
+
         btnStart?.addEventListener('click', () => {
+            markRevealConsumed();
             welcomeCard.style.opacity = '0';
             welcomeCard.style.transform = 'scale(0.94)';
             setTimeout(() => {
@@ -408,6 +416,10 @@
                 videoBox.style.display = 'block';
                 videoElement.play().catch(() => {});
             }, 650);
+        });
+
+        videoElement?.addEventListener('play', () => {
+            markRevealConsumed();
         });
 
         btnShare?.addEventListener('click', () => {

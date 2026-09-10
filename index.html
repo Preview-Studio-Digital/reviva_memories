@@ -4,23 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reviva Memories | Eternize quem você ama com IA</title>
-    <meta name="description" content="Reconstrução de memórias e animação realista através de Inteligência Artificial para momentos inesquecíveis como casamentos, formaturas e homenagens.">
+    <link rel="icon" type="image/png" href="logo.png">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Caveat:wght@400;600;700&family=Allura&family=Inter:wght@300;400;500;600;700&family=Poiret+One&display=swap" rel="stylesheet">
     
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Lucide Icons (Local) -->
+    <script src="assets/vendor/lucide.min.js"></script>
 
-    <!-- OGL WebGL Library -->
-    <script src="https://cdn.jsdelivr.net/npm/ogl/dist/ogl.umd.js"></script>
+    <!-- OGL WebGL Library (Local) -->
+    <script src="assets/vendor/ogl.umd.js"></script>
     
-    <!-- GSAP Animation Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- GSAP Animation Library (Local) -->
+    <script src="assets/vendor/gsap.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css?v=1.9.3">
+    <link rel="stylesheet" href="styles.css?v=2.4.0">
 </head>
 <body>
 
@@ -141,88 +141,88 @@
             
             <!-- Galeria de Acordeão Interativa (GSAP) -->
             <div id="heroAccordion" class="accordion-gallery" role="list" aria-label="Galeria de Homenagens">
-                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Canyon" data-index="0">
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Vovô" data-index="0">
                     <span class="ag-panel__frame">
                         <span class="ag-panel__media">
-                            <img src="https://picsum.photos/id/1015/900/1200" alt="Canyon" draggable="false">
+                            <img src="gallery_homem_01.jpg" alt="Vovô" draggable="false">
                         </span>
                         <span class="ag-panel__overlay" aria-hidden="true"></span>
                     </span>
                     <span class="ag-panel__label" aria-hidden="true">
                         <span class="ag-panel__bar"></span>
-                        <span class="ag-panel__text">Canyon</span>
+                        <span class="ag-panel__text">Vovô</span>
                     </span>
                 </div>
-                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Ridgeline" data-index="1">
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Pai" data-index="1">
                     <span class="ag-panel__frame">
                         <span class="ag-panel__media">
-                            <img src="https://picsum.photos/id/1018/900/1200" alt="Ridgeline" draggable="false">
+                            <img src="gallery_homem_02.jpg" alt="Pai" draggable="false">
                         </span>
                         <span class="ag-panel__overlay" aria-hidden="true"></span>
                     </span>
                     <span class="ag-panel__label" aria-hidden="true">
                         <span class="ag-panel__bar"></span>
-                        <span class="ag-panel__text">Ridgeline</span>
+                        <span class="ag-panel__text">Pai</span>
                     </span>
                 </div>
-                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Falls" data-index="2">
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Mãe" data-index="2">
                     <span class="ag-panel__frame">
                         <span class="ag-panel__media">
-                            <img src="https://picsum.photos/id/1039/900/1200" alt="Falls" draggable="false">
+                            <img src="gallery_mulher_01.jpg" alt="Mãe" draggable="false">
                         </span>
                         <span class="ag-panel__overlay" aria-hidden="true"></span>
                     </span>
                     <span class="ag-panel__label" aria-hidden="true">
                         <span class="ag-panel__bar"></span>
-                        <span class="ag-panel__text">Falls</span>
+                        <span class="ag-panel__text">Mãe</span>
                     </span>
                 </div>
-                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Harbour" data-index="3">
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Pai" data-index="3">
                     <span class="ag-panel__frame">
                         <span class="ag-panel__media">
-                            <img src="https://picsum.photos/id/1043/900/1200" alt="Harbour" draggable="false">
+                            <img src="gallery_homem_03.jpg" alt="Pai" draggable="false">
                         </span>
                         <span class="ag-panel__overlay" aria-hidden="true"></span>
                     </span>
                     <span class="ag-panel__label" aria-hidden="true">
                         <span class="ag-panel__bar"></span>
-                        <span class="ag-panel__text">Harbour</span>
+                        <span class="ag-panel__text">Pai</span>
                     </span>
                 </div>
-                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Skyline" data-index="4">
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Irmã" data-index="4">
                     <span class="ag-panel__frame">
                         <span class="ag-panel__media">
-                            <img src="https://picsum.photos/id/1044/900/1200" alt="Skyline" draggable="false">
+                            <img src="gallery_mulher_02.jpg" alt="Irmã" draggable="false">
                         </span>
                         <span class="ag-panel__overlay" aria-hidden="true"></span>
                     </span>
                     <span class="ag-panel__label" aria-hidden="true">
                         <span class="ag-panel__bar"></span>
-                        <span class="ag-panel__text">Skyline</span>
+                        <span class="ag-panel__text">Irmã</span>
                     </span>
                 </div>
-                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Mist" data-index="5">
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Irmão" data-index="5">
                     <span class="ag-panel__frame">
                         <span class="ag-panel__media">
-                            <img src="https://picsum.photos/id/1050/900/1200" alt="Mist" draggable="false">
+                            <img src="gallery_homem_04.jpg" alt="Irmão" draggable="false">
                         </span>
                         <span class="ag-panel__overlay" aria-hidden="true"></span>
                     </span>
                     <span class="ag-panel__label" aria-hidden="true">
                         <span class="ag-panel__bar"></span>
-                        <span class="ag-panel__text">Mist</span>
+                        <span class="ag-panel__text">Irmão</span>
                     </span>
                 </div>
-                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Forest" data-index="6">
+                <div class="ag-panel" role="listitem" tabindex="0" aria-label="Mãe" data-index="6">
                     <span class="ag-panel__frame">
                         <span class="ag-panel__media">
-                            <img src="https://picsum.photos/id/1053/900/1200" alt="Forest" draggable="false">
+                            <img src="gallery_mulher_03.jpg" alt="Mãe" draggable="false">
                         </span>
                         <span class="ag-panel__overlay" aria-hidden="true"></span>
                     </span>
                     <span class="ag-panel__label" aria-hidden="true">
                         <span class="ag-panel__bar"></span>
-                        <span class="ag-panel__text">Forest</span>
+                        <span class="ag-panel__text">Mãe</span>
                     </span>
                 </div>
             </div>
@@ -677,7 +677,7 @@
                 <!-- Coluna Central: Card de Vídeo com Proporção 9:16 -->
                 <div class="about-card about-card-media-central" id="aboutMaderiteCard">
                     <div class="about-video-container">
-                        <video class="about-card-video" id="aboutMaderiteVideo" src="about_maderite_preview.webm" autoplay playsinline muted loop preload="auto"></video>
+                        <video class="about-card-video" id="aboutMaderiteVideo" poster="about_maderite.jpg" playsinline muted loop preload="none"></video>
                         <div class="about-video-white-flash" id="aboutVideoWhiteFlash"></div>
                         <button class="ag-panel-play-btn about-play-btn" id="aboutMaderitePlayBtn" aria-label="Reproduzir vídeo com som">
                             <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
@@ -795,18 +795,22 @@
                         <p class="plan-desc">Ideal para uma mensagem direta de afeto, saudade, agradecimento ou datas especiais, transmitindo todo o carinho de forma focada e marcante.</p>
                     </div>
 
-                    <div class="plan-pricing" style="padding: 6px 12px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;">
-                        <div class="price-display" data-base="497" data-upsell="248.50" style="justify-content: flex-start;">
-                            <span class="currency">R$</span>
-                            <span class="amount">497</span>
-                            <span class="cents">,00</span>
-                        </div>
-                        <div style="text-align: right; line-height: 1.2;">
-                            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
-                                <span class="pix-price-tag" style="color: #4ade80; font-weight: 700; font-size: 0.74rem;">R$ 447,30 no PIX</span>
-                                <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; font-size: 0.58rem; font-weight: 700; padding: 1px 4px; border-radius: 3px;">-10%</span>
+                    <div class="plan-pricing">
+                        <div class="price-display-wrap">
+                            <div class="price-display" data-base="497" data-upsell="248.50">
+                                <span class="currency">R$</span>
+                                <span class="amount">497</span>
+                                <span class="cents">,00</span>
                             </div>
-                            <span class="price-subtitle" style="margin-top: 1px; font-size: 0.65rem; color: #94a3b8; display: block;">ou até 6x de R$ 82,83</span>
+                        </div>
+                        <div class="pix-badge-box">
+                            <div class="pix-left-wrap">
+                                <span class="pix-price-tag">R$ 447,30 no PIX</span>
+                            </div>
+                            <span class="pix-discount-badge">-10% OFF</span>
+                        </div>
+                        <div class="plan-pricing-bottom">
+                            <span class="price-subtitle">ou até 6x de R$ 82,83 no cartão</span>
                         </div>
                     </div>
 
@@ -836,7 +840,8 @@
                         <li><i data-lucide="check-circle-2"></i> Clonagem de Voz</li>
                         <li><i data-lucide="check-circle-2"></i> Animação Realista</li>
                         <li><i data-lucide="check-circle-2"></i> Roteiro de 1 minuto</li>
-                        <li><i data-lucide="check-circle-2"></i> Entrega em até 7 dias</li>
+                        <li><i data-lucide="check-circle-2"></i> Entrega em até 5 dias</li>
+                        <li><i data-lucide="check-circle-2"></i> Atendimento Humanizado</li>
                     </ul>
 
                     <a href="https://checkout.previva.com.br/essencial" target="_blank" class="btn btn-primary plan-buy-btn">
@@ -856,18 +861,22 @@
                         <p class="plan-desc">Equilíbrio perfeito para eternizar o legado de uma trajetória. Espaço ideal para narrar histórias de vida detalhadas e memórias afetivas marcantes.</p>
                     </div>
 
-                    <div class="plan-pricing" style="padding: 6px 12px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;">
-                        <div class="price-display" data-base="897" data-upsell="448.50" style="justify-content: flex-start;">
-                            <span class="currency">R$</span>
-                            <span class="amount">897</span>
-                            <span class="cents">,00</span>
-                        </div>
-                        <div style="text-align: right; line-height: 1.2;">
-                            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
-                                <span class="pix-price-tag" style="color: #4ade80; font-weight: 700; font-size: 0.74rem;">R$ 807,30 no PIX</span>
-                                <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; font-size: 0.58rem; font-weight: 700; padding: 1px 4px; border-radius: 3px;">-10%</span>
+                    <div class="plan-pricing">
+                        <div class="price-display-wrap">
+                            <div class="price-display" data-base="897" data-upsell="448.50">
+                                <span class="currency">R$</span>
+                                <span class="amount">897</span>
+                                <span class="cents">,00</span>
                             </div>
-                            <span class="price-subtitle" style="margin-top: 1px; font-size: 0.65rem; color: #94a3b8; display: block;">ou até 6x de R$ 149,50</span>
+                        </div>
+                        <div class="pix-badge-box">
+                            <div class="pix-left-wrap">
+                                <span class="pix-price-tag">R$ 807,30 no PIX</span>
+                            </div>
+                            <span class="pix-discount-badge">-10% OFF</span>
+                        </div>
+                        <div class="plan-pricing-bottom">
+                            <span class="price-subtitle">ou até 6x de R$ 149,50 no cartão</span>
                         </div>
                     </div>
 
@@ -898,6 +907,7 @@
                         <li><i data-lucide="check-circle-2"></i> Menções de outras pessoas</li>
                         <li><i data-lucide="check-circle-2"></i> Roteiro de 2 minutos</li>
                         <li><i data-lucide="check-circle-2"></i> Entrega em até 3 dias</li>
+                        <li><i data-lucide="check-circle-2"></i> Atendimento Humanizado</li>
                     </ul>
 
                     <a href="https://checkout.previva.com.br/emocao" target="_blank" class="btn btn-primary plan-buy-btn">
@@ -917,18 +927,22 @@
                         <p class="plan-desc">Nossa homenagem mais profunda em forma de tributo. Ideal para celebrar uma trajetória inteira, com espaço para citar múltiplos familiares e recordar ricas memórias.</p>
                     </div>
 
-                    <div class="plan-pricing" style="padding: 6px 12px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;">
-                        <div class="price-display" data-base="1297" data-upsell="648.50" style="justify-content: flex-start;">
-                            <span class="currency">R$</span>
-                            <span class="amount">1.297</span>
-                            <span class="cents">,00</span>
-                        </div>
-                        <div style="text-align: right; line-height: 1.2;">
-                            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
-                                <span class="pix-price-tag" style="color: #4ade80; font-weight: 700; font-size: 0.74rem;">R$ 1.167,30 no PIX</span>
-                                <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; font-size: 0.58rem; font-weight: 700; padding: 1px 4px; border-radius: 3px;">-10%</span>
+                    <div class="plan-pricing">
+                        <div class="price-display-wrap">
+                            <div class="price-display" data-base="1297" data-upsell="648.50">
+                                <span class="currency">R$</span>
+                                <span class="amount">1.297</span>
+                                <span class="cents">,00</span>
                             </div>
-                            <span class="price-subtitle" style="margin-top: 1px; font-size: 0.65rem; color: #94a3b8; display: block;">ou até 6x de R$ 216,16</span>
+                        </div>
+                        <div class="pix-badge-box">
+                            <div class="pix-left-wrap">
+                                <span class="pix-price-tag">R$ 1.167,30 no PIX</span>
+                            </div>
+                            <span class="pix-discount-badge">-10% OFF</span>
+                        </div>
+                        <div class="plan-pricing-bottom">
+                            <span class="price-subtitle">ou até 6x de R$ 216,16 no cartão</span>
                         </div>
                     </div>
 
@@ -956,9 +970,10 @@
                     <ul class="plan-features">
                         <li><i data-lucide="check-circle-2"></i> Tudo do Plano Legatum</li>
                         <li><i data-lucide="check-circle-2"></i> Maior riqueza narrativa</li>
-                        <li><i data-lucide="check-circle-2"></i> Menções de acontecimentos</li>
+                        <li><i data-lucide="check-circle-2"></i> Menções de mais histórias</li>
                         <li><i data-lucide="check-circle-2"></i> Roteiro de 3 minutos</li>
-                        <li><i data-lucide="check-circle-2"></i> Entrega prioritária</li>
+                        <li><i data-lucide="check-circle-2"></i> Entrega em até 1 dia</li>
+                        <li><i data-lucide="check-circle-2"></i> Atendimento Humanizado</li>
                     </ul>
 
                     <a href="https://checkout.previva.com.br/tributo" target="_blank" class="btn btn-primary plan-buy-btn">
@@ -1082,7 +1097,7 @@
                         <i data-lucide="chevron-down"></i>
                     </button>
                     <div class="faq-answer">
-                        <p>O prazo padrão de entrega é de até 7 dias para o Plano Affectus e até 3 dias para o Plano Legatum, após o envio e aprovação dos materiais. Para o Plano Tributum, oferecemos atendimento prioritário e entrega expressa. Estes são os prazos máximos estipulados em função da demanda mas nos empenhamos para entregar a homenagem o quanto antes!</p>
+                        <p>O prazo padrão de entrega é de até 5 dias para o Plano Affectus, até 3 dias para o Plano Legatum e de até 1 dia para o Plano Tributum, após o envio e aprovação dos materiais. Estes são os prazos máximos estipulados em função da demanda mas nos empenhamos para entregar a homenagem o quanto antes!</p>
                     </div>
                 </div>
                 
@@ -1286,7 +1301,7 @@
 
     <!-- ================= MODAL DE CHECKOUT SIMULADO (AMBIENTE DE TESTE INTEGRADO) ================= -->
     <div id="modal-checkout-simulado" style="position: fixed; inset: 0; background: rgba(5, 3, 2, 0.94); backdrop-filter: blur(20px); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 12px;">
-        <div style="width: 100%; max-width: 580px; background: rgba(14, 9, 6, 0.98); border: 1.5px solid var(--border-gold); border-radius: 12px; padding: 16px 24px; box-shadow: 0 0 60px rgba(0,0,0,0.95), 0 0 30px rgba(229,195,120,0.22); max-height: 98vh; display: flex; flex-direction: column; gap: 10px; overflow: hidden; position: relative;">
+        <div style="width: 100%; max-width: 580px; background: rgba(14, 9, 6, 0.98); border: 1.5px solid var(--border-gold); border-radius: 12px; padding: 16px 24px; box-shadow: 0 0 60px rgba(0,0,0,0.95), 0 0 30px rgba(229,195,120,0.22); max-height: 96vh; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; position: relative;">
             
             <button type="button" onclick="closeCheckoutModal()" style="position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text-secondary); font-size: 22px; cursor: pointer; padding: 4px; line-height: 1;">✕</button>
 
@@ -1345,13 +1360,37 @@
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 4px 0; font-size: 0.75rem; color: #94a3b8;">
-                        <i data-lucide="shield-check" style="width: 16px; height: 16px; color: #4ade80;"></i>
+                    <!-- Campo de Cupom de Desconto / Teste -->
+                    <div style="background: rgba(197, 160, 89, 0.05); border: 1px dashed rgba(197, 160, 89, 0.3); border-radius: 6px; padding: 8px 10px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                            <label for="chk-input-coupon" style="font-size: 0.70rem; color: var(--gold-primary); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                <i data-lucide="tag" style="width: 12px; height: 12px;"></i> POSSUI CUPOM DE DESCONTO?
+                            </label>
+                            <span id="coupon-feedback-tag" style="display: none; font-size: 0.65rem; font-weight: 700;"></span>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="chk-input-coupon" placeholder="Digite seu cupom" style="flex: 1; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 5px; padding: 6px 10px; color: #fff; font-size: 0.82rem; text-transform: uppercase; outline: none;">
+                            <button type="button" id="btn-apply-coupon" onclick="applyCheckoutCoupon()" style="background: rgba(197, 160, 89, 0.2); border: 1px solid var(--border-gold); color: #f6e3c5; border-radius: 5px; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+                                APLICAR
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 2px 0; font-size: 0.73rem; color: #94a3b8;">
+                        <i data-lucide="shield-check" style="width: 15px; height: 15px; color: #4ade80;"></i>
                         <span>Ambiente Seguro • Criptografia de 256 bits</span>
                     </div>
 
-                    <!-- Botões de Pagamento: PIX e Cartão de Crédito -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;">
+                    <!-- Botao Especial para Cupom 100% OFF (Aparece ao ativar cupom TESTE100) -->
+                    <div id="btn-box-free-test" style="display: none; margin-top: 4px;">
+                        <button type="button" onclick="submitFreeTestOrder(event)" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px 14px; font-size: 0.86rem; font-weight: 700; background: linear-gradient(135deg, #e5c378, #a47e38); border-color: #f6e3c5; color: #000; box-shadow: 0 0 20px rgba(229, 195, 120, 0.5); display: flex; align-items: center; gap: 8px; border-radius: 8px;">
+                            <i data-lucide="sparkles" style="width: 18px; height: 18px; color: #000;"></i>
+                            <span>LIBERAR ACESSO IMEDIATO (TESTE 100% OFF)</span>
+                        </button>
+                    </div>
+
+                    <!-- Botões de Pagamento Padrão: PIX e Cartão de Crédito -->
+                    <div id="box-payment-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;">
                         <button type="submit" id="btn-submit-real-pix" class="btn btn-primary" style="justify-content: center; padding: 12px 14px; font-size: 0.84rem; font-weight: 700; background: linear-gradient(135deg, #22c55e, #16a34a); border-color: #4ade80; color: #fff; box-shadow: 0 0 16px rgba(34, 197, 94, 0.35); display: flex; flex-direction: column; gap: 3px; line-height: 1.1; border-radius: 8px;">
                             <span style="display: flex; align-items: center; gap: 6px;"><i data-lucide="qr-code" style="width: 16px; height: 16px;"></i> PAGAR COM PIX</span>
                             <span style="font-size: 0.68rem; color: #bbf7d0; font-weight: 500;">(10% de desconto à vista)</span>
@@ -1376,11 +1415,11 @@
                 </div>
 
                 <!-- Imagem do QR Code -->
-                <div style="background: #ffffff; padding: 10px; border-radius: 12px; box-shadow: 0 0 30px rgba(0,0,0,0.85); display: inline-block; margin: 2px 0;">
-                    <img id="pix-qrcode-img" src="" alt="QR Code PIX Asaas" style="width: 155px; height: 155px; display: block;">
+                <div style="background: #ffffff; padding: 8px; border-radius: 10px; box-shadow: 0 0 25px rgba(0,0,0,0.85); display: inline-block; margin: 1px 0;">
+                    <img id="pix-qrcode-img" src="" alt="QR Code PIX Asaas" style="width: 120px; height: 120px; display: block;">
                 </div>
 
-                <div style="font-size: 0.76rem; color: #cbd5e1; width: 100%; white-space: nowrap; text-align: center; margin: 2px 0;">
+                <div style="font-size: 0.74rem; color: #cbd5e1; width: 100%; white-space: nowrap; text-align: center; margin: 1px 0;">
                     Pague via PIX usando o QR Code acima ou copie o código oficial abaixo:
                 </div>
 
@@ -1393,12 +1432,22 @@
                     </button>
                 </div>
 
-                <!-- Status de Verificação Automática (Sem botão refresh, apenas texto limpo) -->
-                <div style="background: rgba(14, 9, 6, 0.9); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 8px; padding: 10px 14px; width: 100%; box-sizing: border-box; font-size: 0.78rem; color: #e5c378; display: flex; align-items: center; justify-content: center;">
+                <!-- Status de Verificação Automática & Botão de Simulação do Sandbox -->
+                <div style="background: rgba(14, 9, 6, 0.9); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 8px; padding: 12px 14px; width: 100%; box-sizing: border-box; font-size: 0.78rem; color: #e5c378; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
                     <div id="pix-polling-status-text" style="line-height: 1.35; text-align: center;">
                         <strong style="color: #f6e3c5;">Aguardando pagamento...</strong><br>
                         <span style="font-size: 0.72rem; color: #cbd5e1;">O painel liberará automaticamente na compensação bancária.</span>
                     </div>
+
+                    <!-- Botão Direto de Simulação Oficial de Homologação no Asaas -->
+                    <button type="button" id="btn-simulate-pix-pay" onclick="simulateAsaasPaymentClick()" style="background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%); border: 1px solid #4ade80; color: #fff; font-size: 0.78rem; font-weight: 700; padding: 9px 18px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 0 16px rgba(34, 197, 94, 0.4); text-transform: uppercase;">
+                        <i data-lucide="zap" style="width: 14px; height: 14px;"></i>
+                        <span>SIMULAR CONFIRMAÇÃO DO PIX NO ASAAS</span>
+                    </button>
+
+                    <a id="link-fatura-asaas" href="#" target="_blank" rel="noopener noreferrer" onclick="openAsaasInvoiceUrl(event)" style="font-size: 0.72rem; color: #93c5fd; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; cursor: pointer;">
+                        <span>Ou abrir fatura de teste no Asaas Sandbox ↗</span>
+                    </a>
                 </div>
 
                 <!-- Barra de Ações Inferiores Refinada -->
@@ -1477,6 +1526,12 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.6.0"></script>
+    <!-- EmailJS SDK Oficial v4 (Local) -->
+    <script src="assets/vendor/email.min.js"></script>
+
+    <!-- Sistema de Notificações da Reviva Memories -->
+    <script src="notifications.js?v=1.1.0"></script>
+
+    <script src="app.js?v=1.7.0"></script>
 </body>
 </html>

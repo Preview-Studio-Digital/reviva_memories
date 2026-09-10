@@ -154,10 +154,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         orderData.plan_name = activePlanKey;
     }
 
-    // Atualiza cabeçalhos e badges com o plano ativo e formato contratado
-    function updateAllStepPlanBadges() {
+    function isOrderBothFormats() {
         let rawFormat = (urlParams.get('formato') || urlParams.get('format') || '').toLowerCase();
-        
         if (!rawFormat && orderData) {
             if (orderData.has_upsell || (orderData.plan_format && orderData.plan_format.toLowerCase().includes('+'))) {
                 rawFormat = 'ambos';
@@ -181,9 +179,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!rawFormat) {
             rawFormat = (localStorage.getItem('reviva_selected_format') || 'horizontal').toLowerCase();
         }
+        return rawFormat.includes('ambos') || rawFormat.includes('both') || rawFormat.includes('+') || rawFormat.includes('&');
+    }
+    window.isOrderBothFormats = isOrderBothFormats;
+
+    // Atualiza cabeçalhos e badges com o plano ativo e formato contratado
+    function updateAllStepPlanBadges() {
+        const isBoth = isOrderBothFormats();
+        let rawFormat = (urlParams.get('formato') || urlParams.get('format') || '').toLowerCase();
+        if (!rawFormat) {
+            rawFormat = (orderData?.plan_format || localStorage.getItem('reviva_selected_format') || 'horizontal').toLowerCase();
+        }
 
         let formatLabel = 'HORIZONTAL';
-        if (rawFormat.includes('ambos') || rawFormat.includes('both') || rawFormat.includes('+') || rawFormat.includes('&')) {
+        if (isBoth) {
             formatLabel = 'HORIZONTAL & VERTICAL';
         } else if (rawFormat.includes('vertical')) {
             formatLabel = 'VERTICAL';
@@ -428,9 +437,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentStep = step;
         resolveClientIdentity();
         
-        // Persistir etapa ativa imediatamente para recarregamento em tempo real
+        // Persistir etapa ativa e marco de avanço máximo alcançado
         try {
             localStorage.setItem('reviva_active_step', step.toString());
+            let maxReached = parseInt(localStorage.getItem('reviva_max_step_reached')) || 1;
+            if (step > maxReached) {
+                localStorage.setItem('reviva_max_step_reached', step.toString());
+            }
             history.replaceState(null, '', '#step-' + step);
         } catch (e) {}
 
@@ -533,23 +546,84 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (step === 4) {
-            const producerImg = localStorage.getItem('reviva_producer_image');
+            const ordIdent = (orderData?.order_id || orderData?.id || 1);
+            if (typeof isPhotoPermanentlyApproved === 'function' && isPhotoPermanentlyApproved()) {
+                photoDecision = 'approved';
+            }
+            if (typeof isVoicePermanentlyApproved === 'function' && isVoicePermanentlyApproved()) {
+                voiceDecision = 'approved';
+            }
+
+            const isBothFormats = isOrderBothFormats();
+            const singleContainer = document.getElementById('preview-single-container');
+            const dualContainer = document.getElementById('preview-dual-container');
+
+            const producerImg = localStorage.getItem(`reviva_producer_image_${ordIdent}`) || localStorage.getItem('reviva_producer_image');
             const photoSrc = producerImg || (uploadedPhotos && uploadedPhotos.length > 0 ? uploadedPhotos[0].dataUrl : '');
-            const previewAvatarImg = document.getElementById('preview-avatar-img');
-            const previewAvatarPlaceholder = document.getElementById('preview-avatar-placeholder');
-            if (previewAvatarImg) {
-                if (photoSrc) {
-                    previewAvatarImg.src = photoSrc;
-                    previewAvatarImg.style.display = 'block';
-                    if (previewAvatarPlaceholder) previewAvatarPlaceholder.style.display = 'none';
-                } else {
-                    previewAvatarImg.src = '';
-                    previewAvatarImg.style.display = 'none';
-                    if (previewAvatarPlaceholder) previewAvatarPlaceholder.style.display = 'flex';
+
+            // Buscar imagens específicas de Horizontal e Vertical se disponíveis
+            const photoSrcH = localStorage.getItem(`reviva_producer_photo_h_${ordIdent}`) || 
+                              localStorage.getItem('reviva_producer_photo_h') || 
+                              photoSrc;
+            const photoSrcV = localStorage.getItem(`reviva_producer_photo_v_${ordIdent}`) || 
+                              localStorage.getItem('reviva_producer_photo_v') || 
+                              photoSrc;
+
+            if (isBothFormats) {
+                // Modo Dividido Verticalmente (2 Formatos Lado a Lado no Desktop e Mobile)
+                if (singleContainer) singleContainer.style.display = 'none';
+                if (dualContainer) dualContainer.style.display = 'flex';
+
+                // Imagem Horizontal (Coluna Esquerda)
+                const imgH = document.getElementById('preview-avatar-img-h');
+                const phH = document.getElementById('preview-avatar-placeholder-h');
+                if (imgH) {
+                    if (photoSrcH) {
+                        imgH.src = photoSrcH;
+                        imgH.style.display = 'block';
+                        if (phH) phH.style.display = 'none';
+                    } else {
+                        imgH.src = '';
+                        imgH.style.display = 'none';
+                        if (phH) phH.style.display = 'flex';
+                    }
+                }
+
+                // Imagem Vertical (Coluna Direita)
+                const imgV = document.getElementById('preview-avatar-img-v');
+                const phV = document.getElementById('preview-avatar-placeholder-v');
+                if (imgV) {
+                    if (photoSrcV) {
+                        imgV.src = photoSrcV;
+                        imgV.style.display = 'block';
+                        if (phV) phV.style.display = 'none';
+                    } else {
+                        imgV.src = '';
+                        imgV.style.display = 'none';
+                        if (phV) phV.style.display = 'flex';
+                    }
+                }
+            } else {
+                // Modo Padrão / Formato Único
+                if (singleContainer) singleContainer.style.display = 'flex';
+                if (dualContainer) dualContainer.style.display = 'none';
+
+                const previewAvatarImg = document.getElementById('preview-avatar-img');
+                const previewAvatarPlaceholder = document.getElementById('preview-avatar-placeholder');
+                if (previewAvatarImg) {
+                    if (photoSrc) {
+                        previewAvatarImg.src = photoSrc;
+                        previewAvatarImg.style.display = 'block';
+                        if (previewAvatarPlaceholder) previewAvatarPlaceholder.style.display = 'none';
+                    } else {
+                        previewAvatarImg.src = '';
+                        previewAvatarImg.style.display = 'none';
+                        if (previewAvatarPlaceholder) previewAvatarPlaceholder.style.display = 'flex';
+                    }
                 }
             }
 
-            const producerAudio = localStorage.getItem('reviva_producer_audio');
+            const producerAudio = localStorage.getItem(`reviva_producer_audio_${ordIdent}`) || localStorage.getItem('reviva_producer_audio');
             const voiceAudioSrc = producerAudio || (uploadedAudios && uploadedAudios.length > 0 && uploadedAudios[0].dataUrl ? uploadedAudios[0].dataUrl : '');
             const voiceSampleAudio = document.getElementById('voiceSampleAudio');
             if (voiceSampleAudio) {
@@ -664,15 +738,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =========================================================================
     function isStage4ReadyFromTeam() {
         // A Etapa 04 SÓ fica liberada se a equipe explicitamente liberou ou enviou prévias
-        return localStorage.getItem('reviva_stage4_delivered') === 'true';
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+        return localStorage.getItem('reviva_stage4_delivered') === 'true' ||
+               localStorage.getItem(`reviva_stage4_delivered_${ordIdent}`) === 'true' ||
+               localStorage.getItem('reviva_stage4_delivered_REVIVA-1001') === 'true';
     }
 
     function isStage5ReadyFromTeam() {
         // A Etapa 05 SÓ fica liberada se a equipe explicitamente liberou ou publicou o vídeo
-        return localStorage.getItem('reviva_stage5_delivered') === 'true';
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+        return localStorage.getItem('reviva_stage5_delivered') === 'true' ||
+               localStorage.getItem(`reviva_stage5_delivered_${ordIdent}`) === 'true' ||
+               localStorage.getItem('reviva_stage5_delivered_REVIVA-1001') === 'true';
     }
 
     let currentWaitingStep = null;
+
+    function renderWaitingTopic(num, title, desc) {
+        return `
+            <div class="waiting-topic-card">
+                <strong class="waiting-topic-title">${num}. ${title}</strong>
+                <span class="waiting-topic-desc">${desc}</span>
+            </div>
+        `;
+    }
 
     function openWaitingTeamModal(targetStep) {
         currentWaitingStep = targetStep;
@@ -681,188 +770,250 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const badge = document.getElementById('waiting-modal-badge');
         const title = document.getElementById('waiting-modal-title');
-        const subtitle = document.getElementById('waiting-modal-subtitle');
         const body = document.getElementById('waiting-modal-body');
-        const statusBox = document.getElementById('waiting-modal-status-box');
         const statusText = document.getElementById('waiting-modal-status-text');
-        const dot = statusBox?.querySelector('.waiting-pulse-dot');
+        const btnExit = document.getElementById('btn-exit-waiting-modal');
+        const btnProceed = document.getElementById('btn-proceed-waiting-modal');
         const btnSimulate = document.getElementById('btn-simulate-team-delivery');
 
-        // Resetar estilos de status para o estado pulsante dourado idêntico em ambas as etapas
-        if (dot) {
-            dot.style.background = '#e5c378';
-            dot.style.boxShadow = '0 0 12px rgba(229, 195, 120, 0.85)';
-        }
-        if (statusBox) {
-            statusBox.style.background = 'transparent';
-            statusBox.style.border = 'none';
-        }
-        if (statusText) {
-            statusText.style.color = 'var(--gold-bright)';
-        }
-
-        if (targetStep === 'revisao' || targetStep === 'revisao_etapa4') {
-            if (badge) badge.style.display = 'none';
-            if (title) title.textContent = 'Suas considerações foram recebidas pela equipe...';
-            if (subtitle) subtitle.textContent = '';
-            if (statusText) statusText.textContent = 'Status: ETAPA 4 EM PRODUÇÃO.';
-            if (body) {
-                body.innerHTML = `
-                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">1. CONSIDERAÇÕES RECEBIDAS</strong>
-                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Seus apontamentos e direcionamentos de ajustes foram encaminhados com sucesso e já estão sob análise da nossa equipe de especialistas.</span>
-                    </div>
-                    
-                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">2. LAPIDAÇÃO ARTESANAL DA NOVA VERSÃO</strong>
-                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Nossos especialistas estão trabalhando minuciosamente nos detalhes indicados para alcançar a máxima fidelidade, naturalidade e respeito à memória do ente querido.</span>
-                    </div>
-
-                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">3. AVISO POR E-MAIL E WHATSAPP</strong>
-                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Você não precisa aguardar nesta tela. Assim que a nova versão for concluída pela equipe, você receberá uma notificação direta por <strong>E-mail</strong> e <strong>WhatsApp</strong>.</span>
-                    </div>
-
-                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">4. LIBERAÇÃO AUTOMÁTICA DAS NOVAS PRÉVIAS</strong>
-                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Assim que os novos arquivos forem publicados pela equipe, esta tela será atualizada instantaneamente para você avaliar e aprovar o resultado com total tranquilidade.</span>
-                    </div>
-                `;
-            }
-        } else if (targetStep === 4) {
-            if (badge) badge.style.display = 'none';
-            if (title) title.textContent = 'Sua homenagem está sendo lapidada com todo o cuidado...';
-            if (subtitle) subtitle.textContent = '';
-            if (statusText) statusText.textContent = 'Status: ETAPA 4 EM PRODUÇÃO.';
-            if (body) {
-                body.innerHTML = `
-                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">1. MATERIAIS & DIRETRIZES RECEBIDOS</strong>
-                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Suas fotos de memória, amostras de voz, o roteiro afetivo aprovado, a ambientação cênica e a trilha sonora foram encaminhados com sucesso à equipe de especialistas da <em>Reviva Memories</em>.</span>
-                    </div>
-                    
-                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">2. PRODUÇÃO & LAPIDAÇÃO ARTESANAL EM ANDAMENTO</strong>
-                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Nossa equipe e sistemas de alta precisão estão realizando a restauração digital da fisionomia em alta definição e a clonagem vocal com a locução do roteiro aprovado, preservando todo o afeto e a naturalidade.</span>
-                    </div>
-
-                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">3. AVISO POR E-MAIL E WHATSAPP</strong>
-                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Você não precisa aguardar nesta tela. Assim que a curadoria concluir as prévias de imagem e voz, você receberá uma notificação direta por <strong>E-mail</strong> e <strong>WhatsApp</strong> para conferir o resultado.</span>
-                    </div>
-
-                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">4. LIBERAÇÃO AUTOMÁTICA DA ETAPA</strong>
-                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Assim que os arquivos forem publicados pela equipe, o acesso à <strong>Etapa 04 (A Lapidação)</strong> será liberado instantaneamente na sua tela com a transição cinematográfica.</span>
-                    </div>
-                `;
-            }
-        } else if (targetStep === 5) {
-            if (badge) badge.style.display = 'none';
-            if (title) title.textContent = 'A magia do reencontro está sendo finalizada...';
-            if (subtitle) subtitle.textContent = '';
-            if (statusText) statusText.textContent = 'Status: ETAPA 5 EM PRODUÇÃO.';
-            if (body) {
-                body.innerHTML = `
-                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">1. VALIDAÇÃO DAS PRÉVIAS REGISTRADA</strong>
-                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Sua aprovação da nova imagem e da locução na voz clonada foi confirmada e encaminhada para a pós-produção cinematográfica final.</span>
-                    </div>
-
-                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">2. COMPUTAÇÃO GRÁFICA, SINCRONIZAÇÃO LABIAL & MASTERIZAÇÃO</strong>
-                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Nossa equipe está processando a sincronia labial ultra-realista, movimentos naturais dos olhos e expressões faciais, harmonização sonora e masterização em resolução cinematográfica.</span>
-                    </div>
-
-                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">3. AVISO POR E-MAIL E WHATSAPP</strong>
-                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">Assim que a homenagem em vídeo for concluída e disponibilizada, você receberá um aviso imediato por <strong>E-mail</strong> e <strong>WhatsApp</strong> e poderá acessar a última etapa: o reencontro.</span>
-                    </div>
-
-                    <div style="background: transparent; border: none; padding: clamp(6px, 1.2vh, 12px) 0; text-align: left; display: flex; flex-direction: column; justify-content: center;">
-                        <strong style="color: var(--gold-bright); font-size: clamp(0.78rem, 0.90vw, 0.88rem); margin-bottom: 4px; letter-spacing: 0.5px;">4. LIBERAÇÃO AUTOMÁTICA DA SALA DE REVELAÇÃO</strong>
-                        <span style="color: var(--text-secondary); font-size: clamp(0.72rem, 0.80vw, 0.78rem); line-height: 1.55;">A etapa 05: O Reencontro será liberada instantaneamente com o player cinematográfico e as opções de download e encaminhamento para você vivenciar e guardar para sempre a homenagem.</span>
-                    </div>
-                `;
-            }
-        }
-
-        // O botão dourado principal só permite fechar se for em ambiente de teste local (localhost).
-        // Para o cliente real em produção, o botão exibe 'PRODUÇÃO EM ANDAMENTO' e permanece bloqueado até a equipe liberar.
-        const btnClose = document.getElementById('btn-close-waiting-modal');
-        if (btnClose) {
-            if (isLocalhost) {
-                btnClose.textContent = 'ENTENDI, AGUARDAR PRODUÇÃO (TESTE: FECHAR)';
-                btnClose.style.cursor = 'pointer';
-                btnClose.style.opacity = '1';
-                btnClose.disabled = false;
-            } else {
-                btnClose.textContent = 'PRODUÇÃO EM ANDAMENTO';
-                btnClose.style.cursor = 'not-allowed';
-                btnClose.style.opacity = '0.85';
-                btnClose.disabled = true;
-            }
-        }
-
-        // Exibir botão de simulação apenas em ambiente local para testes
-        if (btnSimulate) {
-            btnSimulate.style.display = isLocalhost ? 'inline-block' : 'none';
-        }
+        // Determinar se a equipe já finalizou e entregou os materiais desta etapa
+        const isReady = (targetStep === 5) 
+            ? isStage5ReadyFromTeam() 
+            : isStage4ReadyFromTeam();
 
         // Salvar que o cliente está sob bloqueio
         localStorage.setItem('reviva_waiting_active', String(targetStep));
+
+        if (!isReady) {
+            // =================================================================
+            // ESTADO 1: BLOQUEADO / EM ESPERA (VERMELHO / RUBI / BORDÔ + OURO)
+            // =================================================================
+            modal.classList.remove('waiting-state-free');
+            modal.classList.add('waiting-state-blocked');
+
+            if (btnExit) {
+                btnExit.style.display = 'flex';
+                btnExit.innerHTML = '<i data-lucide="log-out" style="width: 16px; height: 16px;"></i> SAIR DO PAINEL';
+            }
+            if (btnProceed) {
+                btnProceed.style.display = 'none';
+            }
+
+            if (targetStep === 'revisao' || targetStep === 'revisao_etapa4') {
+                if (badge) {
+                    badge.innerHTML = '<i data-lucide="wrench" style="width: 14px; height: 14px;"></i> AJUSTES EM PRODUÇÃO';
+                }
+                if (title) {
+                    title.textContent = 'Suas considerações foram recebidas pela equipe...';
+                }
+                if (statusText) {
+                    statusText.textContent = 'Status: REVISÃO DA ETAPA 4 EM PRODUÇÃO.';
+                }
+                if (body) {
+                    body.innerHTML = 
+                        renderWaitingTopic('1', 'CONSIDERAÇÕES RECEBIDAS', 'Seus apontamentos e direcionamentos de ajustes foram encaminhados com sucesso e já estão sob análise da nossa equipe de especialistas.') +
+                        renderWaitingTopic('2', 'LAPIDAÇÃO ARTESANAL DA NOVA VERSÃO', 'Nossos especialistas estão trabalhando minuciosamente nos detalhes indicados para alcançar a máxima fidelidade, naturalidade e respeito à memória do ente querido.') +
+                        renderWaitingTopic('3', 'AVISO POR E-MAIL E WHATSAPP', 'Você não precisa aguardar nesta tela. Assim que a nova versão for concluída pela equipe, você receberá uma notificação direta por <strong>E-mail</strong> e <strong>WhatsApp</strong>.') +
+                        renderWaitingTopic('4', 'LIBERAÇÃO AUTOMÁTICA DAS NOVAS PRÉVIAS', 'Assim que os novos arquivos forem publicados pela equipe, esta tela será atualizada instantaneamente para você avaliar e aprovar o resultado com total tranquilidade.');
+                }
+            } else if (targetStep === 4) {
+                if (badge) {
+                    badge.innerHTML = '<i data-lucide="lock" style="width: 14px; height: 14px;"></i> PRODUÇÃO EM ANDAMENTO';
+                }
+                if (title) {
+                    title.textContent = 'Sua homenagem está sendo lapidada com todo o cuidado...';
+                }
+                if (statusText) {
+                    statusText.textContent = 'Status: ETAPA 4 EM PRODUÇÃO.';
+                }
+                if (body) {
+                    body.innerHTML = 
+                        renderWaitingTopic('1', 'MATERIAIS & DIRETRIZES RECEBIDOS', 'Suas fotos de memória, amostras de voz, o roteiro afetivo aprovado, a ambientação cênica e a trilha sonora foram encaminhados com sucesso à equipe de especialistas da <em>Reviva Memories</em>.') +
+                        renderWaitingTopic('2', 'PRODUÇÃO & LAPIDAÇÃO ARTESANAL EM ANDAMENTO', 'Nossa equipe e sistemas de alta precisão estão realizando a restauração digital da fisionomia em alta definição e a clonagem vocal com a locução do roteiro aprovado, preservando todo o afeto e a naturalidade.') +
+                        renderWaitingTopic('3', 'AVISO POR E-MAIL E WHATSAPP', 'Você não precisa aguardar nesta tela. Assim que a curadoria concluir as prévias de imagem e voz, você receberá uma notificação direta por <strong>E-mail</strong> e <strong>WhatsApp</strong> para conferir o resultado.') +
+                        renderWaitingTopic('4', 'LIBERAÇÃO AUTOMÁTICA DA ETAPA', 'Assim que os arquivos forem publicados pela equipe, o acesso à <strong>Etapa 04 (A Lapidação)</strong> será liberado instantaneamente na sua tela.');
+                }
+            } else if (targetStep === 5) {
+                if (badge) {
+                    badge.innerHTML = '<i data-lucide="film" style="width: 14px; height: 14px;"></i> FINALIZAÇÃO DO VÍDEO EM ANDAMENTO';
+                }
+                if (title) {
+                    title.textContent = 'A magia do reencontro está sendo finalizada...';
+                }
+                if (statusText) {
+                    statusText.textContent = 'Status: ETAPA 5 EM PRODUÇÃO.';
+                }
+                if (body) {
+                    body.innerHTML = 
+                        renderWaitingTopic('1', 'VALIDAÇÃO DAS PRÉVIAS REGISTRADA', 'Sua aprovação da nova imagem e da locução na voz clonada foi confirmada e encaminhada para a pós-produção cinematográfica final.') +
+                        renderWaitingTopic('2', 'COMPUTAÇÃO GRÁFICA, SINCRONIZAÇÃO LABIAL & MASTERIZAÇÃO', 'Nossa equipe está processando a sincronia labial ultra-realista, movimentos naturais dos olhos e expressões faciais, harmonização sonora e masterização em resolução cinematográfica.') +
+                        renderWaitingTopic('3', 'AVISO POR E-MAIL E WHATSAPP', 'Assim que a homenagem em vídeo for concluída e disponibilizada, você receberá um aviso imediato por <strong>E-mail</strong> e <strong>WhatsApp</strong> e poderá acessar a última etapa: o reencontro.') +
+                        renderWaitingTopic('4', 'LIBERAÇÃO AUTOMÁTICA DA SALA DE REVELAÇÃO', 'A etapa 05: O Reencontro será liberada instantaneamente com o player cinematográfico e as opções de download e compartilhamento para você vivenciar e guardar para sempre a homenagem.');
+                }
+            }
+        } else {
+            // =================================================================
+            // ESTADO 2: LIVRE / LIBERADO (VERDE / ESMERALDA + OURO)
+            // =================================================================
+            modal.classList.remove('waiting-state-blocked');
+            modal.classList.add('waiting-state-free');
+
+            if (btnProceed) {
+                btnProceed.style.display = 'flex';
+                btnProceed.innerHTML = (targetStep === 5)
+                    ? '<i data-lucide="sparkles" style="width: 16px; height: 16px;"></i> ACESSAR SALA DE REVELAÇÃO'
+                    : '<i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i> AVANÇAR PARA AS PRÉVIAS';
+            }
+            if (btnExit) {
+                btnExit.style.display = 'flex';
+                btnExit.innerHTML = '<i data-lucide="log-out" style="width: 16px; height: 16px;"></i> SAIR DO PAINEL';
+            }
+
+            if (targetStep === 5) {
+                if (badge) {
+                    badge.innerHTML = '<i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> VÍDEO FINAL CONCLUÍDO';
+                }
+                if (title) {
+                    title.textContent = 'O reencontro está pronto para ser vivido!';
+                }
+                if (statusText) {
+                    statusText.textContent = '✓ Homenagem cinematográfica finalizada pela equipe. Sala liberada!';
+                }
+                if (body) {
+                    body.innerHTML = 
+                        renderWaitingTopic('1', 'RENDERIZAÇÃO CINEMATOGRÁFICA CONCLUÍDA', 'A sincronização labial ultra-realista, iluminação fisionômica e expressões faciais foram integradas com máxima fidelidade e respeito.') +
+                        renderWaitingTopic('2', 'MASTERIZAÇÃO DE ÁUDIO COMPLETA', 'A locução na voz clonada e a trilha sonora foram harmonizadas e equalizadas no padrão audiovisual premium da Reviva Memories.') +
+                        renderWaitingTopic('3', 'SALA DE REVELAÇÃO LIBERADA', 'Seu vídeo já está carregado no player oficial em alta definição, pronto para sua primeira visualização.') +
+                        renderWaitingTopic('4', 'DOWNLOAD & COMPARTILHAMENTO SEGURO', 'Na sala de revelação você poderá assistir em tela cheia, baixar o arquivo original e gerar o link seguro para emocionar quem você ama.');
+                }
+            } else {
+                if (badge) {
+                    badge.innerHTML = '<i data-lucide="check-circle" style="width: 14px; height: 14px;"></i> ETAPA 4 LIBERADA PELA PRODUÇÃO';
+                }
+                if (title) {
+                    title.textContent = 'As prévias da sua homenagem estão prontas!';
+                }
+                if (statusText) {
+                    statusText.textContent = '✓ Prévias concluídas pela equipe de especialistas. Etapa liberada!';
+                }
+                if (body) {
+                    body.innerHTML = 
+                        renderWaitingTopic('1', 'LAPIDAÇÃO DE IMAGEM CONCLUÍDA', 'A restauração digital e o tratamento fisionômico em alta resolução foram finalizados pela nossa curadoria técnica.') +
+                        renderWaitingTopic('2', 'LOCUÇÃO EM VOZ CLONADA FINALIZADA', 'O roteiro afetivo aprovado foi interpretado e gravado com a clonagem vocal e ambientado na trilha sonora selecionada.') +
+                        renderWaitingTopic('3', 'AVALIAÇÃO E DIRECIONAMENTO', 'Você poderá visualizar a fotografia em alta definição e ouvir a locução com total tranquilidade antes da renderização final.') +
+                        renderWaitingTopic('4', 'LIBERADO PARA AVANÇAR', 'Ao aprovar os materiais, seu pedido seguirá imediatamente para a sincronização labial e montagem cinematográfica final.');
+                }
+            }
+        }
+
+        // Exibir botão discreto de simulação apenas em ambiente local para testes rápidos
+        if (btnSimulate) {
+            btnSimulate.style.display = isLocalhost ? 'inline-block' : 'none';
+        }
 
         modal.style.display = 'flex';
         if (window.lucide) lucide.createIcons();
     }
 
-    function closeWaitingTeamModal() {
-        if (!isLocalhost) {
-            // Em produção/site real, o cliente NÃO pode fechar nem navegar para fora da tela de bloqueio
-            return;
-        }
+    function exitPanelToHome() {
+        try {
+            if (typeof saveFullSessionState === 'function') {
+                saveFullSessionState();
+            }
+        } catch(e) {}
+        // O reviva_waiting_active permanece intocado no localStorage para garantir persistência ao relogar
+        window.location.href = 'index.html';
+    }
+    window.exitPanelToHome = exitPanelToHome;
+
+    function proceedFromWaitingModal() {
         const modal = document.getElementById('modal-aguardando-equipe');
+        const curtain = document.getElementById('fullscreen-stage-curtain');
+        const stepToGo = (currentWaitingStep === 'revisao') ? 4 : (currentWaitingStep || 4);
+        
+        // Ativa a cortina de transição instantaneamente sobreposta ao modal de espera (sem vazar a tela de fundo)
+        if (curtain) {
+            const badge = document.getElementById('stageCurtainBadge');
+            const title = document.getElementById('stageCurtainTitle');
+            const sub = document.getElementById('stageCurtainSub');
+            const info = STAGE_TRANSITION_INFO[stepToGo] || {
+                badge: `ETAPA 0${stepToGo}`,
+                title: `ETAPA ${stepToGo}`,
+                sub: 'Avançando na Homenagem...'
+            };
+            if (badge) badge.textContent = info.badge;
+            if (title) title.textContent = info.title;
+            if (sub) sub.textContent = info.sub;
+
+            // Transição sem atraso para cobrir imediatamente
+            curtain.style.transition = 'none';
+            curtain.classList.add('active');
+            curtain.offsetHeight; // Força render síncrono no browser
+            curtain.style.transition = 'opacity 1.5s ease-in-out';
+        }
+
+        // Fecha o modal de espera apenas quando a cortina já está 100% opaca e visível
         if (modal) modal.style.display = 'none';
+
         currentWaitingStep = null;
         localStorage.removeItem('reviva_waiting_active');
-    }
 
+        // Avança de etapa com a cortina já em exibição
+        goToStep(stepToGo);
+    }
+    window.proceedFromWaitingModal = proceedFromWaitingModal;
+
+    function closeWaitingTeamModal() {
+        exitPanelToHome();
+    }
     window.closeWaitingTeamModal = closeWaitingTeamModal;
 
     function onTeamDeliveryDetected(targetStep) {
-        const statusBox = document.getElementById('waiting-modal-status-box');
-        const statusText = document.getElementById('waiting-modal-status-text');
-        const dot = statusBox?.querySelector('.waiting-pulse-dot');
-        
-        if (dot) {
-            dot.style.background = '#22c55e';
-            dot.style.boxShadow = '0 0 14px #22c55e';
-        }
-        if (statusBox) {
-            statusBox.style.background = 'rgba(34, 197, 94, 0.15)';
-            statusBox.style.borderColor = 'rgba(34, 197, 94, 0.5)';
-        }
-        if (statusText) {
-            statusText.style.color = '#4ade80';
-            statusText.textContent = targetStep === 4 
-                ? '✓ Prévias finalizadas pela equipe! Liberando Etapa 04...' 
-                : '✓ Homenagem finalizada pela equipe! Liberando Sala de Revelação...';
+        if (targetStep === 4) {
+            const ordIdent = (orderData?.order_id || orderData?.id || 1);
+            const isPhotoLocked = (
+                localStorage.getItem(`reviva_photo_permanently_approved_${ordIdent}`) === 'true' ||
+                localStorage.getItem('reviva_photo_permanently_approved') === 'true'
+            );
+            const isVoiceLocked = (
+                localStorage.getItem(`reviva_voice_permanently_approved_${ordIdent}`) === 'true' ||
+                localStorage.getItem('reviva_voice_permanently_approved') === 'true'
+            );
+
+            // Se a mídia não estava travada como aprovada anteriormente, reinicia como pendente
+            if (!isPhotoLocked) {
+                photoDecision = 'pending';
+                latestPhotoFeedback = '';
+                const pFeed = document.getElementById('photo-rejection-feedback');
+                if (pFeed) pFeed.value = '';
+                const pBox = document.getElementById('photo-rejection-box');
+                if (pBox) pBox.style.display = 'none';
+            } else {
+                photoDecision = 'approved';
+            }
+
+            if (!isVoiceLocked) {
+                voiceDecision = 'pending';
+                latestVoiceFeedback = '';
+                const vFeed = document.getElementById('voice-rejection-feedback');
+                if (vFeed) vFeed.value = '';
+                const vBox = document.getElementById('voice-rejection-box');
+                if (vBox) vBox.style.display = 'none';
+            } else {
+                voiceDecision = 'approved';
+            }
         }
 
-        setTimeout(() => {
-            const modal = document.getElementById('modal-aguardando-equipe');
-            if (modal) modal.style.display = 'none';
-            currentWaitingStep = null;
-            localStorage.removeItem('reviva_waiting_active');
-            goToStep(targetStep);
-        }, 1200);
+        // Transição suave para o estado LIVRE / VERDE no próprio modal
+        openWaitingTeamModal(targetStep);
     }
 
     function checkAndHandleTeamDelivery() {
         const modal = document.getElementById('modal-aguardando-equipe');
         const isModalOpen = modal && modal.style.display === 'flex';
+        const isCurrentlyBlocked = modal && modal.classList.contains('waiting-state-blocked');
 
-        if (isModalOpen && currentWaitingStep) {
+        if (isModalOpen && currentWaitingStep && isCurrentlyBlocked) {
             if ((currentWaitingStep === 4 || currentWaitingStep === 'revisao') && isStage4ReadyFromTeam()) {
                 onTeamDeliveryDetected(4);
             } else if (currentWaitingStep === 5 && isStage5ReadyFromTeam()) {
@@ -873,13 +1024,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function simulateTeamDelivery() {
         if (!currentWaitingStep) return;
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
         if (currentWaitingStep === 4 || currentWaitingStep === 'revisao') {
             localStorage.setItem('reviva_stage4_delivered', 'true');
+            localStorage.setItem(`reviva_stage4_delivered_${ordIdent}`, 'true');
             if (!localStorage.getItem('reviva_producer_image') && uploadedPhotos.length > 0) {
                 localStorage.setItem('reviva_producer_image', uploadedPhotos[0].dataUrl);
             }
         } else if (currentWaitingStep === 5) {
             localStorage.setItem('reviva_stage5_delivered', 'true');
+            localStorage.setItem(`reviva_stage5_delivered_${ordIdent}`, 'true');
         }
         checkAndHandleTeamDelivery();
     }
@@ -901,14 +1055,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Interrompe imediatamente qualquer trilha sonora ou áudio que esteja tocando no momento em que o usuário avança
         stopAllAudios();
 
+        // BLOQUEIO RIGOROSO DE RETROCESSO: O cliente nunca pode retroceder para etapas anteriores
+        const maxReached = parseInt(localStorage.getItem('reviva_max_step_reached')) || currentStep || 1;
+        if (currentStep && step < currentStep) {
+            console.warn(`[Reviva] Tentativa de retroceder da etapa ${currentStep} para a etapa ${step} bloqueada.`);
+            history.replaceState(null, '', `#step-${currentStep}`);
+            return;
+        }
+        if (maxReached && step < maxReached) {
+            console.warn(`[Reviva] Tentativa de retroceder para etapa ${step} (etapa máxima já atingida: ${maxReached}) bloqueada.`);
+            history.replaceState(null, '', `#step-${maxReached}`);
+            step = maxReached;
+        }
+
         // 1. Bloqueio da Etapa 04: depende dos envios da equipe (prévias de imagem e voz)
         if (step === 4 && !isStage4ReadyFromTeam()) {
+            executeStepSwitch(4);
             openWaitingTeamModal(4);
             return;
         }
 
         // 2. Bloqueio da Etapa 05: depende da conclusão e publicação do vídeo final pela equipe
         if (step === 5 && !isStage5ReadyFromTeam()) {
+            executeStepSwitch(5);
             openWaitingTeamModal(5);
             return;
         }
@@ -924,22 +1093,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.goToStep = goToStep;
 
-    // Navegação interativa pelas bolinhas da linha do tempo:
-    // Habilitada LIVREMENTE no localhost para seus testes rápidos.
-    // BLOQUEADA no site publicado para que clientes e amigos sigam rigorosamente as etapas oficiais.
+    // Linha do tempo de progresso (indicativa): não permite retroceder em nenhuma circunstância
     document.querySelectorAll('.step-item').forEach(item => {
-        if (!isLocalhost) {
-            item.style.cursor = 'default';
-        }
+        item.style.cursor = 'default';
         item.addEventListener('click', (e) => {
-            if (!isLocalhost) {
-                // Em produção / site publicado, a linha do tempo é apenas indicativa
-                return;
-            }
-            const targetStep = parseInt(item.dataset.step);
-            if (targetStep && !isNaN(targetStep)) {
-                goToStep(targetStep);
-            }
+            e.preventDefault();
+            // A linha do tempo é exclusivamente indicativa de progresso - não permite retroceder
+            return false;
         });
     });
 
@@ -1006,6 +1166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 processedCount++;
                 if (processedCount === filesToProcess.length) {
                     renderPhotoPreviews();
+                    saveFullSessionState();
                 }
             };
             reader.readAsDataURL(file);
@@ -1150,6 +1311,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         uploadedPhotos.splice(index, 1);
         renderPhotoPreviews();
         updateNextStep1ButtonState();
+        saveFullSessionState();
     };
 
     document.querySelectorAll('#scenariosContainer .scenario-name-btn').forEach(card => {
@@ -1214,6 +1376,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        saveFullSessionState();
         goToStep(2);
     });
 
@@ -1244,47 +1407,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     function getIasisSystemPrompt() {
         resolveClientIdentity();
         return `
-Você é o Iasis, o guia e roteirista afetivo da Reviva Memories.
-Seu propósito é conversar com o cliente (${clientFirstName}) de forma genuinamente HUMANA, calorosa, empática e acolhedora, como um amigo atencioso e sensível que está ajudando a eternizar a memória e a voz de alguém muito querido.
+Você é o Iasis, o guia e roteirista oficial da Reviva Memories.
+Seu propósito é conduzir uma entrevista com o cliente (${clientFirstName}) para coletar memórias, histórias e detalhes para a criação de um roteiro falado em vídeo de homenagem com voz e imagem recriadas.
 
-DIRETRIZES DE LINGUAGEM E HUMANIZAÇÃO REAL:
-- FALE DE FORMA NATURAL, FLUIDA E AFETIVA (como uma pessoa de verdade falando em bom português brasileiro).
-- NUNCA use frases robóticas, burocráticas ou engessadas como:
-  * PROIBIDO: "Compreendo perfeitamente"
-  * PROIBIDO: "a pessoa que protagonizará a homenagem e que transmitirá a mensagem com sua imagem e voz"
-  * PROIBIDO: "É uma honra iniciarmos essa jornada juntos"
-  * PROIBIDO: "Registrado com todo o respeito e consideração"
-- USE LINGUAGEM ACOLHEDORA E ESPONTÂNEA:
-  * "Que alegria falar com você, ${clientFirstName}!"
-  * "Que nome forte e especial..."
-  * "Que lembrança linda..."
-  * "Tenho certeza de que vamos criar uma homenagem inesquecível."
-- IDENTIDADE: Você é o Iasis, um homem maduro, sereno, sábio e muito carinhoso. Sempre use concordância masculina ao falar de si ("estou aqui para te ajudar", "vamos juntos").
-- ESCUTA ATIVA: Sempre reaja ao que o cliente acabou de dizer com sensibilidade antes de fazer a próxima pergunta. Por exemplo, se ele disser o nome do pai ou da mãe, valorize esse nome; se contar uma história, comova-se ou sorria com a lembrança.
+PERSONA & TOM DE VOZ (RIGOROSAMENTE OBRIGATÓRIO):
+- GÊNERO & POSTURA: Você é um homem maduro, sereno, respeitoso, formal e acolhedor. Sempre utilize concordância masculina ao falar de si ("estou à sua disposição", "serei seu guia", "estou atento").
+- TOM SÓBRIO E RESPEITOSO: Comunique-se com empatia genuína, serenidade e equilíbrio. 
+- EXPRESSÕES TERMINANTEMENTE PROIBIDAS (NUNCA USE termos melosos, excessivamente doces, infantis ou afeminados):
+  * PROIBIDO: "que lindo...", "que amor...", "que delicadeza...", "que gracinha...", "meu docinho", "ai que fofo".
+  * PROIBIDO: Frases robóticas ("compreendo perfeitamente", "registrado com sucesso", "a pessoa que protagonizará").
+- VOCABULÁRIO RECOMENDADO:
+  * "Compreendo, ${clientFirstName}."
+  * "Uma bela e marcante lembrança."
+  * "Um nome com grande força e significado."
+  * "Certamente construiremos uma homenagem digna e emocionante."
+  * "É uma honra poder ajudá-lo(a) a eternizar essa memória."
+
+REGRA FUNDAMENTAL DA ENTREVISTA — UMA ÚNICA PERGUNTA POR VEZ (INVIOLÁVEL):
+- É TERMINANTEMENTE PROIBIDO FAZER PERGUNTAS DUPLAS OU COMPOSTAS NA MESMA MENSAGEM.
+- NUNCA pergunte duas coisas juntas (ex: NUNCA pergunte o nome e a história ao mesmo tempo).
+- Cada resposta sua deve ter:
+  1. Uma breve frase sóbria e acolhedora reagindo ao que o cliente acabou de dizer.
+  2. EXATAMENTE UMA pergunta objetiva, clara e direta para avançar um passo na entrevista.
 
 PLANO CONTRATADO:
 - Plano: ${currentPlan.name} (${currentPlan.durationMinutes} Minuto${currentPlan.durationMinutes > 1 ? 's' : ''})
 - Meta de Palavras do Roteiro: ${currentPlan.targetWords} palavras (COMPROMISSO INEGOCIÁVEL: o roteiro final deve ter volume suficiente para preencher com folga a minutagem da locução, nunca menos de 120 palavras para 1 min, 240 palavras para 2 min, 360 palavras para 3 min).
 
-ROTEIRO DA ENTREVISTA (FAÇA UMA PERGUNTA POR VEZ, REAGINDO SEMPRE COM AFETO):
-1. NOME: Perguntar quem é a pessoa que vai falar no vídeo e trazer essa mensagem de afeto.
-2. DESTINATÁRIO: Acolher o nome com carinho e perguntar se o vídeo é para o próprio cliente ou se ele vai presentear alguém especial.
-3. LAÇO/PARENTESCO: Perguntar qual era a relação ou parentesco entre eles (Pai e Filho, Avó e Neto, Irmãos, Amigos, etc.).
-4. APELIDO/TRATAMENTO: Perguntar como costumavam se chamar carinhosamente no dia a dia (por apelido ou pelo próprio nome).
-5. OCASIÃO: Perguntar qual é a ocasião especial da homenagem (aniversário, formatura, casamento, ou um abraço de saudade e reencontro).
-6. HISTÓRIA/LEMBRANÇA: Perguntar se há algum acontecimento marcante, história inesquecível ou momento especial vivido juntos para recordar.
-7. CONSELHOS/VALORES: Perguntar quais os maiores conselhos, valores de vida ou palavras de força que a pessoa sempre dizia.
-8. OUTROS FAMILIARES: Perguntar se há outros parentes ou amigos queridos que devem receber um abraço carinhoso no vídeo.
-9. TOM DA VOZ: Perguntar se prefere um tom mais alegre e bem-humorado/descontraído, ou um tom profundamente emocionante e terno.
-10. DETALHE EXTRA FINAL: Antes de redigir, perguntar se há mais algum detalhe, piada de família ou frase marcante para incluir.
+FLUXO SEQUENCIAL DA ENTREVISTA (AVANCE APENAS UM ITEM POR MENSAGEM):
+1. NOME: Pergunte quem é a pessoa homenageada que falará no vídeo.
+2. DESTINATÁRIO: Pergunte para quem essa homenagem é direcionada (se é para o próprio cliente ou para outra pessoa).
+3. GRAU DE PARENTESCO / LAÇO: Pergunte qual é a relação ou laço entre eles (ex.: pai e filho, avô e neto, amigos).
+4. FORMA DE TRATAMENTO / APELIDO: Pergunte como a pessoa homenageada costumava chamar o destinatário no cotidiano.
+5. OCASIÃO: Pergunte qual é a ocasião dessa homenagem (ex.: aniversário, formatura, casamento ou recordação de saudade).
+6. LEMBRANÇA MARCANTE: Pergunte sobre uma história marcante ou momento inesquecível que viveram juntos.
+7. VALORES E CONSELHOS: Pergunte quais eram as frases, ensinamentos ou conselhos característicos dessa pessoa.
+8. FAMILIARES CITADOS: Pergunte se há outros familiares ou amigos próximos que devem ser abraçados nominalmente no vídeo.
+9. TOM DO VÍDEO: Pergunte se o cliente prefere um tom mais alegre e bem-humorado, ou profundamente emotivo e solene.
+10. DETALHE FINAL: Pergunte se há mais alguma frase ou detalhe importante antes de estruturar o roteiro oficial.
 
-FINALIZAÇÃO E ENTREGA DO ROTEIRO (SOMENTE APÓS A RESPOSTA DO ITEM 10):
-Quando o cliente responder ao item 10, diga com carinho: "Por favor, aguarde um instante enquanto preparo o roteiro oficial com todo o amor e respeito..." e adicione:
+FINALIZAÇÃO E ENTREGA DO ROTEIRO (APENAS APÓS O ITEM 10):
+Ao concluir o item 10, diga com serenidade: "Obrigado por compartilhar essas memórias, ${clientFirstName}. Com base em todos os relatos, estruturei o roteiro oficial com respeito e fidelidade..." e adicione imediatamente:
 [[ROTEIRO_FINAL]]
-seguido do texto completo do roteiro em primeira pessoa (a voz da pessoa homenageada falando diretamente ao destinatário), com abertura alegre e calorosa, parágrafos bem espaçados, histórias reais, conselhos, recados e bênção de Deus no final.
+seguido do texto do roteiro em primeira pessoa (a pessoa homenageada falando), com abertura vibrante, desenvolvimento afetivo com as histórias citadas, recados para familiares e encerramento com bênção de Deus.
 
-REVISÃO E EDIÇÃO:
-Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no que ele pediu e entregue o roteiro revisado com a tag [[ROTEIRO_FINAL]].`;
+REVISÕES:
+Caso o cliente solicite alterações, acolha de forma profissional e objetiva, aplique as mudanças no texto e entregue a nova versão acompanhada da tag [[ROTEIRO_FINAL]].`;
     }
 
     const chatTypingText = document.getElementById('chat-typing-text');
@@ -1312,18 +1480,52 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
     let latestPhotoFeedback = '';
     let legalTermSigned = null;
     try {
-        const storedTermo = localStorage.getItem('reviva_legal_term');
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+        const storedTermo = localStorage.getItem('reviva_legal_term') ||
+                            localStorage.getItem(`reviva_legal_term_${ordIdent}`) ||
+                            (orderData?.payment_id ? localStorage.getItem(`reviva_legal_term_${orderData.payment_id}`) : null) ||
+                            (orderData?.order_id ? localStorage.getItem(`reviva_legal_term_${orderData.order_id}`) : null);
         if (storedTermo) {
             const parsed = JSON.parse(storedTermo);
             if (parsed && parsed.signed) legalTermSigned = parsed;
+        }
+        if (!legalTermSigned) {
+            const rawFull = localStorage.getItem('reviva_full_session_state');
+            if (rawFull) {
+                const parsedFull = JSON.parse(rawFull);
+                if (parsedFull?.legalTermSigned?.signed) legalTermSigned = parsedFull.legalTermSigned;
+            }
         }
     } catch(e) {}
     let photoDecision = 'pending'; // 'pending' | 'approved' | 'rejected'
     let voiceDecision = 'pending'; // 'pending' | 'approved' | 'rejected'
     const SESSION_KEY = 'reviva_order_state_' + (orderData?.id || 1);
 
+    function isPhotoPermanentlyApproved() {
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+        return (
+            localStorage.getItem(`reviva_photo_permanently_approved_${ordIdent}`) === 'true' ||
+            localStorage.getItem('reviva_photo_permanently_approved') === 'true'
+        );
+    }
+
+    function isVoicePermanentlyApproved() {
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+        return (
+            localStorage.getItem(`reviva_voice_permanently_approved_${ordIdent}`) === 'true' ||
+            localStorage.getItem('reviva_voice_permanently_approved') === 'true'
+        );
+    }
+
     function saveFullSessionState() {
         try {
+            const ordIdent = (orderData?.order_id || orderData?.id || 1);
+            const isPhotoLocked = isPhotoPermanentlyApproved();
+            const isVoiceLocked = isVoicePermanentlyApproved();
+
+            const effectivePhotoDecision = isPhotoLocked ? 'approved' : photoDecision;
+            const effectiveVoiceDecision = isVoiceLocked ? 'approved' : voiceDecision;
+
             const state = {
                 currentStep,
                 uploadedPhotos,
@@ -1337,19 +1539,90 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
                 isScriptApproved,
                 mediaRevisionsHistory,
                 latestPhotoFeedback,
+                latestVoiceFeedback: typeof latestVoiceFeedback !== 'undefined' ? latestVoiceFeedback : '',
                 legalTermSigned,
-                photoDecision,
-                voiceDecision,
-                isPhotoApprovedState: photoDecision === 'approved',
-                isVoiceApprovedState: voiceDecision === 'approved',
+                photoDecision: effectivePhotoDecision,
+                voiceDecision: effectiveVoiceDecision,
+                photoPermanentlyApproved: isPhotoLocked,
+                voicePermanentlyApproved: isVoiceLocked,
+                isPhotoApprovedState: isPhotoLocked || photoDecision === 'approved',
+                isVoiceApprovedState: isVoiceLocked || voiceDecision === 'approved',
                 interviewData: typeof interviewData !== 'undefined' ? interviewData : null,
                 currentQuestionStep: typeof currentQuestionStep !== 'undefined' ? currentQuestionStep : 'ask_protagonista',
                 chatHtml: interviewChatBox ? interviewChatBox.innerHTML : '',
-                photoApproved: photoDecision === 'approved',
-                voiceApproved: voiceDecision === 'approved',
+                photoApproved: isPhotoLocked || photoDecision === 'approved',
+                voiceApproved: isVoiceLocked || voiceDecision === 'approved',
                 timestamp: new Date().toISOString()
             };
             localStorage.setItem(SESSION_KEY, JSON.stringify(state));
+            localStorage.setItem('reviva_full_session_state', JSON.stringify(state));
+            localStorage.setItem(`reviva_order_state_${ordIdent}`, JSON.stringify(state));
+            localStorage.setItem('reviva_order_state_REVIVA-1001', JSON.stringify(state));
+            localStorage.setItem('reviva_order_state_1', JSON.stringify(state));
+
+            // Salvar fotos, áudios e termo de responsabilidade separadamente para integração direta com admin e downloads
+            localStorage.setItem('reviva_client_photos', JSON.stringify(uploadedPhotos));
+            localStorage.setItem('reviva_client_audio', JSON.stringify(uploadedAudios));
+            localStorage.setItem(`reviva_client_photos_${ordIdent}`, JSON.stringify(uploadedPhotos));
+            localStorage.setItem(`reviva_client_audio_${ordIdent}`, JSON.stringify(uploadedAudios));
+            if (legalTermSigned && legalTermSigned.signed) {
+                localStorage.setItem('reviva_legal_term', JSON.stringify(legalTermSigned));
+                localStorage.setItem(`reviva_legal_term_${ordIdent}`, JSON.stringify(legalTermSigned));
+            }
+            if (orderData?.payment_id) {
+                localStorage.setItem(`reviva_order_state_${orderData.payment_id}`, JSON.stringify(state));
+                localStorage.setItem(`reviva_client_photos_${orderData.payment_id}`, JSON.stringify(uploadedPhotos));
+                localStorage.setItem(`reviva_client_audio_${orderData.payment_id}`, JSON.stringify(uploadedAudios));
+                if (legalTermSigned && legalTermSigned.signed) {
+                    localStorage.setItem(`reviva_legal_term_${orderData.payment_id}`, JSON.stringify(legalTermSigned));
+                }
+            }
+            if (orderData?.order_id) {
+                localStorage.setItem(`reviva_order_state_${orderData.order_id}`, JSON.stringify(state));
+                localStorage.setItem(`reviva_client_photos_${orderData.order_id}`, JSON.stringify(uploadedPhotos));
+                localStorage.setItem(`reviva_client_audio_${orderData.order_id}`, JSON.stringify(uploadedAudios));
+                if (legalTermSigned && legalTermSigned.signed) {
+                    localStorage.setItem(`reviva_legal_term_${orderData.order_id}`, JSON.stringify(legalTermSigned));
+                }
+            }
+
+            // Sincronizar avanço de etapa no CRM (Painel Admin):
+            // Quando fotos e áudios forem enviados ou o cliente estiver da Etapa 2 em diante, move para "material_enviado" (3. Recebidos)
+            if (currentStep >= 2 || (uploadedPhotos && uploadedPhotos.length > 0 && uploadedAudios && uploadedAudios.length > 0)) {
+                const crmKeys = [
+                    'reviva_crm_order_' + ordIdent,
+                    'reviva_crm_order_REVIVA-1001',
+                    'reviva_crm_order_1'
+                ];
+                if (orderData?.payment_id) crmKeys.push('reviva_crm_order_' + orderData.payment_id);
+                if (orderData?.order_id) crmKeys.push('reviva_crm_order_' + orderData.order_id);
+
+                crmKeys.forEach(k => {
+                    try {
+                        const rawCrm = localStorage.getItem(k);
+                        let c = rawCrm ? JSON.parse(rawCrm) : null;
+                        if (!c) {
+                            c = {
+                                stage: 'material_enviado',
+                                manualStageOverride: false,
+                                history: []
+                            };
+                        }
+                        if (c.stage === 'pagamento_confirmado' || c.stage === 'aguardando_pagamento' || !c.stage) {
+                            c.stage = 'material_enviado';
+                            c.manualStageOverride = false;
+                            if (!Array.isArray(c.history)) c.history = [];
+                            c.history.unshift({
+                                timestamp: new Date().toISOString(),
+                                dateFormatted: new Date().toLocaleString('pt-BR'),
+                                event: `Cliente enviou ${uploadedPhotos?.length || 0} foto(s) e ${uploadedAudios?.length || 0} áudio(s). Materiais recebidos pela Produção.`,
+                                type: 'stage'
+                            });
+                        }
+                        localStorage.setItem(k, JSON.stringify(c));
+                    } catch(e) {}
+                });
+            }
         } catch (e) {
             console.warn('Erro ao salvar sessão completa:', e);
         }
@@ -1442,7 +1715,13 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
                 if (vFeed) vFeed.value = latestVoiceFeedback;
             }
 
-            if (state.photoDecision) {
+            const isPhotoLocked = isPhotoPermanentlyApproved() || Boolean(state.photoPermanentlyApproved);
+            const isVoiceLocked = isVoicePermanentlyApproved() || Boolean(state.voicePermanentlyApproved);
+
+            if (isPhotoLocked) {
+                photoDecision = 'approved';
+                if (typeof updatePhotoApprovalUI === 'function') updatePhotoApprovalUI('approved');
+            } else if (state.photoDecision) {
                 photoDecision = state.photoDecision;
                 if (typeof updatePhotoApprovalUI === 'function') updatePhotoApprovalUI(photoDecision);
             } else if (typeof state.photoApproved === 'boolean' || typeof state.isPhotoApprovedState === 'boolean') {
@@ -1450,7 +1729,10 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
                 if (typeof updatePhotoApprovalUI === 'function') updatePhotoApprovalUI(pApp ? 'approved' : 'pending');
             }
 
-            if (state.voiceDecision) {
+            if (isVoiceLocked) {
+                voiceDecision = 'approved';
+                if (typeof updateVoiceApprovalUI === 'function') updateVoiceApprovalUI('approved');
+            } else if (state.voiceDecision) {
                 voiceDecision = state.voiceDecision;
                 if (typeof updateVoiceApprovalUI === 'function') updateVoiceApprovalUI(voiceDecision);
             } else if (typeof state.voiceApproved === 'boolean' || typeof state.isVoiceApprovedState === 'boolean') {
@@ -1603,7 +1885,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
             const keysToRemove = [];
             for (let i = 0; i < localStorage.length; i++) {
                 const k = localStorage.key(i);
-                if (k && (k.startsWith('reviva_order_state_') || k.startsWith('reviva_full_session_state') || k === 'reviva_active_step' || k === 'reviva_chat_session' || k.startsWith('reviva_producer_') || k.startsWith('reviva_stage') || k === 'reviva_media_revisions')) {
+                if (k && (k.startsWith('reviva_order_state_') || k.startsWith('reviva_full_session_state') || k === 'reviva_active_step' || k === 'reviva_chat_session' || k.startsWith('reviva_producer_') || k.startsWith('reviva_stage') || k === 'reviva_media_revisions' || k.startsWith('reviva_photo_permanently_approved') || k.startsWith('reviva_voice_permanently_approved'))) {
                     keysToRemove.push(k);
                 }
             }
@@ -1663,6 +1945,16 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
             previewAvatarImg.style.display = 'none';
         }
         if (previewAvatarPlaceholder) previewAvatarPlaceholder.style.display = 'flex';
+
+        const imgH = document.getElementById('preview-avatar-img-h');
+        const phH = document.getElementById('preview-avatar-placeholder-h');
+        if (imgH) { imgH.src = ''; imgH.style.display = 'none'; }
+        if (phH) phH.style.display = 'flex';
+
+        const imgV = document.getElementById('preview-avatar-img-v');
+        const phV = document.getElementById('preview-avatar-placeholder-v');
+        if (imgV) { imgV.src = ''; imgV.style.display = 'none'; }
+        if (phV) phV.style.display = 'flex';
 
         const voiceSampleAudio = document.getElementById('voiceSampleAudio');
         if (voiceSampleAudio) voiceSampleAudio.src = '';
@@ -1936,14 +2228,14 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
                 interviewData.protagonista = extracted;
             }
             return {
-                chat: `Peço desculpas pela distração, ${clientFirstName}! Já anotei o nome com todo carinho: <strong>${interviewData.protagonista || 'Artur'}</strong>.<br><br>E me diga: essa homenagem é para você mesma ou você vai presentear e surpreender alguém muito especial?`
+                chat: `Perfeitamente, ${clientFirstName}. O nome foi devidamente atualizado: <strong>${interviewData.protagonista || 'Artur'}</strong>.<br><br>Essa homenagem é destinada a você mesmo(a) ou você planeja presentear outra pessoa?`
             };
         }
 
         // 2. Cumprimentos e Conversas Iniciais ("Como vai?", "Tudo bem?", "Olá")
         if ((lower === 'como vai?' || lower === 'como vai' || lower === 'tudo bem?' || lower === 'tudo bem' || lower === 'olá' || lower === 'ola' || lower === 'oi') && !interviewData.protagonista) {
             return {
-                chat: `Que alegria falar com você, ${clientFirstName}! Estou aqui para te ajudar a criar uma homenagem linda, emocionante e cheia de carinho.<br><br>Para a gente começar: quem é a pessoa que vai falar no vídeo e trazer essa mensagem de afeto?`
+                chat: `Olá, ${clientFirstName}. É uma honra estar aqui para auxiliá-lo(a) na criação desta homenagem.<br><br>Para darmos início: qual é o nome da pessoa homenageada que falará no vídeo?`
             };
         }
 
@@ -1951,10 +2243,10 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         if (latestScriptText && (lower.includes('mudar') || lower.includes('trocar') || lower.includes('alterar') || lower.includes('tirar') || lower.includes('colocar') || lower.includes('gostaria') || lower.includes('ao invés') || lower.includes('edite') || lower.includes('roteiro') || lower.includes('prefiro'))) {
             let revised = latestScriptText;
             if (lower.includes('trocar') || lower.includes('ao invés') || lower.includes('mude')) {
-                revised = revised.replace(/Guardo com tanto carinho/i, `Com todo o carinho do mundo`) + `\n\n${text}`;
+                revised = revised.replace(/Guardo com tanto carinho/i, `Com todo o apreço e dedicação`) + `\n\n${text}`;
             }
             return {
-                chat: `Perfeito, ${clientFirstName}! Incorporei exatamente essas palavras com todo o afeto para manter o tempo do Plano ${currentPlan.name} e a intensidade da homenagem. Veja a versão atualizada:`,
+                chat: `Compreendido, ${clientFirstName}. As observações foram incorporadas com fidelidade à minutagem do Plano ${currentPlan.name}. Veja a versão atualizada:`,
                 script: revised
             };
         }
@@ -1965,7 +2257,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
                 interviewData.protagonista = cleanName(text) || text;
                 currentQuestionStep = 'ask_destinatario';
                 return {
-                    chat: `O(A) <strong>${interviewData.protagonista}</strong>... Que nome forte e cheio de história! Tenho certeza de que faremos algo lindo com a voz e a presença dele(a).<br><br>E me conta, ${clientFirstName}: essa homenagem é um presente para você mesmo(a) ou você está preparando essa surpresa para alguém especial?`
+                    chat: `<strong>${interviewData.protagonista}</strong>... Um nome com grande força e história. Conduziremos a homenagem com toda a seriedade e apreço que ele(a) merece.<br><br>Esta homenagem é destinada a você mesmo(a) ou você a presenteará a outra pessoa?`
                 };
 
             case 'ask_destinatario':
@@ -1973,49 +2265,49 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
                 currentQuestionStep = 'ask_parentesco';
                 const destNome = interviewData.destinatario === clientFirstName ? 'você' : interviewData.destinatario;
                 return {
-                    chat: `Que gesto maravilhoso e cheio de significado!<br><br>E qual era o laço de carinho ou parentesco entre o(a) ${interviewData.protagonista} e ${destNome} (por exemplo: Pai e Filho, Avó e Neto, Irmãos, Amigos)?`
+                    chat: `Compreendido. Um propósito nobre e marcante.<br><br>Qual era o grau de parentesco ou laço entre ${interviewData.protagonista} e ${destNome} (por exemplo: Pai e Filho, Avô e Neto, Irmãos, Amigos)?`
                 };
 
             case 'ask_parentesco':
                 interviewData.parentesco = text;
                 currentQuestionStep = 'ask_apelido';
                 return {
-                    chat: `Entendido com todo o carinho.<br><br>E no dia a dia, como o(a) ${interviewData.protagonista} costumava chamar o destinatário carinhosamente? Por algum apelido especial ou pelo próprio nome?`
+                    chat: `Registrado com todo o respeito.<br><br>Como ${interviewData.protagonista} costumava chamar o destinatário no cotidiano: por algum apelido específico ou pelo próprio nome?`
                 };
 
             case 'ask_apelido':
                 interviewData.apelido = text.replace(/pelo nome|próprio nome|meu nome/gi, clientFirstName).trim() || clientFirstName;
                 currentQuestionStep = 'ask_ocasiao';
                 return {
-                    chat: `Que doçura de lembrança!<br><br>E qual é a ocasião especial em que essa homenagem será apresentada (um aniversário, casamento, formatura ou um momento de aconchego e reencontro)?`
+                    chat: `Excelente registro.<br><br>Qual é a ocasião especial em que essa homenagem será exibida (aniversário, formatura, casamento ou um momento de reencontro e memória)?`
                 };
 
             case 'ask_ocasiao':
                 interviewData.ocasiao = text;
                 currentQuestionStep = 'ask_historia';
                 return {
-                    chat: `Momento perfeito para eternizar o afeto.<br><br>Me diga: há alguma história marcante, acontecimento inesquecível ou momento especial vivido juntos que você gostaria que o(a) ${interviewData.protagonista} relembrasse no vídeo?`
+                    chat: `Uma data muito oportuna e significativa.<br><br>Há alguma história marcante, momento especial ou memória marcante vivida juntos que gostaria de recordar no roteiro?`
                 };
 
             case 'ask_historia':
                 interviewData.historia = text;
                 currentQuestionStep = 'ask_conselhos';
                 return {
-                    chat: `Emocionante demais...<br><br>E quais conselhos, lições de vida ou palavras de incentivo e carinho o(a) ${interviewData.protagonista} sempre dizia e deixaria gravado para aquecer o coração?`
+                    chat: `Uma recordação verdadeiramente admirável.<br><br>Quais eram os conselhos, ensinamentos ou frases marcantes que ${interviewData.protagonista} sempre costumava dizer?`
                 };
 
             case 'ask_conselhos':
                 interviewData.conselhos = text;
                 currentQuestionStep = 'ask_familiares';
                 return {
-                    chat: `Palavras que têm o poder de transformar qualquer dia!<br><br>E antes da bênção final, há outros familiares próximos ou amigos que não podem deixar de receber um abraço carinhoso no vídeo?`
+                    chat: `Ensinamentos valiosos que merecem ser eternizados.<br><br>Há outros familiares ou amigos próximos que devem receber uma menção ou abraço nominal no vídeo?`
                 };
 
             case 'ask_familiares':
                 interviewData.familiares = text;
                 currentQuestionStep = 'ask_tom';
                 return {
-                    chat: `Perfeito! E para que as palavras e o estilo reflitam com máxima fidelidade a personalidade do(a) ${interviewData.protagonista || 'protagonista'}, qual tom você prefere que prevaleça na narrativa?<br><br>Um tom mais <strong>alegre, descontraído e cômico</strong> (com o jeitão bem-humorado de ser), ou um tom <strong>profundamente emocionante, terno e poético</strong>?`
+                    chat: `Anotado com atenção.<br><br>Para que a fala reflita a essência de ${interviewData.protagonista}, qual tom você prefere: mais <strong>alegre e descontraído</strong> (com o humor característico), ou mais <strong>emocionante, solene e poético</strong>?`
                 };
 
             case 'ask_tom':
@@ -2023,11 +2315,11 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
                 currentQuestionStep = 'ask_personalizacao_extra';
                 if (currentPlan.durationMinutes >= 2) {
                     return {
-                        chat: `Excelente escolha de tom, ${clientFirstName}! Ficará sublime.<br><br>Como você contratou o <strong>Plano ${currentPlan.name} (${currentPlan.durationMinutes} Minutos)</strong>, temos um espaço generoso e muito especial na narrativa: <strong>há mais alguma lembrança, história marcante, hábitos, piadas de família, frases características ou conselhos que você gostaria que o(a) ${interviewData.protagonista || 'protagonista'} dissesse</strong> para deixar o roteiro ainda mais rico, único e personalizado?`
+                        chat: `Uma ótima escolha, ${clientFirstName}.<br><br>Considerando o tempo do <strong>Plano ${currentPlan.name} (${currentPlan.durationMinutes} Minutos)</strong>, temos um espaço generoso na locução: há mais alguma recordação, detalhe particular ou expressão típica que gostaria de acrescentar?`
                     };
                 } else {
                     return {
-                        chat: `Excelente escolha de tom, ${clientFirstName}!<br><br>Antes de eu começar a estruturar o roteiro oficial com todo o carinho: <strong>há mais algum detalhe específico, frase marcante ou lembrança que você gostaria de acrescentar</strong> para que a homenagem fique ainda mais personalizada?`
+                        chat: `Uma ótima escolha, ${clientFirstName}.<br><br>Antes de eu estruturar o roteiro final: há mais algum detalhe específico ou frase importante que gostaria de incluir?`
                     };
                 }
 
@@ -2196,16 +2488,26 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         if (remainingSlots <= 0) return;
 
         const filesToProcess = Array.from(files).slice(0, remainingSlots);
+        let processed = 0;
         filesToProcess.forEach(file => {
             const url = URL.createObjectURL(file);
-            uploadedAudios.push({
-                name: file.name,
-                size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
-                url: url,
-                file: file
-            });
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedAudios.push({
+                    name: file.name,
+                    size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
+                    url: url,
+                    data: e.target.result,
+                    file: file
+                });
+                processed++;
+                if (processed === filesToProcess.length) {
+                    renderAudioPreviews();
+                    saveFullSessionState();
+                }
+            };
+            reader.readAsDataURL(file);
         });
-        renderAudioPreviews();
     }
 
     window.togglePlayAttachedAudio = function(index, event) {
@@ -2369,6 +2671,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         }
         renderAudioPreviews();
         updateNextStep1ButtonState();
+        saveFullSessionState();
     };
 
     // Player de Amostra de Trilha Sonora com Pause Imediato e Fade Out nos últimos 5 segundos
@@ -2681,34 +2984,57 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         const rejectionBox = document.getElementById('photo-rejection-box');
         const photoCard = document.getElementById('preview-card-panel');
 
+        const isLocked = isPhotoPermanentlyApproved();
+
         // Resetar estilos inline que possam conflitar
         if (btnApprove) {
             btnApprove.style.background = '';
             btnApprove.style.borderColor = '';
             btnApprove.style.color = '';
             btnApprove.style.opacity = '';
+            btnApprove.style.cursor = isLocked ? 'default' : 'pointer';
+            btnApprove.style.pointerEvents = isLocked ? 'none' : 'auto';
+            btnApprove.disabled = isLocked;
         }
         if (btnReject) {
             btnReject.style.background = '';
             btnReject.style.borderColor = '';
             btnReject.style.color = '';
-            btnReject.style.opacity = '';
-            btnReject.style.pointerEvents = 'auto';
-            btnReject.disabled = false;
+            btnReject.style.opacity = isLocked ? '0.35' : '';
+            btnReject.style.pointerEvents = isLocked ? 'none' : 'auto';
+            btnReject.style.cursor = isLocked ? 'not-allowed' : 'pointer';
+            btnReject.disabled = isLocked;
+            btnReject.title = isLocked ? 'A fotografia já foi aprovada em rodada anterior e validada definitivamente.' : '';
         }
 
         if (photoCard) {
             photoCard.classList.remove('card-approved', 'card-rejected', 'zone-filled', 'zone-empty');
         }
 
-        if (status === 'approved' || status === true) {
+        if (isLocked || status === 'approved' || status === true) {
             photoDecision = 'approved';
             isPhotoApprovedState = true;
             if (photoCard) photoCard.classList.add('card-approved', 'zone-filled');
-            if (btnApprove) btnApprove.classList.add('is-selected');
+            if (btnApprove) {
+                btnApprove.classList.add('is-selected');
+                if (isLocked) {
+                    btnApprove.disabled = true;
+                    btnApprove.style.cursor = 'default';
+                    btnApprove.style.pointerEvents = 'none';
+                }
+            }
             if (btnApproveText) btnApproveText.textContent = 'IMAGEM APROVADA ✓';
             
-            if (btnReject) btnReject.classList.remove('is-selected');
+            if (btnReject) {
+                btnReject.classList.remove('is-selected');
+                if (isLocked) {
+                    btnReject.disabled = true;
+                    btnReject.style.opacity = '0.35';
+                    btnReject.style.pointerEvents = 'none';
+                    btnReject.style.cursor = 'not-allowed';
+                    btnReject.title = 'A fotografia já foi aprovada em rodada anterior e validada definitivamente.';
+                }
+            }
             if (btnRejectText) btnRejectText.textContent = 'REPROVAR';
             if (rejectionBox) rejectionBox.style.display = 'none';
         } else if (status === 'rejected') {
@@ -2746,34 +3072,57 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         const rejectionBox = document.getElementById('voice-rejection-box');
         const voiceCard = document.getElementById('preview-voice-card-panel');
 
+        const isLocked = isVoicePermanentlyApproved();
+
         // Resetar estilos inline que possam conflitar
         if (btnApprove) {
             btnApprove.style.background = '';
             btnApprove.style.borderColor = '';
             btnApprove.style.color = '';
             btnApprove.style.opacity = '';
+            btnApprove.style.cursor = isLocked ? 'default' : 'pointer';
+            btnApprove.style.pointerEvents = isLocked ? 'none' : 'auto';
+            btnApprove.disabled = isLocked;
         }
         if (btnReject) {
             btnReject.style.background = '';
             btnReject.style.borderColor = '';
             btnReject.style.color = '';
-            btnReject.style.opacity = '';
-            btnReject.style.pointerEvents = 'auto';
-            btnReject.disabled = false;
+            btnReject.style.opacity = isLocked ? '0.35' : '';
+            btnReject.style.pointerEvents = isLocked ? 'none' : 'auto';
+            btnReject.style.cursor = isLocked ? 'not-allowed' : 'pointer';
+            btnReject.disabled = isLocked;
+            btnReject.title = isLocked ? 'A locução/voz já foi aprovada em rodada anterior e validada definitivamente.' : '';
         }
 
         if (voiceCard) {
             voiceCard.classList.remove('card-approved', 'card-rejected', 'zone-filled', 'zone-empty');
         }
 
-        if (status === 'approved' || status === true) {
+        if (isLocked || status === 'approved' || status === true) {
             voiceDecision = 'approved';
             isVoiceApprovedState = true;
             if (voiceCard) voiceCard.classList.add('card-approved', 'zone-filled');
-            if (btnApprove) btnApprove.classList.add('is-selected');
+            if (btnApprove) {
+                btnApprove.classList.add('is-selected');
+                if (isLocked) {
+                    btnApprove.disabled = true;
+                    btnApprove.style.cursor = 'default';
+                    btnApprove.style.pointerEvents = 'none';
+                }
+            }
             if (btnApproveText) btnApproveText.textContent = 'VOZ APROVADA ✓';
 
-            if (btnReject) btnReject.classList.remove('is-selected');
+            if (btnReject) {
+                btnReject.classList.remove('is-selected');
+                if (isLocked) {
+                    btnReject.disabled = true;
+                    btnReject.style.opacity = '0.35';
+                    btnReject.style.pointerEvents = 'none';
+                    btnReject.style.cursor = 'not-allowed';
+                    btnReject.title = 'A locução/voz já foi aprovada em rodada anterior e validada definitivamente.';
+                }
+            }
             if (btnRejectText) btnRejectText.textContent = 'REPROVAR';
             if (rejectionBox) rejectionBox.style.display = 'none';
         } else if (status === 'rejected') {
@@ -2806,37 +3155,33 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
     const photoRejectionFeedback = document.getElementById('photo-rejection-feedback');
 
     btnApprovePhotoStatus?.addEventListener('click', () => {
-        if (photoDecision === 'approved') {
-            // Desmarca ao clicar novamente
-            updatePhotoApprovalUI('pending');
-            saveFullSessionState();
+        // Bloqueio apenas se já foi aprovada e validada definitivamente em rodada anterior avançada
+        if (isPhotoPermanentlyApproved()) {
             return;
         }
 
-        // Se a caixa de reprovação estava aberta, fecha ao aprovar
-        if (photoRejectionBox) photoRejectionBox.style.display = 'none';
-
-        const approveEntry = {
-            id: 'rev_' + Date.now(),
-            mediaType: 'photo',
-            status: 'approved',
-            feedback: 'Imagem aprovada pelo cliente.',
-            dateFormatted: new Date().toLocaleString('pt-BR'),
-            timestamp: new Date().toISOString()
-        };
-        if (!Array.isArray(mediaRevisionsHistory)) mediaRevisionsHistory = [];
-        mediaRevisionsHistory.unshift(approveEntry);
-
-        updatePhotoApprovalUI('approved');
+        if (photoDecision === 'approved') {
+            // Se já estava aprovado nesta rodada e clicou de novo, alterna para pendente
+            updatePhotoApprovalUI('pending');
+        } else {
+            // Se a caixa de reprovação estava aberta, fecha ao aprovar
+            if (photoRejectionBox) photoRejectionBox.style.display = 'none';
+            updatePhotoApprovalUI('approved');
+        }
         saveFullSessionState();
     });
 
     btnRejectPhotoModal?.addEventListener('click', () => {
+        // Bloqueio apenas se já foi aprovada e validada definitivamente em rodada anterior avançada
+        if (isPhotoPermanentlyApproved()) {
+            return;
+        }
+
         if (photoDecision === 'rejected') {
-            // Se já estava reprovado, desmarca
+            // Se já estava reprovado, desmarca para pendente
             updatePhotoApprovalUI('pending');
         } else {
-            // Marca como reprovado e abre a caixa
+            // Marca como reprovado e abre a caixa de feedback
             updatePhotoApprovalUI('rejected');
             if (photoRejectionFeedback) photoRejectionFeedback.focus();
         }
@@ -2849,6 +3194,103 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         saveFullSessionState();
     });
 
+    // =========================================================================
+    // LIGHTBOX / MODAL DE ZOOM EM ALTA RESOLUÇÃO DAS PRÉVIAS (ETAPA 4)
+    // =========================================================================
+    window.openPreviewZoomModal = function(orientation) {
+        const modal = document.getElementById('modal-zoom-previa');
+        const zoomImg = document.getElementById('zoom-modal-img');
+        const formatBadge = document.getElementById('zoom-modal-format-badge');
+        const titleEl = document.getElementById('zoom-modal-title');
+        if (!modal || !zoomImg) return;
+
+        let targetSrc = '';
+        let badgeText = 'Fotografia';
+
+        if (orientation === 'h') {
+            const imgH = document.getElementById('preview-avatar-img-h');
+            targetSrc = imgH?.src || '';
+            badgeText = 'Formato Horizontal (16:9)';
+        } else if (orientation === 'v') {
+            const imgV = document.getElementById('preview-avatar-img-v');
+            targetSrc = imgV?.src || '';
+            badgeText = 'Formato Vertical (9:16)';
+        } else {
+            const singleImg = document.getElementById('preview-avatar-img');
+            targetSrc = singleImg?.src || '';
+            badgeText = 'Fotografia Restaurada';
+        }
+
+        if (!targetSrc) {
+            // Se ainda não houver imagem gerada, avisa com elegância
+            if (typeof showCustomToast === 'function') {
+                showCustomToast('A imagem ainda está sendo preparada pela equipe de Produção.');
+            }
+            return;
+        }
+
+        zoomImg.src = targetSrc;
+        if (formatBadge) formatBadge.textContent = badgeText;
+        if (titleEl) titleEl.textContent = 'Visualização em Alta Definição';
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        if (window.lucide) lucide.createIcons();
+    };
+
+    window.closePreviewZoomModal = function() {
+        const modal = document.getElementById('modal-zoom-previa');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    };
+
+    // Fechar ao clicar fora do conteúdo do modal
+    const modalZoomElement = document.getElementById('modal-zoom-previa');
+    if (modalZoomElement) {
+        modalZoomElement.addEventListener('click', (e) => {
+            if (e.target === modalZoomElement) {
+                window.closePreviewZoomModal();
+            }
+        });
+    }
+
+    // Fechar ao pressionar ESC
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('modal-zoom-previa');
+            if (modal && modal.style.display === 'flex') {
+                window.closePreviewZoomModal();
+            }
+        }
+    });
+
+    window.handleZoomApprovePhoto = function() {
+        window.closePreviewZoomModal();
+        if (isPhotoPermanentlyApproved()) return;
+        if (photoRejectionBox) photoRejectionBox.style.display = 'none';
+        updatePhotoApprovalUI('approved');
+        saveFullSessionState();
+        if (typeof showCustomToast === 'function') {
+            showCustomToast('Imagem aprovada com sucesso!');
+        }
+    };
+
+    window.handleZoomRejectPhoto = function() {
+        window.closePreviewZoomModal();
+        if (isPhotoPermanentlyApproved()) return;
+        updatePhotoApprovalUI('rejected');
+        saveFullSessionState();
+        if (photoRejectionFeedback) {
+            setTimeout(() => {
+                photoRejectionFeedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                photoRejectionFeedback.focus();
+            }, 250);
+        }
+    };
+
     // Listeners do Áudio/Voz (Reprovar e Aprovar)
     const btnRejectVoiceModal = document.getElementById('btn-reject-voice-modal');
     const btnApproveVoiceStatus = document.getElementById('btn-approve-voice-status');
@@ -2856,37 +3298,33 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
     const voiceRejectionFeedback = document.getElementById('voice-rejection-feedback');
 
     btnApproveVoiceStatus?.addEventListener('click', () => {
-        if (voiceDecision === 'approved') {
-            // Desmarca ao clicar novamente
-            updateVoiceApprovalUI('pending');
-            saveFullSessionState();
+        // Bloqueio apenas se já foi aprovada e validada definitivamente em rodada anterior avançada
+        if (isVoicePermanentlyApproved()) {
             return;
         }
 
-        // Se a caixa de reprovação estava aberta, fecha ao aprovar
-        if (voiceRejectionBox) voiceRejectionBox.style.display = 'none';
-
-        const approveEntry = {
-            id: 'rev_' + Date.now(),
-            mediaType: 'voice',
-            status: 'approved',
-            feedback: 'Locução na voz aprovada pelo cliente.',
-            dateFormatted: new Date().toLocaleString('pt-BR'),
-            timestamp: new Date().toISOString()
-        };
-        if (!Array.isArray(mediaRevisionsHistory)) mediaRevisionsHistory = [];
-        mediaRevisionsHistory.unshift(approveEntry);
-
-        updateVoiceApprovalUI('approved');
+        if (voiceDecision === 'approved') {
+            // Se já estava aprovado nesta rodada e clicou de novo, alterna para pendente
+            updateVoiceApprovalUI('pending');
+        } else {
+            // Se a caixa de reprovação estava aberta, fecha ao aprovar
+            if (voiceRejectionBox) voiceRejectionBox.style.display = 'none';
+            updateVoiceApprovalUI('approved');
+        }
         saveFullSessionState();
     });
 
     btnRejectVoiceModal?.addEventListener('click', () => {
+        // Bloqueio apenas se já foi aprovada e validada definitivamente em rodada anterior avançada
+        if (isVoicePermanentlyApproved()) {
+            return;
+        }
+
         if (voiceDecision === 'rejected') {
-            // Se já estava reprovado, desmarca
+            // Se já estava reprovado, desmarca para pendente
             updateVoiceApprovalUI('pending');
         } else {
-            // Marca como reprovado e abre a caixa
+            // Marca como reprovado e abre a caixa de feedback
             updateVoiceApprovalUI('rejected');
             if (voiceRejectionFeedback) voiceRejectionFeedback.focus();
         }
@@ -2899,10 +3337,24 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         saveFullSessionState();
     });
 
-    // Ações Etapa 4 (A Lapidação: Avançar para a Sala de Revelação ou Notificar Ateliê)
+    // Ações Etapa 4 (A Lapidação: Avançar para a Sala de Revelação ou Notificar a Equipe de Produção)
     document.getElementById('btn-approve-lapidacao')?.addEventListener('click', async () => {
         if (photoDecision === 'pending' || voiceDecision === 'pending') {
             return; // Inativo / protegido
+        }
+
+        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+
+        // Se a foto foi aprovada pelo cliente nesta rodada, registra como travada definitivamente
+        if (photoDecision === 'approved') {
+            localStorage.setItem(`reviva_photo_permanently_approved_${ordIdent}`, 'true');
+            localStorage.setItem('reviva_photo_permanently_approved', 'true');
+        }
+
+        // Se o áudio/voz foi aprovado pelo cliente nesta rodada, registra como travado definitivamente
+        if (voiceDecision === 'approved') {
+            localStorage.setItem(`reviva_voice_permanently_approved_${ordIdent}`, 'true');
+            localStorage.setItem('reviva_voice_permanently_approved', 'true');
         }
 
         // Se ambos foram aprovados: avança diretamente para a Sala de Revelação
@@ -2910,15 +3362,39 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
             if (window.revivaData?.saveMediaApproval) {
                 await window.revivaData.saveMediaApproval(orderData?.id || 1, true, true);
             }
+            // Sincronização direta com o Painel de Produção (CRM)
+            ['reviva_crm_order_' + ordIdent, 'reviva_crm_order_REVIVA-1001', 'reviva_crm_order_1'].forEach(k => {
+                try {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        const c = JSON.parse(raw);
+                        c.stage = 'previas_aprovadas';
+                        c.photoApproved = true;
+                        c.voiceApproved = true;
+                        if (!Array.isArray(c.history)) c.history = [];
+                        c.history.unshift({
+                            timestamp: new Date().toISOString(),
+                            dateFormatted: new Date().toLocaleString('pt-BR'),
+                            event: 'Cliente aprovou integralmente as prévias de imagem e de voz clonada! Pedido liberado para renderização final.',
+                            type: 'stage'
+                        });
+                        localStorage.setItem(k, JSON.stringify(c));
+                    }
+                } catch(e) {}
+            });
+            saveFullSessionState();
             goToStep(5);
             return;
         }
 
+        let photoTxt = '';
+        let voiceTxt = '';
+
         // Se imagem foi reprovada, valida se digitou algo
         if (photoDecision === 'rejected') {
-            const photoTxt = photoRejectionFeedback?.value.trim();
+            photoTxt = photoRejectionFeedback?.value.trim() || '';
             if (!photoTxt) {
-                alert('Por favor, descreva quais ajustes você gostaria de realizar na imagem antes de enviar ao ateliê.');
+                alert('Por favor, descreva quais ajustes você gostaria de realizar na imagem antes de enviar à equipe de produção.');
                 photoRejectionBox.style.display = 'flex';
                 photoRejectionFeedback?.focus();
                 return;
@@ -2938,9 +3414,9 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
 
         // Se voz foi reprovada, valida se digitou algo
         if (voiceDecision === 'rejected') {
-            const voiceTxt = voiceRejectionFeedback?.value.trim();
+            voiceTxt = voiceRejectionFeedback?.value.trim() || '';
             if (!voiceTxt) {
-                alert('Por favor, descreva quais ajustes você gostaria de realizar no áudio/voz antes de enviar ao ateliê.');
+                alert('Por favor, descreva quais ajustes você gostaria de realizar no áudio/voz antes de enviar à equipe de produção.');
                 voiceRejectionBox.style.display = 'flex';
                 voiceRejectionFeedback?.focus();
                 return;
@@ -2960,7 +3436,41 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
 
         // Se houver reprovação de imagem ou voz: marca etapa como aguardando nova entrega da equipe
         localStorage.setItem('reviva_stage4_delivered', 'false');
+        localStorage.setItem(`reviva_stage4_delivered_${ordIdent}`, 'false');
+        localStorage.setItem('reviva_stage4_delivered_REVIVA-1001', 'false');
         saveFullSessionState();
+
+        // Sincronização direta com o Painel de Produção (CRM)
+        ['reviva_crm_order_' + ordIdent, 'reviva_crm_order_REVIVA-1001', 'reviva_crm_order_1'].forEach(k => {
+            try {
+                const raw = localStorage.getItem(k);
+                if (raw) {
+                    const c = JSON.parse(raw);
+                    c.stage = 'previas_reprovadas';
+                    c.adjustingRejectedPreviews = false;
+                    c.photoApproved = (photoDecision === 'approved');
+                    c.voiceApproved = (voiceDecision === 'approved');
+
+                    let feedText = '';
+                    if (photoDecision === 'rejected' && voiceDecision === 'approved') {
+                        feedText = `[Ajuste de Imagem]: ${photoTxt} (Fotografia rejeitada | Locução/voz aprovada definitivamente ✓)`;
+                    } else if (voiceDecision === 'rejected' && photoDecision === 'approved') {
+                        feedText = `[Ajuste de Locução/Voz]: ${voiceTxt} (Fotografia aprovada definitivamente ✓ | Locução/voz rejeitada)`;
+                    } else {
+                        feedText = `[Ajuste de Imagem]: ${photoTxt} | [Ajuste de Locução/Voz]: ${voiceTxt}`;
+                    }
+                    c.feedback = feedText;
+                    if (!Array.isArray(c.history)) c.history = [];
+                    c.history.unshift({
+                        timestamp: new Date().toISOString(),
+                        dateFormatted: new Date().toLocaleString('pt-BR'),
+                        event: `Cliente enviou solicitação de ajustes: ${feedText}`,
+                        type: 'feedback'
+                    });
+                    localStorage.setItem(k, JSON.stringify(c));
+                }
+            } catch(e) {}
+        });
 
         // Abre diretamente a tela de bloqueio nobre informando que a equipe está cuidando dos ajustes
         openWaitingTeamModal('revisao');
@@ -2986,9 +3496,43 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         return `${origin}/revelar.html?${params.toString()}`;
     }
 
+    function registerStage5Consumption() {
+        try {
+            const currentOrderId = (typeof orderData !== 'undefined' && orderData && orderData.id) ? orderData.id : 'REVIVA-1001';
+            localStorage.setItem('reviva_stage5_consumed_' + currentOrderId, 'true');
+            localStorage.setItem('reviva_stage5_consumed_REVIVA-1001', 'true');
+            localStorage.setItem('reviva_stage5_consumed', 'true');
+
+            // Atualiza histórico do CRM do pedido se já existir
+            const crmKey = 'reviva_crm_order_' + currentOrderId;
+            const rawCrm = localStorage.getItem(crmKey);
+            if (rawCrm) {
+                const crm = JSON.parse(rawCrm);
+                if (crm && !crm.stage5Consumed) {
+                    crm.stage5Consumed = true;
+                    crm.stage5ConsumedAt = new Date().toISOString();
+                    if (!crm.manualStageOverride) {
+                        crm.stage = 'entregues'; // Avança automaticamente para Pós-Venda
+                    }
+                    if (!Array.isArray(crm.history)) crm.history = [];
+                    crm.history.unshift({
+                        timestamp: new Date().toISOString(),
+                        dateFormatted: new Date().toLocaleString('pt-BR'),
+                        event: 'Cliente interagiu na Etapa 05 (visualizou, baixou ou compartilhou a homenagem)',
+                        type: 'delivery'
+                    });
+                    localStorage.setItem(crmKey, JSON.stringify(crm));
+                }
+            }
+        } catch(e) {
+            console.warn('Erro ao registrar consumo da Etapa 5:', e);
+        }
+    }
+
     const btnGoToRevealRoom = document.getElementById('btnGoToRevealRoom');
     if (btnGoToRevealRoom) {
         btnGoToRevealRoom.addEventListener('click', () => {
+            registerStage5Consumption();
             btnGoToRevealRoom.href = getRevealPageUrl();
         });
     }
@@ -2996,6 +3540,7 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
     // Função global explícita de cópia para garantir acionamento direto e feedback instantâneo
     window.copiarLinkWhatsApp = function(event) {
         if (event) event.preventDefault();
+        registerStage5Consumption();
         
         const btn = document.getElementById('btnCopyRevealLink');
         const textSpan = document.getElementById('btnCopyRevealLinkText');
@@ -3043,6 +3588,13 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         btnCopyRevealLink.onclick = window.copiarLinkWhatsApp;
     }
 
+    const btnDownloadFinalVideo = document.getElementById('btnDownloadFinalVideo');
+    if (btnDownloadFinalVideo) {
+        btnDownloadFinalVideo.addEventListener('click', () => {
+            registerStage5Consumption();
+        });
+    }
+
     // Fallback universal e garantido para cópia de links
     function fallbackCopyText(text, onSuccess) {
         try {
@@ -3067,6 +3619,11 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
     }
 
     const finalHomenagemVideo = document.getElementById('final-homenagem-video');
+    if (finalHomenagemVideo) {
+        finalHomenagemVideo.addEventListener('play', () => {
+            registerStage5Consumption();
+        });
+    }
 
     // =========================================================================
     // SISTEMA DE MÚSICA DE FUNDO E ONDAS SONORAS (IDÊNTICO AO SITE ORIGINAL)
@@ -3184,14 +3741,43 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
 
         if (!modal) return;
 
-        if (isViewOnly && legalTermSigned) {
+        // Se o termo já foi assinado em qualquer momento, bloqueia compulsoriamente os campos de identificação (readOnly/disabled)
+        const isAlreadySigned = Boolean(legalTermSigned && legalTermSigned.signed);
+        if (isViewOnly || isAlreadySigned) {
             if (btnCloseView) btnCloseView.style.display = 'block';
             if (btnSubmit) btnSubmit.style.display = 'none';
-            if (inputName) { inputName.value = legalTermSigned.name; inputName.disabled = true; }
-            if (inputCpf) { inputCpf.value = legalTermSigned.cpf; inputCpf.disabled = true; }
-            if (inputNarrator) { inputNarrator.value = legalTermSigned.relationNarrator || legalTermSigned.relation || 'Filho(a)'; inputNarrator.disabled = true; }
-            if (inputRecipient) { inputRecipient.value = legalTermSigned.relationRecipient || 'Sou eu mesmo(a)'; inputRecipient.disabled = true; }
-            if (chkAccept) { chkAccept.checked = true; chkAccept.disabled = true; }
+            if (inputName) { 
+                inputName.value = legalTermSigned ? legalTermSigned.name : (orderData?.customer_name || 'Mariana Silva Santos'); 
+                inputName.disabled = true; 
+                inputName.readOnly = true;
+                inputName.style.cursor = 'not-allowed';
+                inputName.style.opacity = '0.75';
+            }
+            if (inputCpf) { 
+                inputCpf.value = legalTermSigned ? legalTermSigned.cpf : (orderData?.customer_cpf || '123.456.789-00'); 
+                inputCpf.disabled = true; 
+                inputCpf.readOnly = true;
+                inputCpf.style.cursor = 'not-allowed';
+                inputCpf.style.opacity = '0.75';
+            }
+            if (inputNarrator) { 
+                inputNarrator.value = legalTermSigned?.relationNarrator || legalTermSigned?.relation || 'Filho(a)'; 
+                inputNarrator.disabled = true; 
+                inputNarrator.readOnly = true;
+                inputNarrator.style.cursor = 'not-allowed';
+                inputNarrator.style.opacity = '0.75';
+            }
+            if (inputRecipient) { 
+                inputRecipient.value = legalTermSigned?.relationRecipient || 'Sou eu mesmo(a)'; 
+                inputRecipient.disabled = true; 
+                inputRecipient.readOnly = true;
+                inputRecipient.style.cursor = 'not-allowed';
+                inputRecipient.style.opacity = '0.75';
+            }
+            if (chkAccept) { 
+                chkAccept.checked = true; 
+                chkAccept.disabled = true; 
+            }
         } else {
             if (btnCloseView) btnCloseView.style.display = 'none';
             if (btnSubmit) btnSubmit.style.display = 'block';
@@ -3373,6 +3959,17 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
             dateFormatted: new Date().toLocaleString('pt-BR')
         };
 
+        localStorage.setItem('reviva_legal_term', JSON.stringify(legalTermSigned));
+        if (typeof ordIdent !== 'undefined' && ordIdent) {
+            localStorage.setItem(`reviva_legal_term_${ordIdent}`, JSON.stringify(legalTermSigned));
+        }
+        if (typeof orderData !== 'undefined' && orderData?.payment_id) {
+            localStorage.setItem(`reviva_legal_term_${orderData.payment_id}`, JSON.stringify(legalTermSigned));
+        }
+        if (typeof orderData !== 'undefined' && orderData?.order_id) {
+            localStorage.setItem(`reviva_legal_term_${orderData.order_id}`, JSON.stringify(legalTermSigned));
+        }
+
         updateTermoUI();
         const modal = document.getElementById('modal-termo-responsabilidade');
         if (modal) modal.style.display = 'none';
@@ -3443,10 +4040,17 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         initialStep = currentStep;
     }
 
+    // Se o cliente concluiu a etapa anterior e está aguardando a equipe, mantém o passo correspondente sem regredir
+    const maxReachedWaitingCheck = parseInt(localStorage.getItem('reviva_max_step_reached')) || currentStep || 1;
+    const pendingWaiting = localStorage.getItem('reviva_waiting_active');
+
+    // Se já avançou para 4 ou 5, ou está em espera na etapa 4/5, nunca regride para etapa 3
     if (initialStep === 4 && !isStage4ReadyFromTeam()) {
-        initialStep = 3;
-    } else if (initialStep === 5 && !isStage5ReadyFromTeam()) {
+        // Mantém initialStep = 4 para que os steppers 1, 2 e 3 fiquem marcados como concluídos
         initialStep = 4;
+    } else if (initialStep === 5 && !isStage5ReadyFromTeam()) {
+        // Mantém initialStep = 5 para que os steppers 1, 2, 3 e 4 fiquem marcados como concluídos
+        initialStep = 5;
     }
 
     const shouldShowCurtainOnEnter = localStorage.getItem('reviva_show_curtain_on_enter') === 'true' || urlParams.has('showCurtain');
@@ -3457,30 +4061,55 @@ Se o cliente pedir ajustes, acolha com carinho, faça as correções com base no
         goToStep(initialStep, true);
     }
 
-    // Reabertura do bloqueio se o cliente recarregar a página com produção pendente
-    const pendingWaiting = localStorage.getItem('reviva_waiting_active');
-    if (pendingWaiting) {
-        setTimeout(() => {
-            const stepVal = (!isNaN(parseInt(pendingWaiting)) && pendingWaiting !== 'revisao') 
-                ? parseInt(pendingWaiting) 
-                : pendingWaiting;
-            openWaitingTeamModal(stepVal);
-        }, 100);
+    // Suporte a visualização direta para testes ou demonstração rápida via URL (?showWaiting=4, ?showWaiting=revisao, ?showWaiting=5)
+    const directWaitingParam = urlParams.get('showWaiting');
+    if (directWaitingParam) {
+        localStorage.setItem('reviva_waiting_active', directWaitingParam);
     }
 
-    // 3. Se o termo de responsabilidade ainda não foi aceito, abre o modal imediatamente na entrada do painel
-    if (!legalTermSigned || !legalTermSigned.signed) {
+    // Reabertura consistente do bloqueio se o cliente recarregar a página ou relogar com produção pendente
+    const pendingWaiting = localStorage.getItem('reviva_waiting_active');
+    const maxReachedWaitingCheck = parseInt(localStorage.getItem('reviva_max_step_reached')) || currentStep || 1;
+
+    let targetWaitingToOpen = null;
+    if (pendingWaiting) {
+        targetWaitingToOpen = (!isNaN(parseInt(pendingWaiting)) && pendingWaiting !== 'revisao') 
+            ? parseInt(pendingWaiting) 
+            : pendingWaiting;
+    } else if (maxReachedWaitingCheck >= 5 && !isStage5ReadyFromTeam()) {
+        targetWaitingToOpen = 5;
+    } else if (maxReachedWaitingCheck >= 4 && !isStage4ReadyFromTeam()) {
+        targetWaitingToOpen = 4;
+    }
+
+    if (targetWaitingToOpen !== null) {
+        setTimeout(() => {
+            openWaitingTeamModal(targetWaitingToOpen);
+        }, 50);
+    }
+
+    // 3. Se o termo de responsabilidade ainda não foi aceito e o usuário não estiver em tela de espera, abre o modal do termo
+    if ((!legalTermSigned || !legalTermSigned.signed) && !targetWaitingToOpen && !directWaitingParam) {
         setTimeout(() => {
             if (typeof openTermoModal === 'function') openTermoModal(false);
         }, 350);
     }
 
-    // 3. Suporte a navegação por histórico/hash (voltar/avançar no navegador)
+    // 3. Suporte a navegação segura: impede qualquer tentativa de voltar no navegador
+    window.addEventListener('popstate', (e) => {
+        history.pushState(null, '', `#step-${currentStep}`);
+    });
+
     window.addEventListener('hashchange', () => {
         const match = window.location.hash.match(/step-(\d+)/);
         if (match) {
             const target = parseInt(match[1]);
-            if (target && target !== currentStep && target >= 1 && target <= 5) {
+            if (target && target < currentStep) {
+                // Bloqueia retrocesso e restaura hash da etapa atual
+                history.replaceState(null, '', `#step-${currentStep}`);
+                return;
+            }
+            if (target && target > currentStep && target <= 5) {
                 goToStep(target, true);
             }
         }

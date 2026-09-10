@@ -483,7 +483,7 @@
                     <i data-lucide="file-down" style="width: 17px; height: 17px;"></i>
                     <span>Baixar Termo Assinado em PDF (.pdf)</span>
                 </button>
-                <a href="painel.html?showCurtain=1#step-1" class="btn-to-painel" onclick="localStorage.setItem('reviva_show_curtain_on_enter', 'true'); localStorage.setItem('reviva_active_step', '1');">
+                <a href="painel.html" id="btnToPainelAction" class="btn-to-painel" onclick="handleNavigateToPainel(event)">
                     <i data-lucide="arrow-right-circle" style="width: 15px; height: 15px;"></i>
                     <span>Acessar Painel do Cliente</span>
                 </a>
@@ -678,8 +678,58 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        // Carregar dados da compra simulada ao abrir
+        function handleNavigateToPainel(e) {
+            if (e) e.preventDefault();
+            const storedWaiting = localStorage.getItem('reviva_waiting_active');
+            const maxStep = parseInt(localStorage.getItem('reviva_max_step_reached')) || 1;
+            const activeStep = parseInt(localStorage.getItem('reviva_active_step')) || maxStep || 1;
+
+            localStorage.setItem('reviva_show_curtain_on_enter', 'true');
+            if (storedWaiting) {
+                window.location.href = 'painel.html?showCurtain=1#step-' + activeStep;
+            } else {
+                window.location.href = 'painel.html?showCurtain=1#step-' + activeStep;
+            }
+        }
+
+        // Carregar dados da compra e verificar se o termo já foi assinado
         window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isViewParam = urlParams.has('view');
+
+            let termSigned = null;
+            try {
+                const rawTerm = localStorage.getItem('reviva_legal_term');
+                if (rawTerm) termSigned = JSON.parse(rawTerm);
+            } catch(e) {}
+
+            // Se já está assinado e não é modo de visualização forçado via URL (?view=1), redireciona direto para o painel
+            if (termSigned && termSigned.signed) {
+                if (!isViewParam) {
+                    const maxStep = parseInt(localStorage.getItem('reviva_max_step_reached')) || 1;
+                    const activeStep = parseInt(localStorage.getItem('reviva_active_step')) || maxStep || 1;
+                    window.location.replace('painel.html#step-' + activeStep);
+                    return;
+                } else {
+                    // Modo de visualização de comprovante
+                    document.getElementById('recNome').textContent = termSigned.name || '-';
+                    document.getElementById('recCpf').textContent = termSigned.cpf || '-';
+                    document.getElementById('recNarrador').textContent = termSigned.relationNarrator || '-';
+                    document.getElementById('recDestinatario').textContent = termSigned.relationRecipient || '-';
+                    document.getElementById('recDataHora').textContent = termSigned.dateFormatted || '-';
+                    document.getElementById('recHash').textContent = 'PROTOCOLO DIGITAL: ' + (termSigned.authHash || 'REVIVA-REGISTRADO') + ' • STATUS: REGISTRADO & VÁLIDO';
+
+                    document.getElementById('formTermoAvaliacao').style.display = 'none';
+                    const legalBox = document.querySelector('.termo-legal-box');
+                    if (legalBox) legalBox.style.display = 'none';
+                    const receipt = document.getElementById('receiptResult');
+                    receipt.style.display = 'flex';
+                    receipt.classList.add('active');
+                    if (window.lucide) lucide.createIcons();
+                    return;
+                }
+            }
+
             try {
                 const rawOrder = localStorage.getItem('reviva_order_data');
                 if (rawOrder) {

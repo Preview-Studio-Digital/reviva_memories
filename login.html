@@ -215,6 +215,39 @@
             text-align: left;
             line-height: 1.4;
         }
+        .btn-back-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            background: rgba(197, 160, 89, 0.06);
+            border: 1px solid rgba(197, 160, 89, 0.22);
+            border-radius: 20px;
+            padding: 7px 16px;
+            color: #d1b894;
+            font-size: 0.76rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-back-link:hover {
+            background: rgba(197, 160, 89, 0.14);
+            border-color: rgba(229, 195, 120, 0.45);
+            color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 0 12px rgba(197, 160, 89, 0.15);
+            transform: translateX(-2px);
+        }
+
+        .btn-back-link i {
+            transition: transform 0.25s ease;
+        }
+
+        .btn-back-link:hover i {
+            transform: translateX(-2px);
+        }
     </style>
 </head>
 <body>
@@ -250,16 +283,7 @@
             <!-- ================= STEP 2: DIGITAR O CÓDIGO DE 4 DÍGITOS ================= -->
             <div id="step-2-verify-code" style="display: none;">
                 <h1 class="login-title">Confirme o Código</h1>
-                <p class="login-subtitle">Enviamos um código de segurança de 4 dígitos para o seu <strong>E-mail cadastrado</strong>.</p>
-
-                <!-- Box Informativo do Código -->
-                <div class="alert-info-code">
-                    <div style="font-weight: 700; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.5px; margin-bottom: 4px;">
-                        ✉️ CÓDIGO DE ACESSO RÁPIDO:
-                    </div>
-                    <div>Seu código de confirmação é: <strong id="simulated-code-display" style="font-size: 1.1rem; color: #ffffff; letter-spacing: 2px;">4829</strong></div>
-                    <div style="font-size: 0.72rem; opacity: 0.85; margin-top: 4px;">(Digite os 4 dígitos acima para validar seu acesso ao painel)</div>
-                </div>
+                <p class="login-subtitle">Enviamos um código de segurança de 4 dígitos para <strong id="user-email-target-label" style="color: #f6e3c5;">seu e-mail</strong>. Verifique sua caixa de entrada e spam.</p>
 
                 <div id="code-alert-error" class="alert-error">
                     <i data-lucide="alert-circle" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
@@ -279,9 +303,10 @@
                         <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
                     </button>
 
-                    <div style="margin-top: 14px;">
-                        <button type="button" id="btn-back-step1" style="background: none; border: none; color: #9ca3af; font-size: 0.78rem; cursor: pointer; text-decoration: underline;">
-                            ← Alterar CPF ou E-mail
+                    <div style="margin-top: 16px; display: flex; justify-content: center;">
+                        <button type="button" id="btn-back-step1" class="btn-back-link">
+                            <i data-lucide="arrow-left" style="width: 13px; height: 13px;"></i>
+                            <span>Alterar CPF ou E-mail</span>
                         </button>
                     </div>
                 </form>
@@ -294,8 +319,12 @@
         </div>
     </div>
 
+    <!-- EmailJS SDK Oficial v4 -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <!-- Notificações da Reviva -->
+    <script src="notifications.js?v=1.2.0"></script>
     <script src="supabase_client.js"></script>
-    <script src="app.js"></script>
+    <script src="app.js?v=1.7.0"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
@@ -310,7 +339,6 @@
 
             const formVerify = document.getElementById('form-verify-code');
             const codeError = document.getElementById('code-alert-error');
-            const simulatedCodeDisplay = document.getElementById('simulated-code-display');
             const btnBack = document.getElementById('btn-back-step1');
 
             const digits = [
@@ -396,15 +424,14 @@
                 // Em modo de testes ou encontrando o cliente cadastrado
                 if (matched || cleanTerm === '11144477735' || term.toLowerCase() === 'mariana@exemplo.com' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                     
-                    // Gerar código aleatório de 4 dígitos (ex: 4829)
+                    // Gerar código aleatório seguro de 4 dígitos
                     activeGeneratedCode = Math.floor(1000 + Math.random() * 9000).toString();
-                    simulatedCodeDisplay.textContent = activeGeneratedCode;
 
                     targetOrderData = orderData || {
                         order_id: 'REVIVA-ORD-DEMO',
-                        customer_name: sessionUser?.name || fullState?.clientName || 'Mariana Silva Santos',
-                        customer_cpf: cleanTerm.length === 11 ? term : '111.444.777-35',
-                        customer_email: isEmail ? term : 'mariana@exemplo.com',
+                        customer_name: sessionUser?.name || fullState?.clientName || 'Cliente',
+                        customer_cpf: cleanTerm.length === 11 ? term : (sessionUser?.cpf || '000.000.000-00'),
+                        customer_email: isEmail ? term : (sessionUser?.email || fullState?.clientEmail || 'preview.ia1@gmail.com'),
                         plan_id: 'legatum',
                         plan_name: 'Plano Legatum',
                         plan_duration: '2 Minutos',
@@ -412,9 +439,27 @@
                         status: 'paid'
                     };
 
+                    const targetEmail = targetOrderData.customer_email || (isEmail ? term : 'seu e-mail');
+                    const targetName = targetOrderData.customer_name || 'Cliente';
+
+                    // Atualizar rótulo do e-mail na tela (sem mostrar o código)
+                    const emailTargetLabel = document.getElementById('user-email-target-label');
+                    if (emailTargetLabel) {
+                        emailTargetLabel.textContent = targetEmail;
+                    }
+
+                    // Disparar o e-mail real com o código de 4 dígitos via EmailJS
+                    if (window.RevivaNotifications && typeof window.RevivaNotifications.sendLoginOtpEmail === 'function') {
+                        console.log('🚀 [Reviva Login] Disparando código de segurança para:', targetEmail);
+                        window.RevivaNotifications.sendLoginOtpEmail(targetEmail, activeGeneratedCode, targetName)
+                            .then(() => console.log('✨ [Reviva Login] Código entregue com sucesso por e-mail!'))
+                            .catch(err => console.warn('⚠️ [Reviva Login] Falha no envio do código:', err));
+                    }
+
                     // Avançar para a Etapa 2 de digitação do código
                     step1.style.display = 'none';
                     step2.style.display = 'block';
+                    if (window.lucide) lucide.createIcons();
                     digits[0].focus();
                     return;
                 }
@@ -444,8 +489,20 @@
                         if (rawTerm) termSigned = JSON.parse(rawTerm);
                     } catch(err) {}
 
+                    if (!termSigned || !termSigned.signed) {
+                        try {
+                            const rawFull = localStorage.getItem('reviva_full_session_state');
+                            if (rawFull) {
+                                const parsedFull = JSON.parse(rawFull);
+                                if (parsedFull?.legalTermSigned?.signed) termSigned = parsedFull.legalTermSigned;
+                            }
+                        } catch(err) {}
+                    }
+
                     if (termSigned && termSigned.signed) {
-                        window.location.href = 'painel.html';
+                        const maxStep = parseInt(localStorage.getItem('reviva_max_step_reached')) || 1;
+                        const activeStep = parseInt(localStorage.getItem('reviva_active_step')) || maxStep || 1;
+                        window.location.href = 'painel.html#step-' + activeStep;
                     } else {
                         window.location.href = 'termo.html';
                     }
@@ -470,6 +527,5 @@
             <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
         </svg>
     </a>
-    <script src="notifications.js?v=1.0.0"></script>
 </body>
 </html>
