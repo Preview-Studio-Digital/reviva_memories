@@ -368,24 +368,26 @@
             };
 
             const MUSIC_MAP = {
-                'sem_musica': 'Sons Naturais',
-                'violao': 'Violão Acústico',
-                'piano': 'Piano Suave',
-                'piano_emocao': 'Piano Suave',
-                'violino': 'Violino Emocionante',
-                'cordas_paz': 'Violino Emocionante',
-                'flauta': 'Flauta Celestial',
-                'saxofone': 'Saxofone Sereno',
-                'serenidade': 'Violão Acústico',
-                'guitarra': 'Guitarra Melódica',
-                'harpa': 'Harpa Angelical'
+                'sem_musica': { name: 'Sem Música (Apenas Voz / Sons Naturais)', file: null },
+                'sons_naturais': { name: 'Sons Naturais da Natureza', file: 'trilha_sons_naturais.mp3' },
+                'violao': { name: 'Violão Acústico', file: 'trilha_violao.mp3' },
+                'piano': { name: 'Piano Suave', file: 'trilha_piano.mp3' },
+                'piano_emocao': { name: 'Piano Suave', file: 'trilha_piano.mp3' },
+                'violino': { name: 'Violino Emocionante', file: 'trilha_violino.mp3' },
+                'cordas_paz': { name: 'Violino Emocionante', file: 'trilha_violino.mp3' },
+                'flauta': { name: 'Flauta Celestial', file: null },
+                'saxofone': { name: 'Saxofone Sereno', file: null },
+                'serenidade': { name: 'Violão Acústico', file: 'trilha_violao.mp3' },
+                'guitarra': { name: 'Guitarra Melódica', file: null },
+                'harpa': { name: 'Harpa Angelical', file: 'trilha_harpa.mp3' }
             };
 
             const bgKey = (customOrder?.selectedBackground || orderStateObj?.selectedBackground || state.selectedBackground || 'ceu').toLowerCase();
             const bgInfo = BACKGROUND_MAP[bgKey] || { name: 'Nuvens Celestiais', file: 'bg_ceu.jpg' };
 
             const musicKey = (customOrder?.selectedMusic || orderStateObj?.selectedMusic || state.selectedMusic || 'sem_musica').toLowerCase();
-            const musicName = MUSIC_MAP[musicKey] || 'Sons Naturais';
+            const musicEntry = MUSIC_MAP[musicKey] || { name: 'Sons Naturais', file: 'trilha_sons_naturais.mp3' };
+            const musicName = musicEntry.name;
 
             const toneDossieText = (customOrder?.tone || orderStateObj?.scriptTone || state.scriptTone || 'Profundamente Emocionante');
 
@@ -432,36 +434,35 @@
                 }
             } catch(e) {}
 
-            const dossieText = `================================================================================\n` +
-                `DOSSIÊ DE PRODUÇÃO - REVIVA MEMORIES\n` +
+            const planTitle = planName;
+            const formatLabel = formatStr;
+            const hiringDateStr = orderDateStr;
+
+            // Montagem do Dossiê de Produção
+            const dossieText =
+                `================================================================================\n` +
+                `REVIVA MEMORIES - DOSSIÊ OFICIAL DE PRODUÇÃO AUDIOVISUAL\n` +
                 `================================================================================\n\n` +
-                `DADOS CADASTRAIS & CONTRATUAIS DO PEDIDO:\n` +
+                `IDENTIFICAÇÃO DO PEDIDO:\n` +
                 `--------------------------------------------------------------------------------\n` +
-                `ID do Pedido: #${orderId}\n` +
-                `Cliente Contratante: ${clientName}\n` +
-                `CPF: ${clientCpf}\n` +
-                `WhatsApp: ${clientPhone}\n` +
+                `Número do Pedido: #${orderId}\n` +
+                `Plano Contratado: ${planTitle}\n` +
+                `Formato de Entrega: ${formatLabel}\n` +
+                `Data de Contratação: ${hiringDateStr}\n` +
+                `Valor Total Pago: ${priceValStr} (${paymentDetailsStr})\n` +
+                `Status do Pagamento: Confirmado / Aprovado\n\n` +
+                `DADOS DO CLIENTE CONTRATANTE:\n` +
+                `--------------------------------------------------------------------------------\n` +
+                `Nome Completo: ${clientName}\n` +
                 `E-mail: ${clientEmail}\n` +
-                `Plano Contratado: ${planName} • ${durationStr} • ${formatStr}\n` +
-                `Valor Total: ${priceValStr}\n` +
-                `Forma de Pagamento: ${paymentDetailsStr}\n` +
-                `Data & Hora da Compra: ${orderDateStr} às ${orderTimeStr}\n\n` +
+                `Telefone / WhatsApp: ${clientPhone}\n` +
+                `CPF: ${clientCpf}\n\n` +
+                `DIRETRIZES ARTÍSTICAS & HARMONIZAÇÃO:\n` +
                 `--------------------------------------------------------------------------------\n` +
-                `TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO:\n` +
-                `--------------------------------------------------------------------------------\n` +
-                `Status do Termo: ASSINADO DIGITALMENTE (Aceite Eletrônico Válido)\n` +
-                `Titular Signatário: ${clientName} (CPF: ${clientCpf})\n` +
-                `Data & Hora do Aceite: ${signedAt}\n` +
-                `Hash Criptográfico de Autenticidade: ${authHash}\n` +
-                `Amparo Legal: MP nº 2.200-2/2001 e Art. 10 da Lei Federal 14.063/2020\n` +
-                `Arquivo Vinculado no Pacote: Termo_Responsabilidade_${orderId}.pdf\n\n` +
-                `--------------------------------------------------------------------------------\n` +
-                `DIRETRIZES TÉCNICAS & ESCOLHAS DO CLIENTE:\n` +
-                `--------------------------------------------------------------------------------\n` +
-                `Ambiente de Fundo Escolhido: ${bgInfo.name} (arquivo HD anexado no pacote)\n` +
-                `Trilha Sonora Escolhida: ${musicName} (aplicar da biblioteca da produção)\n` +
-                `Tom Emocional da Narração: ${toneDossieText}\n` +
-                `Total de Fotos Originais Anexadas: ${photosList.length} arquivo(s)\n` +
+                `Ambiente de Fundo Escolhido: ${bgInfo.name}\n` +
+                `Trilha Musical Oficial: ${musicName}\n` +
+                `Tom Emocional do Roteiro: ${toneDossieText}\n` +
+                `Total de Fotografias Anexadas: ${photosList.length} imagem(ns)\n` +
                 `Total de Áudios de Referência Anexados: ${audiosList.length} gravação(ões)\n\n` +
                 `--------------------------------------------------------------------------------\n` +
                 `ROTEIRO OFICIAL APROVADO PARA PRODUÇÃO:\n` +

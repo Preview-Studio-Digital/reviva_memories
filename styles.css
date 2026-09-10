@@ -465,6 +465,7 @@ img, video {
 }
 
 .nav-container {
+    position: relative !important;
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
@@ -485,17 +486,25 @@ img, video {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    gap: 36px !important;
+    gap: 32px !important;
     margin: 0 !important;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.nav-links-wrapper {
+    display: flex;
+    align-items: center;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .nav-links a {
     font-family: 'Azonix', sans-serif;
     color: #b3b3b3;
-    font-size: 0.78rem !important;
+    font-size: 0.76rem !important;
     font-weight: 300 !important;
     transition: var(--transition-fast);
     position: relative;
+    white-space: nowrap;
 }
 
 .nav-links a:hover,
@@ -504,6 +513,147 @@ img, video {
     color: #e5c378;
     font-weight: 600 !important;
     text-shadow: 0 0 8px #e5c378, 0 0 20px rgba(229, 195, 120, 0.8), 0 0 35px rgba(156, 114, 71, 0.5);
+}
+
+/* Botão Nobre MENU (pílula dourada refinada) */
+.navbar-menu-pill-btn {
+    display: inline-flex;
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    align-items: center;
+    gap: 7px;
+    background: rgba(197, 160, 89, 0.12);
+    border: 1px solid var(--border-gold);
+    color: #f6e3c5;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-family: 'Azonix', sans-serif;
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 12px rgba(229, 195, 120, 0.15);
+    z-index: 200020;
+    
+    /* Hide by default (slide 1) */
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%) scale(0.9);
+}
+
+.navbar-menu-pill-btn:hover,
+.navbar-menu-pill-btn.active {
+    background: rgba(197, 160, 89, 0.28);
+    border-color: #ffd700;
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.04);
+    box-shadow: 0 0 18px rgba(229, 195, 120, 0.35);
+}
+
+/* =========================================================================
+   ESTADO RECOLHIDO (A PARTIR DO SLIDE 2): 
+   As palavras correm em direção à direita enquanto fazem fade out uma a uma.
+   O botão MENU surge suavemente no canto direito.
+   ========================================================================= */
+body.navbar-compact .navbar-menu-pill-btn {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%) scale(1);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s; /* delay so links can fade out */
+}
+
+/* No desktop, quando compactado e não revelado, os links correm à direita e somem sequencialmente */
+@media (min-width: 769px) {
+    /* Stagger de transição para cada palavra ao correr para a direita */
+    .nav-links a {
+        transition: opacity 0.38s cubic-bezier(0.25, 1, 0.5, 1), transform 0.42s cubic-bezier(0.25, 1, 0.5, 1), color var(--transition-fast) !important;
+        will-change: transform, opacity;
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    /* Ao voltar para o primeiro slide: reaparecem da direita para a esquerda */
+    .nav-links a:nth-child(1) { transition-delay: 0.04s !important; }
+    .nav-links a:nth-child(2) { transition-delay: 0.08s !important; }
+    .nav-links a:nth-child(3) { transition-delay: 0.12s !important; }
+    .nav-links a:nth-child(4) { transition-delay: 0.16s !important; }
+    .nav-links a:nth-child(5) { transition-delay: 0.20s !important; }
+    .nav-links a:nth-child(6) { transition-delay: 0.24s !important; }
+    .nav-links a:nth-child(7) { transition-delay: 0.28s !important; }
+    .nav-links a:nth-child(8) { transition-delay: 0.32s !important; }
+
+    /* Quando compactado (fora do slide 1): correm em direção à direita com fade out em cascata */
+    body.navbar-compact:not(.menu-revealed) .nav-links a {
+        opacity: 0 !important;
+        transform: translateX(45px) !important;
+        pointer-events: none !important;
+    }
+
+    /* Cascata de saída para a direita (os da direita chegam/somem primeiro ou fluem em direção ao ponto final) */
+    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(8) { transition-delay: 0.00s !important; }
+    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(7) { transition-delay: 0.04s !important; }
+    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(6) { transition-delay: 0.08s !important; }
+    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(5) { transition-delay: 0.12s !important; }
+    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(4) { transition-delay: 0.16s !important; }
+    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(3) { transition-delay: 0.20s !important; }
+    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(2) { transition-delay: 0.24s !important; }
+    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(1) { transition-delay: 0.28s !important; }
+
+    /* Wrapper do menu flutuante / esteira */
+    .nav-links-wrapper {
+        display: flex;
+        align-items: center;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 28px;
+        padding: 6px 0;
+        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 200010;
+        transform: translateX(0); /* mantém na posição padrão do flex */
+    }
+
+    /* AO PASSAR O MOUSE (HOVER) OU CLICAR NO MENU (ACTIVE): ESTEIRA HORIZONTAL SE ABRE (SEM FUNDO NEM CONTORNO) */
+    body.navbar-compact.menu-revealed .nav-links-wrapper {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 6px 0 !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        /* Afasta os links suavemente para a esquerda para dar espaço ao botão MENU */
+        transform: translateX(-110px) !important;
+    }
+
+    /* Remove nav-container:hover trigger from links */
+    body.navbar-compact.menu-revealed .nav-links a {
+        opacity: 1 !important;
+        transform: translateX(0) !important;
+        pointer-events: auto !important;
+        transition-delay: 0s !important;
+    }
+
+    /* DESFOQUE CINEMATOGRÁFICO DO SITE QUANDO A ESTEIRA DO MENU ESTIVER ABERTA */
+    body.navbar-compact.menu-revealed .mobile-menu-backdrop {
+        display: block !important;
+        opacity: 1 !important;
+        backdrop-filter: blur(10px) brightness(0.6) !important;
+        -webkit-backdrop-filter: blur(10px) brightness(0.6) !important;
+        z-index: 199990 !important;
+        pointer-events: none !important;
+    }
+
+    body.navbar-compact.menu-revealed section {
+        filter: blur(4px) brightness(0.75);
+        transition: filter 0.35s ease;
+    }
+}
+
+/* Transição suave do desfoque */
+section {
+    transition: filter 0.35s ease;
 }
 
 /* Dobra 1: Hero Section */
