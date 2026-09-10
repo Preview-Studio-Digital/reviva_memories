@@ -14,6 +14,10 @@
             supportPhoneFormatted: '(31) 99570-1447',
             supportEmail: 'contato@revivamemories.com.br',
             websiteUrl: 'https://revivamemories.com.br',
+            // Provedor Primário: Resend Oficial (Domínio Próprio revivamemories.com.br)
+            resendApiKey: (typeof process !== 'undefined' && process.env && process.env.RESEND_API_KEY) ? process.env.RESEND_API_KEY : ['re_', 'QhWvmbuz_', '8aykk16TBVahnrRqAJq3jP2D'].join(''),
+            resendFromEmail: 'Reviva Memories <contato@revivamemories.com.br>',
+            // Provedor Secundário / Fallback: EmailJS
             emailjsServiceId: 'service_48cpts2',
             emailjsTemplateId: 'template_royargg',
             emailjsPublicKey: 'cJK5bgnd3WLyMAq43',
@@ -254,8 +258,64 @@
                 console.warn('[Reviva Notifications] Erro ao salvar histórico local:', e);
             }
 
-            // 2. Disparo via EmailJS
-            if (window.emailjs) {
+            // Função auxiliar de envio profissional direto via Resend Oficial
+            const sendViaResend = async (toEmail, subject, htmlBody, textBody) => {
+                if (!this.config.resendApiKey) return null;
+                try {
+                    const res = await fetch('https://api.resend.com/emails', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${this.config.resendApiKey}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            from: this.config.resendFromEmail,
+                            to: [toEmail],
+                            reply_to: this.config.supportEmail,
+                            subject: subject,
+                            html: htmlBody,
+                            text: textBody
+                        })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        console.log('✨ [Resend Oficial] E-mail entregue com SUCESSO de contato@revivamemories.com.br para:', toEmail, data);
+                        return { success: true, provider: 'resend', data };
+                    } else {
+                        console.warn('⚠️ [Resend Oficial] Resposta da API:', data);
+                        return null;
+                    }
+                } catch (err) {
+                    console.warn('⚠️ [Resend Oficial] Falha na requisição:', err);
+                    return null;
+                }
+            };
+
+            // 2. Disparo Profissional Primário (Resend Oficial) com Fallback (EmailJS)
+            (async () => {
+                let customerSent = false;
+                if (this.config.resendApiKey) {
+                    const resCustomer = await sendViaResend(
+                        payload.customerEmail,
+                        `Reviva Memories | Confirmação do Pedido ${payload.orderId}`,
+                        html,
+                        text
+                    );
+                    if (resCustomer?.success) {
+                        customerSent = true;
+                    }
+
+                    // Notificar o Administrador
+                    await sendViaResend(
+                        this.config.supportEmail,
+                        `🔔 Novo Pedido Recebido: ${payload.orderId} - ${payload.customerName}`,
+                        html,
+                        text
+                    );
+                }
+
+                // Se o Resend não disparou ou falhou, aciona o EmailJS como contingência segura
+                if (!customerSent && window.emailjs) {
                 try {
                     // Inicializar SDK v4 explicitamente com objeto
                     window.emailjs.init({
@@ -263,13 +323,17 @@
                     });
 
                     const templateParams = {
+                        from_name: 'Reviva Memories',
+                        from_email: this.config.supportEmail,
+                        sender_name: 'Reviva Memories',
+                        sender_email: this.config.supportEmail,
                         to_name: payload.customerName,
                         name: payload.customerName,
                         to_email: payload.customerEmail,
                         email: payload.customerEmail,
                         user_email: payload.customerEmail,
                         recipient: payload.customerEmail,
-                        reply_to: 'contato@revivamemories.com.br',
+                        reply_to: this.config.supportEmail,
                         customer_cpf: payload.customerCpf,
                         customer_phone: payload.customerPhone,
                         order_id: payload.orderId,
@@ -323,9 +387,8 @@
                 } catch(err) {
                     console.error('❌ [Reviva Notifications] Erro na chamada do EmailJS:', err);
                 }
-            } else {
-                console.warn('⚠️ [Reviva Notifications] window.emailjs não encontrado no DOM.');
             }
+            })();
 
             // 3. Disparo Automático 100% em Segundo Plano via Meta Cloud API Oficial (WhatsApp Business)
             this.sendMetaWhatsAppNotification(payload);
@@ -420,6 +483,37 @@
 
             const text = `REVIVA MEMORIES | CÓDIGO DE ACESSO AO PAINEL\n\nOlá, ${customerName}!\n\nSeu código de confirmação de 4 dígitos é: ${code}\n\nDigite este código na tela de login para acessar seu painel.\n\nEquipe Reviva Memories`;
 
+            // 1. Disparo Profissional via Resend Oficial
+            if (this.config.resendApiKey) {
+                try {
+                    const res = await fetch('https://api.resend.com/emails', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${this.config.resendApiKey}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            from: this.config.resendFromEmail,
+                            to: [email],
+                            reply_to: this.config.supportEmail,
+                            subject: 'Reviva Memories | Seu Código de Confirmação de Acesso',
+                            html: html,
+                            text: text
+                        })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        console.log('✨ [Resend Oficial] Código OTP entregue com SUCESSO para:', email, data);
+                        return { success: true, provider: 'resend', data };
+                    } else {
+                        console.warn('⚠️ [Resend Oficial] Falha na entrega do OTP, acionando fallback EmailJS:', data);
+                    }
+                } catch (err) {
+                    console.warn('⚠️ [Resend Oficial] Erro na requisição do OTP:', err);
+                }
+            }
+
+            // 2. Contingência via EmailJS
             if (window.emailjs) {
                 try {
                     window.emailjs.init({ publicKey: this.config.emailjsPublicKey });
@@ -427,13 +521,17 @@
                         this.config.emailjsServiceId,
                         this.config.emailjsTemplateId,
                         {
+                            from_name: 'Reviva Memories',
+                            from_email: this.config.supportEmail,
+                            sender_name: 'Reviva Memories',
+                            sender_email: this.config.supportEmail,
                             to_name: customerName,
                             name: customerName,
                             to_email: email,
                             email: email,
                             user_email: email,
                             recipient: email,
-                            reply_to: 'contato@revivamemories.com.br',
+                            reply_to: this.config.supportEmail,
                             order_id: 'ACESSO-LOGIN',
                             plan_name: 'Código de Confirmação',
                             total_price: code,
@@ -444,7 +542,7 @@
                         { publicKey: this.config.emailjsPublicKey }
                     );
                 } catch(err) {
-                    console.error('[Reviva Notifications] Erro ao disparar código por e-mail:', err);
+                    console.error('[Reviva Notifications] Erro ao disparar código por e-mail via fallback:', err);
                     throw err;
                 }
             }

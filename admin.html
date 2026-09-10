@@ -789,6 +789,60 @@
             100% { transform: scale(1); box-shadow: 0 0 6px rgba(239, 68, 68, 0.7); }
         }
 
+        /* =========================================================================
+           BOLINHA / LED INTELIGENTE DE PRIORIDADE & SLA (NÃO ALTERA CORES DO PLANO)
+           ========================================================================= */
+        .priority-led-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+            cursor: help;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .priority-led-dot:hover {
+            transform: scale(1.35);
+        }
+
+        /* 🔴 Urgente / Crítico: SLA > 75%, Reprovação ou Pontuação Elevada */
+        .priority-led-dot.led-urgent {
+            background: #ef4444;
+            box-shadow: 0 0 7px rgba(239, 68, 68, 0.95), 0 0 2px #f87171;
+            animation: ledPulseUrgent 1.6s ease-in-out infinite;
+        }
+
+        /* 🟡 Atenção: 50% a 75% do SLA decorrido */
+        .priority-led-dot.led-attention {
+            background: #f59e0b;
+            box-shadow: 0 0 6px rgba(245, 158, 11, 0.9), 0 0 2px #fbbf24;
+            animation: ledPulseAttention 2.2s ease-in-out infinite;
+        }
+
+        /* 🟢 No Prazo / Confortável: < 50% do SLA */
+        .priority-led-dot.led-ontime {
+            background: #22c55e;
+            box-shadow: 0 0 6px rgba(34, 197, 94, 0.85), 0 0 2px #4ade80;
+        }
+
+        /* ⚪ No Ritmo do Cliente: Aguardando materiais/pagamento (sem penalidade na produção) */
+        .priority-led-dot.led-client {
+            background: #94a3b8;
+            box-shadow: 0 0 4px rgba(148, 163, 184, 0.5);
+            opacity: 0.8;
+        }
+
+        @keyframes ledPulseUrgent {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 5px rgba(239, 68, 68, 0.85); }
+            50% { transform: scale(1.22); box-shadow: 0 0 10px rgba(239, 68, 68, 1), 0 0 15px rgba(239, 68, 68, 0.5); }
+        }
+
+        @keyframes ledPulseAttention {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 4px rgba(245, 158, 11, 0.8); }
+            50% { transform: scale(1.15); box-shadow: 0 0 8px rgba(245, 158, 11, 1); }
+        }
+
         .view-mode-toggle-group {
             display: flex;
             background: rgba(0, 0, 0, 0.65);
@@ -1806,16 +1860,20 @@
             color: #ffffff !important;
         }
 
-        /* Card completo na cor amarela quando o material estiver pendente */
+        /* Card completo na cor amarela quando o material estiver pendente (sem efeito de hover, mantendo inacessível) */
         .material-status-slot.slot-pending {
             background: rgba(245, 158, 11, 0.16) !important;
             border: 1px solid rgba(245, 158, 11, 0.65) !important;
             box-shadow: 0 0 14px rgba(245, 158, 11, 0.22) !important;
+            cursor: default !important;
+            pointer-events: none !important;
+            transform: none !important;
         }
 
         .material-status-slot.slot-pending i,
         .material-status-slot.slot-pending svg {
             color: #fbbf24 !important;
+            transform: none !important;
         }
 
         .material-status-slot.slot-pending span:first-of-type {
@@ -1823,9 +1881,25 @@
         }
 
         .material-status-slot.slot-pending:hover {
-            background: rgba(245, 158, 11, 0.26) !important;
-            border-color: #fbbf24 !important;
-            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35) !important;
+            background: rgba(245, 158, 11, 0.16) !important;
+            border-color: rgba(245, 158, 11, 0.65) !important;
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.22) !important;
+            transform: none !important;
+        }
+
+        /* Botão Baixar Pacote na 2ª Etapa (Confirmados): Amarelo harmônico com os cards pendentes, inacessível até envio */
+        .btn-pkg-stage-2 {
+            background: rgba(234, 179, 8, 0.15) !important;
+            border: 1px solid rgba(234, 179, 8, 0.55) !important;
+            color: #facc15 !important;
+            box-shadow: 0 0 10px rgba(234, 179, 8, 0.15) !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+        }
+
+        .btn-pkg-stage-2 i,
+        .btn-pkg-stage-2 svg {
+            color: #facc15 !important;
         }
 
         .material-status-slot.slot-locked {
@@ -3325,6 +3399,35 @@
         // INICIALIZAÇÃO E CARREGAMENTO DE DADOS
         // =========================================================================
         async function loadAdminData() {
+            // Se foi efetuado o reset/limpeza do ambiente, limpa automaticamente todos os dados de simulação do navegador
+            const clientResetDone = localStorage.getItem('reviva_reset_simulation_v1');
+            if (!clientResetDone) {
+                localStorage.removeItem('reviva_orders_list');
+                localStorage.removeItem('reviva_order_data');
+                localStorage.setItem('reviva_last_order_seq', '1000');
+                localStorage.removeItem('reviva_session_user');
+                localStorage.removeItem('reviva_legal_term');
+                localStorage.removeItem('reviva_full_session_state');
+                localStorage.removeItem('reviva_client_photos');
+                localStorage.removeItem('reviva_client_audio');
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('reviva_order_state_') || 
+                        key.startsWith('reviva_crm_order_') || 
+                        key.startsWith('reviva_client_photos_') || 
+                        key.startsWith('reviva_client_audio_') || 
+                        key.startsWith('reviva_client_music_') || 
+                        key.startsWith('reviva_client_bg_') || 
+                        key.startsWith('reviva_stage4_delivered_') || 
+                        key.startsWith('reviva_stage5_delivered_') || 
+                        key.startsWith('reviva_stage5_consumed_') || 
+                        key.startsWith('reviva_producer_') ||
+                        key.startsWith('reviva_legal_term_')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                localStorage.setItem('reviva_reset_simulation_v1', 'true');
+            }
+
             await fetchOrdersList();
             initTimerHeartbeat();
             updateHeaderAnalytics();
@@ -3415,265 +3518,14 @@
                 }
             } catch (e) {}
 
-            // 3. SEED DE DEMONSTRAÇÃO E COBERTURA COMPLETA DAS 8 COLUNAS
-            // Garante que a produção tenha pedidos em todas as fases para testes e gerenciamento
-            const demoOrders = [
-                // HOJE (0 dias / poucas horas atrás)
-                {
-                    id: 'REVIVA-1001',
-                    clientName: 'Mariana Silva',
-                    clientEmail: 'mariana.silva@exemplo.com',
-                    clientPhone: '(11) 98765-4321',
-                    clientCpf: '123.456.789-00',
-                    planName: 'Plano Affectus (1 Minuto)',
-                    format: 'horizontal',
-                    value: 447.30,
-                    valueFormatted: 'R$ 447,30',
-                    isPaid: true,
-                    stage: 'producao_previa',
-                    secondsWorked: 1200,
-                    dateCreated: new Date(Date.now() - 4 * 3600 * 1000).toISOString(), // 4 Horas atrás (Hoje)
-                    date: new Date(Date.now() - 4 * 3600 * 1000).toLocaleDateString('pt-BR'),
-                    history: [
-                        { timestamp: new Date(Date.now() - 4 * 3600 * 1000).toISOString(), dateFormatted: new Date(Date.now() - 4 * 3600 * 1000).toLocaleString('pt-BR'), event: 'Pedido recebido via Asaas PIX (Plano Affectus 1 Minuto)', type: 'system' }
-                    ]
-                },
-                // 1 DIA ATRÁS (Legatum 2 Formatos - R$ 897,00 + R$ 448,50 upsell = R$ 1.345,50 no cartão ou R$ 1.210,95 no PIX)
-                {
-                    id: 'REVIVA-1002',
-                    clientName: 'Carlos Eduardo Mendes',
-                    clientEmail: 'carlos.mendes@exemplo.com',
-                    clientPhone: '(21) 99888-7766',
-                    clientCpf: '234.567.890-11',
-                    planName: 'Plano Legatum (2 Minutos)',
-                    format: 'both',
-                    value: 1210.95,
-                    valueFormatted: 'R$ 1.210,95',
-                    isPaid: true,
-                    stage: 'producao_previa',
-                    secondsWorked: 3600,
-                    dateCreated: new Date(Date.now() - 26 * 3600 * 1000).toISOString(), // 1 Dia atrás
-                    date: new Date(Date.now() - 26 * 3600 * 1000).toLocaleDateString('pt-BR'),
-                    history: [
-                        { timestamp: new Date(Date.now() - 26 * 3600 * 1000).toISOString(), dateFormatted: new Date(Date.now() - 26 * 3600 * 1000).toLocaleString('pt-BR'), event: 'Pedido Legatum (2 Formatos) pago via PIX com 10% desc.', type: 'system' }
-                    ]
-                },
-                // 2 DIAS ATRÁS (Tributum 3 Minutos 1 Formato PIX - R$ 1.297,00 com 10% desc PIX = R$ 1.167,30)
-                {
-                    id: 'REVIVA-1003',
-                    clientName: 'Beatriz Lima',
-                    clientEmail: 'beatriz.lima@exemplo.com',
-                    clientPhone: '(31) 99123-4567',
-                    clientCpf: '345.678.901-22',
-                    planName: 'Plano Tributum (3 Minutos)',
-                    format: 'vertical',
-                    value: 1167.30,
-                    valueFormatted: 'R$ 1.167,30',
-                    isPaid: true,
-                    stage: 'producao_previa',
-                    secondsWorked: 2400,
-                    dateCreated: new Date(Date.now() - 50 * 3600 * 1000).toISOString(), // 2 Dias atrás
-                    date: new Date(Date.now() - 50 * 3600 * 1000).toLocaleDateString('pt-BR'),
-                    history: [
-                        { timestamp: new Date(Date.now() - 50 * 3600 * 1000).toISOString(), dateFormatted: new Date(Date.now() - 50 * 3600 * 1000).toLocaleString('pt-BR'), event: 'Pedido Tributum (3 Min Vertical) pago via PIX com 10% desc.', type: 'system' }
-                    ]
-                },
-                // 3 DIAS ATRÁS (Affectus contratado no Cartão 1x - R$ 497,00)
-                {
-                    id: 'REVIVA-1004',
-                    clientName: 'João Pedro Silveira',
-                    clientEmail: 'joao.silveira@exemplo.com',
-                    clientPhone: '(41) 98456-7890',
-                    clientCpf: '456.789.012-33',
-                    planName: 'Plano Affectus (1 Minuto)',
-                    format: 'vertical',
-                    value: 497.00,
-                    valueFormatted: 'R$ 497,00',
-                    isPaid: true,
-                    stage: 'producao_previa',
-                    secondsWorked: 1800,
-                    dateCreated: new Date(Date.now() - 74 * 3600 * 1000).toISOString(), // 3 Dias atrás
-                    date: new Date(Date.now() - 74 * 3600 * 1000).toLocaleDateString('pt-BR'),
-                    history: [
-                        { timestamp: new Date(Date.now() - 74 * 3600 * 1000).toISOString(), dateFormatted: new Date(Date.now() - 74 * 3600 * 1000).toLocaleString('pt-BR'), event: 'Pagamento Cartão R$ 497,00 em 6x R$ 82,83 confirmado', type: 'system' }
-                    ]
-                },
-                // 4 DIAS ATRÁS (Legatum 2 Formatos no Cartão - R$ 1.345,50)
-                {
-                    id: 'REVIVA-1005',
-                    clientName: 'Helena Castro',
-                    clientEmail: 'helena.castro@exemplo.com',
-                    clientPhone: '(51) 99789-0123',
-                    clientCpf: '567.890.123-44',
-                    planName: 'Plano Legatum (2 Minutos)',
-                    format: 'both',
-                    value: 1345.50,
-                    valueFormatted: 'R$ 1.345,50',
-                    isPaid: true,
-                    stage: 'material_enviado',
-                    secondsWorked: 0,
-                    dateCreated: new Date(Date.now() - 98 * 3600 * 1000).toISOString(), // 4 Dias atrás
-                    date: new Date(Date.now() - 98 * 3600 * 1000).toLocaleDateString('pt-BR'),
-                    history: [
-                        { timestamp: new Date(Date.now() - 98 * 3600 * 1000).toISOString(), dateFormatted: new Date(Date.now() - 98 * 3600 * 1000).toLocaleString('pt-BR'), event: 'Pagamento Cartão de R$ 1.345,50 em 6x R$ 224,25 confirmado', type: 'system' }
-                    ]
-                },
-                // 5 DIAS ATRÁS (Tributum 3 Minutos 2 Formatos no PIX - R$ 1.297,00 + R$ 648,50 = R$ 1.945,50 (-10% PIX) = R$ 1.750,95)
-                {
-                    id: 'REVIVA-1006',
-                    clientName: 'Fernando Rocha',
-                    clientEmail: 'fernando.rocha@exemplo.com',
-                    clientPhone: '(71) 98877-6655',
-                    clientCpf: '678.901.234-55',
-                    planName: 'Plano Tributum (3 Minutos)',
-                    format: 'both',
-                    value: 1750.95,
-                    valueFormatted: 'R$ 1.750,95',
-                    isPaid: true,
-                    stage: 'producao_previa',
-                    secondsWorked: 5400,
-                    dateCreated: new Date(Date.now() - 122 * 3600 * 1000).toISOString(), // 5 Dias atrás
-                    date: new Date(Date.now() - 122 * 3600 * 1000).toLocaleDateString('pt-BR'),
-                    history: [
-                        { timestamp: new Date(Date.now() - 122 * 3600 * 1000).toISOString(), dateFormatted: new Date(Date.now() - 122 * 3600 * 1000).toLocaleString('pt-BR'), event: 'Pedido Tributum (2 Formatos) pago via PIX com 10% desc.', type: 'system' }
-                    ]
-                },
-                // 2 DIAS ATRÁS (Legatum 2 Minutos Cartão 1 Formato - R$ 897,00)
-                {
-                    id: 'REVIVA-1007',
-                    clientName: 'Luciana Martins',
-                    clientEmail: 'luciana.martins@exemplo.com',
-                    clientPhone: '(81) 99654-3210',
-                    clientCpf: '789.012.345-66',
-                    planName: 'Plano Legatum (2 Minutos)',
-                    format: 'vertical',
-                    value: 897.00,
-                    valueFormatted: 'R$ 897,00',
-                    isPaid: true,
-                    stage: 'previas_aprovadas',
-                    secondsWorked: 4800,
-                    dateCreated: new Date(Date.now() - 48 * 3600 * 1000).toISOString(), // 2 Dias atrás
-                    date: new Date(Date.now() - 48 * 3600 * 1000).toLocaleDateString('pt-BR'),
-                    history: [
-                        { timestamp: new Date(Date.now() - 48 * 3600 * 1000).toISOString(), dateFormatted: new Date(Date.now() - 48 * 3600 * 1000).toLocaleString('pt-BR'), event: 'Pagamento de R$ 897,00 confirmado no Cartão em 6x R$ 149,50', type: 'system' }
-                    ]
-                },
-                // 5 DIAS ATRÁS (Affectus 1 Minuto PIX - R$ 447,30)
-                {
-                    id: 'REVIVA-1008',
-                    clientName: 'Gabriel Souza',
-                    clientEmail: 'gabriel.souza@exemplo.com',
-                    clientPhone: '(61) 99321-7890',
-                    clientCpf: '890.123.456-77',
-                    planName: 'Plano Affectus (1 Minuto)',
-                    format: 'horizontal',
-                    value: 447.30,
-                    valueFormatted: 'R$ 447,30',
-                    isPaid: true,
-                    stage: 'entregues',
-                    secondsWorked: 3600,
-                    dateCreated: new Date(Date.now() - 118 * 3600 * 1000).toISOString(), // 5 Dias atrás
-                    date: new Date(Date.now() - 118 * 3600 * 1000).toLocaleDateString('pt-BR'),
-                    history: [
-                        { timestamp: new Date(Date.now() - 118 * 3600 * 1000).toISOString(), dateFormatted: new Date(Date.now() - 118 * 3600 * 1000).toLocaleString('pt-BR'), event: 'Homenagem celebrada e entregue ao cliente', type: 'feedback' }
-                    ]
-                },
-                // RECENTE - PENDENTE (Gerou código PIX, aguardando pagamento)
-                {
-                    id: 'REVIVA-1009',
-                    clientName: 'Renato Oliveira',
-                    clientEmail: 'renato.oliveira@exemplo.com',
-                    clientPhone: '(11) 97123-9988',
-                    clientCpf: '901.234.567-88',
-                    planName: 'Plano Legatum (2 Minutos)',
-                    format: 'horizontal',
-                    value: 807.30,
-                    valueFormatted: 'R$ 807,30',
-                    isPaid: false,
-                    stage: 'aguardando_pagamento',
-                    secondsWorked: 0,
-                    dateCreated: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), // 2 horas atrás (Recente)
-                    date: new Date(Date.now() - 2 * 3600 * 1000).toLocaleDateString('pt-BR'),
-                    history: [
-                        { timestamp: new Date(Date.now() - 2 * 3600 * 1000).toISOString(), dateFormatted: new Date(Date.now() - 2 * 3600 * 1000).toLocaleString('pt-BR'), event: 'Código PIX gerado no checkout, aguardando pagamento do cliente', type: 'system' }
-                    ]
-                },
-                // RECENTE - CONFIRMADO (Pagamento confirmado, aguardando envio dos materiais)
-                {
-                    id: 'REVIVA-1010',
-                    clientName: 'Camila Albuquerque',
-                    clientEmail: 'camila.alb@exemplo.com',
-                    clientPhone: '(21) 98234-1122',
-                    clientCpf: '012.345.678-99',
-                    planName: 'Plano Tributum (3 Minutos)',
-                    format: 'both',
-                    value: 1750.95,
-                    valueFormatted: 'R$ 1.750,95',
-                    isPaid: true,
-                    stage: 'pagamento_confirmado',
-                    secondsWorked: 0,
-                    dateCreated: new Date(Date.now() - 3 * 3600 * 1000).toISOString(), // 3 horas atrás (Chegou primeiro)
-                    date: new Date(Date.now() - 3 * 3600 * 1000).toLocaleDateString('pt-BR'),
-                    history: [
-                        { timestamp: new Date(Date.now() - 3 * 3600 * 1000).toISOString(), dateFormatted: new Date(Date.now() - 3 * 3600 * 1000).toLocaleString('pt-BR'), event: 'Pagamento via PIX confirmado. Painel do cliente liberado para envio de fotos e áudios.', type: 'system' }
-                    ]
-                },
-                // RECENTE - CONFIRMADO 2 (Chegou 1 hora atrás, segundo na ordem de chegada)
-                {
-                    id: 'REVIVA-1011',
-                    clientName: 'Gabriel Siqueira',
-                    clientEmail: 'gabriel.siq@exemplo.com',
-                    clientPhone: '(11) 98765-4321',
-                    clientCpf: '456.789.012-33',
-                    planName: 'Plano Affectus (1 Minuto)',
-                    format: 'horizontal',
-                    value: 497.00,
-                    valueFormatted: 'R$ 497,00',
-                    isPaid: true,
-                    stage: 'pagamento_confirmado',
-                    secondsWorked: 0,
-                    dateCreated: new Date(Date.now() - 1 * 3600 * 1000).toISOString(), // 1 hora atrás (Chegou segundo)
-                    date: new Date(Date.now() - 1 * 3600 * 1000).toLocaleDateString('pt-BR'),
-                    history: [
-                        { timestamp: new Date(Date.now() - 1 * 3600 * 1000).toISOString(), dateFormatted: new Date(Date.now() - 1 * 3600 * 1000).toLocaleString('pt-BR'), event: 'Pagamento via Cartão de Crédito aprovado. Painel liberado.', type: 'system' }
-                    ]
-                },
-                // RECENTE - PENDENTE 2 (Chegou 45 minutos atrás, segundo na ordem de chegada)
-                {
-                    id: 'REVIVA-1012',
-                    clientName: 'Larissa Monteiro',
-                    clientEmail: 'larissa.mon@exemplo.com',
-                    clientPhone: '(31) 97654-3210',
-                    clientCpf: '567.890.123-44',
-                    planName: 'Plano Legatum (2 Minutos)',
-                    format: 'vertical',
-                    value: 807.30,
-                    valueFormatted: 'R$ 807,30',
-                    isPaid: false,
-                    stage: 'aguardando_pagamento',
-                    secondsWorked: 0,
-                    dateCreated: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45 minutos atrás (Chegou segundo)
-                    date: new Date(Date.now() - 45 * 60 * 1000).toLocaleDateString('pt-BR'),
-                    history: [
-                        { timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(), dateFormatted: new Date(Date.now() - 45 * 60 * 1000).toLocaleString('pt-BR'), event: 'Código PIX gerado no checkout, aguardando pagamento do cliente', type: 'system' }
-                    ]
-                }
-            ];
-
-            // Incorpora pedidos de demonstração caso ainda não estejam na lista
-            for (const demo of demoOrders) {
-                if (!allAdminOrders.some(o => o.id === demo.id)) {
-                    allAdminOrders.push(demo);
-                }
-            }
-
-            // Inicializa e sincroniza estado persistente de cada pedido
+            // 3. PEDIDOS DE DEMONSTRAÇÃO REMOVIDOS PARA SIMULAÇÃO LIMPA
+            // Inicializa e sincroniza estado persistente de cada pedido real
             for (const order of allAdminOrders) {
                 getOrCreateCrmOrderData(order);
             }
 
             if (!selectedAdminOrderId || !allAdminOrders.some(o => o.id === selectedAdminOrderId)) {
-                selectedAdminOrderId = allAdminOrders[0].id;
+                selectedAdminOrderId = allAdminOrders.length > 0 ? allAdminOrders[0].id : null;
             }
         }
 
@@ -3832,11 +3684,10 @@
                 order.isPaid = true;
             }
 
-            // Se não foi alterado manualmente pelo produtor, ou se materiais foram recebidos em pedido confirmado:
-            const autoStage = determineAutoStage(order, data);
-            if (!data.manualStageOverride || (data.stage === 'pagamento_confirmado' && autoStage === 'material_enviado')) {
+            // Se não foi alterado manualmente pelo produtor, determina etapa automática
+            if (!data.manualStageOverride) {
+                const autoStage = determineAutoStage(order, data);
                 data.stage = autoStage;
-                if (autoStage === 'material_enviado') data.manualStageOverride = false;
             }
 
             if (data.stage !== 'aguardando_pagamento') {
@@ -4042,6 +3893,86 @@
                 return { label: '🟡 LEGATUM', classTag: 'tag-alta', cardClass: 'priority-high' };
             } else {
                 return { label: '🟢 AFFECTUS', classTag: 'tag-normal', cardClass: 'priority-normal' };
+            }
+        }
+
+        // =========================================================================
+        // MOTOR DE PRIORIDADE & BOLINHA INDICADORA (SLA / PRONTIDÃO OPERACIONAL)
+        // Regra Estrita: NÃO altera as cores do card/plano; opera via indicador discreto (LED dot)
+        // 🔴 Urgente: SLA crítico (>75%), prévias reprovadas ou score alto
+        // 🟡 Atenção: Metade do tempo de SLA decorrido (50% a 75%)
+        // 🟢 No Prazo: Recém-chegado ou tempo confortável (<50% do SLA)
+        // ⚪ No Ritmo do Cliente: Aguardando materiais/pagamento (tempo da equipe não penalizado)
+        // =========================================================================
+        function getPriorityIndicator(order, crmData, score) {
+            const stage = crmData?.stage || order?.stage || 'pagamento_confirmado';
+
+            // 1. Pedidos no ritmo do cliente (aguardando pagamento ou aguardando materiais)
+            if (stage === 'aguardando_pagamento' || stage === 'pagamento_confirmado') {
+                return {
+                    dotClass: 'led-client',
+                    label: 'No Ritmo do Cliente',
+                    tooltip: `Prioridade: No Ritmo do Cliente • Aguardando ações do cliente • Relógio de produção em pausa (Score: ${score} pts)`
+                };
+            }
+
+            // 2. Pedidos com prévias reprovadas: Máxima urgência humana de ajuste
+            if (stage === 'previas_reprovadas') {
+                return {
+                    dotClass: 'led-urgent',
+                    label: 'Urgente (Ajuste)',
+                    tooltip: `Prioridade Máxima: Retrabalho de prévia reprovada pelo cliente • Ajuste imediato prioritário (Score: ${score} pts)`
+                };
+            }
+
+            // 3. Pedidos concluídos / pós-venda
+            if (stage === 'entregues') {
+                return {
+                    dotClass: 'led-ontime',
+                    label: 'Concluído',
+                    tooltip: `Projeto entregue ao cliente • Etapa de Pós-Venda (Score: ${score} pts)`
+                };
+            }
+
+            // 4. Cálculo de SLA para etapas ativas de produção técnica (material_enviado, producao_previa, previas_aprovadas, producao_final)
+            // Definição de SLA Total por Plano:
+            // - Tributum: 48h (SLA expresso)
+            // - Legatum: 72h
+            // - Affectus: 96h
+            const planLower = (order?.planName || '').toLowerCase();
+            let slaHours = 96;
+            if (planLower.includes('tributum')) slaHours = 48;
+            else if (planLower.includes('legatum')) slaHours = 72;
+
+            // Tempo decorrido de trabalho ou espera ativa
+            let elapsedHours = 0;
+            if (order?.dateCreated) {
+                const elapsedMs = Date.now() - new Date(order.dateCreated).getTime();
+                if (!isNaN(elapsedMs) && elapsedMs > 0) {
+                    elapsedHours = elapsedMs / (3600 * 1000);
+                }
+            }
+
+            const slaRatio = elapsedHours / slaHours;
+
+            if (slaRatio >= 0.75 || score >= 80) {
+                return {
+                    dotClass: 'led-urgent',
+                    label: 'Urgente / SLA Crítico',
+                    tooltip: `Prioridade Alta: Prazo próximo do vencimento (${elapsedHours.toFixed(1)}h de ${slaHours}h SLA) • Pontuação: ${score} pts`
+                };
+            } else if (slaRatio >= 0.40 || score >= 50) {
+                return {
+                    dotClass: 'led-attention',
+                    label: 'Atenção / Meia-vida SLA',
+                    tooltip: `Prioridade Média: Metade do prazo decorrido (${elapsedHours.toFixed(1)}h de ${slaHours}h SLA) • Pontuação: ${score} pts`
+                };
+            } else {
+                return {
+                    dotClass: 'led-ontime',
+                    label: 'No Prazo',
+                    tooltip: `Prioridade Normal: Pedido confortável no cronograma (${elapsedHours.toFixed(1)}h de ${slaHours}h SLA) • Pontuação: ${score} pts`
+                };
             }
         }
 
@@ -4937,42 +4868,67 @@
                     const bArch = b.crmData && b.crmData.archived ? 1 : 0;
                     if (aArch !== bArch) return aArch - bArch; // Não arquivados no topo (0), arquivados na base (1)
 
-                    // Se houver posição manual salva via Drag & Drop nesta coluna
-                    const aPos = (a.crmData && typeof a.crmData.customOrder === 'number') ? a.crmData.customOrder : 999999;
-                    const bPos = (b.crmData && typeof b.crmData.customOrder === 'number') ? b.crmData.customOrder : 999999;
-                    if (aPos !== 999999 || bPos !== 999999) {
+                    // 1. Se houver posição manual salva via Drag & Drop nesta coluna, ela tem PRIORIDADE ABSOLUTA
+                    const aHasCustom = (a.crmData && typeof a.crmData.customOrder === 'number');
+                    const bHasCustom = (b.crmData && typeof b.crmData.customOrder === 'number');
+                    if (aHasCustom || bHasCustom) {
+                        const aPos = aHasCustom ? a.crmData.customOrder : 999999;
+                        const bPos = bHasCustom ? b.crmData.customOrder : 999999;
                         if (aPos !== bPos) return aPos - bPos;
                     }
 
-                    // 1ª COLUNA: "Aguardando Pagamento" - Pedidos mais recentes no topo para visualização imediata
+                    // 2. Coluna 1: "Aguardando Pagamento" - Pedidos mais recentes no topo por padrão
                     if (stage === 'aguardando_pagamento') {
                         const timeA = new Date(a.order.dateCreated || 0).getTime();
                         const timeB = new Date(b.order.dateCreated || 0).getTime();
-                        return timeB - timeA; // Mais novos no topo, antigos abaixo
+                        return timeB - timeA;
                     }
 
-                    // COLUNAS 2 A 8: Prioridade por Plano + Ordem Cronológica de Entrada
+                    // 3. Colunas 2 a 8: Regra padrão quando ainda NÃO houve movimentação manual
+                    // REGRA DE DIAS: Pedidos de dias anteriores têm preferência na esteira (não são ultrapassados por dias mais novos).
+                    // Dentro de um mesmo dia: Tributum > Legatum > Affectus. Dentro do mesmo plano e dia: mais antigo primeiro.
                     if (kanbanSortBy === 'priority') {
+                        const getDateKey = (item) => {
+                            const d = new Date(item.order.dateCreated || item.order.created_at || 0);
+                            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                        };
+
+                        const dayA = getDateKey(a);
+                        const dayB = getDateKey(b);
+
+                        // Se são de dias diferentes, o dia anterior fica acima (respeita a esteira histórica)
+                        if (dayA !== dayB) {
+                            return dayA.localeCompare(dayB); // Ordem crescente de dias (dias anteriores acima)
+                        }
+
+                        // MESMO DIA: Aplica a prioridade de plano (Tributum > Legatum > Affectus)
                         const getPlanRank = (item) => {
                             const name = (item.order.planName || '').toLowerCase();
-                            if (name.includes('tributum')) return 3; // Topo Absoluto
-                            if (name.includes('legatum')) return 2;  // Abaixo de Tributum, acima de Affectus
-                            return 1; // Base (Affectus / outros)
+                            if (name.includes('tributum')) return 3; // Topo do dia
+                            if (name.includes('legatum')) return 2;  // Meio do dia
+                            return 1; // Base do dia (Affectus / outros)
                         };
 
                         const rankA = getPlanRank(a);
                         const rankB = getPlanRank(b);
 
                         if (rankA !== rankB) {
-                            return rankB - rankA; // Maior plano fica no topo (Tributum > Legatum > Affectus)
+                            return rankB - rankA; // Maior plano fica na frente dentro daquele dia
                         }
 
-                        // Dentro do mesmo plano: o pedido que entrou primeiro fica acima, e o novo fica abaixo (mais antigos no topo, novos abaixo)
-                        const timeA = new Date(a.order.dateCreated || 0).getTime();
-                        const timeB = new Date(b.order.dateCreated || 0).getTime();
-                        return timeA - timeB; // Ordem de entrada cronológica crescente
+                        // Mesmo dia e mesmo plano: Pedidos com DOIS FORMATOS (Horizontal + Vertical) têm prioridade sobre formato único
+                        const formatRankA = (a.crmData && a.crmData.format === 'both') || a.order.format === 'both' ? 2 : 1;
+                        const formatRankB = (b.crmData && b.crmData.format === 'both') || b.order.format === 'both' ? 2 : 1;
+                        if (formatRankA !== formatRankB) {
+                            return formatRankB - formatRankA; // Dois Formatos fica acima de formato único
+                        }
+
+                        // Mesmo dia, mesmo plano e mesmo tipo de formato: o que entrou mais cedo no dia fica acima
+                        const timeA = new Date(a.order.dateCreated || a.order.created_at || 0).getTime();
+                        const timeB = new Date(b.order.dateCreated || b.order.created_at || 0).getTime();
+                        return timeA - timeB;
                     } else if (kanbanSortBy === 'recent') {
-                        return new Date(a.order.dateCreated || 0) - new Date(b.order.dateCreated || 0); // Mais antigos no topo, novos abaixo
+                        return new Date(a.order.dateCreated || 0) - new Date(b.order.dateCreated || 0);
                     } else if (kanbanSortBy === 'value') {
                         return (b.order.value || 0) - (a.order.value || 0);
                     }
@@ -5044,11 +5000,15 @@
 
                 wrapper.innerHTML = list.map(({ order, crmData, score }) => {
                     const priority = getPriorityTag(order, score, stage);
+                    const priorityIndicator = getPriorityIndicator(order, crmData, score);
                     const isRunning = crmData.timerRunning && crmData.stage !== 'aguardando_pagamento' && crmData.stage !== 'pagamento_confirmado';
                     const activeCardClass = isRunning ? 'card-timer-active' : '';
                     const durationStr = detectOrderDuration(order);
                     const formatBadgeWithoutDuration = renderFormatBadge(crmData.format);
                     const paymentMethodStr = detectPaymentMethod(order);
+
+                    // Bolinha LED discreta de prioridade / SLA
+                    const priorityDotHtml = `<span class="priority-led-dot ${priorityIndicator.dotClass}" title="${priorityIndicator.tooltip}"></span>`;
 
                     // Alerta de NOVO PEDIDO numerado por ordem de chegada (ex: #1, #2...)
                     const arrivalNum = newOrderArrivalMap.get(order.id);
@@ -5139,6 +5099,7 @@
                                 <div class="compact-card-main">
                                     <div class="card-client-title" style="font-size: 0.74rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; margin: 0; line-height: 1.2;">${order.clientName}</div>
                                     <div style="display: flex; align-items: center; justify-content: center; width: 100%; min-width: 0; gap: 5px;">
+                                        ${priorityDotHtml}
                                         <span class="card-order-id" style="font-size: 0.68rem; line-height: 1.2;">#${order.orderId || order.id}</span>
                                         ${novoCardBadge}
                                     </div>
@@ -5183,8 +5144,9 @@
                             <!-- LINHA 1: CLIENTE -->
                             <div class="card-client-title" title="${order.clientName}" style="text-align: center;">${order.clientName}</div>
 
-                            <!-- LINHA 2: PEDIDO + ALERTA NOVO -->
+                            <!-- LINHA 2: PEDIDO + BOLINHA DE PRIORIDADE/SLA + ALERTA NOVO -->
                             <div style="display: flex; align-items: center; justify-content: center; min-width: 0; width: 100%; gap: 6px;">
+                                ${priorityDotHtml}
                                 <span class="card-order-id">#${order.orderId || order.id}</span>
                                 ${novoCardBadge}
                             </div>
@@ -5254,11 +5216,11 @@
             if (cardEl) cardEl.classList.remove('is-dragging');
 
             if (draggedSourceStage) {
-                const wrapper = document.getElementById(`cards-${draggedSourceStage}`);
-                if (wrapper) {
-                    const cardElements = Array.from(wrapper.querySelectorAll('.kanban-order-card'));
-                    const orderIds = cardElements.map(el => el.getAttribute('data-order-id')).filter(Boolean);
-                    orderIds.forEach((id, index) => {
+                const srcWrapper = document.getElementById(`cards-${draggedSourceStage}`);
+                if (srcWrapper) {
+                    const cardElements = Array.from(srcWrapper.querySelectorAll('.kanban-order-card'));
+                    cardElements.forEach((el, index) => {
+                        const id = el.getAttribute('data-order-id');
                         const order = allAdminOrders.find(o => o.id === id);
                         if (order) {
                             const crmData = getOrCreateCrmOrderData(order);
@@ -5285,16 +5247,14 @@
             const draggedEl = document.querySelector(`.kanban-order-card[data-order-id="${draggedCardOrderId}"]`);
             if (!draggedEl) return;
 
-            const firstCard = wrapper.querySelector('.kanban-order-card:not(.is-dragging)');
-            if (firstCard) {
-                const firstRect = firstCard.getBoundingClientRect();
-                if (e.clientY < firstRect.top + 20) {
-                    if (wrapper.firstChild !== draggedEl) {
-                        wrapper.insertBefore(draggedEl, wrapper.firstChild);
-                    }
-                }
+            // Se for arrastado sobre a área vazia ou base do wrapper
+            const cards = Array.from(wrapper.querySelectorAll('.kanban-order-card:not(.is-dragging)'));
+            if (cards.length === 0) {
+                wrapper.appendChild(draggedEl);
             } else {
-                if (!wrapper.contains(draggedEl)) {
+                const lastCard = cards[cards.length - 1];
+                const lastRect = lastCard.getBoundingClientRect();
+                if (e.clientY > lastRect.bottom) {
                     wrapper.appendChild(draggedEl);
                 }
             }
@@ -5320,12 +5280,10 @@
             const offset = e.clientY - rect.top - (rect.height / 2);
 
             if (offset > 0) {
-                // Move o card arrastado para depois do card alvo
                 if (cardTarget.nextSibling !== draggedEl) {
                     wrapper.insertBefore(draggedEl, cardTarget.nextSibling);
                 }
             } else {
-                // Move o card arrastado para antes do card alvo
                 if (draggedEl.nextSibling !== cardTarget) {
                     wrapper.insertBefore(draggedEl, cardTarget);
                 }
@@ -5337,70 +5295,85 @@
             e.stopPropagation();
             if (!draggedCardOrderId) return;
 
-            const order = allAdminOrders.find(o => o.id === draggedCardOrderId);
+            const movedOrderId = draggedCardOrderId;
             const sourceStage = draggedSourceStage;
+            const order = allAdminOrders.find(o => o.id === movedOrderId);
 
-            // Se o card foi movido para outra coluna do Kanban
-            if (order && targetStage && sourceStage !== targetStage) {
+            if (order && targetStage) {
                 const crmData = getOrCreateCrmOrderData(order);
+                const prevStage = crmData.stage;
                 crmData.stage = targetStage;
-                crmData.manualStageOverride = true;
+                crmData.manualStageOverride = true; // Fixa a decisão humana de coluna permanentemente
+
                 if (targetStage !== 'aguardando_pagamento') {
                     order.isPaid = true;
+                } else {
+                    order.isPaid = false;
                 }
 
-                const stageNames = {
-                    aguardando_pagamento: 'Pendentes',
-                    pagamento_confirmado: 'Confirmados',
-                    material_enviado: 'Recebidos',
-                    producao_previa: 'Prévias',
-                    previas_reprovadas: 'Prévias Reprovadas',
-                    previas_aprovadas: 'Prévias Aprovadas',
-                    producao_final: 'Produção Vídeo Final',
-                    entregues: 'Pós-Venda'
-                };
+                if (prevStage !== targetStage) {
+                    const stageNames = {
+                        aguardando_pagamento: 'Pendentes',
+                        pagamento_confirmado: 'Confirmados',
+                        material_enviado: 'Recebidos',
+                        producao_previa: 'Prévias',
+                        previas_reprovadas: 'Prévias Reprovadas',
+                        previas_aprovadas: 'Prévias Aprovadas',
+                        producao_final: 'Vídeo Final',
+                        entregues: 'Pós-Venda'
+                    };
 
-                crmData.history = crmData.history || [];
-                crmData.history.unshift({
-                    timestamp: new Date().toISOString(),
-                    dateFormatted: new Date().toLocaleString('pt-BR'),
-                    event: `Pedido movido de "${stageNames[sourceStage] || sourceStage}" para "${stageNames[targetStage] || targetStage}"`,
-                    type: 'stage'
-                });
+                    crmData.history = crmData.history || [];
+                    crmData.history.unshift({
+                        timestamp: new Date().toISOString(),
+                        dateFormatted: new Date().toLocaleString('pt-BR'),
+                        event: `Pedido movido manualmente de "${stageNames[prevStage] || prevStage}" para "${stageNames[targetStage] || targetStage}"`,
+                        type: 'stage'
+                    });
+                }
 
                 saveCrmOrderData(order.id, crmData);
-                draggedCardOrderId = null;
-                draggedSourceStage = null;
-                renderKanbanBoard();
-                updateHeaderAnalytics();
-                return;
             }
 
-            const wrapper = document.getElementById(`cards-${targetStage}`);
-            if (wrapper) {
-                const draggedEl = wrapper.querySelector(`[data-order-id="${draggedCardOrderId}"]`);
-                if (draggedEl) {
-                    draggedEl.classList.remove('is-dragging');
-                }
+            // Persiste a ordem visual de TODOS os cards na coluna de destino
+            const targetWrapper = document.getElementById(`cards-${targetStage}`);
+            if (targetWrapper) {
+                const draggedEl = targetWrapper.querySelector(`[data-order-id="${movedOrderId}"]`);
+                if (draggedEl) draggedEl.classList.remove('is-dragging');
 
-                // Recalcula as novas posições conforme a ordem visual do DOM
-                const cardElements = Array.from(wrapper.querySelectorAll('.kanban-order-card'));
-                const orderIds = cardElements.map(el => el.getAttribute('data-order-id')).filter(Boolean);
-
-                // Salva a nova sequência de posições nos dados CRM
-                orderIds.forEach((id, index) => {
+                const cardElements = Array.from(targetWrapper.querySelectorAll('.kanban-order-card'));
+                cardElements.forEach((el, index) => {
+                    const id = el.getAttribute('data-order-id');
                     const o = allAdminOrders.find(item => item.id === id);
                     if (o) {
-                        const crmData = getOrCreateCrmOrderData(o);
-                        crmData.customOrder = index;
-                        saveCrmOrderData(o.id, crmData);
+                        const oCrm = getOrCreateCrmOrderData(o);
+                        oCrm.customOrder = index;
+                        saveCrmOrderData(o.id, oCrm);
                     }
                 });
+            }
+
+            // Se mudou de coluna, atualiza também os índices da coluna de origem para evitar lacunas
+            if (sourceStage && sourceStage !== targetStage) {
+                const sourceWrapper = document.getElementById(`cards-${sourceStage}`);
+                if (sourceWrapper) {
+                    const cardElements = Array.from(sourceWrapper.querySelectorAll('.kanban-order-card'));
+                    cardElements.forEach((el, index) => {
+                        const id = el.getAttribute('data-order-id');
+                        const o = allAdminOrders.find(item => item.id === id);
+                        if (o) {
+                            const oCrm = getOrCreateCrmOrderData(o);
+                            oCrm.customOrder = index;
+                            saveCrmOrderData(o.id, oCrm);
+                        }
+                    });
+                }
             }
 
             draggedCardOrderId = null;
             draggedSourceStage = null;
             renderKanbanBoard();
+            updateHeaderAnalytics();
         }
 
         // =========================================================================
@@ -5811,17 +5784,18 @@
                             pkgBtn.title = 'Materiais recebidos! Clique para baixar pacote completo (.ZIP)';
                         }
                     } else {
-                        // Ainda não enviou materiais: vermelho/bloqueado
+                        // Na etapa Confirmados (Aguardando Materiais): Botão fica no tom AMARELO harmônico com os cards pendentes, inacessível
                         if (pkgBtn) {
                             pkgBtn.style.display = 'inline-flex';
                             pkgBtn.disabled = true;
                             pkgBtn.classList.remove('btn-pkg-sent');
-                            pkgBtn.style.background = 'rgba(239, 68, 68, 0.2)';
-                            pkgBtn.style.border = '1px solid rgba(239, 68, 68, 0.5)';
-                            pkgBtn.style.color = '#f87171';
+                            pkgBtn.classList.add('btn-pkg-stage-2');
+                            pkgBtn.style.background = '';
+                            pkgBtn.style.border = '';
+                            pkgBtn.style.color = '';
+                            pkgBtn.style.boxShadow = '';
                             pkgBtn.style.cursor = 'not-allowed';
                             pkgBtn.style.pointerEvents = 'none';
-                            pkgBtn.style.boxShadow = 'none';
                             pkgBtn.title = 'Pacote indisponível: aguardando envio dos materiais pelo cliente';
                         }
                     }
@@ -5940,21 +5914,39 @@
             const musicKey = (order.selectedMusic || crmData.selectedMusic || orderStateForMedia?.selectedMusic || 'sem_musica').toLowerCase();
             const musicFriendly = MUSIC_NAMES[musicKey] || (musicKey ? musicKey.charAt(0).toUpperCase() + musicKey.slice(1) : 'Sons Naturais');
 
+            // Regra de Sequência das Etapas:
+            // No painel do cliente, Fotos e Áudios são enviados na Etapa 1, Roteiro na Etapa 2 e Trilha/Ambiente na Etapa 3.
+            // Portanto, Trilha e Ambiente só podem ser considerados concluídos/verdes se o cliente tiver completado os envios prévios
+            // ou se o estado da sessão registrar avanço para a Etapa 4 ou posterior (ou seleção manual comprovada).
+            const clientHasSentInitialMaterials = (uploadedPhotosCount > 0 && uploadedAudiosCount > 0);
+            const clientReachedHarmonizationOrBeyond = Boolean(
+                (orderStateForMedia && orderStateForMedia.currentStep >= 3) ||
+                crmData.stage === 'producao_previa' ||
+                crmData.stage === 'previas_reprovadas' ||
+                crmData.stage === 'previas_aprovadas' ||
+                crmData.stage === 'producao_final' ||
+                crmData.stage === 'entregues'
+            );
+
             // Verificação se Trilha e Ambiente já foram ativamente escolhidos pelo cliente
             const hasMusic = Boolean(
-                crmData.selectedMusic ||
-                (orderStateForMedia && orderStateForMedia.musicManuallyChosen && orderStateForMedia.selectedMusic && orderStateForMedia.selectedMusic !== 'sem_musica') ||
-                (orderStateForMedia && orderStateForMedia.currentStep > 3 && orderStateForMedia.selectedMusic) ||
-                localStorage.getItem(`reviva_client_music_${order.id}`) ||
-                order.selectedMusic
+                (clientHasSentInitialMaterials || clientReachedHarmonizationOrBeyond) && (
+                    crmData.selectedMusic ||
+                    (orderStateForMedia && orderStateForMedia.musicManuallyChosen && orderStateForMedia.selectedMusic && orderStateForMedia.selectedMusic !== 'sem_musica') ||
+                    (orderStateForMedia && orderStateForMedia.currentStep > 3 && orderStateForMedia.selectedMusic) ||
+                    localStorage.getItem(`reviva_client_music_${order.id}`) ||
+                    (order.selectedMusic && clientReachedHarmonizationOrBeyond)
+                )
             );
 
             const hasBg = Boolean(
-                crmData.selectedBackground ||
-                (orderStateForMedia && orderStateForMedia.backgroundChosen) ||
-                (orderStateForMedia && orderStateForMedia.currentStep > 3 && orderStateForMedia.selectedBackground) ||
-                localStorage.getItem(`reviva_client_bg_${order.id}`) ||
-                order.selectedBackground
+                (clientHasSentInitialMaterials || clientReachedHarmonizationOrBeyond) && (
+                    crmData.selectedBackground ||
+                    (orderStateForMedia && orderStateForMedia.backgroundChosen) ||
+                    (orderStateForMedia && orderStateForMedia.currentStep > 3 && orderStateForMedia.selectedBackground) ||
+                    localStorage.getItem(`reviva_client_bg_${order.id}`) ||
+                    (order.selectedBackground && clientReachedHarmonizationOrBeyond)
+                )
             );
 
             if (isStage1) {
@@ -6236,7 +6228,10 @@
                 } catch(e) {}
                 const musicKey = (order.selectedMusic || crmData.selectedMusic || orderStateForMedia?.selectedMusic || 'sem_musica').toLowerCase();
                 const musicFriendly = MUSIC_NAMES[musicKey] || (musicKey ? musicKey.charAt(0).toUpperCase() + musicKey.slice(1) : 'Sons Naturais');
-                const hasMus = Boolean(crmData.selectedMusic || (orderStateForMedia && orderStateForMedia.musicManuallyChosen && orderStateForMedia.selectedMusic && orderStateForMedia.selectedMusic !== 'sem_musica') || (orderStateForMedia && orderStateForMedia.currentStep > 3) || localStorage.getItem(`reviva_client_music_${order.id}`));
+                const photosCount = getOrderUploadedPhotos(order).length;
+                const audiosCount = getOrderUploadedAudios(order).length;
+                const canHaveMusic = (photosCount > 0 && audiosCount > 0) || (orderStateForMedia && orderStateForMedia.currentStep >= 3) || ['producao_previa', 'previas_reprovadas', 'previas_aprovadas', 'producao_final', 'entregues'].includes(crmData.stage);
+                const hasMus = canHaveMusic && Boolean(crmData.selectedMusic || (orderStateForMedia && orderStateForMedia.musicManuallyChosen && orderStateForMedia.selectedMusic && orderStateForMedia.selectedMusic !== 'sem_musica') || (orderStateForMedia && orderStateForMedia.currentStep > 3) || localStorage.getItem(`reviva_client_music_${order.id}`));
                 if (!hasMus) {
                     alert('Atenção: A trilha sonora ainda não foi escolhida pelo cliente no painel.');
                     return;
@@ -6250,7 +6245,10 @@
                 } catch(e) {}
                 const bgKey = (order.selectedBackground || crmData.selectedBackground || orderStateForMedia?.selectedBackground || 'ceu').toLowerCase();
                 const bgFriendly = BACKGROUND_NAMES[bgKey] || (bgKey ? bgKey.charAt(0).toUpperCase() + bgKey.slice(1) : 'Nuvens Celestiais');
-                const hasB = Boolean(crmData.selectedBackground || (orderStateForMedia && orderStateForMedia.backgroundChosen) || (orderStateForMedia && orderStateForMedia.currentStep > 3) || localStorage.getItem(`reviva_client_bg_${order.id}`));
+                const photosCount = getOrderUploadedPhotos(order).length;
+                const audiosCount = getOrderUploadedAudios(order).length;
+                const canHaveBg = (photosCount > 0 && audiosCount > 0) || (orderStateForMedia && orderStateForMedia.currentStep >= 3) || ['producao_previa', 'previas_reprovadas', 'previas_aprovadas', 'producao_final', 'entregues'].includes(crmData.stage);
+                const hasB = canHaveBg && Boolean(crmData.selectedBackground || (orderStateForMedia && orderStateForMedia.backgroundChosen) || (orderStateForMedia && orderStateForMedia.currentStep > 3) || localStorage.getItem(`reviva_client_bg_${order.id}`));
                 if (!hasB) {
                     alert('Atenção: O ambiente de fundo ainda não foi escolhido pelo cliente no painel.');
                     return;

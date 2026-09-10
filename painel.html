@@ -295,7 +295,7 @@
             inset: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 999999;
+            z-index: 1000200;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -402,6 +402,308 @@
             letter-spacing: 3px;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
             margin: 0;
+        }
+
+        /* =========================================================================
+           TELA DE BLOQUEIO / ESPERA DA PRODUÇÃO (CORREÇÃO 2)
+           Estética cinematográfica semelhante à tela de transição (.fullscreen-stage-curtain)
+           Cores de Estado: Vermelho/Rubi Nobre (Bloqueado) e Verde/Esmeralda Nobre (Liberado)
+           ========================================================================= */
+        #modal-aguardando-equipe {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1000100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            transition: background 0.8s ease, backdrop-filter 0.8s ease;
+        }
+
+        /* Aura cósmica pulsante de fundo */
+        .waiting-modal-aura {
+            position: absolute;
+            width: clamp(340px, 50vw, 680px);
+            height: clamp(340px, 50vw, 680px);
+            border-radius: 50%;
+            filter: blur(55px);
+            pointer-events: none;
+            animation: cosmicGlowPulse 3.5s infinite ease-in-out;
+            z-index: 1;
+            transition: background 0.8s ease, opacity 0.8s ease;
+        }
+
+        /* Card Central Nobre */
+        .waiting-modal-card {
+            width: 100%;
+            max-width: 860px;
+            height: calc(100vh - 32px);
+            max-height: calc(100vh - 32px);
+            border-radius: 12px;
+            padding: clamp(20px, 3vh, 32px) clamp(20px, 3.2vw, 36px) clamp(16px, 2.2vh, 22px);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: clamp(8px, 1.4vh, 14px);
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            z-index: 2;
+            transition: border-color 0.8s ease, box-shadow 0.8s ease, background 0.8s ease;
+        }
+
+        /* Badge superior com brilho */
+        .waiting-modal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 30px;
+            padding: 5px 18px;
+            font-size: clamp(0.70rem, 0.80vw, 0.78rem);
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            transition: all 0.6s ease;
+        }
+
+        /* Título majestoso em Cormorant Garamond */
+        .waiting-modal-title {
+            font-family: var(--font-serif);
+            font-size: clamp(1.28rem, 1.8vw + 0.3vh, 1.75rem);
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin: 2px 0 0 0;
+            line-height: 1.25;
+            transition: all 0.6s ease;
+        }
+
+        /* Divisor nobre com losango (idêntico à cortina de transição) */
+        .waiting-modal-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: clamp(200px, 40%, 320px);
+            margin: 4px auto 0 auto;
+        }
+        .waiting-modal-divider::before,
+        .waiting-modal-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            transition: background 0.6s ease;
+        }
+        .waiting-modal-diamond {
+            font-size: 0.72rem;
+            transition: color 0.6s ease, text-shadow 0.6s ease;
+        }
+
+        /* Tópicos informativos */
+        .waiting-modal-body {
+            background: transparent;
+            border: none;
+            padding: clamp(4px, 0.8vh, 10px) 0;
+            margin: 0;
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            gap: clamp(6px, 1.2vh, 12px);
+            overflow: hidden;
+        }
+
+        .waiting-topic-card {
+            border-radius: 6px;
+            padding: clamp(8px, 1.2vh, 12px) clamp(12px, 1.6vw, 18px);
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.5s ease;
+        }
+
+        .waiting-topic-title {
+            font-size: clamp(0.76rem, 0.85vw, 0.84rem);
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            margin-bottom: 3px;
+        }
+
+        .waiting-topic-desc {
+            font-size: clamp(0.70rem, 0.78vw, 0.76rem);
+            line-height: 1.5;
+            color: #d1c7bc;
+        }
+
+        /* Container dos Botões de Ação Lado a Lado */
+        .waiting-actions-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        /* Botão de Ação Compacto e Elegante */
+        .waiting-action-btn {
+            flex: 1 1 0;
+            max-width: 320px;
+            height: clamp(38px, 4.6vh, 44px);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-size: clamp(0.72rem, 0.80vw, 0.78rem);
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 16px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        /* Quando houver apenas um botão centralizado (ex: tela bloqueada) */
+        .waiting-action-btn:only-child,
+        .waiting-actions-row > .waiting-action-btn[style*="display: none"] ~ .waiting-action-btn,
+        .waiting-actions-row > .waiting-action-btn:first-child:last-of-type {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        /* -------------------------------------------------------------
+           ESTADO 1: BLOQUEADO (VERMELHO / RUBI / BORDÔ + OURO)
+           ------------------------------------------------------------- */
+        #modal-aguardando-equipe.waiting-state-blocked {
+            background-color: #070304;
+            background-image:
+                radial-gradient(circle at 50% 10%, rgba(185, 28, 28, 0.16) 0%, transparent 65%),
+                radial-gradient(circle at 80% 90%, rgba(153, 27, 27, 0.10) 0%, transparent 55%),
+                linear-gradient(to bottom, rgba(8, 3, 4, 0.97) 0%, rgba(15, 5, 8, 0.99) 100%);
+        }
+        #modal-aguardando-equipe.waiting-state-blocked .waiting-modal-aura {
+            background: radial-gradient(circle, rgba(220, 38, 38, 0.30) 0%, rgba(153, 27, 27, 0.12) 50%, transparent 70%);
+        }
+        #modal-aguardando-equipe.waiting-state-blocked .waiting-modal-card {
+            background: rgba(18, 7, 9, 0.95);
+            border: 1.5px solid rgba(220, 38, 38, 0.45);
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(185, 28, 28, 0.22), inset 0 0 25px rgba(153, 27, 27, 0.10);
+        }
+        #modal-aguardando-equipe.waiting-state-blocked .waiting-modal-badge {
+            background: rgba(185, 28, 28, 0.20);
+            border: 1px solid rgba(239, 68, 68, 0.65);
+            color: #fca5a5;
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.30);
+        }
+        #modal-aguardando-equipe.waiting-state-blocked .waiting-modal-title {
+            background: linear-gradient(135deg, #ffffff 0%, #fecaca 35%, #e5c378 70%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 14px rgba(220, 38, 38, 0.35));
+        }
+        #modal-aguardando-equipe.waiting-state-blocked .waiting-modal-divider::before,
+        #modal-aguardando-equipe.waiting-state-blocked .waiting-modal-divider::after {
+            background: linear-gradient(90deg, transparent, #ef4444, transparent);
+        }
+        #modal-aguardando-equipe.waiting-state-blocked .waiting-modal-diamond {
+            color: #ef4444;
+            filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.8));
+        }
+        #modal-aguardando-equipe.waiting-state-blocked .waiting-topic-card {
+            background: rgba(30, 10, 14, 0.72);
+            border-left: 2.5px solid rgba(239, 68, 68, 0.7);
+            border-top: 1px solid rgba(239, 68, 68, 0.15);
+            border-right: 1px solid rgba(239, 68, 68, 0.15);
+            border-bottom: 1px solid rgba(239, 68, 68, 0.15);
+        }
+        #modal-aguardando-equipe.waiting-state-blocked .waiting-topic-title {
+            color: #fca5a5;
+        }
+        #modal-aguardando-equipe.waiting-state-blocked .btn-exit-panel {
+            background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+            border: 1px solid rgba(239, 68, 68, 0.75);
+            color: #ffffff;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7), 0 0 20px rgba(185, 28, 28, 0.45);
+        }
+        #modal-aguardando-equipe.waiting-state-blocked .btn-exit-panel:hover {
+            background: linear-gradient(135deg, #991b1b 0%, #570a0a 100%);
+            border-color: #f87171;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.8), 0 0 28px rgba(220, 38, 38, 0.65);
+            transform: translateY(-1px);
+        }
+
+        /* -------------------------------------------------------------
+           ESTADO 2: LIVRE / LIBERADO (VERDE / ESMERALDA + OURO)
+           ------------------------------------------------------------- */
+        #modal-aguardando-equipe.waiting-state-free {
+            background-color: #030805;
+            background-image:
+                radial-gradient(circle at 50% 10%, rgba(34, 197, 94, 0.16) 0%, transparent 65%),
+                radial-gradient(circle at 80% 90%, rgba(21, 128, 61, 0.12) 0%, transparent 55%),
+                linear-gradient(to bottom, rgba(3, 10, 6, 0.97) 0%, rgba(4, 16, 9, 0.99) 100%);
+        }
+        #modal-aguardando-equipe.waiting-state-free .waiting-modal-aura {
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.32) 0%, rgba(21, 128, 61, 0.14) 50%, transparent 70%);
+        }
+        #modal-aguardando-equipe.waiting-state-free .waiting-modal-card {
+            background: rgba(6, 18, 11, 0.95);
+            border: 1.5px solid rgba(34, 197, 94, 0.55);
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(34, 197, 94, 0.28), inset 0 0 25px rgba(34, 197, 94, 0.12);
+        }
+        #modal-aguardando-equipe.waiting-state-free .waiting-modal-badge {
+            background: rgba(21, 128, 61, 0.25);
+            border: 1px solid rgba(74, 222, 128, 0.7);
+            color: #86efac;
+            box-shadow: 0 0 16px rgba(34, 197, 94, 0.35);
+        }
+        #modal-aguardando-equipe.waiting-state-free .waiting-modal-title {
+            background: linear-gradient(135deg, #ffffff 0%, #bbf7d0 35%, #e5c378 70%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 14px rgba(34, 197, 94, 0.35));
+        }
+        #modal-aguardando-equipe.waiting-state-free .waiting-modal-divider::before,
+        #modal-aguardando-equipe.waiting-state-free .waiting-modal-divider::after {
+            background: linear-gradient(90deg, transparent, #22c55e, transparent);
+        }
+        #modal-aguardando-equipe.waiting-state-free .waiting-modal-diamond {
+            color: #22c55e;
+            filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.8));
+        }
+        #modal-aguardando-equipe.waiting-state-free .waiting-topic-card {
+            background: rgba(8, 28, 16, 0.72);
+            border-left: 2.5px solid rgba(34, 197, 94, 0.75);
+            border-top: 1px solid rgba(34, 197, 94, 0.2);
+            border-right: 1px solid rgba(34, 197, 94, 0.2);
+            border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+        }
+        #modal-aguardando-equipe.waiting-state-free .waiting-topic-title {
+            color: #86efac;
+        }
+        #modal-aguardando-equipe.waiting-state-free .btn-proceed-stage {
+            background: linear-gradient(135deg, #15803d 0%, #14532d 100%);
+            border: 1px solid #4ade80;
+            color: #ffffff;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7), 0 0 22px rgba(34, 197, 94, 0.5);
+        }
+        #modal-aguardando-equipe.waiting-state-free .btn-proceed-stage:hover {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            border-color: #86efac;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.8), 0 0 28px rgba(34, 197, 94, 0.7);
+            transform: translateY(-1px);
         }
 
         /* Card Central Principal sem Moldura (Cards de Fotos e Paisagens Flutuando no Fundo) */
@@ -1695,6 +1997,80 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
         }
 
+        /* Suporte a Layout Dividido Lado a Lado para Dois Formatos (Desktop e Mobile) */
+        .preview-dual-grid {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .preview-dual-col {
+            flex: 1 1 0%;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            height: 100%;
+            min-height: 0;
+        }
+
+        .preview-format-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.64rem;
+            color: #e5c378;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            background: rgba(197, 160, 89, 0.12);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: 3px;
+            padding: 1px 6px;
+            align-self: flex-start;
+        }
+
+        /* Hover de Zoom nas Prévias */
+        .preview-zoomable-wrap {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .preview-zoomable-wrap:hover .zoom-trigger-hint {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .zoom-trigger-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(8, 5, 3, 0.88);
+            border: 1.5px solid #e5c378;
+            border-radius: 20px;
+            padding: 5px 12px;
+            color: #fcebd0;
+            font-size: 0.70rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.9), 0 0 15px rgba(229, 195, 120, 0.3);
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10;
+            white-space: nowrap;
+        }
+
         .preview-media-frame img {
             width: 100%;
             height: 100%;
@@ -2218,6 +2594,20 @@
                 gap: 8px !important;
             }
 
+            /* No Mobile: Pedidos com 2 formatos mantêm a divisão estrita lado a lado (50% / 50%) */
+            .preview-dual-grid {
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 6px !important;
+                width: 100% !important;
+            }
+
+            .preview-dual-col {
+                flex: 1 1 50% !important;
+                min-width: 0 !important;
+                width: 50% !important;
+            }
+
             .upload-zone-compact {
                 flex: 1 1 0% !important;
                 min-height: 0 !important;
@@ -2557,12 +2947,16 @@
                 Painel do Cliente
             </div>
 
-            <!-- Direita: Usuário e Sair -->
+            <!-- Direita: Termo Assinado, Usuário e Sair -->
             <div style="display: flex; align-items: center; justify-content: flex-end; gap: 15px;">
+                <div id="badge-termo-signed" onclick="openTermoModal(true)" style="display: none; align-items: center; gap: 6px; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 20px; padding: 4px 10px; font-size: 0.70rem; color: #86efac; cursor: pointer; transition: all 0.2s ease;" title="Clique para visualizar o Termo de Responsabilidade assinado">
+                    <i data-lucide="shield-check" style="width: 14px; height: 14px; color: #4ade80;"></i>
+                    <span id="badge-termo-signed-text" style="font-weight: 500;">Termo Assinado</span>
+                </div>
                 <div style="font-size: 0.8rem; color: var(--text-secondary);">
                     Olá, <strong id="topbar-user-name" style="color: #f6e3c5;">Mariana</strong>
                 </div>
-                <a href="login.html" onclick="localStorage.removeItem('reviva_order_data'); localStorage.removeItem('reviva_session_user'); localStorage.removeItem('reviva_legal_term'); localStorage.removeItem('reviva_full_session_state');" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">Sair</a>
+                <a href="login.html" onclick="/* Logout apenas da sessão ativa de navegação, preservando o progresso e o termo assinado */" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">Sair</a>
             </div>
         </header>
 
@@ -3006,13 +3400,59 @@
                                     </div>
                                 </div>
 
-                                    <div class="preview-media-frame" style="position: relative; overflow: hidden; border-radius: var(--radius-sm); border: 1.5px solid var(--border-gold); background: #000; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;">
+                                <!-- Visualização 1: Formato Único (Padrão Horizontal ou Vertical) -->
+                                <div id="preview-single-container" class="preview-media-frame" style="position: relative; overflow: hidden; border-radius: var(--radius-sm); border: 1.5px solid var(--border-gold); background: #000; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;">
+                                    <div class="preview-zoomable-wrap" id="zoom-wrap-single" onclick="openPreviewZoomModal('single')">
                                         <img src="" alt="Prévia Restaurada" id="preview-avatar-img" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                                        <div id="preview-avatar-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-secondary); text-align: center; padding: 20px;">
-                                            <i data-lucide="image" style="width: 38px; height: 38px; color: #e5c378; opacity: 0.6;"></i>
-                                            <span style="font-size: 0.76rem; color: #d8c7b0;">Aguardando envio da imagem</span>
+                                        <div class="zoom-trigger-hint">
+                                            <i data-lucide="zoom-in" style="width: 14px; height: 14px; color: #e5c378;"></i>
+                                            <span>Toque para Ampliar</span>
                                         </div>
                                     </div>
+                                    <div id="preview-avatar-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-secondary); text-align: center; padding: 20px;">
+                                        <i data-lucide="image" style="width: 38px; height: 38px; color: #e5c378; opacity: 0.6;"></i>
+                                        <span style="font-size: 0.76rem; color: #d8c7b0;">Aguardando envio da imagem</span>
+                                    </div>
+                                </div>
+
+                                <!-- Visualização 2: Ambos os Formatos (Dividido ao meio verticalmente lado a lado no Desktop e Mobile) -->
+                                <div id="preview-dual-container" class="preview-dual-grid" style="display: none;">
+                                    <!-- Coluna Esquerda: Formato Horizontal -->
+                                    <div class="preview-dual-col">
+                                        <span class="preview-format-tag"><i data-lucide="monitor" style="width: 11px; height: 11px;"></i> Horizontal</span>
+                                        <div class="preview-media-frame" style="position: relative; overflow: hidden; border-radius: var(--radius-sm); border: 1.5px solid var(--border-gold); background: #000; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;">
+                                            <div class="preview-zoomable-wrap" id="zoom-wrap-h" onclick="openPreviewZoomModal('h')">
+                                                <img src="" alt="Prévia Horizontal" id="preview-avatar-img-h" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                                <div class="zoom-trigger-hint">
+                                                    <i data-lucide="zoom-in" style="width: 13px; height: 13px; color: #e5c378;"></i>
+                                                    <span>Ampliar</span>
+                                                </div>
+                                            </div>
+                                            <div id="preview-avatar-placeholder-h" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--text-secondary); text-align: center; padding: 10px;">
+                                                <i data-lucide="image" style="width: 26px; height: 26px; color: #e5c378; opacity: 0.6;"></i>
+                                                <span style="font-size: 0.68rem; color: #d8c7b0;">Aguardando Horizontal</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Coluna Direita: Formato Vertical -->
+                                    <div class="preview-dual-col">
+                                        <span class="preview-format-tag"><i data-lucide="smartphone" style="width: 11px; height: 11px;"></i> Vertical</span>
+                                        <div class="preview-media-frame" style="position: relative; overflow: hidden; border-radius: var(--radius-sm); border: 1.5px solid var(--border-gold); background: #000; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;">
+                                            <div class="preview-zoomable-wrap" id="zoom-wrap-v" onclick="openPreviewZoomModal('v')">
+                                                <img src="" alt="Prévia Vertical" id="preview-avatar-img-v" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                                <div class="zoom-trigger-hint">
+                                                    <i data-lucide="zoom-in" style="width: 13px; height: 13px; color: #e5c378;"></i>
+                                                    <span>Ampliar</span>
+                                                </div>
+                                            </div>
+                                            <div id="preview-avatar-placeholder-v" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--text-secondary); text-align: center; padding: 10px;">
+                                                <i data-lucide="image" style="width: 26px; height: 26px; color: #e5c378; opacity: 0.6;"></i>
+                                                <span style="font-size: 0.68rem; color: #d8c7b0;">Aguardando Vertical</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- Ações de Aprovação e Reprovação da Imagem -->
                                 <div class="photo-actions-container" style="margin-top: 6px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
@@ -3698,35 +4138,41 @@
     </div>
 
     <!-- ================= MODAL DE BLOQUEIO INFORMATIVO: AGUARDANDO PRODUÇÃO DA EQUIPE ================= -->
-    <div id="modal-aguardando-equipe" style="position: fixed; inset: 0; background-color: #050302; background-image: radial-gradient(circle at 50% 0%, rgba(197, 160, 89, 0.12) 0%, transparent 60%), radial-gradient(circle at 80% 100%, rgba(197, 160, 89, 0.08) 0%, transparent 50%), linear-gradient(to bottom, rgba(5, 3, 2, 0.96) 0%, rgba(10, 6, 4, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 1000100; display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;">
-        <div style="width: 100%; max-width: 860px; height: calc(100vh - 32px); max-height: calc(100vh - 32px); background: rgba(14, 9, 6, 0.94); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: 10px; padding: clamp(24px, 3.8vh, 38px) clamp(20px, 3.2vw, 38px) clamp(16px, 2.2vh, 24px); box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 195, 120, 0.18); backdrop-filter: blur(16px); display: flex; flex-direction: column; justify-content: space-between; gap: clamp(10px, 1.6vh, 16px); box-sizing: border-box; position: relative; overflow: hidden; text-align: center; z-index: 1000101;">
+    <div id="modal-aguardando-equipe" class="waiting-state-blocked">
+        <div class="waiting-modal-aura"></div>
+        <div class="waiting-modal-card">
             
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-bottom: none; margin-top: clamp(6px, 1.2vh, 14px); padding-bottom: clamp(4px, 0.8vh, 8px); width: 100%; flex-shrink: 0;">
-                <img src="logo.png" alt="Reviva Memories" style="height: clamp(50px, 7.2vh, 68px); width: auto; margin: 0 auto 12px auto; display: block; filter: drop-shadow(0 2px 14px rgba(0,0,0,0.9));">
-                <span id="waiting-modal-badge" style="display: none;"></span>
-                <h3 id="waiting-modal-title" style="font-family: var(--font-serif); font-size: clamp(1.22rem, 1.65vw + 0.3vh, 1.58rem); color: var(--gold-bright); letter-spacing: 1px; margin-top: 4px; margin-bottom: 0; font-weight: 600;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-top: clamp(4px, 0.9vh, 10px); width: 100%; flex-shrink: 0;">
+                <img src="logo.png" alt="Reviva Memories" style="height: clamp(44px, 6.2vh, 60px); width: auto; margin: 0 auto 8px auto; display: block; filter: drop-shadow(0 2px 14px rgba(0,0,0,0.9));">
+                <span id="waiting-modal-badge" class="waiting-modal-badge">
+                    <i data-lucide="lock" style="width: 14px; height: 14px;"></i> PRODUÇÃO EM ANDAMENTO
+                </span>
+                <h3 id="waiting-modal-title" class="waiting-modal-title">
                     Sua homenagem está sendo lapidada com todo o cuidado...
                 </h3>
+                <div class="waiting-modal-divider">
+                    <span class="waiting-modal-diamond">❖</span>
+                </div>
             </div>
 
-            <!-- Grade dos 4 Tópicos Informativos (Melhor distribuídos no espaço central) -->
-            <div id="waiting-modal-body" style="background: transparent; border: none; padding: clamp(4px, 1vh, 12px) 0; margin: 0; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; gap: clamp(8px, 1.6vh, 16px); overflow: hidden;">
+            <!-- Grade dos 4 Tópicos Informativos -->
+            <div id="waiting-modal-body" class="waiting-modal-body">
                 <!-- Preenchido dinamicamente via JS com os 4 tópicos -->
             </div>
 
-            <!-- Status com Indicador Pulsante em Ouro (Sem contorno) -->
-            <div id="waiting-modal-status-box" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: transparent; border: none; padding: clamp(4px, 0.8vh, 8px) 0; flex-shrink: 0;">
-                <span class="waiting-pulse-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #e5c378; box-shadow: 0 0 12px rgba(229, 195, 120, 0.85); flex-shrink: 0;"></span>
-                <span id="waiting-modal-status-text" style="font-size: clamp(0.74rem, 0.82vw, 0.82rem); font-weight: 600; color: var(--gold-bright); letter-spacing: 0.4px;">
-                    Status: ETAPA 4 EM PRODUÇÃO.
-                </span>
-            </div>
+            <!-- Botões de Ação Dinâmicos Lado a Lado -->
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; width: 100%;">
+                <div class="waiting-actions-row">
+                    <!-- Botão 1: SAIR DO PAINEL para index.html -->
+                    <button type="button" id="btn-exit-waiting-modal" class="waiting-action-btn btn-exit-panel" onclick="exitPanelToHome()">
+                        <i data-lucide="log-out" style="width: 15px; height: 15px;"></i> SAIR DO PAINEL
+                    </button>
 
-            <!-- Botão de Ação no Padrão Ouro do Termo de Responsabilidade -->
-            <div style="display: flex; flex-direction: column; flex-shrink: 0;">
-                <button type="button" id="btn-close-waiting-modal" onclick="closeWaitingTeamModal()" style="width: 100%; height: clamp(42px, 5.4vh, 48px); background: linear-gradient(135deg, #d4af37 0%, #aa771c 100%); border: 1px solid var(--gold-bright); border-radius: var(--radius-sm); color: #050302; font-family: var(--font-sans); font-size: clamp(0.78rem, 0.88vw, 0.86rem); font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 18px rgba(212, 175, 55, 0.4); transition: all 0.3s ease;">
-                    ENTENDI, AGUARDAR PRODUÇÃO
-                </button>
+                    <!-- Botão 2: Quando LIBERADO (Verde) -> AVANÇAR PARA A ETAPA -->
+                    <button type="button" id="btn-proceed-waiting-modal" class="waiting-action-btn btn-proceed-stage" onclick="proceedFromWaitingModal()" style="display: none;">
+                        <i data-lucide="arrow-right" style="width: 15px; height: 15px;"></i> AVANÇAR PARA AS PRÉVIAS
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -3735,6 +4181,50 @@
         <button type="button" id="btn-simulate-team-delivery" onclick="simulateTeamDelivery()" style="display: none; position: fixed; bottom: 12px; right: 12px; z-index: 1000102; padding: 6px 12px; background: rgba(14, 165, 233, 0.2); border: 1px dashed rgba(14, 165, 233, 0.6); border-radius: 20px; color: #38bdf8; font-size: 0.66rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(8px); opacity: 0.8; transition: opacity 0.2s ease;">
             ⚡ Liberar Envio (Modo Teste)
         </button>
+    </div>
+
+    <!-- ================= MODAL / LIGHTBOX DE ZOOM EM TELA CHEIA PARA AS PRÉVIAS (ETAPA 4) ================= -->
+    <div id="modal-zoom-previa" style="position: fixed; inset: 0; background-color: rgba(5, 3, 2, 0.96); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 1000200; display: none; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box;">
+        <div style="position: relative; width: 100%; max-width: 960px; max-height: calc(100vh - 24px); height: calc(100vh - 24px); background: rgba(14, 9, 6, 0.96); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: var(--radius-md); box-shadow: 0 0 60px rgba(0, 0, 0, 0.98), 0 0 30px rgba(229, 195, 120, 0.2); display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box;">
+            
+            <!-- Topo do Modal de Zoom -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid rgba(197, 160, 89, 0.25); flex-shrink: 0; background: rgba(8, 5, 3, 0.8);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="zoom-in" style="width: 16px; height: 16px; color: #e5c378;"></i>
+                    <span id="zoom-modal-title" style="font-family: var(--font-serif); font-size: 0.95rem; color: var(--gold-bright); letter-spacing: 0.5px; font-weight: 700;">
+                        Visualização em Alta Definição
+                    </span>
+                    <span id="zoom-modal-format-badge" style="font-size: 0.65rem; color: #e5c378; background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 4px; padding: 1px 6px; font-weight: 600; text-transform: uppercase;">
+                        Horizontal
+                    </span>
+                </div>
+                <button type="button" onclick="closePreviewZoomModal()" style="background: rgba(197, 160, 89, 0.12); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 50%; width: 30px; height: 30px; color: #fcebd0; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">✕</button>
+            </div>
+
+            <!-- Área Central da Imagem em Alta Resolução -->
+            <div style="flex: 1; min-height: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 8px;">
+                <img id="zoom-modal-img" src="" alt="Prévia em Alta Resolução" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; box-shadow: 0 4px 30px rgba(0,0,0,0.9);">
+            </div>
+
+            <!-- Rodapé de Ações Rápidas: Permite Aprovar ou Reprovar Diretamente do Modal -->
+            <div style="padding: 10px 16px; border-top: 1px solid rgba(197, 160, 89, 0.25); background: rgba(8, 5, 3, 0.85); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-shrink: 0; flex-wrap: wrap;">
+                <span style="font-size: 0.72rem; color: var(--text-secondary);">
+                    Avalie os detalhes fisionômicos e a iluminação da prévia restaurada.
+                </span>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="button" class="btn btn-secondary" onclick="closePreviewZoomModal()" style="height: 32px !important; font-size: 0.74rem !important; padding: 0 14px !important;">
+                        VOLTAR À COMPARAÇÃO
+                    </button>
+                    <button type="button" class="btn btn-decision-reject" onclick="handleZoomRejectPhoto()" style="height: 32px !important; font-size: 0.74rem !important; padding: 0 14px !important;">
+                        REPROVAR
+                    </button>
+                    <button type="button" class="btn btn-decision-approve" onclick="handleZoomApprovePhoto()" style="height: 32px !important; font-size: 0.74rem !important; padding: 0 14px !important;">
+                        APROVAR IMAGEM ✓
+                    </button>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <!-- Auto-Reload Nativo Universal para Desenvolvimento Local -->

@@ -111,11 +111,34 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // Endpoint para zerar todos os pedidos e limpar histórico anterior
+    if (pathname === '/api/asaas/purge-orders' && (req.method === 'POST' || req.method === 'GET')) {
+        try {
+            const purgeFile = path.join(ROOT, '.purged_orders_timestamp');
+            fs.writeFileSync(purgeFile, Date.now().toString(), 'utf8');
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: true, message: 'Todos os pedidos e contadores foram zerados com sucesso.' }));
+        } catch (err) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: false, error: err?.message || err }));
+        }
+        return;
+    }
+
     if (pathname === '/api/asaas/orders' && req.method === 'GET') {
         (async () => {
             try {
                 const asaas = require('./asaas_service.js');
-                const orders = await asaas.listPayments(20);
+                let orders = await asaas.listPayments(20);
+                
+                // Se o ambiente foi purgado/zerado, oculta os pedidos anteriores ao reset
+                const purgeFile = path.join(ROOT, '.purged_orders_timestamp');
+                if (fs.existsSync(purgeFile)) {
+                    const purgeData = JSON.parse(fs.readFileSync(purgeFile, 'utf8') || '{}');
+                    const purgedIds = new Set(purgeData.purgedIds || []);
+                    orders = orders.filter(o => !purgedIds.has(o.id));
+                }
+
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: true, orders }));
             } catch (err) {
