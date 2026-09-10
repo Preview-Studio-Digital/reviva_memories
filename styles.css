@@ -585,49 +585,49 @@ body.navbar-compact .navbar-menu-pill-btn {
     .nav-links a:nth-child(7) { transition-delay: 0.28s !important; }
     .nav-links a:nth-child(8) { transition-delay: 0.32s !important; }
 
-    /* Quando compactado (fora do slide 1): correm em direção à direita com fade out em cascata */
+    /* Quando compactado (fora do slide 1): correm em direção à direita com fade out suave */
     body.navbar-compact:not(.menu-revealed) .nav-links a {
         opacity: 0 !important;
         transform: translateX(45px) !important;
         pointer-events: none !important;
+        transition: opacity 0.25s cubic-bezier(0.25, 1, 0.5, 1), transform 0.25s cubic-bezier(0.25, 1, 0.5, 1) !important;
+        transition-delay: 0s !important;
     }
-
-    /* Cascata de saída para a direita (os da direita chegam/somem primeiro ou fluem em direção ao ponto final) */
-    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(8) { transition-delay: 0.00s !important; }
-    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(7) { transition-delay: 0.04s !important; }
-    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(6) { transition-delay: 0.08s !important; }
-    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(5) { transition-delay: 0.12s !important; }
-    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(4) { transition-delay: 0.16s !important; }
-    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(3) { transition-delay: 0.20s !important; }
-    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(2) { transition-delay: 0.24s !important; }
-    body.navbar-compact:not(.menu-revealed) .nav-links a:nth-child(1) { transition-delay: 0.28s !important; }
 
     /* Wrapper do menu flutuante / esteira */
     .nav-links-wrapper {
         display: flex;
         align-items: center;
-        background: transparent;
-        border: 1px solid transparent;
-        border-radius: 28px;
-        padding: 6px 0;
-        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0;
+        box-shadow: none !important;
+        padding: 0 !important;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
         z-index: 200010;
         transform: translateX(0); /* mantém na posição padrão do flex */
+        pointer-events: none;
     }
 
-    /* AO PASSAR O MOUSE (HOVER) OU CLICAR NO MENU (ACTIVE): ESTEIRA HORIZONTAL SE ABRE (SEM FUNDO NEM CONTORNO) */
+    /* No slide inicial (não compactado), permite interação com os links */
+    body:not(.navbar-compact) .nav-links-wrapper {
+        pointer-events: auto !important;
+    }
+
+    /* AO PASSAR O MOUSE (HOVER) OU CLICAR NO MENU (ACTIVE): ESTEIRA HORIZONTAL SE ABRE (SEM NENHUM FUNDO OU CONTORNO) */
     body.navbar-compact.menu-revealed .nav-links-wrapper {
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        padding: 6px 0 !important;
+        padding: 0 !important;
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
+        pointer-events: auto !important;
         /* Afasta os links suavemente para a esquerda para dar espaço ao botão MENU */
         transform: translateX(-110px) !important;
     }
 
-    /* Remove nav-container:hover trigger from links */
+    /* Links visíveis e interativos quando o menu está revelado */
     body.navbar-compact.menu-revealed .nav-links a {
         opacity: 1 !important;
         transform: translateX(0) !important;
@@ -635,19 +635,26 @@ body.navbar-compact .navbar-menu-pill-btn {
         transition-delay: 0s !important;
     }
 
-    /* DESFOQUE CINEMATOGRÁFICO DO SITE QUANDO A ESTEIRA DO MENU ESTIVER ABERTA */
+    /* ESCURECIMENTO E DESFOQUE CINEMATOGRÁFICO DO SITE QUANDO O MENU ESTIVER ABERTO (IGUAL AO SLIDE 1) */
     body.navbar-compact.menu-revealed .mobile-menu-backdrop {
         display: block !important;
         opacity: 1 !important;
-        backdrop-filter: blur(10px) brightness(0.6) !important;
-        -webkit-backdrop-filter: blur(10px) brightness(0.6) !important;
+        background: rgba(0, 0, 0, 0.82) !important;
+        backdrop-filter: blur(12px) brightness(0.35) !important;
+        -webkit-backdrop-filter: blur(12px) brightness(0.35) !important;
         z-index: 199990 !important;
         pointer-events: none !important;
+        transition: opacity 0.4s ease, background 0.4s ease !important;
     }
 
     body.navbar-compact.menu-revealed section {
-        filter: blur(4px) brightness(0.75);
-        transition: filter 0.35s ease;
+        filter: blur(5px) brightness(0.4) !important;
+        transition: filter 0.4s ease !important;
+    }
+
+    body.navbar-compact.menu-revealed::before {
+        opacity: 0.35 !important;
+        transition: opacity 0.4s ease !important;
     }
 }
 
