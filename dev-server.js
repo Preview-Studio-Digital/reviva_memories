@@ -23,6 +23,58 @@ const MIME_TYPES = {
 
 const sseClients = new Set();
 
+// =========================================================================
+// CLOUDFLARE D1 & R2 HELPERS
+// =========================================================================
+let cloudflareCfg = null;
+try {
+    cloudflareCfg = require('./config.local.js');
+} catch(e) {}
+
+const https = require('https');
+
+function d1Query(sql, params = []) {
+    return new Promise((resolve, reject) => {
+        if (!cloudflareCfg || !cloudflareCfg.CLOUDFLARE_API_TOKEN) {
+            return resolve({ success: false, reason: 'No Cloudflare credentials' });
+        }
+        const payload = JSON.stringify({ sql, params });
+        const options = {
+            hostname: 'api.cloudflare.com',
+            path: `/client/v4/accounts/${cloudflareCfg.CLOUDFLARE_ACCOUNT_ID}/d1/database/${cloudflareCfg.CLOUDFLARE_D1_DATABASE_ID}/query`,
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${cloudflareCfg.CLOUDFLARE_API_TOKEN}`,
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(payload)
+            }
+        };
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    const parsed = JSON.parse(data);
+                    if (parsed.success) {
+                        resolve({ success: true, result: parsed.result });
+                    } else {
+                        console.error('❌ [Cloudflare D1 Query Error]:', parsed.errors);
+                        resolve({ success: false, errors: parsed.errors });
+                    }
+                } catch(err) {
+                    resolve({ success: false, error: err.message });
+                }
+            });
+        });
+        req.on('error', err => {
+            console.error('❌ [Cloudflare D1 Network Error]:', err);
+            resolve({ success: false, error: err.message });
+        });
+        req.write(payload);
+        req.end();
+    });
+}
+
 const server = http.createServer((req, res) => {
     const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     let pathname = decodeURIComponent(parsedUrl.pathname);
@@ -64,6 +116,22 @@ const server = http.createServer((req, res) => {
                     planName: data.planName,
                     description: data.description
                 });
+
+                // Persistir Pedido e Perfil no Cloudflare D1 em tempo real
+                d1Query(
+                    `INSERT INTO profiles (id, full_name, email, phone) 
+                     VALUES (?, ?, ?, ?) 
+                     ON CONFLICT(id) DO UPDATE SET full_name=excluded.full_name, phone=excluded.phone`,
+                    [data.cpf || customerId, data.name, data.email, data.phone]
+                ).catch(e => console.error('Erro profile D1:', e));
+
+                d1Query(
+                    `INSERT INTO orders (id, user_id, customer_name, customer_email, customer_cpf, plan_name, status, payment_id, amount) 
+                     VALUES (?, ?, ?, ?, ?, ?, 'pending_pix', ?, ?) 
+                     ON CONFLICT(id) DO UPDATE SET status='pending_pix', payment_id=excluded.payment_id`,
+                    [data.orderId, data.cpf || customerId, data.name, data.email, data.cpf, data.planName, pixResult.paymentId, data.value]
+                ).catch(e => console.error('Erro order D1:', e));
+
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: true, ...pixResult }));
             } catch (err) {
@@ -82,6 +150,15 @@ const server = http.createServer((req, res) => {
             try {
                 const asaas = require('./asaas_service.js');
                 const statusResult = await asaas.checkPaymentStatus(paymentId);
+
+                // Se o pagamento foi confirmado, atualiza no Cloudflare D1
+                if (statusResult && (statusResult.status === 'RECEIVED' || statusResult.status === 'CONFIRMED')) {
+                    d1Query(
+                        `UPDATE orders SET status = 'paid' WHERE payment_id = ?`,
+                        [paymentId]
+                    ).catch(e => console.error('Erro update status D1:', e));
+                }
+
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: true, ...statusResult }));
             } catch (err) {
@@ -177,6 +254,77 @@ const server = http.createServer((req, res) => {
                 console.error('❌ [Credit Card Dev Server Error]:', err);
                 res.writeHead(500, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: false, error: err?.message || err }));
+            }
+        });
+        return;
+    }
+
+    // =========================================================================
+    // ENDPOINTS CLOUDFLARE (D1 QUERY & R2 UPLOADS)
+    // =========================================================================
+    if (pathname === '/api/cloudflare/d1' && req.method === 'POST') {
+        let bodyStr = '';
+        req.on('data', chunk => bodyStr += chunk);
+        req.on('end', async () => {
+            try {
+                const data = JSON.parse(bodyStr);
+                const queryRes = await d1Query(data.sql, data.params || []);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(queryRes));
+            } catch(err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: err.message }));
+            }
+        });
+        return;
+    }
+
+    if (pathname === '/api/cloudflare/upload-r2' && req.method === 'POST') {
+        let chunks = [];
+        req.on('data', chunk => chunks.push(chunk));
+        req.on('end', async () => {
+            try {
+                const buffer = Buffer.concat(chunks);
+                const fileName = req.headers['x-file-name'] || ('upload_' + Date.now());
+                const contentType = req.headers['content-type'] || 'application/octet-stream';
+                
+                if (!cloudflareCfg || !cloudflareCfg.CLOUDFLARE_API_TOKEN) {
+                    throw new Error('Credenciais Cloudflare não configuradas');
+                }
+
+                // Upload direto para o Cloudflare R2
+                const r2Req = https.request({
+                    hostname: 'api.cloudflare.com',
+                    path: `/client/v4/accounts/${cloudflareCfg.CLOUDFLARE_ACCOUNT_ID}/r2/buckets/${cloudflareCfg.CLOUDFLARE_R2_BUCKET}/objects/${encodeURIComponent(fileName)}`,
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${cloudflareCfg.CLOUDFLARE_API_TOKEN}`,
+                        'Content-Type': contentType,
+                        'Content-Length': buffer.length
+                    }
+                }, (r2Res) => {
+                    let r2Data = '';
+                    r2Res.on('data', c => r2Data += c);
+                    r2Res.on('end', () => {
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ 
+                            success: true, 
+                            fileName,
+                            publicUrl: `/r2/${fileName}` 
+                        }));
+                    });
+                });
+
+                r2Req.on('error', (err) => {
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, error: err.message }));
+                });
+
+                r2Req.write(buffer);
+                r2Req.end();
+            } catch(err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: err.message }));
             }
         });
         return;
