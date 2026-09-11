@@ -5,3 +5,5 @@ config.local.js
 .env
 test_img/
 .purged_orders_timestamp
+wrangler.toml
+.assetsignore
