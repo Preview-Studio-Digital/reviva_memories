@@ -3245,15 +3245,8 @@
                 console.warn("sha256 error:", err);
             }
 
-            // Senhas aceitas: padrão oficial, aliases comuns e hash criptográfico mestre
-            const validPasswords = [
-                "reviva2026", "admin", "admin2026", "reviva", "123456", "1234",
-                "master", "revivamemories", "producao", "estudio"
-            ];
-
-            const isValid = (enteredHash && enteredHash === MASTER_PASS_HASH) || 
-                            validPasswords.includes(cleanVal) || 
-                            validPasswords.includes(lowerVal);
+            // Senha única e exclusiva do sistema
+            const isValid = (rawVal === "reviva2026") || (enteredHash === "251c1938a3fe060c1b7a14fcd81d4515e5e778cd5cedfae6d033b756900d8ff2");
 
             if (isValid) {
                 sessionStorage.setItem("reviva_admin_auth", "true");
@@ -3656,6 +3649,19 @@
                     feedback: order.feedback || null
                 };
             } else {
+                // Se o pedido foi confirmado no Asaas/checkout mas o CRM local ainda estava como 'aguardando_pagamento', avança para 'pagamento_confirmado'
+                if (order.isPaid && data.stage === 'aguardando_pagamento') {
+                    data.stage = 'pagamento_confirmado';
+                    if (!Array.isArray(data.history)) data.history = [];
+                    data.history.unshift({
+                        timestamp: new Date().toISOString(),
+                        dateFormatted: new Date().toLocaleString('pt-BR'),
+                        event: `Pagamento confirmado (${order.valueFormatted || 'PIX/Cartão'})`,
+                        type: 'system'
+                    });
+                    saveCrmOrderData(order.id, data);
+                }
+
                 // Assegura que o formato nos dados do CRM acompanhe o formato real registrado no pedido se ele tiver order.format
                 if (order.format && data.format !== order.format) {
                     data.format = order.format;

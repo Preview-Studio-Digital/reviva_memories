@@ -175,6 +175,38 @@ export default {
             }
         }
 
+        // 3.1 ENDPOINT: /api/asaas/orders (Consulta pedidos recentes no Asaas para o Painel Admin)
+        if (pathname === '/api/asaas/orders' && request.method === 'GET') {
+            try {
+                const paymentsData = await asaasFetch('/v3/payments?limit=50&order=desc');
+                const list = (paymentsData && paymentsData.data) ? paymentsData.data : [];
+                
+                const formattedOrders = list.map(p => {
+                    const isPaid = p.status === 'RECEIVED' || p.status === 'CONFIRMED' || p.status === 'RECEIVED_IN_CASH';
+                    return {
+                        id: p.externalReference || p.id,
+                        orderId: p.externalReference || p.id,
+                        paymentId: p.id,
+                        clientName: p.customerName || 'Cliente Reviva',
+                        clientEmail: '',
+                        clientPhone: '',
+                        clientCpf: '',
+                        description: p.description || 'Homenagem Reviva Memories',
+                        value: p.value,
+                        valueFormatted: `R$ ${Number(p.value).toFixed(2).replace('.', ',')}`,
+                        isPaid: isPaid,
+                        status: p.status,
+                        statusLabel: isPaid ? 'PAGO / CONFIRMADO' : 'AGUARDANDO PAGTO',
+                        dateCreated: p.dateCreated || new Date().toISOString()
+                    };
+                });
+
+                return new Response(JSON.stringify({ success: true, orders: formattedOrders }), { status: 200, headers: corsHeaders });
+            } catch (err) {
+                return new Response(JSON.stringify({ success: false, orders: [], error: err?.message || 'Erro ao consultar pedidos' }), { status: 200, headers: corsHeaders });
+            }
+        }
+
         // 4. ENDPOINT: /api/asaas/pay-credit-card
         if (pathname === '/api/asaas/pay-credit-card' && request.method === 'POST') {
             try {
@@ -272,10 +304,14 @@ export default {
 
         // 5. Se não for endpoint de API, entrega os arquivos estáticos do site (HTML, CSS, imagens, vídeos)
         if (env.ASSETS) {
-            // Suporte a rotas limpas: /painel -> painel.html
+            // Suporte a rotas limpas: /painel -> painel.html e /admin -> admin.html
             if (pathname === '/painel') {
                 const painelUrl = new URL('/painel.html', request.url);
                 return env.ASSETS.fetch(new Request(painelUrl, request));
+            }
+            if (pathname === '/admin.html') {
+                const adminCleanUrl = new URL('/admin', request.url);
+                return env.ASSETS.fetch(new Request(adminCleanUrl, request));
             }
             return env.ASSETS.fetch(request);
         }

@@ -2459,6 +2459,49 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone }));
         localStorage.removeItem('reviva_legal_term');
 
+        // Atualiza a lista completa de pedidos para refletir o status PAGO
+        try {
+            let ordersList = JSON.parse(localStorage.getItem('reviva_orders_list') || '[]');
+            ordersList = ordersList.map(o => {
+                if (o.order_id === orderId || o.id === orderId) {
+                    return { ...o, ...orderData, status: 'paid', isPaid: true };
+                }
+                return o;
+            });
+            if (!ordersList.some(o => o.order_id === orderId || o.id === orderId)) {
+                ordersList.unshift(orderData);
+            }
+            localStorage.setItem('reviva_orders_list', JSON.stringify(ordersList));
+        } catch(e) {}
+
+        // Atualiza o CRM do Kanban para mover imediatamente para 'pagamento_confirmado'
+        try {
+            const crmKey = `reviva_crm_order_${orderId}`;
+            let crmData = JSON.parse(localStorage.getItem(crmKey) || 'null');
+            if (!crmData) {
+                crmData = {
+                    stage: 'pagamento_confirmado',
+                    secondsWorked: 0,
+                    history: [{
+                        timestamp: new Date().toISOString(),
+                        dateFormatted: new Date().toLocaleString('pt-BR'),
+                        event: `Pagamento PIX confirmado via Asaas (${orderData.total_price})`,
+                        type: 'system'
+                    }]
+                };
+            } else {
+                crmData.stage = 'pagamento_confirmado';
+                if (!Array.isArray(crmData.history)) crmData.history = [];
+                crmData.history.unshift({
+                    timestamp: new Date().toISOString(),
+                    dateFormatted: new Date().toLocaleString('pt-BR'),
+                    event: `Pagamento PIX confirmado via Asaas (${orderData.total_price})`,
+                    type: 'system'
+                });
+            }
+            localStorage.setItem(crmKey, JSON.stringify(crmData));
+        } catch(e) {}
+
         let fullState = {};
         try {
             const raw = localStorage.getItem('reviva_full_session_state');
