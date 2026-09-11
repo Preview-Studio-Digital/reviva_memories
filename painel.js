@@ -1430,6 +1430,23 @@ REGRA FUNDAMENTAL DA ENTREVISTA — UMA ÚNICA PERGUNTA POR VEZ (INVIOLÁVEL):
   1. Uma breve frase sóbria e acolhedora reagindo ao que o cliente acabou de dizer.
   2. EXATAMENTE UMA pergunta objetiva, clara e direta para avançar um passo na entrevista.
 
+DIRETRIZES DE SEGURANÇA, ÉTICA E MODERAÇÃO RIGOROSA:
+- É TERMINANTEMENTE PROIBIDO gerar, apoiar ou permitir roteiros ou conteúdos com:
+  * Discurso de ódio, discriminação, racismo, preconceito, injúria ou difamação.
+  * Indução, apologia ou incentivo a crimes, violência, atos ilícitos ou desvirtuosos.
+  * Vingança, humilhação, teor pornográfico, obsceno ou desrespeito à dignidade humana.
+- Caso o cliente solicite ou mencione algo dessa natureza, recuse com firmeza, serenidade e cortesia:
+  "A Reviva Memories é dedicada a eternizar memórias de afeto, respeito e celebração à vida. Por diretrizes éticas inegociáveis, não produzimos mensagens que contenham ofensas, preconceito, incitação a crimes ou atos desvirtuosos. Caso queira, podemos direcionar as palavras para recordar momentos de carinho e paz."
+
+GESTÃO DE IMPACIÊNCIA, IRRITAÇÃO OU HOSTILIDADE DO CLIENTE:
+- Se o cliente demonstrar pressa, rudeza, irritação, rispidez, impaciência ou incompreensão durante a entrevista:
+  1. NUNCA reaja de forma defensiva, sarcástica ou impaciente.
+  2. Mantenha a serenidade, peça sinceras desculpas por qualquer mal-entendido ou desconforto causado.
+  3. Sugira com tranquilidade pausar o atendimento e recomeçar mais tarde, no momento em que ele estiver mais confortável.
+  4. Como alternativa e acolhimento humano, ofereça o contato direto com a equipe humana de atendimento via WhatsApp pelo número (31) 99570-1447 para assistência personalizada e dedicada.
+  * Exemplo de resposta para cliente irritado/impaciente:
+    "Peço sinceras desculpas por qualquer desconforto ou mal-entendido, ${clientFirstName}. Nosso desejo é que este momento seja leve e acolhedor. Se preferir, podemos pausar esta conversa para continuar com mais tranquilidade mais tarde. E se desejar um atendimento humano personalizado de imediato, nossa equipe está pronta para atendê-lo(a) diretamente pelo WhatsApp: (31) 99570-1447."
+
 PLANO CONTRATADO:
 - Plano: ${currentPlan.name} (${currentPlan.durationMinutes} Minuto${currentPlan.durationMinutes > 1 ? 's' : ''})
 - Meta de Palavras do Roteiro: ${currentPlan.targetWords} palavras (COMPROMISSO INEGOCIÁVEL: o roteiro final deve ter volume suficiente para preencher com folga a minutagem da locução, nunca menos de 120 palavras para 1 min, 240 palavras para 2 min, 360 palavras para 3 min).
@@ -2220,6 +2237,31 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
     function generateSmartInterviewResponse(userText) {
         const text = userText.trim();
         const lower = text.toLowerCase();
+
+        // 0. Moderação Ética e Diretriz de Conteúdo Inadequado (Ódio, Crimes, Ofensas)
+        const unsafePatterns = [
+            'discurso de ódio', 'ódio', 'odeio', 'preconceito', 'racismo', 'racista', 'homofobia', 'homofóbico', 
+            'xingar', 'ofensa', 'ofender', 'matar', 'morte a', 'crime', 'roubo', 'estelionato', 'bater nele', 
+            'vingança', 'desgraça', 'desgraçado', 'escoria', 'vagabundo', 'canalha', 'safado', 'prostituta'
+        ];
+        if (unsafePatterns.some(pat => lower.includes(pat))) {
+            return {
+                chat: `A Reviva Memories tem como missão inegociável celebrar a vida, o afeto e o respeito à memória humana.<br><br>Por diretrizes éticas e legais estritas, não produzimos roteiros contendo acusações, palavras de ódio, discriminação, incentivo à violência ou atos desvirtuosos.<br><br>Gostaria de convidar você a redirecionar a mensagem para lembranças positivas, de carinho e paz. Como podemos recomeçar?`
+            };
+        }
+
+        // 0.1 Gestão de Rispidez, Impaciência, Irritação ou Hostilidade do Cliente
+        const hostilePatterns = [
+            'estou sem paciencia', 'sem paciência', 'sem paciencia', 'que saco', 'palhaçada', 'perda de tempo',
+            'droga', 'idiota', 'burro', 'incompetente', 'atendimento lixo', 'atendimento péssimo', 'pessimo',
+            'irritado', 'irritada', 'bravo', 'brava', 'com raiva', 'raiva', 'demora', 'lento demais', 'inferno',
+            'vai se foder', 'vsf', 'puta que pariu', 'pqp', 'merda', 'caralho', 'cala a boca', 'cala boca'
+        ];
+        if (hostilePatterns.some(pat => lower.includes(pat))) {
+            return {
+                chat: `Peço sinceras desculpas por qualquer desconforto, frustração ou mal-entendido, ${clientFirstName}.<br><br>Nosso propósito é que sua experiência seja o mais acolhedora e tranquila possível. Se o momento estiver difícil, podemos perfeitamente pausar a entrevista agora e recomeçar mais tarde, quando for mais oportuno.<br><br>Caso prefira um atendimento humano personalizado e imediato, nossa equipe está inteiramente à sua disposição pelo WhatsApp oficial: <a href="https://wa.me/5531995701447" target="_blank" style="color:#e5c378; text-decoration:underline; font-weight:600;">(31) 99570-1447</a>. Como prefere proceder?`
+            };
+        }
 
         // 1. Tratamento de Correções do Usuário (ex: "É Artur o nome dele", "Escreveu errado", "O nome correto é...")
         if (lower.includes('nome dele') || lower.includes('nome dela') || lower.includes('o nome é') || lower.includes('escreveu') || lower.includes('errou') || lower.includes('correto') || lower.includes('artur')) {
@@ -4068,14 +4110,13 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
     }
 
     // Reabertura consistente do bloqueio se o cliente recarregar a página ou relogar com produção pendente
-    const pendingWaiting = localStorage.getItem('reviva_waiting_active');
-    const maxReachedWaitingCheck = parseInt(localStorage.getItem('reviva_max_step_reached')) || currentStep || 1;
+    const activeWaitingState = localStorage.getItem('reviva_waiting_active');
 
     let targetWaitingToOpen = null;
-    if (pendingWaiting) {
-        targetWaitingToOpen = (!isNaN(parseInt(pendingWaiting)) && pendingWaiting !== 'revisao') 
-            ? parseInt(pendingWaiting) 
-            : pendingWaiting;
+    if (activeWaitingState) {
+        targetWaitingToOpen = (!isNaN(parseInt(activeWaitingState)) && activeWaitingState !== 'revisao') 
+            ? parseInt(activeWaitingState) 
+            : activeWaitingState;
     } else if (maxReachedWaitingCheck >= 5 && !isStage5ReadyFromTeam()) {
         targetWaitingToOpen = 5;
     } else if (maxReachedWaitingCheck >= 4 && !isStage4ReadyFromTeam()) {

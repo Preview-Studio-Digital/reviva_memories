@@ -91,6 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 
                 currentIdx = 0;
+                document.body.classList.remove('navbar-compact', 'menu-revealed');
+                const pBtn = document.getElementById('navbarMenuPillBtn');
+                if (pBtn) pBtn.classList.remove('active');
                 
                 // Desativa a classe active de todos os links de navegação
                 document.querySelectorAll('.navbar .nav-links a').forEach(link => {
@@ -283,6 +286,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         const sectionId = entry.target.getAttribute('id');
                         if (sectionId) {
                             updateActiveNavLink(sectionId);
+                        }
+
+                        // A partir do Slide 2 (index > 0): recolhe a esteira e exibe o botão MENU
+                        if (currentIdx > 0) {
+                            document.body.classList.add('navbar-compact');
+                        } else {
+                            document.body.classList.remove('navbar-compact', 'menu-revealed');
                         }
                     }
 
@@ -881,14 +891,53 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Toggle do Menu Hambúrguer Mobile com Overlay de Desfoque
+    // Toggle do Menu Horizontal / Mobile com Overlay de Desfoque
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navbarMenuPillBtn = document.getElementById('navbarMenuPillBtn');
     const navLinks = document.getElementById('navLinks');
+    const navLinksWrapper = document.getElementById('navLinksWrapper');
     const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
+    const siteNavbar = document.getElementById('siteNavbar');
 
-    function closeMobileMenu() {
+    function closeAllMenus() {
         if (navLinks) navLinks.classList.remove('active');
         if (mobileMenuBackdrop) mobileMenuBackdrop.classList.remove('active');
+        if (navbarMenuPillBtn) navbarMenuPillBtn.classList.remove('active');
+        document.body.classList.remove('menu-revealed');
+    }
+
+    function toggleMenuRevealed(e) {
+        if (e) e.stopPropagation();
+        const isRevealed = document.body.classList.toggle('menu-revealed');
+        if (navbarMenuPillBtn) {
+            navbarMenuPillBtn.classList.toggle('active', isRevealed);
+        }
+        if (mobileMenuBackdrop) {
+            mobileMenuBackdrop.classList.toggle('active', isRevealed);
+        }
+    }
+
+    if (navbarMenuPillBtn) {
+        navbarMenuPillBtn.addEventListener('click', toggleMenuRevealed);
+
+        // No Desktop: passar o mouse (hover) abre a esteira e desfoca o fundo suavemente
+        navbarMenuPillBtn.addEventListener('mouseenter', () => {
+            if (document.body.classList.contains('navbar-compact')) {
+                document.body.classList.add('menu-revealed');
+                navbarMenuPillBtn.classList.add('active');
+            }
+        });
+    }
+
+    // Ao afastar o mouse do cabeçalho completo, recolhe a esteira e remove o desfoque
+    if (siteNavbar) {
+        siteNavbar.addEventListener('mouseleave', () => {
+            if (document.body.classList.contains('navbar-compact')) {
+                document.body.classList.remove('menu-revealed');
+                if (navbarMenuPillBtn) navbarMenuPillBtn.classList.remove('active');
+                if (mobileMenuBackdrop) mobileMenuBackdrop.classList.remove('active');
+            }
+        });
     }
 
     if (mobileMenuBtn && navLinks) {
@@ -903,24 +952,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+    }
 
-        // Fechar o menu ao clicar em qualquer opção de seção
+    // Fechar o menu ao clicar em qualquer link de navegação
+    if (navLinks) {
         navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', closeMobileMenu);
-        });
-
-        // Fechar o menu ao clicar no backdrop desfocado
-        if (mobileMenuBackdrop) {
-            mobileMenuBackdrop.addEventListener('click', closeMobileMenu);
-        }
-
-        // Fechar o menu ao clicar fora dele
-        document.addEventListener('click', (e) => {
-            if (!navLinks.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-                closeMobileMenu();
-            }
+            link.addEventListener('click', () => {
+                closeAllMenus();
+            });
         });
     }
+
+    // Fechar ao clicar no backdrop desfocado
+    if (mobileMenuBackdrop) {
+        mobileMenuBackdrop.addEventListener('click', closeAllMenus);
+    }
+
+    // Fechar ao clicar fora
+    document.addEventListener('click', (e) => {
+        if (!siteNavbar.contains(e.target)) {
+            closeAllMenus();
+        }
+    });
 
     // Lógica do Player de Áudio Fixo Minimalista com Shuffle sem Repetição
     const playlist = [

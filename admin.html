@@ -2267,22 +2267,28 @@
             <span style="font-family: var(--font-azonix), 'Azonix', sans-serif; font-size: 1.2rem; letter-spacing: 2px; color: var(--gold-bright); text-transform: uppercase;">LINHA DE PRODUÇÃO</span>
         </div>
 
-        <!-- GRUPO: DASHBOARD - LUPA - SAIR ALINHADO COM A LARGURA DA ÚLTIMA COLUNA (PÓS-VENDA - COLUNA 8) -->
-        <div style="grid-column: 8; display: flex; align-items: center; gap: 5px; width: 100%; box-sizing: border-box;">
+        <!-- GRUPO: DASHBOARD - PLANNER - LUPA - SAIR ALINHADO COM A LARGURA DA ÚLTIMA COLUNA (PÓS-VENDA - COLUNA 8) -->
+        <div style="grid-column: 8; display: flex; align-items: center; gap: 4px; width: 100%; box-sizing: border-box;">
             <!-- 1. DASHBOARD -->
-            <button onclick="openDashboardModal()" class="btn-dashboard-header" title="Abrir Dashboard Executivo" style="flex: 1; min-width: 0; height: 30px; padding: 0 4px; font-size: 0.68rem; justify-content: center; box-sizing: border-box; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                <i data-lucide="bar-chart-3" style="width: 13px; height: 13px; color: var(--gold-bright); flex-shrink: 0;"></i>
+            <button onclick="openDashboardModal()" class="btn-dashboard-header" title="Abrir Dashboard Executivo" style="flex: 1; min-width: 0; height: 30px; padding: 0 4px; font-size: 0.65rem; justify-content: center; box-sizing: border-box; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <i data-lucide="bar-chart-3" style="width: 12px; height: 12px; color: var(--gold-bright); flex-shrink: 0;"></i>
                 <span>Dashboard</span>
             </button>
 
-            <!-- 2. LUPA -->
-            <button id="btn-search-toggle" onclick="toggleSearchBar()" class="btn-dashboard-header" title="Buscar Pedidos" style="width: 30px; height: 30px; min-width: 30px; max-width: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box;">
-                <i data-lucide="search" style="width: 13px; height: 13px; color: var(--gold-bright);"></i>
+            <!-- 2. PLANNER DE LANÇAMENTO -->
+            <a href="planner.html" class="btn-dashboard-header" title="Abrir Planner de Lançamento" style="text-decoration: none; flex: 1; min-width: 0; height: 30px; padding: 0 4px; font-size: 0.65rem; justify-content: center; box-sizing: border-box; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <i data-lucide="calendar" style="width: 12px; height: 12px; color: var(--gold-bright); flex-shrink: 0;"></i>
+                <span>Planner</span>
+            </a>
+
+            <!-- 3. LUPA -->
+            <button id="btn-search-toggle" onclick="toggleSearchBar()" class="btn-dashboard-header" title="Buscar Pedidos" style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box;">
+                <i data-lucide="search" style="width: 12px; height: 12px; color: var(--gold-bright);"></i>
             </button>
 
-            <!-- 3. SAIR -->
-            <button onclick="logoutAdmin()" class="btn-logout-header" title="Sair do Sistema" style="width: 30px; height: 30px; min-width: 30px; max-width: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box;">
-                <i data-lucide="log-out" style="width: 13px; height: 13px;"></i>
+            <!-- 4. SAIR -->
+            <button onclick="logoutAdmin()" class="btn-logout-header" title="Sair do Sistema" style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box;">
+                <i data-lucide="log-out" style="width: 12px; height: 12px;"></i>
             </button>
         </div>
 
