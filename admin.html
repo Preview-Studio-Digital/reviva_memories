@@ -2286,7 +2286,12 @@
                 <i data-lucide="search" style="width: 12px; height: 12px; color: var(--gold-bright);"></i>
             </button>
 
-            <!-- 4. SAIR -->
+            <!-- 4. LIMPAR TODOS OS PEDIDOS (RESET DE TESTES) -->
+            <button onclick="if(confirm('⚠️ LIMPAR TODOS OS PEDIDOS DE TESTE?\n\nEsta ação excluirá todos os pedidos de simulação locais e deixará o painel 100% limpo para novos testes.')) purgeAllOrdersForCleanTest();" class="btn-logout-header" title="Limpar todos os pedidos de teste" style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
+                <i data-lucide="trash-2" style="width: 12px; height: 12px;"></i>
+            </button>
+
+            <!-- 5. SAIR -->
             <button onclick="logoutAdmin()" class="btn-logout-header" title="Sair do Sistema" style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box;">
                 <i data-lucide="log-out" style="width: 12px; height: 12px;"></i>
             </button>
@@ -2425,8 +2430,11 @@
             
             <!-- COLUNA 1: DADOS DO CLIENTE, PEDIDO & BOTÃO DE MÉTRICAS EXCLUSIVAS -->
             <div class="cockpit-panel">
-                <div class="cockpit-panel-title">
+                <div class="cockpit-panel-title" style="display: flex; align-items: center; justify-content: space-between;">
                     <span style="display: flex; align-items: center; gap: 6px;"><i data-lucide="user-check" style="width: 14px; height: 14px; color: var(--gold-primary);"></i> Dossiê do Cliente</span>
+                    <button type="button" id="btn-delete-cockpit-order" onclick="deleteCurrentCockpitOrder()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;" title="Excluir este pedido definitivamente do sistema">
+                        <i data-lucide="trash-2" style="width: 11px; height: 11px;"></i> EXCLUIR PEDIDO
+                    </button>
                 </div>
 
                 <!-- PARTE SUPERIOR (FLEX 2): Alinhado com as Linhas 1 e 2 da Coluna 2 -->
@@ -5061,6 +5069,20 @@
                         }
                     }
 
+                    // Status do Termo de Responsabilidade: exibido com exclusividade no card do pedido
+                    const isTermSigned = isOrderTermSigned(order);
+                    const termoCardBadge = isTermSigned
+                        ? `<div style="display: flex; align-items: center; justify-content: center; margin: 3px 0 1px 0;">
+                             <span style="font-size: 0.62rem; color: #4ade80; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(74, 222, 128, 0.4); border-radius: 4px; padding: 2px 7px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="Termo de Responsabilidade e Consentimento assinado pelo cliente">
+                               <i data-lucide="shield-check" style="width: 11px; height: 11px; color: #4ade80;"></i> Termo Assinado ✓
+                             </span>
+                           </div>`
+                        : `<div style="display: flex; align-items: center; justify-content: center; margin: 3px 0 1px 0;">
+                             <span style="font-size: 0.62rem; color: #facc15; background: rgba(250, 204, 21, 0.10); border: 1px solid rgba(250, 204, 21, 0.35); border-radius: 4px; padding: 2px 7px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="Aguardando assinatura do Termo de Responsabilidade pelo cliente">
+                               <i data-lucide="clock" style="width: 11px; height: 11px; color: #facc15;"></i> Termo Pendente
+                             </span>
+                           </div>`;
+
                     // Tooltip no Hover (Cards Resumidos e Detalhados): Plano - Duração - Formato e Data de Contratação
                     const planTooltipLabel = shortPlan.toLowerCase().startsWith('plano') ? shortPlan : `Plano ${shortPlan}`;
                     const formatTooltipLabel = crmData.format === 'both' ? 'Horizontal + Vertical' : (crmData.format === 'vertical' ? 'Vertical' : 'Horizontal');
@@ -5180,6 +5202,9 @@
                                 <span style="color: var(--text-secondary); font-size: 0.65rem;">•</span>
                                 <strong style="color: var(--gold-primary); font-size: 0.73rem;">${order.valueFormatted}</strong>
                             </div>
+
+                            <!-- LINHA 5.1: STATUS DO TERMO DE RESPONSABILIDADE -->
+                            ${termoCardBadge}
 
                             <!-- LINHA 6: DATA DE CONTRATAÇÃO -->
                             <div class="card-actions-row" style="padding-top: 3px; border-top: 1px solid rgba(197, 160, 89, 0.15); display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -6030,14 +6055,13 @@
             }
         }
 
-        // Helper para obter fotos de um pedido
+        // Helper para obter fotos de um pedido (estritamente isolado pelo ID do pedido)
         function getOrderUploadedPhotos(order) {
             if (!order) return [];
             const keysToTry = [
                 `reviva_client_photos_${order.id}`,
                 order.paymentId ? `reviva_client_photos_${order.paymentId}` : null,
-                order.orderId ? `reviva_client_photos_${order.orderId}` : null,
-                'reviva_client_photos'
+                order.orderId ? `reviva_client_photos_${order.orderId}` : null
             ].filter(Boolean);
 
             for (const k of keysToTry) {
@@ -6053,8 +6077,7 @@
             const stateKeys = [
                 `reviva_order_state_${order.id}`,
                 order.paymentId ? `reviva_order_state_${order.paymentId}` : null,
-                order.orderId ? `reviva_order_state_${order.orderId}` : null,
-                'reviva_full_session_state'
+                order.orderId ? `reviva_order_state_${order.orderId}` : null
             ].filter(Boolean);
 
             for (const sk of stateKeys) {
@@ -6071,14 +6094,13 @@
             return [];
         }
 
-        // Helper para obter áudios de um pedido
+        // Helper para obter áudios de um pedido (estritamente isolado pelo ID do pedido)
         function getOrderUploadedAudios(order) {
             if (!order) return [];
             const keysToTry = [
                 `reviva_client_audio_${order.id}`,
                 order.paymentId ? `reviva_client_audio_${order.paymentId}` : null,
-                order.orderId ? `reviva_client_audio_${order.orderId}` : null,
-                'reviva_client_audio'
+                order.orderId ? `reviva_client_audio_${order.orderId}` : null
             ].filter(Boolean);
 
             for (const k of keysToTry) {
@@ -6094,8 +6116,7 @@
             const stateKeys = [
                 `reviva_order_state_${order.id}`,
                 order.paymentId ? `reviva_order_state_${order.paymentId}` : null,
-                order.orderId ? `reviva_order_state_${order.orderId}` : null,
-                'reviva_full_session_state'
+                order.orderId ? `reviva_order_state_${order.orderId}` : null
             ].filter(Boolean);
 
             for (const sk of stateKeys) {
@@ -6123,7 +6144,6 @@
 
             // 1. Chaves de termo gravadas no localStorage
             const termoKeys = [
-                'reviva_legal_term',
                 `reviva_legal_term_${order.id}`,
                 order.paymentId ? `reviva_legal_term_${order.paymentId}` : null,
                 order.orderId ? `reviva_legal_term_${order.orderId}` : null
@@ -8028,24 +8048,97 @@
         }
 
         // =========================================================================
-        // BAIXAR PACOTE (.ZIP COM TERMO DE RESPONSABILIDADE + DOSSIÊ + FOTOS)
+        // EXCLUIR PEDIDO INDIVIDUALMENTE DENTRO DO COCKPIT
         // =========================================================================
-        function downloadFullOrderPackage() {
-            if (window.RevivaDocumentService) {
-                const currentOrder = allAdminOrders.find(o => o.id === selectedAdminOrderId) || allAdminOrders[0];
-                if (!currentOrder) return;
-                const crmData = getOrCreateCrmOrderData(currentOrder);
-                const orderToSend = { 
-                    ...currentOrder, 
-                    stage: crmData?.stage || currentOrder?.stage,
-                    selectedBackground: crmData?.selectedBackground || currentOrder?.selectedBackground,
-                    selectedMusic: crmData?.selectedMusic || currentOrder?.selectedMusic
-                };
-                window.RevivaDocumentService.downloadFullOrderZip(orderToSend);
-            } else {
-                alert('Carregando serviço de compactação de pacotes...');
+        function deleteCurrentCockpitOrder() {
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId) || allAdminOrders[0];
+            if (!order) return;
+
+            const confirmDelete = confirm(`⚠️ EXCLUIR PEDIDO #${order.id}\n\nCliente: ${order.clientName}\n\nTem certeza de que deseja excluir este pedido definitivamente? Esta ação não pode ser desfeita.`);
+            if (!confirmDelete) return;
+
+            const orderId = order.id;
+            const paymentId = order.paymentId;
+            const customOrderId = order.orderId;
+
+            // 1. Remove da lista allAdminOrders em memória
+            allAdminOrders = allAdminOrders.filter(o => o.id !== orderId && o.paymentId !== paymentId);
+
+            // 2. Remove da lista gravada no localStorage (reviva_orders_list)
+            try {
+                let list = JSON.parse(localStorage.getItem('reviva_orders_list') || '[]');
+                list = list.filter(o => (o.id || o.order_id) !== orderId && o.payment_id !== paymentId && o.order_id !== customOrderId);
+                localStorage.setItem('reviva_orders_list', JSON.stringify(list));
+            } catch(e) {}
+
+            // 3. Remove pedido ativo único se for o mesmo
+            try {
+                const singleRaw = localStorage.getItem('reviva_order_data');
+                if (singleRaw) {
+                    const singleObj = JSON.parse(singleRaw);
+                    if ((singleObj.id || singleObj.order_id) === orderId || singleObj.payment_id === paymentId) {
+                        localStorage.removeItem('reviva_order_data');
+                    }
+                }
+            } catch(e) {}
+
+            // 4. Limpa todas as chaves associadas a este pedido no navegador
+            const prefixes = [
+                `reviva_crm_order_${orderId}`,
+                `reviva_order_state_${orderId}`,
+                `reviva_client_photos_${orderId}`,
+                `reviva_client_audio_${orderId}`,
+                `reviva_client_music_${orderId}`,
+                `reviva_client_bg_${orderId}`,
+                `reviva_legal_term_${orderId}`,
+                `reviva_producer_image_${orderId}`,
+                `reviva_producer_audio_${orderId}`,
+                `reviva_producer_video_${orderId}`
+            ];
+            if (paymentId) {
+                prefixes.push(`reviva_crm_order_${paymentId}`, `reviva_order_state_${paymentId}`, `reviva_client_photos_${paymentId}`, `reviva_client_audio_${paymentId}`, `reviva_legal_term_${paymentId}`);
             }
+            if (customOrderId) {
+                prefixes.push(`reviva_crm_order_${customOrderId}`, `reviva_order_state_${customOrderId}`, `reviva_client_photos_${customOrderId}`, `reviva_client_audio_${customOrderId}`, `reviva_legal_term_${customOrderId}`);
+            }
+
+            prefixes.forEach(k => localStorage.removeItem(k));
+
+            closeCockpitModal();
+            renderKanbanBoard();
+            updateHeaderAnalytics();
+            alert(`✓ Pedido #${orderId} excluído com sucesso!`);
         }
+
+        // Função de Reset Global para Limpar Todos os Pedidos Antigos
+        window.purgeAllOrdersForCleanTest = function() {
+            localStorage.removeItem('reviva_orders_list');
+            localStorage.removeItem('reviva_order_data');
+            localStorage.removeItem('reviva_session_user');
+            localStorage.removeItem('reviva_legal_term');
+            localStorage.removeItem('reviva_full_session_state');
+            localStorage.removeItem('reviva_client_photos');
+            localStorage.removeItem('reviva_client_audio');
+            localStorage.setItem('reviva_last_order_seq', '1000');
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('reviva_order_state_') || 
+                    key.startsWith('reviva_crm_order_') || 
+                    key.startsWith('reviva_client_photos_') || 
+                    key.startsWith('reviva_client_audio_') || 
+                    key.startsWith('reviva_client_music_') || 
+                    key.startsWith('reviva_client_bg_') || 
+                    key.startsWith('reviva_stage4_delivered_') || 
+                    key.startsWith('reviva_stage5_delivered_') || 
+                    key.startsWith('reviva_stage5_consumed_') || 
+                    key.startsWith('reviva_producer_') ||
+                    key.startsWith('reviva_legal_term_')) {
+                    localStorage.removeItem(key);
+                }
+            });
+            allAdminOrders = [];
+            renderKanbanBoard();
+            updateHeaderAnalytics();
+        };
 
         document.addEventListener("DOMContentLoaded", () => {
             updateViewModeButtons();
