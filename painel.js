@@ -1857,6 +1857,34 @@ REVISÕES & CORREÇÕES DO CLIENTE:
                     localStorage.setItem(`reviva_legal_term_${orderData.order_id}`, JSON.stringify(legalTermSigned));
                 }
             }
+
+            // Sincronização em segundo plano com a Nuvem (Cloudflare D1)
+            const targetOrderId = ordIdent || orderData?.order_id || orderData?.payment_id;
+            if (targetOrderId && targetOrderId !== '1' && targetOrderId !== 'default') {
+                const apiBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.'))
+                    ? 'https://revivamemories.com.br'
+                    : '';
+                fetch(`${apiBase}/api/order/state`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderId: targetOrderId,
+                        state: {
+                            uploadedPhotos: uploadedPhotos,
+                            uploadedAudios: uploadedAudios,
+                            legalTermSigned: legalTermSigned,
+                            currentStep: currentStep,
+                            selectedMusic: selectedMusic,
+                            selectedBackground: selectedBackground,
+                            latestScriptText: typeof latestScriptText !== 'undefined' ? latestScriptText : '',
+                            isScriptApproved: typeof isScriptApproved !== 'undefined' ? isScriptApproved : false,
+                            photoDecision: effectivePhotoDecision,
+                            voiceDecision: effectiveVoiceDecision,
+                            updatedAt: new Date().toISOString()
+                        }
+                    })
+                }).catch(err => console.warn('[Cloud sync info]:', err));
+            }
         } catch (e) {
             console.warn('Erro ao salvar sessão completa:', e);
         }

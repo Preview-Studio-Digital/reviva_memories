@@ -203,6 +203,7 @@ export default {
                 const deletedSet = new Set();
                 const d1OrdersMap = new Map();
                 const d1ProfilesMap = new Map();
+                const d1StateMap = new Map();
 
                 if (env.DB) {
                     try {
@@ -229,6 +230,18 @@ export default {
                         if (profRes && profRes.results) {
                             profRes.results.forEach(row => {
                                 if (row.id) d1ProfilesMap.set(String(row.id).toLowerCase(), row);
+                            });
+                        }
+
+                        await env.DB.prepare("CREATE TABLE IF NOT EXISTS order_state (order_id TEXT PRIMARY KEY, state_json TEXT, updated_at TEXT)").run();
+                        const stateRows = await env.DB.prepare("SELECT order_id, state_json, updated_at FROM order_state").all();
+                        if (stateRows && stateRows.results) {
+                            stateRows.results.forEach(row => {
+                                if (row.order_id && row.state_json) {
+                                    try {
+                                        d1StateMap.set(String(row.order_id).toLowerCase().trim(), JSON.parse(row.state_json));
+                                    } catch(e) {}
+                                }
                             });
                         }
                     } catch(d1Err) {
@@ -281,6 +294,8 @@ export default {
                     const trueValue = !isNaN(rawVal) && rawVal > 0 ? rawVal : Number(p.value);
                     const paymentMethodName = isPix ? 'PIX' : (String(p.billingType || '').toUpperCase() === 'CREDIT_CARD' ? 'Cartão' : (p.billingType || 'PIX'));
 
+                    const cloudState = d1StateMap.get(extRefLow) || d1StateMap.get(paymentIdLow) || null;
+
                     const orderItem = {
                         id: extRef,
                         orderId: extRef,
@@ -298,7 +313,8 @@ export default {
                         isPaid: isPaid,
                         status: p.status,
                         statusLabel: isPaid ? 'PAGO / CONFIRMADO' : 'AGUARDANDO PAGTO',
-                        dateCreated: p.dateCreated || new Date().toISOString()
+                        dateCreated: p.dateCreated || new Date().toISOString(),
+                        cloudState: cloudState
                     };
 
                     // Deduplicação estrita: se já temos esse orderId / externalReference
@@ -327,7 +343,8 @@ export default {
                             value: finalVal,
                             valueFormatted: `R$ ${finalVal.toFixed(2).replace('.', ',')}`,
                             billingType: (isPix || existing.billingType === 'PIX') ? 'PIX' : (orderItem.billingType || existing.billingType),
-                            paymentMethod: (isPix || existing.billingType === 'PIX') ? 'PIX' : (orderItem.paymentMethod || existing.paymentMethod)
+                            paymentMethod: (isPix || existing.billingType === 'PIX') ? 'PIX' : (orderItem.paymentMethod || existing.paymentMethod),
+                            cloudState: cloudState || existing.cloudState || null
                         };
                         ordersByRef.set(extRefLow, merged);
                     } else {
@@ -483,6 +500,75 @@ export default {
             } catch(err) {
                 console.error('[Worker purge orders error]:', err);
                 return new Response(JSON.stringify({ success: false, error: err?.message || 'Erro ao limpar pedidos' }), { status: 500, headers: corsHeaders });
+            }
+        }
+
+        // 3.4 ENDPOINT: /api/order/state (Consulta o estado consolidado do pedido no D1)
+        if (pathname === '/api/order/state' && request.method === 'GET') {
+            try {
+                const orderId = (url.searchParams.get('orderId') || '').trim();
+                if (!orderId) {
+                    return new Response(JSON.stringify({ success: false, error: 'orderId ausente' }), { status: 400, headers: corsHeaders });
+                }
+
+                if (!env.DB) {
+                    return new Response(JSON.stringify({ success: true, state: null, note: 'DB not configured' }), { status: 200, headers: corsHeaders });
+                }
+
+                await env.DB.prepare("CREATE TABLE IF NOT EXISTS order_state (order_id TEXT PRIMARY KEY, state_json TEXT, updated_at TEXT)").run();
+                const row = await env.DB.prepare("SELECT state_json, updated_at FROM order_state WHERE order_id = ? OR order_id = ?").bind(orderId, orderId.toLowerCase()).first();
+
+                if (row && row.state_json) {
+                    let parsed = null;
+                    try { parsed = JSON.parse(row.state_json); } catch(e) {}
+                    return new Response(JSON.stringify({ success: true, state: parsed, updatedAt: row.updated_at }), { status: 200, headers: corsHeaders });
+                }
+
+                return new Response(JSON.stringify({ success: true, state: null }), { status: 200, headers: corsHeaders });
+            } catch(err) {
+                console.error('[Worker get order_state error]:', err);
+                return new Response(JSON.stringify({ success: false, error: err?.message }), { status: 500, headers: corsHeaders });
+            }
+        }
+
+        // 3.5 ENDPOINT: /api/order/state (Salva/atualiza o estado consolidado do pedido no D1)
+        if (pathname === '/api/order/state' && request.method === 'POST') {
+            try {
+                const bodyData = await request.json();
+                const { orderId, state } = bodyData || {};
+                if (!orderId || !state) {
+                    return new Response(JSON.stringify({ success: false, error: 'orderId e state são obrigatórios' }), { status: 400, headers: corsHeaders });
+                }
+
+                if (!env.DB) {
+                    return new Response(JSON.stringify({ success: true, note: 'DB not configured' }), { status: 200, headers: corsHeaders });
+                }
+
+                await env.DB.prepare("CREATE TABLE IF NOT EXISTS order_state (order_id TEXT PRIMARY KEY, state_json TEXT, updated_at TEXT)").run();
+
+                // Busca registro anterior para mesclagem inteligente
+                let existingState = {};
+                try {
+                    const existingRow = await env.DB.prepare("SELECT state_json FROM order_state WHERE order_id = ?").bind(orderId).first();
+                    if (existingRow && existingRow.state_json) {
+                        existingState = JSON.parse(existingRow.state_json) || {};
+                    }
+                } catch(e) {}
+
+                const mergedState = { ...existingState, ...state };
+                const stateJson = JSON.stringify(mergedState);
+                const nowIso = new Date().toISOString();
+
+                await env.DB.prepare(
+                    `INSERT INTO order_state (order_id, state_json, updated_at) 
+                     VALUES (?, ?, ?) 
+                     ON CONFLICT(order_id) DO UPDATE SET state_json = excluded.state_json, updated_at = excluded.updated_at`
+                ).bind(orderId, stateJson, nowIso).run();
+
+                return new Response(JSON.stringify({ success: true, state: mergedState, updatedAt: nowIso }), { status: 200, headers: corsHeaders });
+            } catch(err) {
+                console.error('[Worker save order_state error]:', err);
+                return new Response(JSON.stringify({ success: false, error: err?.message }), { status: 500, headers: corsHeaders });
             }
         }
 

@@ -3486,6 +3486,74 @@
             ? 'https://revivamemories.com.br'
             : '';
 
+        function applyCloudStateToLocal(orderId, st) {
+            if (!orderId || !st) return;
+            try {
+                if (Array.isArray(st.uploadedPhotos) && st.uploadedPhotos.length > 0) {
+                    localStorage.setItem(`reviva_client_photos_${orderId}`, JSON.stringify(st.uploadedPhotos));
+                }
+                if (Array.isArray(st.uploadedAudios) && st.uploadedAudios.length > 0) {
+                    localStorage.setItem(`reviva_client_audio_${orderId}`, JSON.stringify(st.uploadedAudios));
+                }
+                if (st.legalTermSigned && st.legalTermSigned.signed) {
+                    localStorage.setItem(`reviva_legal_term_${orderId}`, JSON.stringify(st.legalTermSigned));
+                }
+                if (st.producerImage) {
+                    localStorage.setItem(`reviva_producer_image_${orderId}`, st.producerImage);
+                    localStorage.setItem(`reviva_stage4_delivered_${orderId}`, "true");
+                }
+                if (st.producerAudio) {
+                    localStorage.setItem(`reviva_producer_audio_${orderId}`, st.producerAudio);
+                    localStorage.setItem(`reviva_stage4_delivered_${orderId}`, "true");
+                }
+                if (st.producerVideo) {
+                    localStorage.setItem(`reviva_producer_video_${orderId}`, st.producerVideo);
+                    localStorage.setItem(`reviva_stage5_delivered_${orderId}`, "true");
+                }
+                if (st.crmData) {
+                    const crmKey = getCrmStorageKey(orderId);
+                    const currentLocalCrm = JSON.parse(localStorage.getItem(crmKey) || '{}');
+                    const mergedCrm = { ...currentLocalCrm, ...st.crmData };
+                    if (Array.isArray(st.crmData.history) && st.crmData.history.length > 0) {
+                        mergedCrm.history = st.crmData.history;
+                    }
+                    localStorage.setItem(crmKey, JSON.stringify(mergedCrm));
+                }
+                localStorage.setItem(`reviva_order_state_${orderId}`, JSON.stringify(st));
+            } catch(e) {
+                console.warn('Erro ao aplicar cloud state:', e);
+            }
+        }
+
+        async function syncOrderCloudState(orderId) {
+            if (!orderId) return;
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/order/state?orderId=${encodeURIComponent(orderId)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.success && data.state) {
+                        applyCloudStateToLocal(orderId, data.state);
+                        if (selectedAdminOrderId === orderId) {
+                            renderCockpitData(orderId);
+                            renderKanbanBoard();
+                            updateHeaderAnalytics();
+                        }
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function sendOrderCloudUpdate(orderId, partialState) {
+            if (!orderId || !partialState) return;
+            try {
+                fetch(`${API_BASE_URL}/api/order/state`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId: orderId, state: partialState })
+                }).catch(err => console.warn('[Cloud update info]:', err));
+            } catch(e) {}
+        }
+
         let allAdminOrders = [];
         let selectedAdminOrderId = null;
         let activeTimerOrderId = localStorage.getItem('reviva_active_timer_order_id') || null;
@@ -3722,6 +3790,16 @@
                                 };
                                 mappedOrder.format = detectOrderFormat(mappedOrder);
                                 mappedOrder.has_upsell = mappedOrder.format === 'both';
+                                if (o.cloudState) {
+                                    mappedOrder.cloudState = o.cloudState;
+                                    applyCloudStateToLocal(mappedOrder.id, o.cloudState);
+                                    if (mappedOrder.orderId && mappedOrder.orderId !== mappedOrder.id) {
+                                        applyCloudStateToLocal(mappedOrder.orderId, o.cloudState);
+                                    }
+                                    if (mappedOrder.paymentId && mappedOrder.paymentId !== mappedOrder.id) {
+                                        applyCloudStateToLocal(mappedOrder.paymentId, o.cloudState);
+                                    }
+                                }
                                 return mappedOrder;
                             });
                     }
@@ -4101,8 +4179,17 @@
             return data;
         }
 
+        const crmSyncDebounceMap = new Map();
         function saveCrmOrderData(orderId, crmData) {
             localStorage.setItem(getCrmStorageKey(orderId), JSON.stringify(crmData));
+            if (crmSyncDebounceMap.has(orderId)) {
+                clearTimeout(crmSyncDebounceMap.get(orderId));
+            }
+            const timer = setTimeout(() => {
+                sendOrderCloudUpdate(orderId, { crmData: crmData });
+                crmSyncDebounceMap.delete(orderId);
+            }, 1000);
+            crmSyncDebounceMap.set(orderId, timer);
         }
 
         function determineAutoStage(order, crmData) {
@@ -5983,6 +6070,9 @@
             const modal = document.getElementById('cockpit-fullscreen-modal');
             if (modal) modal.style.display = 'flex';
             if (window.lucide) lucide.createIcons();
+
+            // Sincroniza em tempo real com a nuvem (Cloudflare D1)
+            syncOrderCloudState(orderId);
         }
 
         function closeCockpitModal() {
@@ -8363,6 +8453,7 @@
                     }
                 }
                 if (window.lucide) lucide.createIcons();
+                sendOrderCloudUpdate(selectedAdminOrderId, { producerImage: event.target.result, stage4Delivered: true });
                 alert("✓ Nova Imagem Lapidada salva com sucesso para este pedido!");
             };
             reader.readAsDataURL(file);
@@ -8424,8 +8515,8 @@
             renderCockpitData(order.id);
             renderKanbanBoard();
             updateHeaderAnalytics();
-            alert("✓ Narração com Voz Clonada vinculada para este pedido!");
-            checkAllPreviewsUploadedAndPrompt(order, crmData);
+            sendOrderCloudUpdate(selectedAdminOrderId, { producerAudio: fileUrl, stage4Delivered: true });
+            alert("✓ Narração com Voz Clonada salva com sucesso para este pedido!");
         }
 
         async function handleAdminVideoUpload(e) {
@@ -8462,6 +8553,8 @@
             try {
                 localStorage.setItem(`reviva_producer_video_${selectedAdminOrderId}`, fileUrl);
             } catch(err) {}
+
+            sendOrderCloudUpdate(selectedAdminOrderId, { producerVideo: fileUrl, stage5Delivered: true });
 
             if (order) {
                 renderCockpitProducerUploads(order, crmData);
