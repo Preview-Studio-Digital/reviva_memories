@@ -143,12 +143,12 @@ async function simulatePayment(paymentId, value) {
     if (!payValue) {
         try {
             const p = await asaasRequest('GET', `/v3/payments/${paymentId}`);
-            if (p && p.value) payValue = p.value;
+            if (p) payValue = p.originalValue || p.value;
         } catch(e) {}
     }
     const res = await asaasRequest('POST', `/v3/payments/${paymentId}/receiveInCash`, {
         paymentDate: today,
-        value: Number(payValue) || 897
+        value: Number(payValue) || 807.30
     });
     return res;
 }
@@ -180,15 +180,22 @@ async function fetchPaymentsWithKey(apiKey, limit = 20) {
             } catch(e) {}
 
             const isPaid = p.status === 'RECEIVED' || p.status === 'CONFIRMED' || p.status === 'RECEIVED_IN_CASH';
+            const isPix = String(p.billingType || '').toUpperCase() === 'PIX' || (p.originalValue && Number(p.originalValue) > 0);
+            const rawVal = (isPix && p.originalValue) ? Number(p.originalValue) : Number(p.value);
+            const trueValue = !isNaN(rawVal) && rawVal > 0 ? rawVal : Number(p.value);
+            const paymentMethodName = isPix ? 'PIX' : (String(p.billingType || '').toUpperCase() === 'CREDIT_CARD' ? 'Cartão' : (p.billingType || 'PIX'));
 
             list.push({
                 id: p.id,
                 orderId: p.externalReference || p.id,
+                paymentId: p.id,
                 status: p.status,
                 isPaid: isPaid,
+                billingType: isPix ? 'PIX' : (p.billingType || 'CREDIT_CARD'),
+                paymentMethod: paymentMethodName,
                 statusLabel: isPaid ? 'PAGO / CONFIRMADO' : (p.status === 'PENDING' ? 'AGUARDANDO PIX' : p.status),
-                value: p.value,
-                valueFormatted: `R$ ${Number(p.value).toFixed(2).replace('.', ',')}`,
+                value: trueValue,
+                valueFormatted: `R$ ${Number(trueValue).toFixed(2).replace('.', ',')}`,
                 description: p.description,
                 dateCreated: p.dateCreated,
                 clientName: customerName,

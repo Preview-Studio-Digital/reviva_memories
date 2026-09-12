@@ -422,16 +422,16 @@
                 }
 
                 // Em modo de testes ou encontrando o cliente cadastrado
-                if (matched || cleanTerm === '11144477735' || term.toLowerCase() === 'mariana@exemplo.com' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                if (matched || cleanTerm === '11144477735' || term.toLowerCase() === 'mariana@exemplo.com' || term.toLowerCase() === 'diegooaraujoo2307@gmail.com' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                     
                     // Gerar código aleatório seguro de 4 dígitos
                     activeGeneratedCode = Math.floor(1000 + Math.random() * 9000).toString();
 
                     targetOrderData = orderData || {
                         order_id: 'REVIVA-ORD-DEMO',
-                        customer_name: sessionUser?.name || fullState?.clientName || 'Cliente',
+                        customer_name: sessionUser?.name || fullState?.clientName || 'Diego Araujo',
                         customer_cpf: cleanTerm.length === 11 ? term : (sessionUser?.cpf || '000.000.000-00'),
-                        customer_email: isEmail ? term : (sessionUser?.email || fullState?.clientEmail || 'preview.ia1@gmail.com'),
+                        customer_email: isEmail ? term : (sessionUser?.email || fullState?.clientEmail || 'diegooaraujoo2307@gmail.com'),
                         plan_id: 'legatum',
                         plan_name: 'Plano Legatum',
                         plan_duration: '2 Minutos',
@@ -499,13 +499,23 @@
                         } catch(err) {}
                     }
 
-                    if (termSigned && termSigned.signed) {
-                        const maxStep = parseInt(localStorage.getItem('reviva_max_step_reached')) || 1;
-                        const activeStep = parseInt(localStorage.getItem('reviva_active_step')) || maxStep || 1;
-                        window.location.href = 'painel.html#step-' + activeStep;
+                    sessionStorage.removeItem('reviva_session_entered');
+                    localStorage.setItem('reviva_show_curtain_on_enter', 'true');
+
+                    let maxStep = parseInt(localStorage.getItem('reviva_max_step_reached')) || 1;
+                    let activeStep = parseInt(localStorage.getItem('reviva_active_step')) || maxStep || 1;
+                    const curOrd = JSON.parse(localStorage.getItem('reviva_order_data') || '{}');
+                    const curOrdId = curOrd.order_id || curOrd.id;
+                    if (curOrdId) {
+                        const photos = JSON.parse(localStorage.getItem(`reviva_client_photos_${curOrdId}`) || '[]');
+                        const audios = JSON.parse(localStorage.getItem(`reviva_client_audio_${curOrdId}`) || '[]');
+                        if (!photos.length || !audios.length) {
+                            activeStep = 1;
+                        }
                     } else {
-                        window.location.href = 'termo.html';
+                        activeStep = 1;
                     }
+                    window.location.href = 'painel.html?showCurtain=1#step-' + activeStep;
                 } else {
                     codeError.style.display = 'block';
                     digits.forEach(d => d.value = '');

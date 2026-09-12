@@ -649,14 +649,113 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            height: 142px;
             min-height: 142px;
-            max-height: 142px;
+            height: auto;
             box-sizing: border-box;
             transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s ease, opacity 0.2s ease;
             position: relative;
             cursor: grab;
             overflow: hidden;
+        }
+
+        /* Container de Prévias Enviadas (Foto + Áudio) no Card do Kanban */
+        .card-previews-container {
+            margin: 4px 0;
+            padding: 4px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .card-preview-images-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .card-preview-thumb-wrap {
+            position: relative;
+            cursor: pointer;
+            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid rgba(197, 160, 89, 0.4);
+            background: #000;
+            display: inline-flex;
+            transition: all 0.2s ease;
+        }
+
+        .card-preview-thumb-wrap:hover {
+            border-color: var(--gold-bright);
+            box-shadow: 0 0 8px rgba(229, 195, 120, 0.4);
+            transform: scale(1.04);
+        }
+
+        .card-preview-thumb-img {
+            display: block;
+            object-fit: cover;
+        }
+
+        .card-preview-thumb-badge {
+            position: absolute;
+            bottom: 1px;
+            right: 1px;
+            background: rgba(0, 0, 0, 0.75);
+            color: #f8fafc;
+            font-size: 0.52rem;
+            font-weight: 700;
+            padding: 0 3px;
+            border-radius: 2px;
+            line-height: 1.1;
+        }
+
+        .card-preview-audio-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(14, 9, 6, 0.65);
+            border: 1px solid rgba(197, 160, 89, 0.25);
+            border-radius: 3px;
+            padding: 2px 6px;
+            gap: 6px;
+        }
+
+        .card-audio-play-btn {
+            background: rgba(197, 160, 89, 0.18);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-bright);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0;
+        }
+
+        .card-audio-play-btn:hover {
+            background: var(--gold-primary);
+            color: #000;
+            transform: scale(1.08);
+        }
+
+        .card-audio-play-btn.playing {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: #000;
+            animation: pulse-audio-btn 1.2s infinite;
+        }
+
+        @keyframes pulse-audio-btn {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+            70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
 
         .kanban-order-card:active {
@@ -1057,6 +1156,18 @@
             box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
             animation: topBannerWorkingFade 3.2s ease-in-out infinite;
         }
+        .priority-urgent .active-top-working {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+        }
+        .priority-high .active-top-working {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+        }
+        .priority-normal .active-top-working {
+            background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+        }
 
         .active-top-stage {
             background: rgba(197, 160, 89, 0.22);
@@ -1124,7 +1235,7 @@
             animation: overlayAlternateVisibility 3.2s ease-in-out infinite;
         }
 
-        /* COR DO OVERLAY E TEXTO CONFORME A PRIORIDADE */
+        /* COR DO OVERLAY E TEXTO CONFORME A PRIORIDADE (VERMELHO, AMARELO OU VERDE) */
         .priority-urgent .card-working-overlay {
             background: linear-gradient(135deg, rgba(100, 12, 12, 0.96) 0%, rgba(35, 4, 4, 0.98) 100%);
         }
@@ -1140,10 +1251,10 @@
         }
 
         .priority-normal .card-working-overlay {
-            background: linear-gradient(135deg, rgba(14, 42, 65, 0.96) 0%, rgba(6, 18, 30, 0.98) 100%);
+            background: linear-gradient(135deg, rgba(12, 50, 24, 0.96) 0%, rgba(5, 24, 11, 0.98) 100%);
         }
         .priority-normal .working-overlay-title {
-            text-shadow: 0 0 14px rgba(56, 189, 248, 0.95);
+            text-shadow: 0 0 14px rgba(34, 197, 94, 0.95);
         }
 
         @keyframes overlayAlternateVisibility {
@@ -2083,8 +2194,9 @@
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.95), 0 0 25px rgba(229, 195, 120, 0.2);
         }
 
-        /* Modal Centralizado de Alternância de Trabalho / Timer */
-        #modal-switch-timer {
+        /* Modal Centralizado de Alternância de Trabalho / Timer e Mudança de Coluna */
+        #modal-switch-timer,
+        #modal-confirm-move-previews {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.85);
@@ -2286,8 +2398,13 @@
                 <i data-lucide="search" style="width: 12px; height: 12px; color: var(--gold-bright);"></i>
             </button>
 
+            <!-- 3.5 ESPELHAR DADOS (SINCRONIZADOR) -->
+            <button id="btn-sync-toggle" onclick="openSyncModal()" class="btn-dashboard-header" title="Espelhar Dados do Publicado / Local" style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.15);">
+                <i data-lucide="refresh-cw" style="width: 12px; height: 12px;"></i>
+            </button>
+
             <!-- 4. LIMPAR TODOS OS PEDIDOS (RESET DE TESTES) -->
-            <button onclick="if(confirm('⚠️ LIMPAR TODOS OS PEDIDOS DE TESTE?\n\nEsta ação excluirá todos os pedidos de simulação locais e deixará o painel 100% limpo para novos testes.')) purgeAllOrdersForCleanTest();" class="btn-logout-header" title="Limpar todos os pedidos de teste" style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
+            <button onclick="if(confirm('⚠️ LIMPAR TODOS OS PEDIDOS DE TESTE?\n\nEsta ação excluirá todos os pedidos do painel definitivamente e deixará o painel 100% limpo para novos testes.')) purgeAllOrdersForCleanTest();" class="btn-logout-header" title="Limpar todos os pedidos de teste" style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
                 <i data-lucide="trash-2" style="width: 12px; height: 12px;"></i>
             </button>
 
@@ -2572,7 +2689,7 @@
                             <!-- Tempo de Produção Trabalhado -->
                             <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 5px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0;">
                                 <span style="font-size: 0.62rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap;">Trabalhado</span>
-                                <strong id="cockpit-metric-time" style="font-family: var(--font-mono); font-size: 0.82rem; color: #38bdf8; font-weight: 700; white-space: nowrap;">00:00:00</strong>
+                                <strong id="cockpit-metric-time" style="font-family: var(--font-mono); font-size: 0.82rem; color: #e5c378; font-weight: 700; white-space: nowrap;">00:00:00</strong>
                             </div>
 
                             <!-- Valor Hora Resultante -->
@@ -2747,6 +2864,34 @@
         </div>
     </div>
 
+    <!-- ================= MODAL DE SINCRONIZAÇÃO / ESPELHO DE DADOS ENTRE AMBIENTES ================= -->
+    <div id="modal-sync-data" style="display: none; position: fixed; inset: 0; z-index: 100010; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+        <div style="background: #0d0805; border: 1.5px solid var(--border-gold-bright); border-radius: var(--radius-md); width: 100%; max-width: 520px; box-shadow: 0 0 50px rgba(0,0,0,0.95), 0 0 25px rgba(56, 189, 248, 0.25); overflow: hidden; padding: 24px; box-sizing: border-box; color: #fff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="refresh-cw" style="width: 18px; height: 18px; color: #38bdf8;"></i>
+                    <h3 style="font-family: var(--font-azonix), sans-serif; font-size: 0.90rem; color: var(--gold-bright); margin: 0; letter-spacing: 1px;">ESPELHAR DADOS ENTRE AMBIENTES</h3>
+                </div>
+                <button type="button" onclick="closeSyncModal()" style="background: none; border: none; color: #a1a1aa; cursor: pointer; font-size: 1.2rem; line-height: 1;">✕</button>
+            </div>
+            <p style="font-size: 0.76rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 14px;">
+                O navegador isola o armazenamento local (<code style="color: #38bdf8;">localhost</code>) do site oficial (<code style="color: var(--gold-bright);">revivamemories.com.br</code>). Use as opções abaixo para espelhar instantaneamente seus testes, fotos, áudios e cronômetro:
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button type="button" onclick="copyCurrentEnvironmentData()" class="btn-gold" style="justify-content: center; height: 38px; width: 100%; font-size: 0.74rem;">
+                    <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+                    <span>1. COPIAR DADOS DESTE AMBIENTE (CLIPBOARD)</span>
+                </button>
+                <div style="text-align: center; font-size: 0.70rem; color: #71717a;">ou cole os dados copiados do outro ambiente abaixo:</div>
+                <textarea id="sync-data-textarea" placeholder="Cole aqui o código gerado no site publicado ou no local..." style="width: 100%; height: 70px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; font-size: 0.72rem; padding: 8px; box-sizing: border-box; font-family: monospace; resize: none; outline: none;"></textarea>
+                <button type="button" onclick="applyImportedEnvironmentData()" class="cockpit-action-btn" style="width: 100%; max-width: 100%; height: 36px; background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.5); color: #4ade80;">
+                    <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+                    <span>2. IMPORTAR & APLICAR ESPELHO AGORA</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= MODAL DO TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO (ADMIN) ================= -->
     <div id="modal-admin-termo" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
         <div style="background: #0d0805; border: 1.5px solid var(--border-gold-bright); border-radius: var(--radius-md); width: 100%; max-width: 740px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.95), 0 0 25px rgba(229, 195, 120, 0.25); overflow: hidden;">
@@ -2882,71 +3027,92 @@
         </div>
     </div>
 
-    <!-- ================= MODAL DE ÁUDIOS DO CLIENTE (ADMIN) ================= -->
-    <div id="modal-admin-audios" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-        <div style="background: #0d0805; border: 1.5px solid var(--border-gold-bright); border-radius: var(--radius-md); width: 100%; max-width: 620px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.95), 0 0 25px rgba(229, 195, 120, 0.25); overflow: hidden;">
+    <!-- ================= MODAL DE ÁUDIOS DO CLIENTE (ADMIN) - OCUPA 100VH ================= -->
+    <div id="modal-admin-audios" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(10px); align-items: center; justify-content: center; padding: 0; box-sizing: border-box; width: 100vw; height: 100vh;">
+        <div style="background: #0a0604; border-left: 1.5px solid var(--border-gold-bright); border-right: 1.5px solid var(--border-gold-bright); width: 100%; max-width: 980px; height: 100vh; max-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 60px rgba(0,0,0,0.98), 0 0 30px rgba(229, 195, 120, 0.2); overflow: hidden;">
             
-            <div style="padding: 14px 20px; border-bottom: 1px solid rgba(197, 160, 89, 0.3); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.45); flex-shrink: 0;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: center;">
-                        <i data-lucide="mic" style="width: 18px; height: 18px; color: var(--gold-bright);"></i>
+            <div style="padding: 16px 28px; border-bottom: 1px solid rgba(197, 160, 89, 0.3); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.7); flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="mic" style="width: 20px; height: 20px; color: var(--gold-bright);"></i>
                     </div>
                     <div>
-                        <h3 style="font-family: var(--font-serif); color: #fff; font-size: 1.12rem; margin: 0;">Áudios de Voz do Cliente</h3>
-                        <span id="modal-audios-order-info" style="font-size: 0.66rem; color: var(--text-secondary); text-transform: uppercase;">Amostras de Voz para Clonagem com IA</span>
+                        <h3 style="font-family: var(--font-serif); color: #fff; font-size: 1.18rem; margin: 0; letter-spacing: 0.5px;">Áudios de Voz do Cliente</h3>
+                        <span id="modal-audios-order-info" style="font-size: 0.68rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Amostras de Voz para Clonagem com IA</span>
                     </div>
                 </div>
-                <button type="button" onclick="closeAdminAudiosModal()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">
-                    <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                <button type="button" onclick="closeAdminAudiosModal()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.color='#fff'; this.style.borderColor='var(--gold-bright)';" onmouseout="this.style.color='#94a3b8'; this.style.borderColor='rgba(255,255,255,0.12)';">
+                    <i data-lucide="x" style="width: 22px; height: 22px;"></i>
                 </button>
             </div>
 
-            <div id="modal-audios-list" style="padding: 18px 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px;">
+            <div id="modal-audios-list" style="padding: 24px 28px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; background: radial-gradient(circle at center, rgba(30, 20, 15, 0.35) 0%, rgba(10, 6, 4, 0.95) 100%);">
                 <!-- Itens de áudio gerados dinamicamente com player e botão baixar -->
             </div>
 
-            <div style="padding: 12px 20px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
-                <button type="button" onclick="downloadFullOrderPackage()" class="btn-gold" style="padding: 7px 14px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--radius-sm);">
-                    <i data-lucide="archive" style="width: 13px; height: 13px;"></i> BAIXAR PACOTE COMPLETO (.ZIP)
+            <div style="padding: 14px 28px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                <button type="button" onclick="downloadFullOrderPackage()" class="btn-gold" style="padding: 8px 16px; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; border-radius: var(--radius-sm);">
+                    <i data-lucide="archive" style="width: 14px; height: 14px;"></i> BAIXAR PACOTE COMPLETO (.ZIP)
                 </button>
-                <button type="button" onclick="closeAdminAudiosModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 7px 14px; font-size: 0.72rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;">
+                <button type="button" onclick="closeAdminAudiosModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 18px; font-size: 0.74rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
                     FECHAR
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- ================= MODAL DE FOTOS DO CLIENTE (ADMIN) ================= -->
-    <div id="modal-admin-photos" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-        <div style="background: #0d0805; border: 1.5px solid var(--border-gold-bright); border-radius: var(--radius-md); width: 100%; max-width: 680px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.95), 0 0 25px rgba(229, 195, 120, 0.25); overflow: hidden;">
+    <!-- ================= MODAL DE FOTOS DO CLIENTE (ADMIN) - OCUPA 100VH ================= -->
+    <div id="modal-admin-photos" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(10px); align-items: center; justify-content: center; padding: 0; box-sizing: border-box; width: 100vw; height: 100vh;">
+        <div style="background: #0a0604; border-left: 1.5px solid var(--border-gold-bright); border-right: 1.5px solid var(--border-gold-bright); width: 100%; max-width: 1240px; height: 100vh; max-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 60px rgba(0,0,0,0.98), 0 0 30px rgba(229, 195, 120, 0.2); overflow: hidden;">
             
-            <div style="padding: 14px 20px; border-bottom: 1px solid rgba(197, 160, 89, 0.3); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.45); flex-shrink: 0;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: center;">
-                        <i data-lucide="image" style="width: 18px; height: 18px; color: var(--gold-bright);"></i>
+            <div style="padding: 16px 28px; border-bottom: 1px solid rgba(197, 160, 89, 0.3); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.7); flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="image" style="width: 20px; height: 20px; color: var(--gold-bright);"></i>
                     </div>
                     <div>
-                        <h3 style="font-family: var(--font-serif); color: #fff; font-size: 1.12rem; margin: 0;">Fotos Originais do Cliente</h3>
-                        <span id="modal-photos-order-info" style="font-size: 0.66rem; color: var(--text-secondary); text-transform: uppercase;">Imagens de Referência para Tratamento e Vídeo</span>
+                        <h3 style="font-family: var(--font-serif); color: #fff; font-size: 1.18rem; margin: 0; letter-spacing: 0.5px;">Fotos Originais do Cliente</h3>
+                        <span id="modal-photos-order-info" style="font-size: 0.68rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Imagens de Referência para Produção (Visualização Sem Cortes)</span>
                     </div>
                 </div>
-                <button type="button" onclick="closeAdminPhotosModal()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">
-                    <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                <button type="button" onclick="closeAdminPhotosModal()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.color='#fff'; this.style.borderColor='var(--gold-bright)';" onmouseout="this.style.color='#94a3b8'; this.style.borderColor='rgba(255,255,255,0.12)';">
+                    <i data-lucide="x" style="width: 22px; height: 22px;"></i>
                 </button>
             </div>
 
-            <div id="modal-photos-list" style="padding: 18px 20px; overflow-y: auto; flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px;">
-                <!-- Thumbnails das fotos com botão de baixar e ampliar -->
+            <div id="modal-photos-list" style="padding: 24px 28px; overflow-y: auto; flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; align-content: start; background: radial-gradient(circle at center, rgba(30, 20, 15, 0.35) 0%, rgba(10, 6, 4, 0.95) 100%);">
+                <!-- Thumbnails das fotos com visualização sem cortes e botões de alta resolução -->
             </div>
 
-            <div style="padding: 12px 20px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
-                <button type="button" onclick="downloadFullOrderPackage()" class="btn-gold" style="padding: 7px 14px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border-radius: var(--radius-sm);">
-                    <i data-lucide="archive" style="width: 13px; height: 13px;"></i> BAIXAR PACOTE COMPLETO (.ZIP)
+            <div style="padding: 14px 28px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                <button type="button" onclick="downloadFullOrderPackage()" class="btn-gold" style="padding: 8px 16px; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; border-radius: var(--radius-sm);">
+                    <i data-lucide="archive" style="width: 14px; height: 14px;"></i> BAIXAR PACOTE COMPLETO (.ZIP)
                 </button>
-                <button type="button" onclick="closeAdminPhotosModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 7px 14px; font-size: 0.72rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;">
+                <button type="button" onclick="closeAdminPhotosModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 18px; font-size: 0.74rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
                     FECHAR
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- ================= LIGHTBOX EXPANDIDO DE FOTO EM TELA CHEIA (SEM CORTES) ================= -->
+    <div id="modal-admin-photo-lightbox" style="display: none; position: fixed; inset: 0; z-index: 100005; background: rgba(0, 0, 0, 0.96); backdrop-filter: blur(12px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; width: 100vw; height: 100vh; flex-direction: column;" onclick="if(event.target === this) closePhotoLightbox()">
+        <div style="width: 100%; max-width: 1300px; display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; margin-bottom: 12px; border-bottom: 1px solid rgba(197,160,89,0.3); background: rgba(10,6,4,0.7); border-radius: 6px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i data-lucide="image" style="width: 18px; height: 18px; color: var(--gold-bright);"></i>
+                <span id="lightbox-photo-title" style="color: #fff; font-size: 0.88rem; font-weight: 600;">Foto Original</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button type="button" id="lightbox-btn-download" style="background: rgba(197, 160, 89, 0.2); border: 1px solid var(--border-gold-bright); color: var(--gold-bright); padding: 5px 12px; font-size: 0.72rem; font-weight: 700; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <i data-lucide="download" style="width: 13px; height: 13px;"></i> BAIXAR ORIGINAL
+                </button>
+                <button type="button" onclick="closePhotoLightbox()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer; padding: 5px 12px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; gap: 4px;">
+                    <i data-lucide="x" style="width: 16px; height: 16px;"></i> FECHAR
+                </button>
+            </div>
+        </div>
+        <div style="flex: 1; width: 100%; max-width: 1300px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;" onclick="if(event.target === this) closePhotoLightbox()">
+            <img id="lightbox-photo-img" src="" alt="Foto sem cortes" style="max-width: 100%; max-height: calc(100vh - 120px); width: auto; height: auto; object-fit: contain; border-radius: 6px; box-shadow: 0 0 50px rgba(0,0,0,0.9), 0 0 20px rgba(197,160,89,0.25); border: 1px solid rgba(197,160,89,0.35);">
         </div>
     </div>
 
@@ -3177,6 +3343,32 @@
         </div>
     </div>
 
+    <!-- ================= MODAL CENTRALIZADO DE CONFIRMAÇÃO DE MUDANÇA DE COLUNA (RECEBIDOS -> ENVIADOS) ================= -->
+    <div id="modal-confirm-move-previews">
+        <div class="switch-timer-card" style="text-align: center; align-items: center; max-width: 480px; border-color: rgba(34, 197, 94, 0.45); box-shadow: 0 16px 45px rgba(0, 0, 0, 0.95), 0 0 30px rgba(34, 197, 94, 0.15);">
+            <div class="switch-toast-header" style="justify-content: center; width: 100%; position: relative; border-bottom-color: rgba(34, 197, 94, 0.2);">
+                <div class="switch-toast-title" style="justify-content: center; color: #4ade80;">
+                    <i data-lucide="check-circle" style="width: 16px; height: 16px; color: #4ade80;"></i>
+                    <span>PRÉVIAS ANEXADAS COM SUCESSO</span>
+                </div>
+                <button type="button" class="switch-toast-close" onclick="cancelMovePreviewsToSent()" title="Fechar" style="position: absolute; right: 0; top: 0;">✕</button>
+            </div>
+
+            <div class="switch-toast-body" style="text-align: center; font-size: 0.82rem; color: #f1f5f9; padding: 6px 0;">
+                Todas as prévias de imagem e narração foram enviadas.<br>Deseja mudar o pedido para a coluna <strong style="color: #4ade80;">"Enviados"</strong> (Prévias Enviadas)?
+            </div>
+
+            <div class="switch-toast-actions" style="justify-content: center; width: 100%; gap: 14px; margin-top: 8px;">
+                <button type="button" onclick="cancelMovePreviewsToSent()" class="btn-toast-cancel" style="min-width: 110px; text-align: center;">
+                    NÃO
+                </button>
+                <button type="button" onclick="confirmMovePreviewsToSent()" class="btn-toast-confirm" style="min-width: 110px; text-align: center; background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); border-color: #22c55e; box-shadow: 0 2px 10px rgba(34, 197, 94, 0.35);">
+                    SIM
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // =========================================================================
         // AUTENTICAÇÃO COM HASH CRIPTOGRÁFICO SHA-256 (SEGURANÇA TOTAL CONTRA VAZAMENTO)
@@ -3290,6 +3482,10 @@
         // =========================================================================
         // ESTADO GLOBAL DO CRM KANBAN, CRONÔMETRO & COCKPIT
         // =========================================================================
+        const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.'))
+            ? 'https://revivamemories.com.br'
+            : '';
+
         let allAdminOrders = [];
         let selectedAdminOrderId = null;
         let activeTimerOrderId = localStorage.getItem('reviva_active_timer_order_id') || null;
@@ -3435,44 +3631,99 @@
                 localStorage.setItem('reviva_reset_simulation_v1', 'true');
             }
 
+            // Auto-correção para limpar strings sequenciais (ex: reviva-1001) da blacklist local do navegador
+            try {
+                const rawDel = JSON.parse(localStorage.getItem('reviva_deleted_order_ids') || '[]');
+                const cleanDel = rawDel.map(x => String(x).toLowerCase().trim()).filter(x => x.startsWith('pay_'));
+                localStorage.setItem('reviva_deleted_order_ids', JSON.stringify(cleanDel));
+            } catch(e) {}
+
             await fetchOrdersList();
             initTimerHeartbeat();
             updateHeaderAnalytics();
             updateViewModeButtons();
             renderKanbanBoard();
+
+            // Restaura o card expandido automaticamente se a página foi atualizada com ele aberto
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const orderToRestore = urlParams.get('order') || sessionStorage.getItem('reviva_expanded_cockpit_order_id');
+                if (orderToRestore && Array.isArray(allAdminOrders) && allAdminOrders.length > 0) {
+                    const matchOrder = allAdminOrders.find(o => 
+                        String(o.id).toLowerCase() === String(orderToRestore).toLowerCase() ||
+                        String(o.orderId || '').toLowerCase() === String(orderToRestore).toLowerCase() ||
+                        String(o.paymentId || '').toLowerCase() === String(orderToRestore).toLowerCase()
+                    );
+                    if (matchOrder) {
+                        openCockpitModal(matchOrder.id);
+                    }
+                }
+            } catch(e) {
+                console.warn('Erro ao restaurar card expandido no refresh:', e);
+            }
         }
 
         async function fetchOrdersList() {
             allAdminOrders = [];
 
-            // 1. Consulta pedidos reais na API Asaas (Sandbox / Produção)
+            // Lista de IDs de pagamento excluídos definitivamente pelo administrador
+            let deletedIds = [];
             try {
-                const res = await fetch('/api/asaas/orders');
+                const rawDeleted = JSON.parse(localStorage.getItem('reviva_deleted_order_ids') || '[]');
+                // Auto-correção: mantém exclusivamente IDs reais do Asaas (pay_...), expurgando strings como REVIVA-1001
+                deletedIds = rawDeleted
+                    .map(x => String(x).toLowerCase().trim())
+                    .filter(x => x.startsWith('pay_'));
+                localStorage.setItem('reviva_deleted_order_ids', JSON.stringify(deletedIds));
+            } catch(e) {}
+
+            const isOrderDeleted = (id, paymentId, orderId) => {
+                if (!deletedIds || deletedIds.length === 0) return false;
+                const payLow = String(paymentId || '').toLowerCase().trim();
+                return Boolean(payLow && payLow.startsWith('pay_') && deletedIds.includes(payLow));
+            };
+
+            // 1. Consulta pedidos reais na API Asaas (Sandbox / Produção com filtro D1)
+            // Em ambiente local (localhost / 127.0.0.1), aponta para o domínio oficial publicado para espelhar os pedidos reais
+            const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.'))
+                ? 'https://revivamemories.com.br'
+                : '';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/asaas/orders`);
                 if (res.ok) {
                     const data = await res.json();
                     if (data && Array.isArray(data.orders) && data.orders.length > 0) {
-                        allAdminOrders = data.orders.map(o => {
-                            const rawDate = o.dateCreated || new Date().toISOString();
-                            const fullDateIso = rawDate.length === 10 ? `${rawDate}T12:00:00.000Z` : rawDate;
-                            return {
-                                id: o.id,
-                                orderId: o.orderId || o.id,
-                                paymentId: o.id,
-                                clientName: o.clientName || 'Cliente Reviva',
-                                clientEmail: o.clientEmail || '',
-                                clientPhone: o.clientPhone || '',
-                                clientCpf: o.clientCpf || '',
-                                planName: o.description || 'Plano Personalizado',
-                                value: Number(o.value) || 447.30,
-                                valueFormatted: o.valueFormatted || (o.value ? `R$ ${Number(o.value).toFixed(2).replace('.', ',')}` : 'R$ 447,30'),
-                                isPaid: Boolean(o.isPaid),
-                                statusLabel: o.statusLabel || (o.isPaid ? 'PAGO / CONFIRMADO' : 'AGUARDANDO PAGTO'),
-                                stage: o.isPaid ? 'pagamento_confirmado' : 'aguardando_pagamento',
-                                dateCreated: fullDateIso,
-                                date: new Date(fullDateIso).toLocaleDateString('pt-BR'),
-                                source: 'asaas'
-                            };
-                        });
+                        allAdminOrders = data.orders
+                            .filter(o => !isOrderDeleted(o.id, o.paymentId, o.orderId))
+                            .map(o => {
+                                const rawDate = o.dateCreated || new Date().toISOString();
+                                const fullDateIso = rawDate.length === 10 ? `${rawDate}T12:00:00.000Z` : rawDate;
+                                const mappedOrder = {
+                                    id: o.id,
+                                    orderId: o.orderId || o.id,
+                                    paymentId: o.paymentId || o.id,
+                                    clientName: o.clientName || 'Cliente Reviva',
+                                    clientEmail: o.clientEmail || '',
+                                    clientPhone: o.clientPhone || '',
+                                    clientCpf: o.clientCpf || '',
+                                    planName: o.description || o.planName || 'Plano Personalizado',
+                                    value: Number(o.value) || 447.30,
+                                    valueFormatted: o.valueFormatted || (o.value ? `R$ ${Number(o.value).toFixed(2).replace('.', ',')}` : 'R$ 447,30'),
+                                    billingType: o.billingType || (String(o.paymentMethod || '').toUpperCase() === 'PIX' ? 'PIX' : 'CREDIT_CARD'),
+                                    paymentMethod: o.paymentMethod || o.billingType || 'PIX',
+                                    installments: o.installments || 1,
+                                    isPaid: Boolean(o.isPaid),
+                                    statusLabel: o.statusLabel || (o.isPaid ? 'PAGO / CONFIRMADO' : 'AGUARDANDO PAGTO'),
+                                    stage: o.isPaid ? 'pagamento_confirmado' : 'aguardando_pagamento',
+                                    dateCreated: fullDateIso,
+                                    date: new Date(fullDateIso).toLocaleDateString('pt-BR'),
+                                    source: 'asaas'
+                                };
+                                mappedOrder.format = detectOrderFormat(mappedOrder);
+                                mappedOrder.has_upsell = mappedOrder.format === 'both';
+                                return mappedOrder;
+                            });
                     }
                 }
             } catch (err) {
@@ -3499,21 +3750,36 @@
                 for (const localO of localOrdersArray) {
                     if (!localO || !localO.customer_name) continue;
                     const localId = localO.orderId || localO.order_id || 'REVIVA-LOCAL';
-                    const exists = allAdminOrders.some(x => x.id === localId);
+                    const payId = localO.payment_id || 'local';
+
+                    // Se foi excluído pelo administrador, ignora e remove do localStorage
+                    if (isOrderDeleted(localId, payId, localO.orderId || localO.order_id)) {
+                        continue;
+                    }
+
+                    const exists = allAdminOrders.some(x => 
+                        (x.id && String(x.id).toLowerCase() === String(localId).toLowerCase()) || 
+                        (x.orderId && String(x.orderId).toLowerCase() === String(localId).toLowerCase()) ||
+                        (payId && payId !== 'local' && (String(x.paymentId).toLowerCase() === String(payId).toLowerCase() || String(x.id).toLowerCase() === String(payId).toLowerCase()))
+                    );
                     if (!exists) {
                         const valNum = parseFloat(String(localO.plan_price || localO.total_price || '447.30').replace('R$', '').replace('.', '').replace(',', '.').trim()) || 447.30;
                         const isOrderPaid = localO.status === 'paid' || localO.isPaid === true;
                         allAdminOrders.unshift({
                             id: localId,
-                            paymentId: localO.payment_id || 'local',
+                            orderId: localId,
+                            paymentId: payId,
                             clientName: localO.customer_name,
                             clientEmail: localO.customer_email || '',
                             clientPhone: localO.customer_phone || '',
                             clientCpf: localO.customer_cpf || '',
                             planName: localO.plan_name || 'Plano Affectus (1 Minuto)',
-                            format: localO.plan_format || (localO.has_upsell ? 'both' : 'horizontal'),
+                            format: detectOrderFormat(localO),
                             value: valNum,
                             valueFormatted: (localO.total_price || localO.plan_price) ? `R$ ${String(localO.total_price || localO.plan_price).replace('R$', '').trim()}` : 'R$ 447,30',
+                            billingType: localO.billingType || (localO.payment_method === 'pix' ? 'PIX' : 'CREDIT_CARD'),
+                            paymentMethod: localO.payment_method || localO.billingType || (valNum === 447.30 || valNum === 807.30 || valNum === 1167.30 ? 'PIX' : 'Cartão'),
+                            installments: localO.installments || 1,
                             isPaid: isOrderPaid,
                             statusLabel: isOrderPaid ? 'PAGO / CONFIRMADO' : 'AGUARDANDO PAGTO',
                             stage: isOrderPaid ? 'pagamento_confirmado' : 'aguardando_pagamento',
@@ -3525,8 +3791,98 @@
                 }
             } catch (e) {}
 
-            // 3. PEDIDOS DE DEMONSTRAÇÃO REMOVIDOS PARA SIMULAÇÃO LIMPA
-            // Inicializa e sincroniza estado persistente de cada pedido real
+            // Deduplicação estrita de allAdminOrders para impedir múltiplos cards para o mesmo pedido
+            const uniqueOrdersMap = new Map();
+            for (const ord of allAdminOrders) {
+                const key = String(ord.orderId || ord.id || '').toLowerCase().trim();
+                if (!uniqueOrdersMap.has(key)) {
+                    uniqueOrdersMap.set(key, ord);
+                } else {
+                    const existing = uniqueOrdersMap.get(key);
+                    // Preserva flags cruciais (has_upsell, format, etc.) de ambos os registros
+                    const mergedHasUpsell = Boolean(ord.has_upsell || ord.hasUpsell || existing.has_upsell || existing.hasUpsell);
+                    const mergedFormat = (ord.format === 'both' || existing.format === 'both') ? 'both' : (ord.format || existing.format || 'horizontal');
+
+                    // O registro PAGO tem preferência sobre o pendente
+                    if (ord.isPaid && !existing.isPaid) {
+                        ord.has_upsell = mergedHasUpsell;
+                        ord.format = mergedFormat;
+                        uniqueOrdersMap.set(key, ord);
+                    }
+                    // Se um tem nome real e o outro 'Cliente Reviva', fica com o nome real
+                    else if (ord.clientName && ord.clientName !== 'Cliente Reviva' && (!existing.clientName || existing.clientName === 'Cliente Reviva')) {
+                        ord.has_upsell = mergedHasUpsell;
+                        ord.format = mergedFormat;
+                        uniqueOrdersMap.set(key, ord);
+                    } else {
+                        existing.has_upsell = mergedHasUpsell;
+                        existing.format = mergedFormat;
+                    }
+                }
+            }
+            allAdminOrders = Array.from(uniqueOrdersMap.values());
+
+            // 3. Fallback de Pedidos de Demonstração / Teste
+            // Se nenhuma ordem foi retornada pela API (ambiente local sem Cloudflare Worker proxy ativo ou sem conexão externa)
+            // e não há pedidos no localStorage, garante pedidos essenciais para desenvolvimento e testes
+            if (allAdminOrders.length === 0) {
+                const demoOrders = [
+                    {
+                        id: 'REVIVA-1005',
+                        orderId: 'REVIVA-1005',
+                        paymentId: 'pay_demo_1005',
+                        clientName: 'Beatriz Lima',
+                        clientEmail: 'beatriz.lima@revivamemories.com.br',
+                        clientPhone: '(11) 98765-4321',
+                        clientCpf: '123.456.789-00',
+                        planName: 'Plano Affectus (1 Minuto)',
+                        format: 'horizontal',
+                        has_upsell: false,
+                        value: 447.30,
+                        valueFormatted: 'R$ 447,30',
+                        billingType: 'PIX',
+                        paymentMethod: 'PIX',
+                        installments: 1,
+                        isPaid: true,
+                        statusLabel: 'PAGO / CONFIRMADO',
+                        stage: 'producao_previa',
+                        dateCreated: new Date().toISOString(),
+                        date: new Date().toLocaleDateString('pt-BR'),
+                        source: 'demo'
+                    },
+                    {
+                        id: 'REVIVA-1001',
+                        orderId: 'REVIVA-1001',
+                        paymentId: 'pay_demo_1001',
+                        clientName: 'Carlos Eduardo Santos',
+                        clientEmail: 'carlos.eduardo@revivamemories.com.br',
+                        clientPhone: '(21) 99887-6655',
+                        clientCpf: '987.654.321-99',
+                        planName: 'Plano Legatum (2 Minutos)',
+                        format: 'both',
+                        has_upsell: true,
+                        value: 1210.95,
+                        valueFormatted: 'R$ 1.210,95',
+                        billingType: 'PIX',
+                        paymentMethod: 'PIX',
+                        installments: 1,
+                        isPaid: true,
+                        statusLabel: 'PAGO / CONFIRMADO',
+                        stage: 'producao_previa',
+                        dateCreated: new Date().toISOString(),
+                        date: new Date().toLocaleDateString('pt-BR'),
+                        source: 'demo'
+                    }
+                ];
+
+                for (const dOrd of demoOrders) {
+                    if (!isOrderDeleted(dOrd.id, dOrd.paymentId, dOrd.orderId)) {
+                        allAdminOrders.push(dOrd);
+                    }
+                }
+            }
+
+            // 4. Inicializa e sincroniza estado persistente de cada pedido real
             for (const order of allAdminOrders) {
                 getOrCreateCrmOrderData(order);
             }
@@ -3540,9 +3896,13 @@
         // RECONHECIMENTO DE FORMATO DE VÍDEO (HORIZONTAL / VERTICAL / AMBOS)
         // =========================================================================
         function detectOrderFormat(order) {
+            if (!order) return 'horizontal';
             if (order.format) return order.format;
-            const str = `${order.planName || ''} ${order.description || ''}`.toLowerCase();
-            if (str.includes('ambos') || str.includes('horizontal + vertical') || str.includes('+50%') || str.includes('dois formatos')) {
+            if (order.has_upsell === true || order.hasUpsell === true || order.format === 'both' || order.plan_format === 'Formatos Horizontal + Vertical') return 'both';
+
+            const rawFormat = (order.format || order.plan_format || '');
+            const str = `${rawFormat} ${order.planName || ''} ${order.description || ''}`.toLowerCase();
+            if (str.includes('ambos') || str.includes('both') || str.includes('horizontal + vertical') || str.includes('horizontal & vertical') || str.includes('+50%') || str.includes('dois formatos')) {
                 return 'both';
             }
             if (str.includes('vertical') || str.includes('9:16') || str.includes('reels') || str.includes('shorts')) {
@@ -3583,25 +3943,32 @@
         }
 
         function detectPaymentMethod(order) {
-            const histStr = (order.history || []).map(h => (h.event || '').toLowerCase()).join(' ');
-            const genStr = `${order.paymentId || ''} ${order.paymentMethod || ''} ${order.source || ''} ${histStr}`.toLowerCase();
-            
-            let method = 'Cartão';
-            if (genStr.includes('pix')) {
-                method = 'PIX';
-            } else if (genStr.includes('boleto')) {
-                method = 'Boleto';
-            } else if (genStr.includes('cartao') || genStr.includes('cartão') || genStr.includes('credit_card')) {
-                method = 'Cartão';
-            } else if (order.value === 447.30 || order.value === 807.30 || order.value === 1167.30 || order.value === 1210.95 || order.value === 1750.95) {
-                method = 'PIX';
+            const pmUpper = String(order.paymentMethod || order.billingType || '').toUpperCase();
+            if (pmUpper.includes('PIX') || String(order.source || '').toUpperCase() === 'PIX') {
+                return 'PIX';
+            }
+            if (pmUpper.includes('BOLETO')) {
+                return 'Boleto';
             }
 
-            if (method === 'Cartão') {
-                const installments = order.installments || order.installmentCount || order.paymentInstallments || 1;
-                return `Cartão - ${installments}x`;
+            const desc = `${order.planName || ''} ${order.description || ''}`.toLowerCase();
+            if (desc.includes('pix')) {
+                return 'PIX';
             }
-            return method;
+
+            const histStr = (order.history || []).map(h => (h.event || '').toLowerCase()).join(' ');
+            const genStr = `${order.paymentId || ''} ${order.paymentMethod || ''} ${order.billingType || ''} ${order.source || ''} ${histStr}`.toLowerCase();
+            
+            if (genStr.includes('pix')) {
+                return 'PIX';
+            } else if (genStr.includes('boleto')) {
+                return 'Boleto';
+            } else if (order.value === 447.30 || order.value === 670.95 || order.value === 807.30 || order.value === 1167.30 || order.value === 1210.95 || order.value === 1750.95) {
+                return 'PIX';
+            }
+
+            const installments = order.installments || order.installmentCount || order.paymentInstallments || 1;
+            return `Cartão - ${installments}x`;
         }
 
         // =========================================================================
@@ -3637,6 +4004,20 @@
             if (raw) {
                 try { data = JSON.parse(raw); } catch(e) {}
             }
+            if (data && Array.isArray(data.history)) {
+                let seenMat = false;
+                const prevLen = data.history.length;
+                data.history = data.history.filter(h => {
+                    if (h.event && h.event.includes('Materiais recebidos pela Produção')) {
+                        if (seenMat) return false;
+                        seenMat = true;
+                    }
+                    return true;
+                });
+                if (data.history.length !== prevLen) {
+                    saveCrmOrderData(order.id, data);
+                }
+            }
 
             if (!data) {
                 data = {
@@ -3670,9 +4051,11 @@
                     saveCrmOrderData(order.id, data);
                 }
 
-                // Assegura que o formato nos dados do CRM acompanhe o formato real registrado no pedido se ele tiver order.format
-                if (order.format && data.format !== order.format) {
-                    data.format = order.format;
+                // Assegura que o formato nos dados do CRM acompanhe o formato real normalizado registrado no pedido
+                const detectedFmt = detectOrderFormat(order);
+                if (detectedFmt && data.format !== detectedFmt) {
+                    data.format = detectedFmt;
+                    saveCrmOrderData(order.id, data);
                 }
             }
 
@@ -3736,18 +4119,6 @@
                 return 'aguardando_pagamento';
             }
 
-            // Fotos e Áudios do cliente
-            const photosCount = typeof getOrderUploadedPhotos === 'function' ? getOrderUploadedPhotos(order).length : 0;
-            const audiosCount = typeof getOrderUploadedAudios === 'function' ? getOrderUploadedAudios(order).length : 0;
-            const hasMaterialReceived = photosCount > 0 || audiosCount > 0;
-
-            // Se o pedido estava em pagamento_confirmado mas já possui fotos ou áudios enviados pelo cliente:
-            // É IMPOSSÍVEL continuar em confirmados; avança obrigatoriamente para material_enviado (3. Recebidos)!
-            if (crmData?.stage === 'pagamento_confirmado' && hasMaterialReceived) {
-                if (crmData) crmData.manualStageOverride = false;
-                return 'material_enviado';
-            }
-
             // 2. Pós-Venda (Ocorre após vídeo final ser liberado E o cliente assistir/baixar/compartilhar na Etapa 5)
             const isStage5Delivered = localStorage.getItem(`reviva_stage5_delivered_${order.id}`) === 'true' || 
                                      Boolean(localStorage.getItem(`reviva_producer_video_${order.id}`)) ||
@@ -3769,12 +4140,19 @@
             // 3. Prévias Reprovadas vs Aprovadas
             let orderState = null;
             try {
-                const raw = localStorage.getItem(`reviva_order_state_${order.id}`) || 
-                           (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
-                           localStorage.getItem('reviva_full_session_state') ||
-                           localStorage.getItem('reviva_order_state_REVIVA-1001') ||
-                           localStorage.getItem('reviva_order_state_1');
-                if (raw) orderState = JSON.parse(raw);
+                const keys = [
+                    `reviva_order_state_${order.id}`,
+                    order.orderId ? `reviva_order_state_${order.orderId}` : null,
+                    order.paymentId ? `reviva_order_state_${order.paymentId}` : null,
+                    (order.id === 'REVIVA-1001' ? 'reviva_full_session_state' : null)
+                ].filter(Boolean);
+                for (const k of keys) {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        orderState = JSON.parse(raw);
+                        break;
+                    }
+                }
             } catch(e) {}
 
             const photoApproved = Boolean(orderState && (orderState.photoApproved || orderState.photoDecision === 'approved'));
@@ -3807,46 +4185,32 @@
                 return 'previas_aprovadas';
             }
 
-            // 4. Produção Prévia (Trabalho iniciado ou prévias em elaboração)
-            const isStage4 = localStorage.getItem(`reviva_stage4_delivered_${order.id}`) === 'true' || 
-                             (order.orderId && localStorage.getItem(`reviva_stage4_delivered_${order.orderId}`) === 'true') ||
-                             (crmData && crmData.secondsWorked > 0);
-            if (isStage4) return 'producao_previa';
+            // 4. Material Recebido (Coluna 3: Recebidos):
+            // ESTRITAMENTE quando TODOS os 5 materiais tiverem sido concluídos pelo cliente:
+            // (1. Fotos >= 1, 2. Áudios >= 1, 3. Roteiro Pronto, 4. Trilha Escolhida, 5. Ambiente Escolhido)
+            const allMaterialsComplete = typeof areAllClientMaterialsCompleted === 'function'
+                ? areAllClientMaterialsCompleted(order, crmData, orderState)
+                : false;
 
-            // 5. Material Recebido (Cliente enviou fotos/áudios ou avançou da etapa 1 no painel)
-            let hasPhotosUploaded = false;
-            let hasAudiosUploaded = false;
-            try {
-                const pRaw = localStorage.getItem(`reviva_client_photos_${order.id}`) ||
-                             (order.orderId ? localStorage.getItem(`reviva_client_photos_${order.orderId}`) : null) ||
-                             (order.paymentId ? localStorage.getItem(`reviva_client_photos_${order.paymentId}`) : null) ||
-                             localStorage.getItem('reviva_client_photos');
-                if (pRaw) {
-                    const parsed = JSON.parse(pRaw);
-                    if (Array.isArray(parsed) && parsed.length > 0) hasPhotosUploaded = true;
-                }
-                const aRaw = localStorage.getItem(`reviva_client_audio_${order.id}`) ||
-                             (order.orderId ? localStorage.getItem(`reviva_client_audio_${order.orderId}`) : null) ||
-                             (order.paymentId ? localStorage.getItem(`reviva_client_audio_${order.paymentId}`) : null) ||
-                             localStorage.getItem('reviva_client_audio');
-                if (aRaw) {
-                    const parsed = JSON.parse(aRaw);
-                    if (Array.isArray(parsed) && parsed.length > 0) hasAudiosUploaded = true;
-                }
-            } catch(e) {}
+            // Se o pedido teve prévias formalmente liberadas ou foi movido para a coluna Prévias Enviadas
+            const isStage4Delivered = localStorage.getItem(`reviva_stage4_delivered_${order.id}`) === 'true' || 
+                                     (order.orderId && localStorage.getItem(`reviva_stage4_delivered_${order.orderId}`) === 'true');
+            
+            if (isStage4Delivered || crmData?.stage === 'producao_previa') {
+                return 'producao_previa';
+            }
 
-            const hasMaterial = Boolean(
-                hasPhotosUploaded ||
-                hasAudiosUploaded ||
-                (orderState && (
-                    (Array.isArray(orderState.uploadedPhotos) && orderState.uploadedPhotos.length > 0) ||
-                    (Array.isArray(orderState.uploadedAudios) && orderState.uploadedAudios.length > 0) ||
-                    (orderState.currentStep && orderState.currentStep >= 2)
-                ))
-            );
-            if (hasMaterial) return 'material_enviado';
+            if (allMaterialsComplete || crmData?.stage === 'material_enviado') {
+                return 'material_enviado';
+            }
 
-            // 6. Pagamento Confirmado (Aguardando cliente enviar materiais)
+            // Se trabalho já começou e não está em recebidos
+            if (crmData && crmData.secondsWorked > 0) {
+                return 'producao_previa';
+            }
+
+            // 6. Pagamento Confirmado (Coluna 2: Pedidos Confirmados)
+            // Enquanto o cliente estiver enviando materiais ou em etapas do onboarding, PERMANECE estritamente aqui!
             return 'pagamento_confirmado';
         }
 
@@ -4098,6 +4462,13 @@
             return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
+        function getOrderThemeColor(order) {
+            const plan = String(order?.planName || '').toLowerCase();
+            if (plan.includes('tributum')) return '#ef4444'; // Vermelho
+            if (plan.includes('legatum')) return '#f59e0b'; // Amarelo
+            return '#22c55e'; // Verde (Affectus)
+        }
+
         function initTimerHeartbeat() {
             if (timerHeartbeatInterval) clearInterval(timerHeartbeatInterval);
             timerHeartbeatInterval = setInterval(tickActiveTimer, 1000);
@@ -4125,10 +4496,9 @@
                 crmData.history.unshift({
                     timestamp: new Date().toISOString(),
                     dateFormatted: new Date().toLocaleString('pt-BR'),
-                    event: 'Sessão de trabalho encerrada automaticamente (limite máximo de 60 min atingido)',
+                    event: 'Sessão de trabalho finalizada automaticamente (limite máximo de 60 min)',
                     type: 'timer'
                 });
-
                 saveCrmOrderData(order.id, crmData);
                 renderKanbanBoard();
                 updateHeaderAnalytics();
@@ -4144,10 +4514,11 @@
 
             // 2. Atualiza elementos no Cockpit se estiver aberto neste pedido
             if (selectedAdminOrderId === order.id) {
+                const themeColor = getOrderThemeColor(order);
                 const mTimeEl = document.getElementById('cockpit-metric-time');
                 if (mTimeEl) {
                     mTimeEl.textContent = formatSeconds(totalSec);
-                    mTimeEl.style.color = '#38bdf8';
+                    mTimeEl.style.color = themeColor;
                 }
 
                 const mHourlyEl = document.getElementById('cockpit-metric-hourly-rate');
@@ -4245,10 +4616,71 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        function cancelSwitchTimer() {
-            pendingSwitchTargetOrderId = null;
-            const modal = document.getElementById('modal-switch-timer');
+        // Variável de controle para o pedido pendente de transição para "Enviados" (Prévias Enviadas)
+        let pendingMovePreviewsOrderId = null;
+
+        function checkAllPreviewsUploadedAndPrompt(order, crmData) {
+            if (!order || !crmData) return;
+            // Somente dispara quando o pedido está na coluna RECEBIDOS (material_enviado)
+            if (crmData.stage !== 'material_enviado') return;
+
+            const format = crmData.format || order.format || 'horizontal';
+            const isBoth = format === 'both';
+            const hasPhotoH = Boolean(localStorage.getItem(`reviva_producer_photo_h_${order.id}`));
+            const hasPhotoV = Boolean(localStorage.getItem(`reviva_producer_photo_v_${order.id}`));
+            const hasPhotoSingle = Boolean(localStorage.getItem(`reviva_producer_image_${order.id}`));
+            const photoComplete = isBoth ? (hasPhotoH && hasPhotoV) : (hasPhotoSingle || hasPhotoH || hasPhotoV);
+            const voiceComplete = Boolean(localStorage.getItem(`reviva_producer_audio_${order.id}`));
+
+            // Ambas as mídias (foto(s) e áudio clonado) devem estar presentes
+            if (photoComplete && voiceComplete) {
+                openMovePreviewsModal(order.id);
+            }
+        }
+
+        function openMovePreviewsModal(orderId) {
+            pendingMovePreviewsOrderId = orderId;
+            const modal = document.getElementById('modal-confirm-move-previews');
+            if (modal) modal.style.display = 'flex';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function cancelMovePreviewsToSent() {
+            pendingMovePreviewsOrderId = null;
+            const modal = document.getElementById('modal-confirm-move-previews');
             if (modal) modal.style.display = 'none';
+        }
+
+        function confirmMovePreviewsToSent() {
+            const orderId = pendingMovePreviewsOrderId;
+            cancelMovePreviewsToSent();
+            if (!orderId) return;
+
+            const order = allAdminOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            const crmData = getOrCreateCrmOrderData(order);
+            crmData.stage = 'producao_previa';
+            crmData.manualStageOverride = true; // Fixa a decisão do usuário
+            localStorage.setItem(`reviva_stage4_delivered_${order.id}`, 'true');
+            if (order.id === 'REVIVA-1001' || order.id == 1) {
+                localStorage.setItem('reviva_stage4_delivered', 'true');
+            }
+
+            crmData.history = crmData.history || [];
+            crmData.history.unshift({
+                timestamp: new Date().toISOString(),
+                dateFormatted: new Date().toLocaleString('pt-BR'),
+                event: 'Prévias finalizadas - Pedido movido para a coluna Prévias Enviadas (Etapa 4 liberada)',
+                type: 'stage'
+            });
+
+            saveCrmOrderData(order.id, crmData);
+            renderKanbanBoard();
+            updateHeaderAnalytics();
+            if (selectedAdminOrderId === order.id) {
+                renderCockpitData(order.id);
+            }
         }
 
         function confirmSwitchTimer() {
@@ -4294,8 +4726,18 @@
             activeTimerOrderId = orderId;
             localStorage.setItem('reviva_active_timer_order_id', orderId);
 
-            // Se o pedido ainda estava em pagamento confirmado ou material recebido, avança para produção prévia
-            if (crmData.stage === 'pagamento_confirmado' || crmData.stage === 'material_enviado') {
+            // Início do trabalho no pedido
+            crmData.workStarted = true;
+            if (crmData.stage === 'material_enviado') {
+                // Mantém estritamente na coluna RECEBIDOS (material_enviado).
+                // O envio das prévias é liberado pelo cronômetro ativo sem mudar de coluna.
+                crmData.history.unshift({
+                    timestamp: new Date().toISOString(),
+                    dateFormatted: new Date().toLocaleString('pt-BR'),
+                    event: 'Início da produção da imagem e voz clonada (mantido em Recebidos)',
+                    type: 'stage'
+                });
+            } else if (crmData.stage === 'pagamento_confirmado') {
                 crmData.stage = 'producao_previa';
                 crmData.history.unshift({
                     timestamp: new Date().toISOString(),
@@ -4782,6 +5224,21 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                const lightbox = document.getElementById('modal-admin-photo-lightbox');
+                if (lightbox && lightbox.style.display === 'flex') {
+                    closePhotoLightbox();
+                    return;
+                }
+                const photosModal = document.getElementById('modal-admin-photos');
+                if (photosModal && photosModal.style.display === 'flex') {
+                    closeAdminPhotosModal();
+                    return;
+                }
+                const audiosModal = document.getElementById('modal-admin-audios');
+                if (audiosModal && audiosModal.style.display === 'flex') {
+                    closeAdminAudiosModal();
+                    return;
+                }
                 const bar = document.getElementById('search-dropdown-bar');
                 if (bar && bar.style.display === 'flex') {
                     clearAndCloseSearch();
@@ -5083,6 +5540,81 @@
                              </span>
                            </div>`;
 
+                    // Prévias enviadas ao cliente (Foto Horizontal, Vertical e Áudio da Voz Clonada)
+                    const isHorizontal = crmData.format === 'horizontal';
+                    const isVertical = crmData.format === 'vertical';
+                    const isBoth = crmData.format === 'both';
+
+                    const cardPhotoH = localStorage.getItem(`reviva_producer_photo_h_${order.id}`) || (isHorizontal ? localStorage.getItem(`reviva_producer_image_${order.id}`) : null) || (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_producer_photo_h') || localStorage.getItem('reviva_producer_image') : null);
+                    const cardPhotoV = localStorage.getItem(`reviva_producer_photo_v_${order.id}`) || (isVertical ? localStorage.getItem(`reviva_producer_image_${order.id}`) : null) || (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_producer_photo_v') : null);
+                    const cardPhotoSingle = localStorage.getItem(`reviva_producer_image_${order.id}`) || 
+                                            (isHorizontal ? localStorage.getItem(`reviva_producer_photo_h_${order.id}`) : null) || 
+                                            (isVertical ? localStorage.getItem(`reviva_producer_photo_v_${order.id}`) : null) || 
+                                            localStorage.getItem(`reviva_producer_photo_h_${order.id}`) || 
+                                            localStorage.getItem(`reviva_producer_photo_v_${order.id}`) || 
+                                            (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_producer_image') || localStorage.getItem('reviva_producer_photo_h') || localStorage.getItem('reviva_producer_photo_v') : null);
+                    const cardAudio = localStorage.getItem(`reviva_producer_audio_${order.id}`) || (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_producer_audio') : null);
+
+                    let previewsHtml = '';
+                    const hasAnyImage = isBoth ? Boolean(cardPhotoH || cardPhotoV) : Boolean(cardPhotoSingle || cardPhotoH || cardPhotoV);
+                    const hasAudio = Boolean(cardAudio);
+
+                    if (hasAnyImage || hasAudio) {
+                        let imagesHtml = '';
+                        if (isBoth) {
+                            if (cardPhotoH) {
+                                imagesHtml += `
+                                    <div class="card-preview-thumb-wrap" onclick="event.stopPropagation(); openPhotoLightbox('${cardPhotoH}', 'Prévia Imagem Horizontal - Pedido #${order.orderId || order.id}')" title="Clique para ampliar a prévia horizontal sem cortes">
+                                        <img src="${cardPhotoH}" class="card-preview-thumb-img" style="width: 58px; height: 34px;" alt="Prévia Horizontal">
+                                        <span class="card-preview-thumb-badge">16:9</span>
+                                    </div>
+                                `;
+                            }
+                            if (cardPhotoV) {
+                                imagesHtml += `
+                                    <div class="card-preview-thumb-wrap" onclick="event.stopPropagation(); openPhotoLightbox('${cardPhotoV}', 'Prévia Imagem Vertical - Pedido #${order.orderId || order.id}')" title="Clique para ampliar a prévia vertical sem cortes">
+                                        <img src="${cardPhotoV}" class="card-preview-thumb-img" style="width: 24px; height: 34px;" alt="Prévia Vertical">
+                                        <span class="card-preview-thumb-badge">9:16</span>
+                                    </div>
+                                `;
+                            }
+                        } else {
+                            const singleSrc = cardPhotoSingle || (isVertical ? cardPhotoV : cardPhotoH) || cardPhotoV || cardPhotoH;
+                            if (singleSrc) {
+                                const w = isVertical ? '34px' : '62px';
+                                const badge = isVertical ? '9:16' : '16:9';
+                                imagesHtml += `
+                                    <div class="card-preview-thumb-wrap" onclick="event.stopPropagation(); openPhotoLightbox('${singleSrc}', 'Prévia de Imagem - Pedido #${order.orderId || order.id}')" title="Clique para ampliar a prévia sem cortes">
+                                        <img src="${singleSrc}" class="card-preview-thumb-img" style="width: ${w}; height: 34px;" alt="Prévia">
+                                        <span class="card-preview-thumb-badge">${badge}</span>
+                                    </div>
+                                `;
+                            }
+                        }
+
+                        let audioHtml = '';
+                        if (hasAudio) {
+                            audioHtml = `
+                                <div class="card-preview-audio-wrap" title="Verificação rápida da voz clonada do pedido">
+                                    <div style="display: flex; align-items: center; gap: 4px; min-width: 0; overflow: hidden;">
+                                        <i data-lucide="mic" style="width: 11px; height: 11px; color: var(--gold-bright); flex-shrink: 0;"></i>
+                                        <span style="font-size: 0.60rem; color: #f8fafc; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Voz Clonada</span>
+                                    </div>
+                                    <button type="button" id="btn-card-audio-${order.id}" class="card-audio-play-btn" onclick="toggleCardAudioPlay(event, '${cardAudio.replace(/'/g, "\\'")}', '${order.id}')" title="Ouvir áudio da narração">
+                                        <i data-lucide="play" style="width: 11px; height: 11px; margin-left: 1px;"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
+
+                        previewsHtml = `
+                            <div class="card-previews-container" onclick="event.stopPropagation();">
+                                ${imagesHtml ? `<div class="card-preview-images-row">${imagesHtml}</div>` : ''}
+                                ${audioHtml}
+                            </div>
+                        `;
+                    }
+
                     // Tooltip no Hover (Cards Resumidos e Detalhados): Plano - Duração - Formato e Data de Contratação
                     const planTooltipLabel = shortPlan.toLowerCase().startsWith('plano') ? shortPlan : `Plano ${shortPlan}`;
                     const formatTooltipLabel = crmData.format === 'both' ? 'Horizontal + Vertical' : (crmData.format === 'vertical' ? 'Vertical' : 'Horizontal');
@@ -5196,6 +5728,9 @@
                             </div>
                             ${previasStatusBadge}
 
+                            <!-- PRÉVIAS ENVIADAS (IMAGEM + ÁUDIO COM PLAY) -->
+                            ${previewsHtml}
+
                             <!-- LINHA 5: FORMA DE PAGAMENTO E VALOR -->
                             <div class="card-plan-info" style="margin-top: 1px; justify-content: center; gap: 6px;">
                                 <span style="font-size: 0.68rem; color: #94a3b8; font-weight: 600;">${paymentMethodStr}</span>
@@ -5206,14 +5741,19 @@
                             <!-- LINHA 5.1: STATUS DO TERMO DE RESPONSABILIDADE -->
                             ${termoCardBadge}
 
-                            <!-- LINHA 6: DATA DE CONTRATAÇÃO -->
-                            <div class="card-actions-row" style="padding-top: 3px; border-top: 1px solid rgba(197, 160, 89, 0.15); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <!-- LINHA 6: DATA DE CONTRATAÇÃO E AÇÕES -->
+                            <div class="card-actions-row" style="padding-top: 3px; border-top: 1px solid rgba(197, 160, 89, 0.15); display: flex; align-items: center; justify-content: space-between; padding-left: 4px; padding-right: 4px; gap: 6px;">
                                 <span style="font-size: 0.63rem; color: var(--text-secondary);">${order.date || ''}</span>
-                                ${crmData.archived ? `
-                                    <span style="font-size: 0.58rem; padding: 1px 5px; border-radius: 3px; background: rgba(148, 163, 184, 0.2); border: 1px solid rgba(148, 163, 184, 0.4); color: #cbd5e1; font-weight: 700; text-transform: uppercase; display: inline-flex; align-items: center; gap: 3px;">
-                                        <i data-lucide="archive" style="width: 8px; height: 8px;"></i> Arquivado
-                                    </span>
-                                ` : ''}
+                                <div style="display: inline-flex; align-items: center; gap: 6px;">
+                                    ${crmData.archived ? `
+                                        <span style="font-size: 0.58rem; padding: 1px 5px; border-radius: 3px; background: rgba(148, 163, 184, 0.2); border: 1px solid rgba(148, 163, 184, 0.4); color: #cbd5e1; font-weight: 700; text-transform: uppercase; display: inline-flex; align-items: center; gap: 3px;">
+                                            <i data-lucide="archive" style="width: 8px; height: 8px;"></i> Arquivado
+                                        </span>
+                                    ` : ''}
+                                    <button type="button" onclick="event.stopPropagation(); deleteCurrentCockpitOrder('${order.id}')" title="Excluir este pedido definitivamente" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); color: #f87171; border-radius: 3px; cursor: pointer; padding: 2px 4px; display: inline-flex; align-items: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.25)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'">
+                                        <i data-lucide="trash-2" style="width: 10px; height: 10px;"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- OVERLAY QUE COBRE TODO O CARD EM TRABALHO ATIVO -->
@@ -5418,6 +5958,16 @@
         // =========================================================================
         function openCockpitModal(orderId) {
             selectedAdminOrderId = orderId;
+
+            // Persiste estado do card expandido para manter após refresh e sincroniza URL
+            try {
+                sessionStorage.setItem('reviva_expanded_cockpit_order_id', String(orderId));
+                const url = new URL(window.location);
+                if (url.searchParams.get('order') !== String(orderId)) {
+                    url.searchParams.set('order', String(orderId));
+                    window.history.replaceState({ cockpitOrder: orderId }, '', url.toString());
+                }
+            } catch(e) {}
             
             // Ao abrir o cockpit do pedido, marca-o como visualizado para remover o alerta de "NOVO"
             const order = allAdminOrders.find(o => o.id === orderId);
@@ -5436,11 +5986,142 @@
         }
 
         function closeCockpitModal() {
+            // Limpa o estado persistente do card expandido e remove da URL
+            try {
+                sessionStorage.removeItem('reviva_expanded_cockpit_order_id');
+                const url = new URL(window.location);
+                if (url.searchParams.has('order')) {
+                    url.searchParams.delete('order');
+                    window.history.replaceState({}, '', url.toString());
+                }
+            } catch(e) {}
+
             const modal = document.getElementById('cockpit-fullscreen-modal');
             if (modal) modal.style.display = 'none';
             renderKanbanBoard();
             updateHeaderAnalytics();
         }
+
+        // =========================================================================
+        // ATALHO ESC: FECHA SUBMODAIS OU O CARD EXPANDIDO (COCKPIT)
+        // =========================================================================
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                // 1. Lightbox de fotos em tela cheia
+                const lightbox = document.getElementById('modal-admin-photo-lightbox');
+                if (lightbox && lightbox.style.display !== 'none') {
+                    lightbox.style.display = 'none';
+                    return;
+                }
+
+                // 2. Submodais auxiliares (Fotos, Áudios, Roteiro, Termo, Métricas, Timer)
+                const subModals = [
+                    'modal-admin-photos',
+                    'modal-admin-audios',
+                    'modal-admin-script',
+                    'modal-admin-termo',
+                    'modal-order-metrics',
+                    'modal-switch-timer',
+                    'modal-confirm-move-previews',
+                    'modal-script-popover',
+                    'modal-sync-data'
+                ];
+                for (const mId of subModals) {
+                    const el = document.getElementById(mId);
+                    if (el && el.style.display !== 'none') {
+                        el.style.display = 'none';
+                        return;
+                    }
+                }
+
+                // 3. Card Expandido Principal (Cockpit Modal)
+                const cockpitModal = document.getElementById('cockpit-fullscreen-modal');
+                if (cockpitModal && cockpitModal.style.display !== 'none') {
+                    closeCockpitModal();
+                }
+            }
+        });
+
+        // =========================================================================
+        // SINCRONIZAÇÃO / ESPELHO DE DADOS ENTRE AMBIENTES (LOCAL <-> PUBLICADO)
+        // =========================================================================
+        function openSyncModal() {
+            const m = document.getElementById('modal-sync-data');
+            if (m) m.style.display = 'flex';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeSyncModal() {
+            const m = document.getElementById('modal-sync-data');
+            if (m) m.style.display = 'none';
+        }
+
+        function copyCurrentEnvironmentData() {
+            try {
+                const dump = {};
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && (k.startsWith('reviva_') || k.startsWith('producer_') || k.startsWith('client_'))) {
+                        dump[k] = localStorage.getItem(k);
+                    }
+                }
+                const jsonStr = JSON.stringify(dump);
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(jsonStr).then(() => {
+                        alert("✓ Dados copiados para a área de transferência com sucesso!\n\nAgora vá até o outro ambiente, abra este assistente e clique em Importar.");
+                    }).catch(() => {
+                        prompt("Copie os dados abaixo manualmente (Ctrl+C):", jsonStr);
+                    });
+                } else {
+                    prompt("Copie os dados abaixo manualmente (Ctrl+C):", jsonStr);
+                }
+            } catch (err) {
+                alert("Erro ao copiar dados: " + err.message);
+            }
+        }
+
+        function applyImportedEnvironmentData() {
+            const txt = document.getElementById('sync-data-textarea');
+            const rawVal = txt ? txt.value.trim() : '';
+            if (!rawVal) {
+                alert("Por favor, cole os dados no campo de texto antes de importar.");
+                return;
+            }
+            try {
+                const parsed = JSON.parse(rawVal);
+                let count = 0;
+                Object.entries(parsed).forEach(([k, v]) => {
+                    if (k && (k.startsWith('reviva_') || k.startsWith('producer_') || k.startsWith('client_'))) {
+                        localStorage.setItem(k, v);
+                        count++;
+                    }
+                });
+                alert(`✓ Sucesso! ${count} registros foram espelhados neste ambiente.`);
+                window.location.reload();
+            } catch (err) {
+                alert("Conteúdo inválido. Certifique-se de colar o código completo gerado pelo botão Copiar.");
+            }
+        }
+
+        // Sincronização com botões de histórico do navegador (Voltar / Avançar)
+        window.addEventListener('popstate', () => {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const orderFromUrl = urlParams.get('order');
+                if (orderFromUrl && allAdminOrders && allAdminOrders.length > 0) {
+                    const matchOrder = allAdminOrders.find(o => 
+                        String(o.id).toLowerCase() === String(orderFromUrl).toLowerCase() ||
+                        String(o.orderId || '').toLowerCase() === String(orderFromUrl).toLowerCase()
+                    );
+                    if (matchOrder) openCockpitModal(matchOrder.id);
+                } else {
+                    const modal = document.getElementById('cockpit-fullscreen-modal');
+                    if (modal && modal.style.display !== 'none') {
+                        closeCockpitModal();
+                    }
+                }
+            } catch(e) {}
+        });
 
         function renderCockpitData(orderId) {
             const order = allAdminOrders.find(o => o.id === orderId) || allAdminOrders[0];
@@ -5529,12 +6210,18 @@
             // Exibir Escolhas do Cliente no Cockpit: Ambiente de Fundo e Trilha Sonora (apenas texto, sem miniatura)
             let orderStateForMedia = null;
             try {
-                const rawMediaState = localStorage.getItem(`reviva_order_state_${order.id}`) || 
-                                      (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
-                                      localStorage.getItem('reviva_full_session_state') ||
-                                      localStorage.getItem('reviva_order_state_REVIVA-1001') ||
-                                      localStorage.getItem('reviva_order_state_1');
-                if (rawMediaState) orderStateForMedia = JSON.parse(rawMediaState);
+                const keys = [
+                    `reviva_order_state_${order.id}`,
+                    order.orderId ? `reviva_order_state_${order.orderId}` : null,
+                    order.paymentId ? `reviva_order_state_${order.paymentId}` : null
+                ].filter(Boolean);
+                for (const k of keys) {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        orderStateForMedia = JSON.parse(raw);
+                        break;
+                    }
+                }
             } catch(e) {}
 
             const cockpitBgEl = document.getElementById('cockpit-selected-background');
@@ -5651,7 +6338,8 @@
 
             if (metricTimeEl) {
                 metricTimeEl.textContent = formatSeconds(totalSec);
-                metricTimeEl.style.color = isRunning ? '#38bdf8' : '#ef4444';
+                const themeColor = getOrderThemeColor(order);
+                metricTimeEl.style.color = isRunning ? themeColor : (totalSec > 0 ? themeColor : '#94a3b8');
             }
 
             if (metricHourlyEl) {
@@ -5787,60 +6475,16 @@
                     perfContainer.style.opacity = '1';
                 }
                 
-                if (isAwaitingMaterial) {
-                    // Na etapa de Confirmados (Aguardando Materiais), verifica se o cliente já enviou ao menos fotos ou áudios
-                    let clientSentMaterials = false;
-                    try {
-                        const localPhotosRaw = localStorage.getItem(`reviva_client_photos_${order.id}`) ||
-                                              (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_client_photos') : null);
-                        const localAudiosRaw = localStorage.getItem(`reviva_client_audio_${order.id}`) ||
-                                              (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_client_audio') : null);
-                        const photosList = localPhotosRaw ? JSON.parse(localPhotosRaw) : [];
-                        const audiosList = localAudiosRaw ? JSON.parse(localAudiosRaw) : [];
-                        if ((Array.isArray(photosList) && photosList.length > 0) || 
-                            (Array.isArray(audiosList) && audiosList.length > 0) ||
-                            (orderStateForMedia?.uploadedPhotos && orderStateForMedia.uploadedPhotos.length > 0) ||
-                            (orderStateForMedia?.uploadedAudios && orderStateForMedia.uploadedAudios.length > 0)) {
-                            clientSentMaterials = true;
-                        }
-                    } catch(e) {}
+                // Helper de checagem dos 5 materiais do cliente:
+                // O pacote só pode ficar verde e acessível quando TODOS os envios estiverem concluídos!
+                const areAllMaterialsSent = areAllClientMaterialsCompleted(order, crmData, orderStateForMedia);
 
-                    if (clientSentMaterials) {
-                        // Cliente já enviou materiais na etapa confirmados: botão fica em tom verde translúcido harmônico com os cards
-                        if (pkgBtn) {
-                            pkgBtn.style.display = 'inline-flex';
-                            pkgBtn.disabled = false;
-                            pkgBtn.classList.add('btn-pkg-sent');
-                            pkgBtn.style.background = '';
-                            pkgBtn.style.border = '';
-                            pkgBtn.style.color = '';
-                            pkgBtn.style.boxShadow = '';
-                            pkgBtn.style.cursor = 'pointer';
-                            pkgBtn.style.pointerEvents = 'auto';
-                            pkgBtn.style.opacity = '1';
-                            pkgBtn.title = 'Materiais recebidos! Clique para baixar pacote completo (.ZIP)';
-                        }
-                    } else {
-                        // Na etapa Confirmados (Aguardando Materiais): Botão fica no tom AMARELO harmônico com os cards pendentes, inacessível
-                        if (pkgBtn) {
-                            pkgBtn.style.display = 'inline-flex';
-                            pkgBtn.disabled = true;
-                            pkgBtn.classList.remove('btn-pkg-sent');
-                            pkgBtn.classList.add('btn-pkg-stage-2');
-                            pkgBtn.style.background = '';
-                            pkgBtn.style.border = '';
-                            pkgBtn.style.color = '';
-                            pkgBtn.style.boxShadow = '';
-                            pkgBtn.style.cursor = 'not-allowed';
-                            pkgBtn.style.pointerEvents = 'none';
-                            pkgBtn.title = 'Pacote indisponível: aguardando envio dos materiais pelo cliente';
-                        }
-                    }
-                } else {
-                    // Etapas 3 em diante (Recebidos, Prévias, etc.): envios do cliente já chegaram -> tom verde idêntico aos cards
+                if (areAllMaterialsSent) {
+                    // TODOS OS MATERIAIS ENVIADOS: Verde e acessível
                     if (pkgBtn) {
                         pkgBtn.style.display = 'inline-flex';
                         pkgBtn.disabled = false;
+                        pkgBtn.classList.remove('btn-pkg-stage-2');
                         pkgBtn.classList.add('btn-pkg-sent');
                         pkgBtn.style.background = '';
                         pkgBtn.style.border = '';
@@ -5849,7 +6493,23 @@
                         pkgBtn.style.cursor = 'pointer';
                         pkgBtn.style.pointerEvents = 'auto';
                         pkgBtn.style.opacity = '1';
-                        pkgBtn.title = 'Baixar pacote completo com materiais do cliente (.ZIP)';
+                        pkgBtn.title = 'Materiais 100% recebidos! Clique para baixar pacote completo (.ZIP)';
+                    }
+                } else {
+                    // PENDENTE (qualquer material faltando): Amarelo, inacessível e pendente
+                    if (pkgBtn) {
+                        pkgBtn.style.display = 'inline-flex';
+                        pkgBtn.disabled = true;
+                        pkgBtn.classList.remove('btn-pkg-sent');
+                        pkgBtn.classList.add('btn-pkg-stage-2');
+                        pkgBtn.style.background = '';
+                        pkgBtn.style.border = '';
+                        pkgBtn.style.color = '';
+                        pkgBtn.style.boxShadow = '';
+                        pkgBtn.style.cursor = 'not-allowed';
+                        pkgBtn.style.pointerEvents = 'none';
+                        pkgBtn.style.opacity = '0.7';
+                        pkgBtn.title = 'Pacote inacessível: aguardando conclusão de todos os envios do cliente (Fotos, Áudios, Roteiro, Trilha e Ambiente)';
                     }
                 }
             }
@@ -6055,6 +6715,81 @@
             }
         }
 
+        // Helper para checar se TODOS os 5 materiais do cliente foram 100% concluídos:
+        // (1. Fotos >= 1, 2. Áudios >= 1, 3. Roteiro Pronto, 4. Trilha Escolhida, 5. Ambiente Escolhido)
+        function areAllClientMaterialsCompleted(order, crmData, orderStateForMedia) {
+            if (!order) return false;
+            if (!crmData) {
+                try {
+                    const raw = localStorage.getItem(getCrmStorageKey(order.id));
+                    crmData = raw ? JSON.parse(raw) : {};
+                } catch(e) {
+                    crmData = {};
+                }
+            }
+
+            if (!orderStateForMedia) {
+                try {
+                    const keys = [
+                        `reviva_order_state_${order.id}`,
+                        order.orderId ? `reviva_order_state_${order.orderId}` : null,
+                        order.paymentId ? `reviva_order_state_${order.paymentId}` : null,
+                        (order.id === 'REVIVA-1001' ? 'reviva_full_session_state' : null)
+                    ].filter(Boolean);
+                    for (const k of keys) {
+                        const raw = localStorage.getItem(k);
+                        if (raw) {
+                            orderStateForMedia = JSON.parse(raw);
+                            break;
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            // 1. Fotos
+            const photos = getOrderUploadedPhotos(order);
+            const hasPhotos = (Array.isArray(photos) && photos.length > 0);
+
+            // 2. Áudios
+            const audios = getOrderUploadedAudios(order);
+            const hasAudios = (Array.isArray(audios) && audios.length > 0);
+
+            // 3. Roteiro
+            const hasScript = Boolean(
+                orderStateForMedia?.isScriptApproved === true || 
+                (orderStateForMedia?.latestScriptText && orderStateForMedia.latestScriptText.length > 50 && orderStateForMedia?.currentStep >= 3)
+            );
+
+            // 4. Trilha
+            const clientHasSentInitialMaterials = (hasPhotos && hasAudios);
+            const clientReachedHarmonizationOrBeyond = Boolean(
+                (orderStateForMedia && orderStateForMedia.currentStep >= 3) ||
+                ['producao_previa', 'previas_reprovadas', 'previas_aprovadas', 'producao_final', 'entregues'].includes(crmData?.stage)
+            );
+            const hasMusic = Boolean(
+                (clientHasSentInitialMaterials || clientReachedHarmonizationOrBeyond) && (
+                    crmData?.selectedMusic ||
+                    (orderStateForMedia && orderStateForMedia.musicManuallyChosen && orderStateForMedia.selectedMusic && orderStateForMedia.selectedMusic !== 'sem_musica') ||
+                    (orderStateForMedia && orderStateForMedia.currentStep > 3 && orderStateForMedia.selectedMusic) ||
+                    localStorage.getItem(`reviva_client_music_${order.id}`) ||
+                    (order.selectedMusic && clientReachedHarmonizationOrBeyond)
+                )
+            );
+
+            // 5. Ambiente
+            const hasBg = Boolean(
+                (clientHasSentInitialMaterials || clientReachedHarmonizationOrBeyond) && (
+                    crmData?.selectedBackground ||
+                    (orderStateForMedia && orderStateForMedia.backgroundChosen) ||
+                    (orderStateForMedia && orderStateForMedia.currentStep > 3 && orderStateForMedia.selectedBackground) ||
+                    localStorage.getItem(`reviva_client_bg_${order.id}`) ||
+                    (order.selectedBackground && clientReachedHarmonizationOrBeyond)
+                )
+            );
+
+            return (hasPhotos && hasAudios && hasScript && hasMusic && hasBg);
+        }
+
         // Helper para obter fotos de um pedido (estritamente isolado pelo ID do pedido)
         function getOrderUploadedPhotos(order) {
             if (!order) return [];
@@ -6166,12 +6901,12 @@
                 return true;
             }
 
-            // 3. Registro salvo em reviva_order_state ou reviva_full_session_state
+            // 3. Registro salvo em reviva_order_state
             const stateKeys = [
                 `reviva_order_state_${order.id}`,
                 order.paymentId ? `reviva_order_state_${order.paymentId}` : null,
                 order.orderId ? `reviva_order_state_${order.orderId}` : null,
-                'reviva_full_session_state'
+                (order.id === 'REVIVA-1001' ? 'reviva_full_session_state' : null)
             ].filter(Boolean);
 
             for (const sk of stateKeys) {
@@ -6243,7 +6978,7 @@
                     const raw = localStorage.getItem(`reviva_order_state_${order.id}`) ||
                                 (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
                                 (order.paymentId ? localStorage.getItem(`reviva_order_state_${order.paymentId}`) : null) ||
-                                localStorage.getItem('reviva_full_session_state');
+                                (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
                     if (raw) orderStateForMedia = JSON.parse(raw);
                 } catch(e) {}
                 const hasScr = Boolean(orderStateForMedia?.isScriptApproved === true || (orderStateForMedia?.latestScriptText && orderStateForMedia.latestScriptText.length > 50 && orderStateForMedia?.currentStep >= 3));
@@ -6307,6 +7042,45 @@
             openAdminTermoModal();
         }
 
+        // Download do Pacote Completo do Pedido (.ZIP)
+        async function downloadFullOrderPackage() {
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId) || allAdminOrders[0];
+            if (!order) {
+                alert('Selecione um pedido para baixar o pacote.');
+                return;
+            }
+            const crmData = getOrCreateCrmOrderData(order);
+            let orderStateForMedia = null;
+            try {
+                const raw = localStorage.getItem(`reviva_order_state_${order.id}`) ||
+                            (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
+                            (order.paymentId ? localStorage.getItem(`reviva_order_state_${order.paymentId}`) : null) ||
+                            (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
+                if (raw) orderStateForMedia = JSON.parse(raw);
+            } catch(e) {}
+
+            if (crmData.stage === 'aguardando_pagamento' && !order.isPaid) {
+                alert('Atenção: O pacote está bloqueado aguardando o pagamento do pedido.');
+                return;
+            }
+
+            if (!areAllClientMaterialsCompleted(order, crmData, orderStateForMedia)) {
+                alert('Atenção: O pacote completo só pode ser baixado quando todos os envios do cliente estiverem concluídos (Fotos, Áudios, Roteiro, Trilha e Ambiente).');
+                return;
+            }
+
+            if (!window.RevivaDocumentService || typeof window.RevivaDocumentService.downloadFullOrderZip !== 'function') {
+                alert('Aguarde o carregamento do serviço de compactação de arquivos...');
+                return;
+            }
+            try {
+                await window.RevivaDocumentService.downloadFullOrderZip(order);
+            } catch(err) {
+                console.error('Erro ao gerar pacote ZIP:', err);
+                alert('Não foi possível gerar o pacote no momento.');
+            }
+        }
+
         // Download direto de mídia individual (áudio ou foto)
         function downloadSingleMedia(src, filename) {
             if (!src) return;
@@ -6337,10 +7111,10 @@
                 listEl.innerHTML = '';
                 if (!audios || audios.length === 0) {
                     listEl.innerHTML = `
-                        <div style="text-align: center; padding: 30px 10px; color: var(--text-secondary);">
-                            <i data-lucide="mic-off" style="width: 32px; height: 32px; margin: 0 auto 10px auto; opacity: 0.6; display: block; color: #f87171;"></i>
-                            <p style="margin: 0; font-size: 0.78rem; color: #f87171; font-weight: 600;">Nenhum áudio de voz anexado até o momento.</p>
-                            <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">O cliente ainda não gravou nem enviou as amostras de voz no painel.</span>
+                        <div style="text-align: center; padding: 60px 20px; color: var(--text-secondary);">
+                            <i data-lucide="mic-off" style="width: 48px; height: 48px; margin: 0 auto 14px auto; opacity: 0.6; display: block; color: #f87171;"></i>
+                            <p style="margin: 0; font-size: 0.9rem; color: #f87171; font-weight: 600;">Nenhum áudio de voz anexado até o momento.</p>
+                            <span style="font-size: 0.76rem; color: #94a3b8; display: block; margin-top: 6px;">O cliente ainda não gravou nem enviou as amostras de voz no painel.</span>
                         </div>
                     `;
                 } else {
@@ -6350,25 +7124,27 @@
                         const audioSize = aud.size ? `(${(aud.size / 1024).toFixed(1)} KB)` : '';
 
                         const itemDiv = document.createElement('div');
-                        itemDiv.style.cssText = 'background: rgba(20, 14, 10, 0.85); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;';
+                        itemDiv.style.cssText = 'background: rgba(18, 12, 8, 0.95); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 8px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);';
                         itemDiv.innerHTML = `
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(197,160,89,0.15); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 700; color: var(--gold-bright);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(197,160,89,0.15); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: center; font-size: 0.74rem; font-weight: 700; color: var(--gold-bright);">
                                         ${idx + 1}
                                     </div>
-                                    <span style="color: #fff; font-size: 0.74rem; font-weight: 600;">${audioName}</span>
-                                    <span style="color: #94a3b8; font-size: 0.65rem;">${audioSize}</span>
+                                    <div>
+                                        <span style="color: #fff; font-size: 0.82rem; font-weight: 600; display: block;">${audioName}</span>
+                                        <span style="color: #94a3b8; font-size: 0.68rem;">Arquivo original enviado pelo cliente ${audioSize}</span>
+                                    </div>
                                 </div>
                                 ${audioSrc ? `
-                                <button type="button" onclick="downloadSingleMedia('${audioSrc}', '${audioName.replace(/'/g, "\\'")}')" style="background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); color: var(--gold-bright); padding: 4px 10px; font-size: 0.68rem; font-weight: 600; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                                    <i data-lucide="download" style="width: 12px; height: 12px;"></i> BAIXAR ÁUDIO
+                                <button type="button" onclick="downloadSingleMedia('${audioSrc}', '${audioName.replace(/'/g, "\\'")}')" style="background: rgba(197, 160, 89, 0.18); border: 1px solid var(--border-gold-bright); color: var(--gold-bright); padding: 6px 14px; font-size: 0.72rem; font-weight: 700; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;" onmouseover="this.style.background='rgba(197,160,89,0.3)'" onmouseout="this.style.background='rgba(197,160,89,0.18)'">
+                                    <i data-lucide="download" style="width: 13px; height: 13px;"></i> BAIXAR ÁUDIO
                                 </button>` : ''}
                             </div>
                             ${audioSrc ? `
-                            <audio controls preload="metadata" src="${audioSrc}" style="width: 100%; height: 38px; border-radius: 4px; outline: none; margin-top: 2px;"></audio>
+                            <audio controls preload="metadata" src="${audioSrc}" style="width: 100%; height: 42px; border-radius: 6px; outline: none; margin-top: 4px;"></audio>
                             ` : `
-                            <div style="color: #f87171; font-size: 0.68rem;">Arquivo de áudio não disponível para reprodução imediata.</div>
+                            <div style="color: #f87171; font-size: 0.72rem;">Arquivo de áudio não disponível para reprodução imediata.</div>
                             `}
                         `;
                         listEl.appendChild(itemDiv);
@@ -6407,27 +7183,50 @@
                 listEl.innerHTML = '';
                 if (!photos || photos.length === 0) {
                     listEl.innerHTML = `
-                        <div style="grid-column: 1 / -1; text-align: center; padding: 30px 10px; color: var(--text-secondary);">
-                            <i data-lucide="image-off" style="width: 32px; height: 32px; margin: 0 auto 10px auto; opacity: 0.6; display: block; color: #f87171;"></i>
-                            <p style="margin: 0; font-size: 0.78rem; color: #f87171; font-weight: 600;">Nenhuma foto anexada até o momento.</p>
-                            <span style="font-size: 0.68rem; color: #94a3b8; display: block; margin-top: 4px;">O cliente ainda não enviou fotos no painel.</span>
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-secondary);">
+                            <i data-lucide="image-off" style="width: 48px; height: 48px; margin: 0 auto 14px auto; opacity: 0.6; display: block; color: #f87171;"></i>
+                            <p style="margin: 0; font-size: 0.9rem; color: #f87171; font-weight: 600;">Nenhuma foto anexada até o momento.</p>
+                            <span style="font-size: 0.76rem; color: #94a3b8; display: block; margin-top: 6px;">O cliente ainda não enviou fotos no painel.</span>
                         </div>
                     `;
                 } else {
                     photos.forEach((photo, idx) => {
                         const photoSrc = photo.data || photo.dataUrl || photo.url || '';
                         const photoName = photo.name || `Foto #${idx + 1}`;
+                        const photoSize = photo.size ? `${(photo.size / 1024).toFixed(0)} KB` : '';
 
                         const cardDiv = document.createElement('div');
-                        cardDiv.style.cssText = 'background: rgba(20, 14, 10, 0.85); border: 1px solid rgba(197, 160, 89, 0.25); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px; align-items: center;';
+                        cardDiv.style.cssText = 'background: rgba(18, 12, 8, 0.95); border: 1px solid rgba(197, 160, 89, 0.3); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.6); transition: border-color 0.2s, transform 0.2s;';
+                        cardDiv.onmouseover = () => { cardDiv.style.borderColor = 'var(--gold-bright)'; cardDiv.style.transform = 'translateY(-2px)'; };
+                        cardDiv.onmouseout = () => { cardDiv.style.borderColor = 'rgba(197, 160, 89, 0.3)'; cardDiv.style.transform = 'translateY(0)'; };
+
                         cardDiv.innerHTML = `
-                            <div style="width: 100%; height: 130px; border-radius: 4px; overflow: hidden; background: #000; border: 1px solid rgba(197,160,89,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="window.open('${photoSrc}', '_blank')">
-                                <img src="${photoSrc}" alt="${photoName}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                                    <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(197,160,89,0.15); border: 1px solid var(--border-gold); display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 700; color: var(--gold-bright); flex-shrink: 0;">
+                                        ${idx + 1}
+                                    </div>
+                                    <span style="font-size: 0.78rem; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${photoName}">${photoName}</span>
+                                </div>
+                                ${photoSize ? `<span style="font-size: 0.68rem; color: #94a3b8; flex-shrink: 0;">${photoSize}</span>` : ''}
                             </div>
-                            <div style="width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
-                                <span style="font-size: 0.68rem; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px;" title="${photoName}">${photoName}</span>
-                                <button type="button" onclick="downloadSingleMedia('${photoSrc}', '${photoName.replace(/'/g, "\\'")}')" style="background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); color: var(--gold-bright); padding: 3px 8px; font-size: 0.65rem; font-weight: 600; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                                    <i data-lucide="download" style="width: 10px; height: 10px;"></i> BAIXAR
+
+                            <!-- FOTO 100% SEM CORTES COM OBJECT-FIT: CONTAIN -->
+                            <div style="width: 100%; height: 380px; border-radius: 6px; overflow: hidden; background: #000; border: 1px solid rgba(197,160,89,0.25); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; padding: 8px; box-sizing: border-box;" 
+                                 onclick="openPhotoLightbox('${photoSrc.replace(/'/g, "\\'")}', '${photoName.replace(/'/g, "\\'")}')"
+                                 title="Clique para visualizar em tela cheia sem cortes">
+                                <img src="${photoSrc}" alt="${photoName}" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; border-radius: 4px; transition: transform 0.25s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                                <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); border: 1px solid rgba(197,160,89,0.4); border-radius: 4px; padding: 4px 10px; font-size: 0.65rem; color: var(--gold-bright); display: flex; align-items: center; gap: 5px; pointer-events: none;">
+                                    <i data-lucide="maximize-2" style="width: 12px; height: 12px;"></i> Expandir
+                                </div>
+                            </div>
+
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto;">
+                                <button type="button" onclick="openPhotoLightbox('${photoSrc.replace(/'/g, "\\'")}', '${photoName.replace(/'/g, "\\'")}')" style="background: rgba(197, 160, 89, 0.12); border: 1px solid var(--border-gold); color: #fff; padding: 7px 12px; font-size: 0.70rem; font-weight: 600; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; flex: 1; justify-content: center;">
+                                    <i data-lucide="eye" style="width: 13px; height: 13px; color: var(--gold-bright);"></i> VER SEM CORTES
+                                </button>
+                                <button type="button" onclick="downloadSingleMedia('${photoSrc}', '${photoName.replace(/'/g, "\\'")}')" style="background: rgba(197, 160, 89, 0.22); border: 1px solid var(--border-gold-bright); color: var(--gold-bright); padding: 7px 12px; font-size: 0.70rem; font-weight: 700; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; flex: 1; justify-content: center;">
+                                    <i data-lucide="download" style="width: 13px; height: 13px;"></i> BAIXAR FOTO
                                 </button>
                             </div>
                         `;
@@ -6448,6 +7247,197 @@
             if (modal) modal.style.display = 'none';
         }
 
+        // Lightbox para visualização de fotos em tela cheia sem cortes
+        function openPhotoLightbox(src, name) {
+            const modal = document.getElementById('modal-admin-photo-lightbox');
+            const img = document.getElementById('lightbox-photo-img');
+            const title = document.getElementById('lightbox-photo-title');
+            const btnDownload = document.getElementById('lightbox-btn-download');
+            if (!modal || !img) return;
+
+            img.src = src;
+            img.alt = name || 'Foto';
+            if (title) title.textContent = name || 'Foto em Alta Resolução (Sem Cortes)';
+            if (btnDownload) {
+                btnDownload.onclick = () => downloadSingleMedia(src, name || 'foto_reviva');
+            }
+
+            modal.style.display = 'flex';
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closePhotoLightbox() {
+            const modal = document.getElementById('modal-admin-photo-lightbox');
+            const img = document.getElementById('lightbox-photo-img');
+            if (modal) modal.style.display = 'none';
+            if (img) img.src = '';
+        }
+
+        // =========================================================================
+        // REPRODUÇÃO RÁPIDA DE ÁUDIO DE PRÉVIA DIRETO NO CARD DO KANBAN
+        // =========================================================================
+        window._activeCardAudio = null;
+        window._activeCardAudioOrderId = null;
+
+        function toggleCardAudioPlay(e, audioSrc, orderId) {
+            if (e) e.stopPropagation();
+            if (!audioSrc) return;
+
+            const btn = document.getElementById(`btn-card-audio-${orderId}`);
+
+            // Se já estava tocando este mesmo áudio, pausa
+            if (window._activeCardAudio && window._activeCardAudioOrderId === orderId) {
+                window._activeCardAudio.pause();
+                window._activeCardAudio = null;
+                window._activeCardAudioOrderId = null;
+                if (btn) {
+                    btn.classList.remove('playing');
+                    btn.innerHTML = '<i data-lucide="play" style="width: 11px; height: 11px; margin-left: 1px;"></i>';
+                    if (window.lucide) lucide.createIcons();
+                }
+                return;
+            }
+
+            // Se estava tocando outro áudio, para o anterior
+            if (window._activeCardAudio) {
+                window._activeCardAudio.pause();
+                const prevBtn = document.getElementById(`btn-card-audio-${window._activeCardAudioOrderId}`);
+                if (prevBtn) {
+                    prevBtn.classList.remove('playing');
+                    prevBtn.innerHTML = '<i data-lucide="play" style="width: 11px; height: 11px; margin-left: 1px;"></i>';
+                }
+                window._activeCardAudio = null;
+                window._activeCardAudioOrderId = null;
+            }
+
+            // Inicia nova reprodução
+            try {
+                const audio = new Audio(audioSrc);
+                window._activeCardAudio = audio;
+                window._activeCardAudioOrderId = orderId;
+
+                if (btn) {
+                    btn.classList.add('playing');
+                    btn.innerHTML = '<i data-lucide="pause" style="width: 11px; height: 11px;"></i>';
+                    if (window.lucide) lucide.createIcons();
+                }
+
+                audio.onended = () => {
+                    if (window._activeCardAudioOrderId === orderId) {
+                        window._activeCardAudio = null;
+                        window._activeCardAudioOrderId = null;
+                    }
+                    if (btn) {
+                        btn.classList.remove('playing');
+                        btn.innerHTML = '<i data-lucide="play" style="width: 11px; height: 11px; margin-left: 1px;"></i>';
+                        if (window.lucide) lucide.createIcons();
+                    }
+                };
+
+                audio.onerror = () => {
+                    console.warn('[Card Audio] Erro ao reproduzir:', audioSrc);
+                    if (window._activeCardAudioOrderId === orderId) {
+                        window._activeCardAudio = null;
+                        window._activeCardAudioOrderId = null;
+                    }
+                    if (btn) {
+                        btn.classList.remove('playing');
+                        btn.innerHTML = '<i data-lucide="play" style="width: 11px; height: 11px; margin-left: 1px;"></i>';
+                        if (window.lucide) lucide.createIcons();
+                    }
+                };
+
+                audio.play().catch(err => {
+                    console.warn('[Card Audio Play Error]:', err);
+                    if (btn) {
+                        btn.classList.remove('playing');
+                        btn.innerHTML = '<i data-lucide="play" style="width: 11px; height: 11px; margin-left: 1px;"></i>';
+                        if (window.lucide) lucide.createIcons();
+                    }
+                });
+            } catch (err) {
+                console.error('[Card Audio]', err);
+            }
+        }
+
+        window._activeCockpitAudio = null;
+        window._activeCockpitAudioOrderId = null;
+
+        function toggleCockpitAudioPlay(e, audioSrc, orderId) {
+            if (e) e.stopPropagation();
+            if (!audioSrc) return;
+
+            const btn = document.getElementById(`btn-cockpit-audio-${orderId}`);
+
+            // Se já estava tocando este mesmo áudio, pausa
+            if (window._activeCockpitAudio && window._activeCockpitAudioOrderId === orderId) {
+                window._activeCockpitAudio.pause();
+                window._activeCockpitAudio = null;
+                window._activeCockpitAudioOrderId = null;
+                if (btn) {
+                    btn.innerHTML = '<i data-lucide="play" style="width: 14px; height: 14px; margin-left: 2px;"></i>';
+                    if (window.lucide) lucide.createIcons();
+                }
+                return;
+            }
+
+            // Se estava tocando outro áudio, para o anterior
+            if (window._activeCockpitAudio) {
+                window._activeCockpitAudio.pause();
+                const prevBtn = document.getElementById(`btn-cockpit-audio-${window._activeCockpitAudioOrderId}`);
+                if (prevBtn) {
+                    prevBtn.innerHTML = '<i data-lucide="play" style="width: 14px; height: 14px; margin-left: 2px;"></i>';
+                }
+                window._activeCockpitAudio = null;
+                window._activeCockpitAudioOrderId = null;
+            }
+
+            // Inicia nova reprodução
+            try {
+                const audio = new Audio(audioSrc);
+                window._activeCockpitAudio = audio;
+                window._activeCockpitAudioOrderId = orderId;
+
+                if (btn) {
+                    btn.innerHTML = '<i data-lucide="pause" style="width: 14px; height: 14px;"></i>';
+                    if (window.lucide) lucide.createIcons();
+                }
+
+                audio.onended = () => {
+                    if (window._activeCockpitAudioOrderId === orderId) {
+                        window._activeCockpitAudio = null;
+                        window._activeCockpitAudioOrderId = null;
+                    }
+                    if (btn) {
+                        btn.innerHTML = '<i data-lucide="play" style="width: 14px; height: 14px; margin-left: 2px;"></i>';
+                        if (window.lucide) lucide.createIcons();
+                    }
+                };
+
+                audio.onerror = () => {
+                    console.warn('[Cockpit Audio] Erro ao reproduzir:', audioSrc);
+                    if (window._activeCockpitAudioOrderId === orderId) {
+                        window._activeCockpitAudio = null;
+                        window._activeCockpitAudioOrderId = null;
+                    }
+                    if (btn) {
+                        btn.innerHTML = '<i data-lucide="play" style="width: 14px; height: 14px; margin-left: 2px;"></i>';
+                        if (window.lucide) lucide.createIcons();
+                    }
+                };
+
+                audio.play().catch(err => {
+                    console.warn('[Cockpit Audio Play Error]:', err);
+                    if (btn) {
+                        btn.innerHTML = '<i data-lucide="play" style="width: 14px; height: 14px; margin-left: 2px;"></i>';
+                        if (window.lucide) lucide.createIcons();
+                    }
+                });
+            } catch (err) {
+                console.error('[Cockpit Audio]', err);
+            }
+        }
+
         // =========================================================================
         // FUNÇÕES DO TERMO DE RESPONSABILIDADE & ROTEIRO OFICIAL (COCKPIT)
         // =========================================================================
@@ -6460,13 +7450,16 @@
             try {
                 const raw = localStorage.getItem(`reviva_order_state_${order.id}`) ||
                             (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
-                            localStorage.getItem('reviva_full_session_state');
+                            (order.paymentId ? localStorage.getItem(`reviva_order_state_${order.paymentId}`) : null) ||
+                            (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
                 if (raw) orderStateForMedia = JSON.parse(raw);
             } catch(e) {}
 
             let termoData = null;
             try {
-                const rawT = localStorage.getItem('reviva_legal_term');
+                const rawT = localStorage.getItem(`reviva_legal_term_${order.id}`) ||
+                             (order.orderId ? localStorage.getItem(`reviva_legal_term_${order.orderId}`) : null) ||
+                             (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_legal_term') : null);
                 if (rawT) termoData = JSON.parse(rawT);
                 if (!termoData && orderStateForMedia?.legalTermSigned) termoData = orderStateForMedia.legalTermSigned;
             } catch(e) {}
@@ -6524,13 +7517,16 @@
             try {
                 const raw = localStorage.getItem(`reviva_order_state_${order.id}`) ||
                             (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
-                            localStorage.getItem('reviva_full_session_state');
+                            (order.paymentId ? localStorage.getItem(`reviva_order_state_${order.paymentId}`) : null) ||
+                            (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
                 if (raw) orderStateForMedia = JSON.parse(raw);
             } catch(e) {}
 
             let termoData = null;
             try {
-                const rawT = localStorage.getItem('reviva_legal_term');
+                const rawT = localStorage.getItem(`reviva_legal_term_${order.id}`) ||
+                             (order.orderId ? localStorage.getItem(`reviva_legal_term_${order.orderId}`) : null) ||
+                             (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_legal_term') : null);
                 if (rawT) termoData = JSON.parse(rawT);
                 if (!termoData && orderStateForMedia?.legalTermSigned) termoData = orderStateForMedia.legalTermSigned;
             } catch(e) {}
@@ -6558,7 +7554,8 @@
             try {
                 const raw = localStorage.getItem(`reviva_order_state_${order.id}`) ||
                             (order.orderId ? localStorage.getItem(`reviva_order_state_${order.orderId}`) : null) ||
-                            localStorage.getItem('reviva_full_session_state');
+                            (order.paymentId ? localStorage.getItem(`reviva_order_state_${order.paymentId}`) : null) ||
+                            (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
                 if (raw) orderStateForMedia = JSON.parse(raw);
             } catch(e) {}
 
@@ -6664,9 +7661,20 @@
                 return parseDateStr(b) - parseDateStr(a);
             });
 
-            if (countEl) countEl.textContent = `${events.length} ${events.length === 1 ? 'evento' : 'eventos'}`;
+            // Deduplica eventos repetidos de envio de materiais (garante exibição exclusiva do evento mais recente)
+            const uniqueEvents = [];
+            let seenMaterials = false;
+            for (const ev of events) {
+                if (ev.event && ev.event.includes('Materiais recebidos pela Produção')) {
+                    if (seenMaterials) continue;
+                    seenMaterials = true;
+                }
+                uniqueEvents.push(ev);
+            }
 
-            if (events.length === 0) {
+            if (countEl) countEl.textContent = `${uniqueEvents.length} ${uniqueEvents.length === 1 ? 'evento' : 'eventos'}`;
+
+            if (uniqueEvents.length === 0) {
                 listEl.innerHTML = `<div style="text-align: center; color: var(--text-secondary); font-size: 0.72rem; padding: 20px;">Nenhum evento registrado ainda.</div>`;
                 return;
             }
@@ -6694,28 +7702,30 @@
 
                 if (pApprovedHist && vRejectedHist) {
                     items.push(`
-                        <div style="background: rgba(34, 197, 94, 0.12); border-left: 3px solid #22c55e; border-radius: 4px; padding: 6px 10px; margin-bottom: 6px; font-size: 0.68rem; color: #4ade80; display: flex; align-items: center; gap: 5px;">
-                            <i data-lucide="check-circle" style="width: 12px; height: 12px; flex-shrink: 0;"></i>
-                            <span><strong>Imagem Fotográfica:</strong> Aprovada e validada definitivamente pelo cliente ✓</span>
+                        <div style="background: rgba(239, 68, 68, 0.15); border-left: 3px solid #ef4444; border-radius: 4px; padding: 8px 10px; margin-bottom: 6px;">
+                            <div style="font-size: 0.66rem; font-weight: 700; color: #f87171; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
+                                <i data-lucide="alert-triangle" style="width: 11px; height: 11px;"></i> Voz Reprovada pelo Cliente (Foto Aprovada)
+                            </div>
                         </div>
                     `);
                 } else if (vApprovedHist && pRejectedHist) {
                     items.push(`
-                        <div style="background: rgba(34, 197, 94, 0.12); border-left: 3px solid #22c55e; border-radius: 4px; padding: 6px 10px; margin-bottom: 6px; font-size: 0.68rem; color: #4ade80; display: flex; align-items: center; gap: 5px;">
-                            <i data-lucide="check-circle" style="width: 12px; height: 12px; flex-shrink: 0;"></i>
-                            <span><strong>Voz Clonada:</strong> Aprovada e validada definitivamente pelo cliente ✓</span>
+                        <div style="background: rgba(239, 68, 68, 0.15); border-left: 3px solid #ef4444; border-radius: 4px; padding: 8px 10px; margin-bottom: 6px;">
+                            <div style="font-size: 0.66rem; font-weight: 700; color: #f87171; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
+                                <i data-lucide="alert-triangle" style="width: 11px; height: 11px;"></i> Foto Reprovada pelo Cliente (Voz Aprovada)
+                            </div>
                         </div>
                     `);
                 }
 
-                const photoFb = histOrderState?.latestPhotoFeedback;
-                const voiceFb = histOrderState?.latestVoiceFeedback;
+                const photoFb = histOrderState?.latestPhotoFeedback || order?.latestPhotoFeedback || '';
+                const voiceFb = histOrderState?.latestVoiceFeedback || order?.latestVoiceFeedback || '';
 
                 if (photoFb) {
                     items.push(`
                         <div style="background: rgba(239, 68, 68, 0.15); border-left: 3px solid #ef4444; border-radius: 4px; padding: 8px 10px; margin-bottom: 6px;">
                             <div style="font-size: 0.66rem; font-weight: 700; color: #f87171; text-transform: uppercase; display: flex; align-items: center; gap: 4px;">
-                                <i data-lucide="alert-triangle" style="width: 11px; height: 11px;"></i> Ajuste de Imagem Solicitado pelo Cliente:
+                                <i data-lucide="alert-triangle" style="width: 11px; height: 11px;"></i> Ajuste de Foto Solicitado pelo Cliente:
                             </div>
                             <div style="font-size: 0.72rem; color: #fdf6ec; margin-top: 4px; line-height: 1.4;">${photoFb}</div>
                         </div>
@@ -6746,7 +7756,7 @@
                 feedbackHtml = items.join('');
             }
 
-            listEl.innerHTML = feedbackHtml + events.map(ev => {
+            listEl.innerHTML = feedbackHtml + uniqueEvents.map(ev => {
                 let icon = 'info';
                 let color = 'var(--gold-primary)';
                 let label = ev.type ? ev.type.toUpperCase() : 'EVENTO';
@@ -6823,10 +7833,20 @@
             const isVertical = format === 'vertical';
             const isHorizontal = format === 'horizontal';
 
-            const photoH = localStorage.getItem(`reviva_producer_photo_h_${order.id}`) || (isHorizontal ? localStorage.getItem(`reviva_producer_image_${order.id}`) : null);
-            const photoV = localStorage.getItem(`reviva_producer_photo_v_${order.id}`) || (isVertical ? localStorage.getItem(`reviva_producer_image_${order.id}`) : null);
-            const photoSingle = localStorage.getItem(`reviva_producer_image_${order.id}`);
-            const voice = localStorage.getItem(`reviva_producer_audio_${order.id}`);
+            const photoH = localStorage.getItem(`reviva_producer_photo_h_${order.id}`) || 
+                           (isHorizontal ? localStorage.getItem(`reviva_producer_image_${order.id}`) : null) || 
+                           (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_producer_photo_h') || localStorage.getItem('reviva_producer_image') : null);
+            const photoV = localStorage.getItem(`reviva_producer_photo_v_${order.id}`) || 
+                           (isVertical ? localStorage.getItem(`reviva_producer_image_${order.id}`) : null) || 
+                           (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_producer_photo_v') : null);
+            const photoSingle = localStorage.getItem(`reviva_producer_image_${order.id}`) || 
+                                (isHorizontal ? localStorage.getItem(`reviva_producer_photo_h_${order.id}`) : null) || 
+                                (isVertical ? localStorage.getItem(`reviva_producer_photo_v_${order.id}`) : null) || 
+                                localStorage.getItem(`reviva_producer_photo_h_${order.id}`) || 
+                                localStorage.getItem(`reviva_producer_photo_v_${order.id}`) || 
+                                (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_producer_image') || localStorage.getItem('reviva_producer_photo_h') || localStorage.getItem('reviva_producer_photo_v') : null);
+            const voice = localStorage.getItem(`reviva_producer_audio_${order.id}`) || 
+                          (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_producer_audio') : null);
             const videoH = localStorage.getItem(`reviva_producer_video_h_${order.id}`) || (isHorizontal ? localStorage.getItem(`reviva_producer_video_${order.id}`) : null);
             const videoV = localStorage.getItem(`reviva_producer_video_v_${order.id}`) || (isVertical ? localStorage.getItem(`reviva_producer_video_${order.id}`) : null);
             const videoSingle = localStorage.getItem(`reviva_producer_video_${order.id}`);
@@ -6834,7 +7854,10 @@
             const isAwaitingPayment = crmData ? (crmData.stage === 'aguardando_pagamento' || !order.isPaid) : (order && !order.isPaid);
             const isAwaitingMaterials = crmData ? (crmData.stage === 'pagamento_confirmado') : false;
             const isMaterialsReceived = crmData ? (crmData.stage === 'material_enviado') : false;
-            const isUploadsLocked = isAwaitingPayment || isAwaitingMaterials || isMaterialsReceived;
+            
+            // Regra: Na coluna RECEBIDOS (material_enviado), o envio das prévias é liberado SOMENTE quando o botão "Iniciar" for clicado (timer em execução ou trabalho iniciado)
+            const isWorkActiveOnReceived = isMaterialsReceived && (crmData?.timerRunning || crmData?.workStarted || (crmData?.secondsWorked > 0));
+            const isUploadsLocked = isAwaitingPayment || isAwaitingMaterials || (isMaterialsReceived && !isWorkActiveOnReceived);
 
             // A área para envio do vídeo final só é liberada a partir da Etapa 7 (producao_final) e Etapa 8 (entregues).
             // Na Etapa 6 (Prévias Aprovadas) e anteriores, os cards de envio de vídeo permanecem bloqueados.
@@ -6897,7 +7920,7 @@
             const lockedCardStyle = isUploadsLocked ? 'opacity: 0.45; pointer-events: none; filter: grayscale(0.85); cursor: not-allowed;' : '';
             const lockedVideoStyle = isVideoLocked ? 'opacity: 0.45; pointer-events: none; filter: grayscale(0.85); cursor: not-allowed;' : '';
 
-            const pendingStatusLabel = isAwaitingPayment ? 'BLOQUEADO' : (isAwaitingMaterials ? 'AGUARDANDO MATERIAIS' : (isMaterialsReceived ? 'BLOQUEADO (ETAPA 3)' : 'AGUARDANDO ENVIO'));
+            const pendingStatusLabel = isAwaitingPayment ? 'BLOQUEADO' : (isAwaitingMaterials ? 'AGUARDANDO MATERIAIS' : (isMaterialsReceived ? (isWorkActiveOnReceived ? 'AGUARDANDO ENVIO' : 'CLIQUE EM INICIAR') : 'AGUARDANDO ENVIO'));
             const pendingVideoStatusLabel = isUploadsLocked ? pendingStatusLabel : (!isVideoAllowed ? (crmData?.stage === 'previas_reprovadas' ? 'BLOQUEADO (REPROVADO)' : (crmData?.stage === 'previas_aprovadas' ? 'BLOQUEADO (ETAPA 06)' : 'BLOQUEADO')) : 'AGUARDANDO ENVIO');
 
             // Helpers de classe e status de Imagem
@@ -6913,55 +7936,82 @@
                 return hasPhoto ? '<span style="color: #4ade80; font-weight: 700;">PRÉVIA ENVIADA ✓</span>' : `<span style="color: ${isUploadsLocked ? '#94a3b8' : '#facc15'}; font-weight: 700;">${pendingStatusLabel}</span>`;
             };
 
+            // Função para gerar o conteúdo visual interno do drop card de imagem
+            const renderImageDropContent = (photoSrc, labelTitle, orientation) => {
+                const inputId = orientation === 'v' ? 'input-photo-v' : 'input-photo-h';
+                const onchangeFn = `handleAdminPhotoUploadSpecific(event, '${orientation}')`;
+                const isVert = orientation === 'v';
+
+                if (photoSrc) {
+                    return `
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 10px; padding: 2px 4px; box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                                <div style="position: relative; width: ${isVert ? '32px' : '56px'}; height: ${isVert ? '44px' : '36px'}; flex-shrink: 0; border-radius: 4px; overflow: hidden; border: 1.5px solid var(--border-gold); box-shadow: 0 2px 8px rgba(0,0,0,0.4); cursor: pointer;"
+                                     onclick="event.stopPropagation(); openPhotoLightbox('${photoSrc}', '${labelTitle} - Pedido #${order.orderId || order.id}')"
+                                     title="Clique para visualizar sem cortes">
+                                    <img src="${photoSrc}" style="width: 100%; height: 100%; object-fit: cover; display: block;" alt="Prévia">
+                                    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0'">
+                                        <i data-lucide="zoom-in" style="width: 14px; height: 14px; color: #fff;"></i>
+                                    </div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: flex-start; min-width: 0; text-align: left;">
+                                    <strong style="font-size: 0.76rem; color: #fff; line-height: 1.2;">${labelTitle}</strong>
+                                    <div style="font-size: 0.62rem; margin-top: 2px; line-height: 1.2;">
+                                        ${getImageCardLabel(photoSrc)}
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" 
+                                    onclick="event.stopPropagation(); ${photoIsApproved ? `alert('Esta prévia de imagem já foi aprovada pelo cliente e permanece intocada.');` : `document.getElementById('${inputId}').click();`}"
+                                    style="padding: 4px 8px; font-size: 0.62rem; font-weight: 600; color: #e2e8f0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 4px; cursor: ${photoIsApproved ? 'not-allowed' : 'pointer'}; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;"
+                                    title="${photoIsApproved ? 'Imagem já aprovada' : 'Substituir foto enviada'}">
+                                <i data-lucide="refresh-cw" style="width: 10px; height: 10px;"></i>
+                                <span>Substituir</span>
+                            </button>
+                        </div>
+                        <input type="file" id="${inputId}" accept="image/*" style="display: none;" onchange="${onchangeFn}">
+                    `;
+                }
+
+                return `
+                    <strong style="font-size: 0.78rem; color: #fff;">${labelTitle}</strong>
+                    <span style="font-size: 0.64rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
+                    <div style="font-size: 0.64rem; margin-top: 4px;">
+                        ${getImageCardLabel(photoSrc)}
+                    </div>
+                    <input type="file" id="${inputId}" accept="image/*" style="display: none;" onchange="${onchangeFn}">
+                `;
+            };
+
             // 1. LINHA 1: IMAGENS (DIVIDIDA LADO A LADO SE FORMATO DUPLO, OU FULL SE FORMATO ÚNICO)
             if (isBoth) {
                 html += `
                     <!-- LINHA 1: IMAGENS DIVIDIDAS VERTICALMENTE (LADO A LADO) -->
                     <div class="producer-upload-row">
                         <!-- 1A. Imagem Horizontal -->
-                        <div class="producer-drop-card ${getImageCardClass(photoH)}" style="${lockedCardStyle}" ${clickPhotoH}>
-                            <strong style="font-size: 0.76rem; color: #fff;">1A. Imagem Horizontal</strong>
-                            <span style="font-size: 0.62rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
-                            <div style="font-size: 0.62rem; margin-top: 4px;">
-                                ${getImageCardLabel(photoH)}
-                            </div>
-                            <input type="file" id="input-photo-h" accept="image/*" style="display: none;" onchange="handleAdminPhotoUploadSpecific(event, 'h')">
+                        <div class="producer-drop-card ${getImageCardClass(photoH)}" style="${lockedCardStyle}" ${photoH ? '' : clickPhotoH}>
+                            ${renderImageDropContent(photoH, '1A. Imagem Horizontal', 'h')}
                         </div>
 
                         <!-- 1B. Imagem Vertical -->
-                        <div class="producer-drop-card ${getImageCardClass(photoV)}" style="${lockedCardStyle}" ${clickPhotoV}>
-                            <strong style="font-size: 0.76rem; color: #fff;">1B. Imagem Vertical</strong>
-                            <span style="font-size: 0.62rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
-                            <div style="font-size: 0.62rem; margin-top: 4px;">
-                                ${getImageCardLabel(photoV)}
-                            </div>
-                            <input type="file" id="input-photo-v" accept="image/*" style="display: none;" onchange="handleAdminPhotoUploadSpecific(event, 'v')">
+                        <div class="producer-drop-card ${getImageCardClass(photoV)}" style="${lockedCardStyle}" ${photoV ? '' : clickPhotoV}>
+                            ${renderImageDropContent(photoV, '1B. Imagem Vertical', 'v')}
                         </div>
                     </div>
                 `;
             } else if (isVertical) {
                 html += `
                     <div class="producer-upload-row">
-                        <div class="producer-drop-card ${getImageCardClass(photoSingle)}" style="${lockedCardStyle}" ${clickPhotoV}>
-                            <strong style="font-size: 0.80rem; color: #fff;">1. Imagem Vertical</strong>
-                            <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
-                            <div style="font-size: 0.64rem; margin-top: 4px;">
-                                ${getImageCardLabel(photoSingle)}
-                            </div>
-                            <input type="file" id="input-photo-v" accept="image/*" style="display: none;" onchange="handleAdminPhotoUploadSpecific(event, 'v')">
+                        <div class="producer-drop-card ${getImageCardClass(photoSingle)}" style="${lockedCardStyle}" ${photoSingle ? '' : clickPhotoV}>
+                            ${renderImageDropContent(photoSingle, '1. Imagem Vertical', 'v')}
                         </div>
                     </div>
                 `;
             } else {
                 html += `
                     <div class="producer-upload-row">
-                        <div class="producer-drop-card ${getImageCardClass(photoSingle)}" style="${lockedCardStyle}" ${clickPhotoH}>
-                            <strong style="font-size: 0.80rem; color: #fff;">1. Imagem Horizontal</strong>
-                            <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
-                            <div style="font-size: 0.64rem; margin-top: 4px;">
-                                ${getImageCardLabel(photoSingle)}
-                            </div>
-                            <input type="file" id="input-photo-h" accept="image/*" style="display: none;" onchange="handleAdminPhotoUploadSpecific(event, 'h')">
+                        <div class="producer-drop-card ${getImageCardClass(photoSingle)}" style="${lockedCardStyle}" ${photoSingle ? '' : clickPhotoH}>
+                            ${renderImageDropContent(photoSingle, '1. Imagem Horizontal', 'h')}
                         </div>
                     </div>
                 `;
@@ -6983,13 +8033,40 @@
             // 2. LINHA 2: NARRAÇÃO VOZ CLONADA
             html += `
                 <div class="producer-upload-row">
-                    <div class="producer-drop-card ${getAudioCardClass(voice)}" style="${lockedCardStyle}" ${clickVoice}>
-                        <strong style="font-size: 0.80rem; color: #fff;">2. Narração Voz Clonada</strong>
-                        <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
-                        <div style="font-size: 0.64rem; margin-top: 4px;">
-                            ${getAudioCardLabel(voice)}
-                        </div>
-                        <input type="file" id="input-admin-voice" accept="audio/*" style="display: none;" onchange="handleAdminVoiceUpload(event)">
+                    <div class="producer-drop-card ${getAudioCardClass(voice)}" style="${lockedCardStyle}" ${voice ? '' : clickVoice}>
+                        ${voice ? `
+                            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 10px; padding: 2px 4px; box-sizing: border-box;">
+                                <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                                    <button type="button" id="btn-cockpit-audio-${order.id}" 
+                                            onclick="event.stopPropagation(); toggleCockpitAudioPlay(event, '${voice.replace(/'/g, "\\'")}', '${order.id}')"
+                                            style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: 1.5px solid #34d399; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 8px rgba(16,185,129,0.35); transition: transform 0.15s ease;"
+                                            title="Clique para ouvir a narração enviada">
+                                        <i data-lucide="play" style="width: 14px; height: 14px; margin-left: 2px;"></i>
+                                    </button>
+                                    <div style="display: flex; flex-direction: column; align-items: flex-start; min-width: 0; text-align: left;">
+                                        <strong style="font-size: 0.78rem; color: #fff; line-height: 1.2;">2. Narração Voz Clonada</strong>
+                                        <div style="font-size: 0.62rem; margin-top: 2px; line-height: 1.2;">
+                                            ${getAudioCardLabel(voice)}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" 
+                                        onclick="event.stopPropagation(); ${voiceIsApproved ? `alert('Esta narração com voz clonada já foi aprovada pelo cliente e permanece intocada.');` : `document.getElementById('input-admin-voice').click();`}"
+                                        style="padding: 4px 8px; font-size: 0.62rem; font-weight: 600; color: #e2e8f0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 4px; cursor: ${voiceIsApproved ? 'not-allowed' : 'pointer'}; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;"
+                                        title="${voiceIsApproved ? 'Áudio já aprovado' : 'Substituir áudio enviado'}">
+                                    <i data-lucide="refresh-cw" style="width: 10px; height: 10px;"></i>
+                                    <span>Substituir</span>
+                                </button>
+                            </div>
+                            <input type="file" id="input-admin-voice" accept="audio/*" style="display: none;" onchange="handleAdminVoiceUpload(event)">
+                        ` : `
+                            <strong style="font-size: 0.80rem; color: #fff;">2. Narração Voz Clonada</strong>
+                            <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapa 04 - Prévias</span>
+                            <div style="font-size: 0.64rem; margin-top: 4px;">
+                                ${getAudioCardLabel(voice)}
+                            </div>
+                            <input type="file" id="input-admin-voice" accept="audio/*" style="display: none;" onchange="handleAdminVoiceUpload(event)">
+                        `}
                     </div>
                 </div>
             `;
@@ -7091,6 +8168,7 @@
                         renderCockpitData(order.id);
                     } else {
                         renderCockpitProducerUploads(order, crmData);
+                        checkAllPreviewsUploadedAndPrompt(order, crmData);
                     }
                 }
                 alert(`✓ Imagem Lapidada (${orientation === 'h' ? 'Horizontal' : 'Vertical'}) salva com sucesso!`);
@@ -7281,6 +8359,7 @@
                         renderCockpitData(order.id);
                     } else {
                         updateCockpitDeliveryBadges(order);
+                        checkAllPreviewsUploadedAndPrompt(order, crmData);
                     }
                 }
                 if (window.lucide) lucide.createIcons();
@@ -7289,106 +8368,151 @@
             reader.readAsDataURL(file);
         }
 
-        function handleAdminVoiceUpload(e) {
-            const file = e.target.files[0];
-            if (!file || !selectedAdminOrderId) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    localStorage.setItem(`reviva_producer_audio_${selectedAdminOrderId}`, event.target.result);
-                } catch (err) {
-                    console.warn("Áudio grande, salvando flag de entrega:", err);
-                }
-                const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
-                if (order) {
-                    const crmData = getOrCreateCrmOrderData(order);
-                    const ordKeys = [`reviva_order_state_${order.id}`, 'reviva_order_state_1', 'reviva_full_session_state'];
-                    ordKeys.forEach(k => {
-                        try {
-                            const raw = localStorage.getItem(k);
-                            if (raw) {
-                                const st = JSON.parse(raw);
-                                if (st.voiceDecision === 'rejected') {
-                                    st.voiceDecision = 'pending';
-                                    st.latestVoiceFeedback = '';
-                                }
-                                localStorage.setItem(k, JSON.stringify(st));
-                            }
-                        } catch(err) {}
-                    });
-                    crmData.history = crmData.history || [];
-                    crmData.history.unshift({
-                        timestamp: new Date().toISOString(),
-                        dateFormatted: new Date().toLocaleString('pt-BR'),
-                        event: 'Substituição de narração com voz clonada anexada para o pedido',
-                        type: 'status_change'
-                    });
-                    saveCrmOrderData(order.id, crmData);
-                    renderCockpitProducerUploads(order, crmData);
-                    renderCockpitData(order.id);
-                    renderKanbanBoard();
-                    updateHeaderAnalytics();
-                }
-                alert("✓ Narração com Voz Clonada vinculada para este pedido!");
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function handleAdminVideoUpload(e) {
+        async function handleAdminVoiceUpload(e) {
             const file = e.target.files[0];
             if (!file || !selectedAdminOrderId) return;
             const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
-            const crmData = order ? getOrCreateCrmOrderData(order) : null;
-            const allowedVideoStages = ['producao_final', 'entregues'];
-            if (!crmData || !allowedVideoStages.includes(crmData.stage)) {
-                alert('Atenção: O envio do Vídeo Final só é permitido a partir da Etapa 7 (Produção Vídeo Final).');
-                e.target.value = '';
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    localStorage.setItem(`reviva_producer_video_${selectedAdminOrderId}`, event.target.result);
-                } catch(err) {
-                    console.warn("Vídeo salvo via flag:", err);
-                }
-                if (order) {
-                    renderCockpitProducerUploads(order, crmData);
-                }
-                alert("✓ Vídeo Final publicado com sucesso!");
-            };
-            reader.readAsDataURL(file);
-        }
+            if (!order) return;
 
-        function handleAdminVideoUploadSpecific(e, orientation) {
-            const file = e.target.files[0];
-            if (!file || !selectedAdminOrderId) return;
-            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
-            const crmData = order ? getOrCreateCrmOrderData(order) : null;
-            const allowedVideoStages = ['producao_final', 'entregues'];
-            if (!crmData || !allowedVideoStages.includes(crmData.stage)) {
-                alert('Atenção: O envio do Vídeo Final só é permitido a partir da Etapa 7 (Produção Vídeo Final).');
-                e.target.value = '';
-                return;
+            let fileUrl = URL.createObjectURL(file);
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('orderId', String(selectedAdminOrderId));
+                formData.append('category', 'producer_voice');
+
+                const res = await fetch(`${API_BASE_URL}/api/media/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success && data.url) {
+                    fileUrl = data.url;
+                }
+            } catch (err) {
+                console.warn('[Admin Voice Upload R2 Warning]:', err);
             }
-            const reader = new FileReader();
-            reader.onload = (event) => {
+
+            try {
+                localStorage.setItem(`reviva_producer_audio_${selectedAdminOrderId}`, fileUrl);
+            } catch(e) {}
+
+            const crmData = getOrCreateCrmOrderData(order);
+            const ordKeys = [`reviva_order_state_${order.id}`, 'reviva_order_state_1', 'reviva_full_session_state'];
+            ordKeys.forEach(k => {
                 try {
-                    localStorage.setItem(`reviva_producer_video_${selectedAdminOrderId}`, event.target.result);
-                    if (orientation === 'h') {
-                        localStorage.setItem(`reviva_producer_video_h_${selectedAdminOrderId}`, event.target.result);
-                    } else if (orientation === 'v') {
-                        localStorage.setItem(`reviva_producer_video_v_${selectedAdminOrderId}`, event.target.result);
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        const st = JSON.parse(raw);
+                        if (st.voiceDecision === 'rejected') {
+                            st.voiceDecision = 'pending';
+                            st.latestVoiceFeedback = '';
+                        }
+                        localStorage.setItem(k, JSON.stringify(st));
                     }
-                } catch(err) {
-                    console.warn("Vídeo específico salvo via flag:", err);
+                } catch(err) {}
+            });
+            crmData.history = crmData.history || [];
+            crmData.history.unshift({
+                timestamp: new Date().toISOString(),
+                dateFormatted: new Date().toLocaleString('pt-BR'),
+                event: 'Substituição de narração com voz clonada anexada para o pedido',
+                type: 'status_change'
+            });
+            saveCrmOrderData(order.id, crmData);
+            renderCockpitProducerUploads(order, crmData);
+            renderCockpitData(order.id);
+            renderKanbanBoard();
+            updateHeaderAnalytics();
+            alert("✓ Narração com Voz Clonada vinculada para este pedido!");
+            checkAllPreviewsUploadedAndPrompt(order, crmData);
+        }
+
+        async function handleAdminVideoUpload(e) {
+            const file = e.target.files[0];
+            if (!file || !selectedAdminOrderId) return;
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
+            const crmData = order ? getOrCreateCrmOrderData(order) : null;
+            const allowedVideoStages = ['producao_final', 'entregues'];
+            if (!crmData || !allowedVideoStages.includes(crmData.stage)) {
+                alert('Atenção: O envio do Vídeo Final só é permitido a partir da Etapa 7 (Produção Vídeo Final).');
+                e.target.value = '';
+                return;
+            }
+
+            let fileUrl = URL.createObjectURL(file);
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('orderId', String(selectedAdminOrderId));
+                formData.append('category', 'producer_video');
+
+                const res = await fetch(`${API_BASE_URL}/api/media/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success && data.url) {
+                    fileUrl = data.url;
                 }
-                if (order) {
-                    renderCockpitProducerUploads(order, crmData);
+            } catch (err) {
+                console.warn('[Admin Video Upload R2 Warning]:', err);
+            }
+
+            try {
+                localStorage.setItem(`reviva_producer_video_${selectedAdminOrderId}`, fileUrl);
+            } catch(err) {}
+
+            if (order) {
+                renderCockpitProducerUploads(order, crmData);
+            }
+            alert("✓ Vídeo Final publicado com sucesso no Storage Cloudflare!");
+        }
+
+        async function handleAdminVideoUploadSpecific(e, orientation) {
+            const file = e.target.files[0];
+            if (!file || !selectedAdminOrderId) return;
+            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
+            const crmData = order ? getOrCreateCrmOrderData(order) : null;
+            const allowedVideoStages = ['producao_final', 'entregues'];
+            if (!crmData || !allowedVideoStages.includes(crmData.stage)) {
+                alert('Atenção: O envio do Vídeo Final só é permitido a partir da Etapa 7 (Produção Vídeo Final).');
+                e.target.value = '';
+                return;
+            }
+
+            let fileUrl = URL.createObjectURL(file);
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('orderId', String(selectedAdminOrderId));
+                formData.append('category', `producer_video_${orientation}`);
+
+                const res = await fetch(`${API_BASE_URL}/api/media/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success && data.url) {
+                    fileUrl = data.url;
                 }
-                alert(`✓ Vídeo Final (${orientation === 'h' ? 'Horizontal' : 'Vertical'}) publicado com sucesso!`);
-            };
-            reader.readAsDataURL(file);
+            } catch (err) {
+                console.warn('[Admin Video Specific R2 Warning]:', err);
+            }
+
+            try {
+                localStorage.setItem(`reviva_producer_video_${selectedAdminOrderId}`, fileUrl);
+                if (orientation === 'h') {
+                    localStorage.setItem(`reviva_producer_video_h_${selectedAdminOrderId}`, fileUrl);
+                } else if (orientation === 'v') {
+                    localStorage.setItem(`reviva_producer_video_v_${selectedAdminOrderId}`, fileUrl);
+                }
+            } catch(err) {}
+
+            if (order) {
+                renderCockpitProducerUploads(order, crmData);
+            }
+            alert(`✓ Vídeo Final (${orientation === 'h' ? 'Horizontal' : 'Vertical'}) publicado com sucesso no Storage Cloudflare!`);
         }
 
         function updateWhatsAppLinks(order, crmData) {
@@ -7966,13 +9090,14 @@
             if (clientEl) clientEl.textContent = order.clientName;
             if (planEl) planEl.textContent = `${order.planName} (${detectOrderDuration(order)})`;
             if (rateEl) rateEl.textContent = calcHourlyRate(order.value, totalSec);
+            const themeColor = getOrderThemeColor(order);
             if (timeEl) {
                 timeEl.textContent = formatSeconds(totalSec);
-                timeEl.style.color = isRunning ? '#38bdf8' : '#ef4444';
+                timeEl.style.color = isRunning ? themeColor : (totalSec > 0 ? themeColor : '#94a3b8');
             }
             if (statusEl) {
                 statusEl.textContent = isRunning ? '⚡ Cronômetro em Execução' : 'Cronômetro Finalizado / Parado';
-                statusEl.style.color = isRunning ? '#38bdf8' : '#ef4444';
+                statusEl.style.color = isRunning ? themeColor : '#94a3b8';
             }
             if (valEl) valEl.textContent = order.valueFormatted;
             if (paidEl) {
@@ -8048,10 +9173,11 @@
         }
 
         // =========================================================================
-        // EXCLUIR PEDIDO INDIVIDUALMENTE DENTRO DO COCKPIT
+        // EXCLUIR PEDIDO INDIVIDUALMENTE (COCKPIT OU CARD)
         // =========================================================================
-        function deleteCurrentCockpitOrder() {
-            const order = allAdminOrders.find(o => o.id === selectedAdminOrderId) || allAdminOrders[0];
+        async function deleteCurrentCockpitOrder(customId = null) {
+            const targetId = customId || selectedAdminOrderId;
+            const order = allAdminOrders.find(o => o.id === targetId || o.paymentId === targetId || o.orderId === targetId) || allAdminOrders[0];
             if (!order) return;
 
             const confirmDelete = confirm(`⚠️ EXCLUIR PEDIDO #${order.id}\n\nCliente: ${order.clientName}\n\nTem certeza de que deseja excluir este pedido definitivamente? Esta ação não pode ser desfeita.`);
@@ -8061,28 +9187,63 @@
             const paymentId = order.paymentId;
             const customOrderId = order.orderId;
 
-            // 1. Remove da lista allAdminOrders em memória
-            allAdminOrders = allAdminOrders.filter(o => o.id !== orderId && o.paymentId !== paymentId);
+            // 1. Grava no blacklist persistente do localStorage exclusivamente o paymentId real do Asaas
+            try {
+                let deletedIds = JSON.parse(localStorage.getItem('reviva_deleted_order_ids') || '[]')
+                    .map(x => String(x).toLowerCase().trim())
+                    .filter(x => x.startsWith('pay_'));
+                if (paymentId && String(paymentId).toLowerCase().startsWith('pay_')) {
+                    if (!deletedIds.includes(String(paymentId).toLowerCase())) {
+                        deletedIds.push(String(paymentId).toLowerCase());
+                    }
+                }
+                localStorage.setItem('reviva_deleted_order_ids', JSON.stringify(deletedIds));
+            } catch(e) {}
 
-            // 2. Remove da lista gravada no localStorage (reviva_orders_list)
+            // 2. Notifica o backend (Cloudflare D1 e Asaas) para exclusão no servidor
+            try {
+                fetch(`${API_BASE_URL}/api/admin/orders/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: orderId, paymentId: paymentId, orderId: customOrderId })
+                }).catch(err => console.warn('Aviso sincronização delete:', err));
+            } catch(e) {}
+
+            // 3. Remove da lista allAdminOrders em memória
+            allAdminOrders = allAdminOrders.filter(o => 
+                o.id !== orderId && 
+                o.paymentId !== paymentId && 
+                (!customOrderId || o.orderId !== customOrderId)
+            );
+
+            // 4. Remove da lista gravada no localStorage (reviva_orders_list)
             try {
                 let list = JSON.parse(localStorage.getItem('reviva_orders_list') || '[]');
-                list = list.filter(o => (o.id || o.order_id) !== orderId && o.payment_id !== paymentId && o.order_id !== customOrderId);
+                list = list.filter(o => {
+                    const oId = String(o.id || o.order_id || '').toLowerCase();
+                    const pId = String(o.payment_id || o.paymentId || '').toLowerCase();
+                    const ordId = String(o.order_id || o.orderId || '').toLowerCase();
+                    return oId !== String(orderId).toLowerCase() && 
+                           pId !== String(paymentId).toLowerCase() && 
+                           (!customOrderId || ordId !== String(customOrderId).toLowerCase());
+                });
                 localStorage.setItem('reviva_orders_list', JSON.stringify(list));
             } catch(e) {}
 
-            // 3. Remove pedido ativo único se for o mesmo
+            // 5. Remove pedido ativo único se for o mesmo
             try {
                 const singleRaw = localStorage.getItem('reviva_order_data');
                 if (singleRaw) {
                     const singleObj = JSON.parse(singleRaw);
-                    if ((singleObj.id || singleObj.order_id) === orderId || singleObj.payment_id === paymentId) {
+                    const sId = String(singleObj.id || singleObj.order_id || '').toLowerCase();
+                    const spId = String(singleObj.payment_id || '').toLowerCase();
+                    if (sId === String(orderId).toLowerCase() || spId === String(paymentId).toLowerCase()) {
                         localStorage.removeItem('reviva_order_data');
                     }
                 }
             } catch(e) {}
 
-            // 4. Limpa todas as chaves associadas a este pedido no navegador
+            // 6. Limpa todas as chaves associadas a este pedido no navegador
             const prefixes = [
                 `reviva_crm_order_${orderId}`,
                 `reviva_order_state_${orderId}`,
@@ -8093,13 +9254,28 @@
                 `reviva_legal_term_${orderId}`,
                 `reviva_producer_image_${orderId}`,
                 `reviva_producer_audio_${orderId}`,
-                `reviva_producer_video_${orderId}`
+                `reviva_producer_video_${orderId}`,
+                `reviva_stage4_delivered_${orderId}`,
+                `reviva_stage5_delivered_${orderId}`,
+                `reviva_stage5_consumed_${orderId}`
             ];
             if (paymentId) {
-                prefixes.push(`reviva_crm_order_${paymentId}`, `reviva_order_state_${paymentId}`, `reviva_client_photos_${paymentId}`, `reviva_client_audio_${paymentId}`, `reviva_legal_term_${paymentId}`);
+                prefixes.push(
+                    `reviva_crm_order_${paymentId}`,
+                    `reviva_order_state_${paymentId}`,
+                    `reviva_client_photos_${paymentId}`,
+                    `reviva_client_audio_${paymentId}`,
+                    `reviva_legal_term_${paymentId}`
+                );
             }
             if (customOrderId) {
-                prefixes.push(`reviva_crm_order_${customOrderId}`, `reviva_order_state_${customOrderId}`, `reviva_client_photos_${customOrderId}`, `reviva_client_audio_${customOrderId}`, `reviva_legal_term_${customOrderId}`);
+                prefixes.push(
+                    `reviva_crm_order_${customOrderId}`,
+                    `reviva_order_state_${customOrderId}`,
+                    `reviva_client_photos_${customOrderId}`,
+                    `reviva_client_audio_${customOrderId}`,
+                    `reviva_legal_term_${customOrderId}`
+                );
             }
 
             prefixes.forEach(k => localStorage.removeItem(k));
@@ -8111,7 +9287,28 @@
         }
 
         // Função de Reset Global para Limpar Todos os Pedidos Antigos
-        window.purgeAllOrdersForCleanTest = function() {
+        window.purgeAllOrdersForCleanTest = async function() {
+            // 1. Marca todos os paymentIds reais do Asaas no blacklist local
+            try {
+                let deletedIds = JSON.parse(localStorage.getItem('reviva_deleted_order_ids') || '[]')
+                    .map(x => String(x).toLowerCase().trim())
+                    .filter(x => x.startsWith('pay_'));
+                for (const o of allAdminOrders) {
+                    if (o.paymentId && String(o.paymentId).toLowerCase().startsWith('pay_')) {
+                        if (!deletedIds.includes(String(o.paymentId).toLowerCase())) {
+                            deletedIds.push(String(o.paymentId).toLowerCase());
+                        }
+                    }
+                }
+                localStorage.setItem('reviva_deleted_order_ids', JSON.stringify(deletedIds));
+            } catch(e) {}
+
+            // 2. Notifica o backend (Cloudflare D1 e Asaas)
+            try {
+                fetch(`${API_BASE_URL}/api/admin/orders/purge`, { method: 'POST' }).catch(err => console.warn('Aviso purge:', err));
+            } catch(e) {}
+
+            // 3. Limpa todas as chaves de simulação no localStorage
             localStorage.removeItem('reviva_orders_list');
             localStorage.removeItem('reviva_order_data');
             localStorage.removeItem('reviva_session_user');
@@ -8138,6 +9335,7 @@
             allAdminOrders = [];
             renderKanbanBoard();
             updateHeaderAnalytics();
+            alert('✓ Todos os pedidos de teste foram removidos definitivamente!');
         };
 
         document.addEventListener("DOMContentLoaded", () => {

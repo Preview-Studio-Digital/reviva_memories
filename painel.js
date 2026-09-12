@@ -336,9 +336,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const ENABLE_STEP_TRANSITIONS = true;
 
     let curtainTimer = null;
-    function triggerStageCurtainAnimation(step, callback) {
+    let curtainFadeTimer = null;
+    function triggerStageCurtainAnimation(step, callback, onComplete) {
         if (!ENABLE_STEP_TRANSITIONS) {
             if (callback) callback();
+            if (onComplete) onComplete();
             return;
         }
 
@@ -349,6 +351,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (!curtain || !badge || !title || !sub) {
             if (callback) callback();
+            if (onComplete) onComplete();
             return;
         }
 
@@ -367,11 +370,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             curtain.style.cursor = 'pointer';
             curtain.addEventListener('click', () => {
                 if (curtainTimer) clearTimeout(curtainTimer);
+                if (curtainFadeTimer) clearTimeout(curtainFadeTimer);
                 curtain.classList.remove('active');
+                if (typeof onComplete === 'function') onComplete();
             });
         }
 
         if (curtainTimer) clearTimeout(curtainTimer);
+        if (curtainFadeTimer) clearTimeout(curtainFadeTimer);
 
         // Se a cortina já foi ativada previamente (ex: no carregamento da página), mantemos a cobertura total
         const alreadyActive = curtain.classList.contains('active');
@@ -387,6 +393,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 3. Após leitura da transição, inicia o Fade Out suave revelando a tela da etapa
         curtainTimer = setTimeout(() => {
             curtain.classList.remove('active');
+            curtainFadeTimer = setTimeout(() => {
+                if (onComplete) onComplete();
+            }, 1200);
         }, 2200);
     }
 
@@ -576,7 +585,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const singleContainer = document.getElementById('preview-single-container');
             const dualContainer = document.getElementById('preview-dual-container');
 
-            const producerImg = localStorage.getItem(`reviva_producer_image_${ordIdent}`) || localStorage.getItem('reviva_producer_image');
+            const producerImg = localStorage.getItem(`reviva_producer_image_${ordIdent}`) || 
+                                localStorage.getItem(`reviva_producer_photo_h_${ordIdent}`) || 
+                                localStorage.getItem(`reviva_producer_photo_v_${ordIdent}`) || 
+                                localStorage.getItem('reviva_producer_image') ||
+                                localStorage.getItem('reviva_producer_photo_h') ||
+                                localStorage.getItem('reviva_producer_photo_v');
             const photoSrc = producerImg || (uploadedPhotos && uploadedPhotos.length > 0 ? uploadedPhotos[0].dataUrl : '');
 
             // Buscar imagens específicas de Horizontal e Vertical se disponíveis
@@ -930,6 +944,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         modal.style.display = 'flex';
+        modal.classList.remove('modal-visible');
+        void modal.offsetWidth; // Força reflow
+        requestAnimationFrame(() => {
+            modal.classList.add('modal-visible');
+        });
         if (window.lucide) lucide.createIcons();
     }
 
@@ -968,18 +987,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Transição sem atraso para cobrir imediatamente
             curtain.style.transition = 'none';
             curtain.classList.add('active');
-            curtain.offsetHeight; // Força render síncrono no browser
-            curtain.style.transition = 'opacity 1.5s ease-in-out';
         }
 
-        // Fecha o modal de espera apenas quando a cortina já está 100% opaca e visível
-        if (modal) modal.style.display = 'none';
+        // Fecha o modal de espera suavemente
+        if (modal) {
+            modal.classList.remove('modal-visible');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 500);
+        }
 
         currentWaitingStep = null;
         localStorage.removeItem('reviva_waiting_active');
 
-        // Avança de etapa com a cortina já em exibição
-        goToStep(stepToGo);
+        // Avança de etapa disparando a transição completa de cortina
+        goToStep(stepToGo, true);
+        triggerStageCurtainAnimation(stepToGo);
     }
     window.proceedFromWaitingModal = proceedFromWaitingModal;
 
@@ -1106,15 +1129,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // 1. Bloqueio da Etapa 04: depende dos envios da equipe (prévias de imagem e voz)
         if (step === 4 && !isStage4ReadyFromTeam()) {
-            executeStepSwitch(4);
-            openWaitingTeamModal(4);
+            if (!ENABLE_STEP_TRANSITIONS || immediate) {
+                executeStepSwitch(4);
+                openWaitingTeamModal(4);
+            } else {
+                triggerStageCurtainAnimation(4, () => {
+                    executeStepSwitch(4);
+                }, () => {
+                    openWaitingTeamModal(4);
+                });
+            }
             return;
         }
 
         // 2. Bloqueio da Etapa 05: depende da conclusão e publicação do vídeo final pela equipe
         if (step === 5 && !isStage5ReadyFromTeam()) {
-            executeStepSwitch(5);
-            openWaitingTeamModal(5);
+            if (!ENABLE_STEP_TRANSITIONS || immediate) {
+                executeStepSwitch(5);
+                openWaitingTeamModal(5);
+            } else {
+                triggerStageCurtainAnimation(5, () => {
+                    executeStepSwitch(5);
+                }, () => {
+                    openWaitingTeamModal(5);
+                });
+            }
             return;
         }
 
@@ -1964,29 +2003,12 @@ REVISÕES & CORREÇÕES DO CLIENTE:
                             btnApprove.style.opacity = '0.9';
                             if (btnEdit) btnEdit.style.display = 'none';
                         } else {
-                            btnApprove.onclick = async () => {
-                                btnApprove.disabled = true;
-                                btnApprove.innerHTML = `<i data-lucide="check-check" style="width: 13px; height: 13px;"></i> APROVADO ✓`;
-                                btnApprove.style.background = '#22c55e';
-                                btnApprove.style.borderColor = '#22c55e';
-                                btnApprove.style.cursor = 'default';
-                                btnApprove.style.opacity = '0.9';
-                                if (btnEdit) btnEdit.style.display = 'none';
-                                isScriptApproved = true;
-                                
+                            btnApprove.innerHTML = `<i data-lucide="check" style="width: 13px; height: 13px;"></i> AVALIAR NO MODAL`;
+                            btnApprove.onclick = () => {
                                 const wordCount = latestScriptText.trim().split(/\s+/).filter(w => w.length > 0).length;
-                                if (window.revivaData?.saveApprovedScript) {
-                                    await window.revivaData.saveApprovedScript(orderData?.id || 1, latestScriptText, wordCount);
-                                }
-
-                                if (typeof updateScriptApprovedUI === 'function') {
-                                    updateScriptApprovedUI(true);
-                                }
-
-                                const thankMsg = `Muito obrigado por sua aprovação e confiança, ${clientFirstName || 'cliente'}! O roteiro oficial está confirmado com sucesso e a próxima etapa (<strong>Etapa 03: A Harmonização</strong>) já está liberada para você. Clique no botão <strong>AVANÇAR</strong> abaixo para continuarmos!`;
-                                addAiChatMessage(thankMsg);
-
-                                saveFullSessionState();
+                                const charCount = latestScriptText.length;
+                                const vLabel = scriptRevisionCount <= 1 ? 'Versão 1.0 (Original)' : `Versão 1.${scriptRevisionCount - 1} (${scriptRevisionCount - 1}ª Revisão)`;
+                                openScriptApprovalModal(latestScriptText, vLabel, wordCount, charCount);
                             };
                         }
                     }
@@ -1995,9 +2017,11 @@ REVISÕES & CORREÇÕES DO CLIENTE:
                             const editPromptMsg = "Perfeito! Me diga: qual parte você gostaria de ajustar ou revisar? Se preferir, você também pode redigir a frase ou o trecho exatamente como gostaria com suas palavras, e eu farei a adequação do tempo e da métrica para você.";
                             addAiChatMessage(editPromptMsg);
                             if (chatInput) {
+                                chatInput.disabled = false;
                                 chatInput.placeholder = "Descreva o que deseja mudar ou envie o trecho redigido...";
                                 chatInput.focus();
                             }
+                            if (btnSendChat) btnSendChat.disabled = false;
                         };
                     }
                 });
@@ -2255,6 +2279,119 @@ REVISÕES & CORREÇÕES DO CLIENTE:
         return clean;
     }
 
+    function openScriptApprovalModal(scriptContent, versionLabel, wordCount, charCount) {
+        const modal = document.getElementById('modal-aprovar-roteiro');
+        if (!modal) return;
+
+        // Desabilita input e botão de enviar no chat enquanto o modal está ativo para evitar que o cliente escreva no chat
+        if (chatInput) {
+            chatInput.disabled = true;
+            chatInput.placeholder = "Avalie o roteiro no modal ou clique em 'Editar'...";
+        }
+        if (btnSendChat) btnSendChat.disabled = true;
+
+        const versionTag = document.getElementById('modal-script-version-tag');
+        const planInfo = document.getElementById('modal-script-plan-info');
+        const contentBody = document.getElementById('modal-script-content-body');
+        const metaCounts = document.getElementById('modal-script-meta-counts');
+        const btnCopy = document.getElementById('btn-modal-copy-script');
+        const btnEdit = document.getElementById('btn-modal-edit-script');
+        const btnApprove = document.getElementById('btn-modal-approve-script');
+
+        if (versionTag) versionTag.textContent = `📜 ${versionLabel}`;
+        if (planInfo) planInfo.textContent = `Plano ${currentPlan.name} • ${currentPlan.durationMinutes} Minuto${currentPlan.durationMinutes > 1 ? 's' : ''} • Narrativa Personalizada`;
+        if (contentBody) contentBody.innerHTML = formatScriptToParagraphs(scriptContent);
+        if (metaCounts) {
+            metaCounts.innerHTML = `
+                <i data-lucide="check-circle-2" style="width: 14px; height: 14px; color: #4ade80;"></i>
+                <span>${wordCount} palavras • ${charCount} caracteres <span style="color: #4ade80; margin-left: 4px;">✓ Compatível com ${currentPlan.durationMinutes} min</span></span>
+            `;
+        }
+
+        modal.style.display = 'flex';
+        if (window.lucide) lucide.createIcons();
+
+        // Ação Copiar
+        if (btnCopy) {
+            btnCopy.onclick = () => {
+                navigator.clipboard?.writeText(scriptContent).then(() => {
+                    const orig = btnCopy.innerHTML;
+                    btnCopy.innerHTML = `<i data-lucide="check" style="width: 12px; height: 12px;"></i> COPIADO!`;
+                    btnCopy.style.borderColor = '#22c55e';
+                    btnCopy.style.color = '#4ade80';
+                    if (window.lucide) lucide.createIcons();
+                    setTimeout(() => {
+                        btnCopy.innerHTML = orig;
+                        btnCopy.style.borderColor = '';
+                        btnCopy.style.color = '';
+                        if (window.lucide) lucide.createIcons();
+                    }, 2000);
+                }).catch(err => console.error("Erro ao copiar:", err));
+            };
+        }
+
+        // Ação Editar: Fecha o modal, insere a pergunta do Iasis e libera a caixa de texto
+        if (btnEdit) {
+            btnEdit.onclick = () => {
+                modal.style.display = 'none';
+                if (chatInput) {
+                    chatInput.disabled = false;
+                    chatInput.placeholder = "Descreva o que deseja mudar ou envie o trecho redigido...";
+                    chatInput.focus();
+                }
+                if (btnSendChat) btnSendChat.disabled = false;
+                const editPromptMsg = "Perfeito! Me diga: qual parte você gostaria de ajustar ou revisar? Se preferir, você também pode redigir a frase ou o trecho exatamente como gostaria com suas palavras, e eu farei a adequação do tempo e da métrica para você.";
+                addAiChatMessage(editPromptMsg);
+            };
+        }
+
+        // Ação Aprovar
+        if (btnApprove) {
+            btnApprove.disabled = false;
+            btnApprove.innerHTML = `<i data-lucide="check" style="width: 14px; height: 14px;"></i> APROVAR ROTEIRO`;
+            btnApprove.style.background = '';
+            btnApprove.style.borderColor = '';
+
+            btnApprove.onclick = async () => {
+                btnApprove.disabled = true;
+                btnApprove.innerHTML = `<i data-lucide="check-check" style="width: 14px; height: 14px;"></i> APROVADO ✓`;
+                btnApprove.style.background = '#22c55e';
+                btnApprove.style.borderColor = '#22c55e';
+                isScriptApproved = true;
+
+                if (window.revivaData?.saveApprovedScript) {
+                    await window.revivaData.saveApprovedScript(orderData?.id || 1, scriptContent, wordCount);
+                }
+
+                // Fecha o modal e atualiza interface
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 400);
+
+                // Ocultar input/enviar e exibir o botão AVANÇAR
+                updateScriptApprovedUI(true);
+
+                // Atualizar os botões do card no chat
+                interviewChatBox.querySelectorAll('.btn-chat-approve-script').forEach(b => {
+                    b.disabled = true;
+                    b.innerHTML = `<i data-lucide="check-check" style="width: 13px; height: 13px;"></i> APROVADO ✓`;
+                    b.style.background = '#22c55e';
+                    b.style.borderColor = '#22c55e';
+                });
+                interviewChatBox.querySelectorAll('.btn-chat-edit-script').forEach(b => {
+                    b.style.display = 'none';
+                });
+
+                // Mensagem carinhosa do Iasis agradecendo e liberando a próxima etapa
+                const thankMsg = `Muito obrigado por sua aprovação e confiança, ${clientFirstName || 'cliente'}! O roteiro oficial está confirmado com sucesso e a próxima etapa (<strong>Etapa 03: A Harmonização</strong>) já está liberada para você. Clique em <strong>AVANÇAR</strong> abaixo para continuarmos!`;
+                addAiChatMessage(thankMsg);
+
+                saveChatSession();
+                saveFullSessionState();
+            };
+        }
+    }
+
     function addScriptChatMessage(introText, scriptContent) {
         if (btnSendChat) btnSendChat.disabled = true;
         if (chatInput) chatInput.disabled = true;
@@ -2301,7 +2438,7 @@ REVISÕES & CORREÇÕES DO CLIENTE:
                                 <i data-lucide="edit-3" style="width: 12px; height: 12px;"></i> EDITAR
                             </button>
                             <button class="btn btn-primary btn-chat-approve-script" style="height: 30px !important; padding: 0 16px !important; font-size: 0.72rem !important; font-weight: 600;">
-                                <i data-lucide="check" style="width: 13px; height: 13px;"></i> APROVAR
+                                <i data-lucide="check" style="width: 13px; height: 13px;"></i> ${isScriptApproved ? 'APROVADO ✓' : 'AVALIAR NO MODAL'}
                             </button>
                         </div>
                     </div>
@@ -2332,50 +2469,31 @@ REVISÕES & CORREÇÕES DO CLIENTE:
                 }).catch(err => console.error("Erro ao copiar:", err));
             });
 
-            btnApprove?.addEventListener('click', async () => {
-                btnApprove.disabled = true;
-                btnApprove.innerHTML = `<i data-lucide="check-check" style="width: 13px; height: 13px;"></i> APROVADO ✓`;
-                btnApprove.style.background = '#22c55e';
-                btnApprove.style.borderColor = '#22c55e';
-                btnApprove.style.cursor = 'default';
-                btnApprove.style.opacity = '0.9';
-                if (btnEdit) btnEdit.style.display = 'none';
-                isScriptApproved = true;
-                
-                if (window.revivaData?.saveApprovedScript) {
-                    await window.revivaData.saveApprovedScript(orderData?.id || 1, scriptContent, wordCount);
-                }
-
-                // Ocultar input/enviar e exibir o botão AVANÇAR
-                updateScriptApprovedUI(true);
-
-                // Mensagem carinhosa do Iasis agradecendo e liberando a próxima etapa
-                const thankMsg = `Muito obrigado por sua aprovação e confiança, ${clientFirstName || 'cliente'}! O roteiro oficial está confirmado com sucesso e a próxima etapa (<strong>Etapa 03: A Harmonização</strong>) já está liberada para você. Clique em <strong>AVANÇAR</strong> abaixo para continuarmos!`;
-                addAiChatMessage(thankMsg);
-
-                saveChatSession();
-                saveFullSessionState();
+            btnApprove?.addEventListener('click', () => {
+                if (isScriptApproved) return;
+                openScriptApprovalModal(scriptContent, versionLabel, wordCount, charCount);
             });
 
             btnEdit?.addEventListener('click', () => {
                 const editPromptMsg = "Perfeito! Me diga: qual parte você gostaria de ajustar ou revisar? Se preferir, você também pode redigir a frase ou o trecho exatamente como gostaria com suas palavras, e eu farei a adequação do tempo e da métrica para você.";
                 addAiChatMessage(editPromptMsg);
                 if (chatInput) {
+                    chatInput.disabled = false;
                     chatInput.placeholder = "Descreva o que deseja mudar ou envie o trecho redigido...";
                     chatInput.focus();
                 }
+                if (btnSendChat) btnSendChat.disabled = false;
             });
 
             saveChatSession();
 
-            if (isScriptApproved) {
-                updateScriptApprovedUI(true);
+            // Abre compulsoriamente o Modal dedicado para o cliente avaliar e aprovar/editar com clareza
+            if (!isScriptApproved) {
+                setTimeout(() => {
+                    openScriptApprovalModal(scriptContent, versionLabel, wordCount, charCount);
+                }, 300);
             } else {
-                if (btnSendChat) btnSendChat.disabled = false;
-                if (chatInput) {
-                    chatInput.disabled = false;
-                    chatInput.focus();
-                }
+                updateScriptApprovedUI(true);
             }
         }, 1200);
     }
@@ -4251,10 +4369,6 @@ REVISÕES & CORREÇÕES DO CLIENTE:
     });
 
     window.closeTermoModal = function() {
-        // Se ainda não assinou e não é modo visualização, não permite fechar
-        if (!legalTermSigned || !legalTermSigned.signed) {
-            return;
-        }
         const modal = document.getElementById('modal-termo-responsabilidade');
         if (modal) modal.style.display = 'none';
     };
@@ -4465,12 +4579,7 @@ REVISÕES & CORREÇÕES DO CLIENTE:
         }, 50);
     }
 
-    // 3. Se o termo de responsabilidade ainda não foi aceito e o usuário não estiver em tela de espera, abre o modal do termo
-    if ((!legalTermSigned || !legalTermSigned.signed) && !targetWaitingToOpen && !directWaitingParam) {
-        setTimeout(() => {
-            if (typeof openTermoModal === 'function') openTermoModal(false);
-        }, 350);
-    }
+    // 3. Opcional: Modal de termo mantido apenas para consulta/assinatura voluntária (sem barreira de bloqueio)
 
     // 3. Suporte a navegação segura: impede qualquer tentativa de voltar no navegador
     window.addEventListener('popstate', (e) => {

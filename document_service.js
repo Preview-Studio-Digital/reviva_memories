@@ -499,28 +499,64 @@
                 console.warn('Não foi possível anexar imagem do ambiente HD ao zip:', bgErr);
             }
 
-            // 6. Adicionar Fotos se existirem em base64 na sessao
+            // 6. Adicionar Fotos (suporta URLs do R2 ou Base64)
             const photosFolder = zip.folder("Fotos_Originais");
             if (Array.isArray(photosList) && photosList.length > 0) {
-                photosList.forEach((p, idx) => {
+                for (let idx = 0; idx < photosList.length; idx++) {
+                    const p = photosList[idx];
                     const data = typeof p === 'string' ? p : (p.data || p.url || '');
-                    if (data && data.includes('base64,')) {
+                    const pName = (p && p.name) ? p.name.replace(/[^a-zA-Z0-9._-]/g, '_') : `Foto_Referencia_${idx + 1}.png`;
+                    if (data && data.startsWith('http')) {
+                        try {
+                            const res = await fetch(data);
+                            if (res.ok) {
+                                const blob = await res.blob();
+                                photosFolder.file(pName, blob);
+                            }
+                        } catch(e) { console.warn("Erro ao baixar foto R2 para ZIP:", e); }
+                    } else if (data && data.startsWith('/api/media/')) {
+                        try {
+                            const res = await fetch(data);
+                            if (res.ok) {
+                                const blob = await res.blob();
+                                photosFolder.file(pName, blob);
+                            }
+                        } catch(e) { console.warn("Erro ao baixar foto R2 para ZIP:", e); }
+                    } else if (data && data.includes('base64,')) {
                         const b64 = data.split('base64,')[1];
                         photosFolder.file(`Foto_Referencia_${idx + 1}.png`, b64, { base64: true });
                     }
-                });
+                }
             }
 
-            // 7. Adicionar Audios se existirem
+            // 7. Adicionar Audios (suporta URLs do R2 ou Base64)
             const audiosFolder = zip.folder("Audios_Referencia");
             if (Array.isArray(audiosList) && audiosList.length > 0) {
-                audiosList.forEach((a, idx) => {
+                for (let idx = 0; idx < audiosList.length; idx++) {
+                    const a = audiosList[idx];
                     const data = typeof a === 'string' ? a : (a.data || a.url || '');
-                    if (data && data.includes('base64,')) {
+                    const aName = (a && a.name) ? a.name.replace(/[^a-zA-Z0-9._-]/g, '_') : `Audio_Referencia_${idx + 1}.mp3`;
+                    if (data && data.startsWith('http')) {
+                        try {
+                            const res = await fetch(data);
+                            if (res.ok) {
+                                const blob = await res.blob();
+                                audiosFolder.file(aName, blob);
+                            }
+                        } catch(e) { console.warn("Erro ao baixar audio R2 para ZIP:", e); }
+                    } else if (data && data.startsWith('/api/media/')) {
+                        try {
+                            const res = await fetch(data);
+                            if (res.ok) {
+                                const blob = await res.blob();
+                                audiosFolder.file(aName, blob);
+                            }
+                        } catch(e) { console.warn("Erro ao baixar audio R2 para ZIP:", e); }
+                    } else if (data && data.includes('base64,')) {
                         const b64 = data.split('base64,')[1];
                         audiosFolder.file(`Audio_Referencia_${idx + 1}.mp3`, b64, { base64: true });
                     }
-                });
+                }
             }
 
             // 8. Baixar o arquivo compactado .ZIP
