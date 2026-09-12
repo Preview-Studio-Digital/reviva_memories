@@ -1337,8 +1337,11 @@
             <div id="checkout-form-view">
                 <form id="form-checkout-simulado" onsubmit="handleRealAsaasCheckout(event)" style="display: flex; flex-direction: column; gap: 12px;">
                     
-                    <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
                         <span style="font-size: 0.76rem; color: var(--gold-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Dados do Contratante</span>
+                        <button type="button" onclick="fillRandomTestClientData()" style="background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); border-radius: 4px; color: var(--gold-bright); font-size: 0.65rem; font-weight: 700; padding: 3px 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;" title="Gera um cliente fictício com CPF válido pelo algoritmo para testes de compra">
+                            <i data-lucide="dice-5" style="width: 12px; height: 12px;"></i> GERAR CLIENTE ALEATÓRIO (TESTE)
+                        </button>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">

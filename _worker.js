@@ -305,13 +305,13 @@ export default {
         // 5. Se não for endpoint de API, entrega os arquivos estáticos do site (HTML, CSS, imagens, vídeos)
         if (env.ASSETS) {
             // Suporte a rotas limpas: /painel -> painel.html e /admin -> admin.html
-            if (pathname === '/painel') {
+            if (pathname === '/painel' || pathname === '/painel.html') {
                 const painelUrl = new URL('/painel.html', request.url);
                 return env.ASSETS.fetch(new Request(painelUrl, request));
             }
-            if (pathname === '/admin.html') {
-                const adminCleanUrl = new URL('/admin', request.url);
-                return env.ASSETS.fetch(new Request(adminCleanUrl, request));
+            if (pathname === '/admin' || pathname === '/admin.html') {
+                const adminUrl = new URL('/admin.html', request.url);
+                return env.ASSETS.fetch(new Request(adminUrl, request));
             }
             return env.ASSETS.fetch(request);
         }

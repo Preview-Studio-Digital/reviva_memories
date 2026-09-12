@@ -10,7 +10,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                         window.location.protocol === 'file:';
 
     let currentStep = 0;
-    let orderData = await window.revivaData.getCurrentOrder();
+    let storedOrder = null;
+    try {
+        const rawOrder = localStorage.getItem('reviva_order_data') || localStorage.getItem('reviva_current_order');
+        if (rawOrder) storedOrder = JSON.parse(rawOrder);
+    } catch(e) {}
+
+    let orderData = storedOrder || await window.revivaData.getCurrentOrder();
+    if (storedOrder && orderData) {
+        orderData = { ...orderData, ...storedOrder, id: storedOrder.order_id || storedOrder.id || orderData.id };
+    }
     let currentUser = await window.revivaData.getCurrentUser();
 
     // Nome do cliente para personalização calorosa e dinâmica
@@ -245,7 +254,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         },
         {
             id: 'relationship',
-            text: "Qual era o laço afetivo e o grau de parentesco entre eles (ex: Pai e Filha, Avó e Neto, Marido e Esposa)?"
+            text: "Qual é a ligação de afeto e a relação entre eles (ex: Pai e Filha, Avó e Neto, Marido e Esposa)?"
         },
         {
             id: 'nickname',
@@ -353,6 +362,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         title.textContent = info.title;
         sub.textContent = info.sub;
 
+        if (!curtain.hasAttribute('data-dismiss-listener')) {
+            curtain.setAttribute('data-dismiss-listener', 'true');
+            curtain.style.cursor = 'pointer';
+            curtain.addEventListener('click', () => {
+                if (curtainTimer) clearTimeout(curtainTimer);
+                curtain.classList.remove('active');
+            });
+        }
+
         if (curtainTimer) clearTimeout(curtainTimer);
 
         // Se a cortina já foi ativada previamente (ex: no carregamento da página), mantemos a cobertura total
@@ -361,15 +379,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             curtain.classList.add('active');
         }
 
-        // 2. Troca de fase no auge da opacidade (1,5 segundos)
+        // 2. Troca de fase no auge da opacidade
         setTimeout(() => {
             if (callback) callback();
-        }, alreadyActive ? 500 : 1500);
+        }, alreadyActive ? 400 : 1200);
 
         // 3. Após leitura da transição, inicia o Fade Out suave revelando a tela da etapa
         curtainTimer = setTimeout(() => {
             curtain.classList.remove('active');
-        }, alreadyActive ? 2200 : 2500);
+        }, 2200);
     }
 
     function stopAllAudios() {
@@ -921,6 +939,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 saveFullSessionState();
             }
         } catch(e) {}
+        sessionStorage.removeItem('reviva_session_entered');
+        localStorage.setItem('reviva_show_curtain_on_enter', 'true');
         // O reviva_waiting_active permanece intocado no localStorage para garantir persistência ao relogar
         window.location.href = 'index.html';
     }
@@ -1055,17 +1075,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Interrompe imediatamente qualquer trilha sonora ou áudio que esteja tocando no momento em que o usuário avança
         stopAllAudios();
 
-        // BLOQUEIO RIGOROSO DE RETROCESSO: O cliente nunca pode retroceder para etapas anteriores
-        const maxReached = parseInt(localStorage.getItem('reviva_max_step_reached')) || currentStep || 1;
-        if (currentStep && step < currentStep) {
-            console.warn(`[Reviva] Tentativa de retroceder da etapa ${currentStep} para a etapa ${step} bloqueada.`);
-            history.replaceState(null, '', `#step-${currentStep}`);
+        // GUARDA ABSOLUTA DA ETAPA 01: Não permite sob nenhuma hipótese avançar para a Etapa 2 sem fotos e áudios enviados
+        const hasPhotos = Array.isArray(uploadedPhotos) && uploadedPhotos.length > 0;
+        const hasAudios = Array.isArray(uploadedAudios) && uploadedAudios.length > 0;
+        if (step >= 2 && (!hasPhotos || !hasAudios)) {
+            console.warn(`[Reviva] Bloqueio: Etapa 1 incompleta (fotos ou áudios ausentes). Permanecendo na Etapa 1.`);
+            step = 1;
+            currentStep = 1;
+            localStorage.setItem('reviva_active_step', '1');
+            localStorage.setItem('reviva_max_step_reached', '1');
+            history.replaceState(null, '', '#step-1');
+            executeStepSwitch(1);
             return;
         }
-        if (maxReached && step < maxReached) {
-            console.warn(`[Reviva] Tentativa de retroceder para etapa ${step} (etapa máxima já atingida: ${maxReached}) bloqueada.`);
-            history.replaceState(null, '', `#step-${maxReached}`);
-            step = maxReached;
+
+        // BLOQUEIO RIGOROSO DE RETROCESSO: O cliente nunca pode retroceder para etapas anteriores (válido apenas após envio dos materiais)
+        if (hasPhotos && hasAudios) {
+            const maxReached = parseInt(localStorage.getItem('reviva_max_step_reached')) || currentStep || 1;
+            if (currentStep && step < currentStep) {
+                console.warn(`[Reviva] Tentativa de retroceder da etapa ${currentStep} para a etapa ${step} bloqueada.`);
+                history.replaceState(null, '', `#step-${currentStep}`);
+                return;
+            }
+            if (maxReached && step < maxReached) {
+                console.warn(`[Reviva] Tentativa de retroceder para etapa ${step} (etapa máxima já atingida: ${maxReached}) bloqueada.`);
+                history.replaceState(null, '', `#step-${maxReached}`);
+                step = maxReached;
+            }
         }
 
         // 1. Bloqueio da Etapa 04: depende dos envios da equipe (prévias de imagem e voz)
@@ -1082,7 +1118,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        if (!ENABLE_STEP_TRANSITIONS || immediate || step === currentStep) {
+        const curtain = document.getElementById('fullscreen-stage-curtain');
+        const isCurtainActive = curtain && curtain.classList.contains('active');
+
+        if (!ENABLE_STEP_TRANSITIONS || immediate) {
+            executeStepSwitch(step);
+            if (isCurtainActive) {
+                setTimeout(() => {
+                    if (curtain) curtain.classList.remove('active');
+                }, 300);
+            }
+        } else if (step === currentStep && !isCurtainActive) {
             executeStepSwitch(step);
         } else {
             triggerStageCurtainAnimation(step, () => {
@@ -1152,25 +1198,51 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     initTipsRotator();
 
-    function handlePhotoFiles(files) {
+    async function handlePhotoFiles(files) {
         const remainingSlots = 3 - uploadedPhotos.length;
         if (remainingSlots <= 0) return;
 
         const filesToProcess = Array.from(files).slice(0, remainingSlots);
-        let processedCount = 0;
+        const ordIdent = (orderData?.order_id || orderData?.id || 'REVIVA-1001');
 
-        filesToProcess.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                uploadedPhotos.push({ name: file.name, data: e.target.result });
-                processedCount++;
-                if (processedCount === filesToProcess.length) {
-                    renderPhotoPreviews();
-                    saveFullSessionState();
-                }
+        for (const file of filesToProcess) {
+            const tempLocalUrl = URL.createObjectURL(file);
+            const photoItem = {
+                name: file.name,
+                data: tempLocalUrl,
+                url: tempLocalUrl,
+                uploading: true
             };
-            reader.readAsDataURL(file);
-        });
+            uploadedPhotos.push(photoItem);
+            renderPhotoPreviews();
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('orderId', ordIdent);
+                formData.append('category', 'photos');
+
+                const res = await fetch('/api/media/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                if (result.success && result.url) {
+                    photoItem.data = result.url;
+                    photoItem.url = result.url;
+                    photoItem.key = result.key;
+                    photoItem.uploading = false;
+                } else {
+                    photoItem.uploading = false;
+                }
+            } catch(err) {
+                console.warn('[R2 Upload Warning]: Falha no upload para R2, mantendo preview local', err);
+                photoItem.uploading = false;
+            }
+
+            renderPhotoPreviews();
+            saveFullSessionState();
+        }
     }
 
     function updateNextStep1ButtonState() {
@@ -1366,6 +1438,65 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    function registerStep1MaterialsSubmitted() {
+        try {
+            const ordIdent = activeOrderId || 'REVIVA-1001';
+            const flagKey = `reviva_step1_submitted_${ordIdent}`;
+            
+            const photoCount = uploadedPhotos ? uploadedPhotos.length : 0;
+            const audioCount = uploadedAudios ? uploadedAudios.length : 0;
+            const signature = `${photoCount}_${audioCount}`;
+
+            // Se já foi registrado nesta sessão ou pedido com a mesma contagem de fotos e áudios, não duplica
+            if (localStorage.getItem(flagKey) === signature) {
+                return;
+            }
+
+            const crmKeys = [
+                'reviva_crm_order_' + ordIdent
+            ];
+            if (orderData?.payment_id) crmKeys.push('reviva_crm_order_' + orderData.payment_id);
+            if (orderData?.order_id && orderData.order_id !== ordIdent) crmKeys.push('reviva_crm_order_' + orderData.order_id);
+
+            crmKeys.forEach(k => {
+                try {
+                    const rawCrm = localStorage.getItem(k);
+                    let c = rawCrm ? JSON.parse(rawCrm) : null;
+                    if (!c) {
+                        c = {
+                            stage: 'pagamento_confirmado',
+                            manualStageOverride: false,
+                            history: []
+                        };
+                    }
+                    if (!Array.isArray(c.history)) c.history = [];
+                    
+                    const newEvent = {
+                        timestamp: new Date().toISOString(),
+                        dateFormatted: new Date().toLocaleString('pt-BR'),
+                        event: `Cliente enviou ${photoCount} foto(s) e ${audioCount} áudio(s). Materiais recebidos pela Produção.`,
+                        type: 'stage'
+                    };
+
+                    // Se já existe qualquer evento de envio de materiais, atualiza no mesmo lugar para nunca duplicar
+                    const existingIdx = c.history.findIndex(h => 
+                        h.event && h.event.includes('Materiais recebidos pela Produção')
+                    );
+                    if (existingIdx !== -1) {
+                        c.history[existingIdx] = newEvent;
+                    } else {
+                        c.history.unshift(newEvent);
+                    }
+                    localStorage.setItem(k, JSON.stringify(c));
+                } catch(e) {}
+            });
+
+            localStorage.setItem(flagKey, signature);
+        } catch(err) {
+            console.warn('Erro ao registrar envio de materiais:', err);
+        }
+    }
+
     document.getElementById('btn-next-step-1')?.addEventListener('click', (e) => {
         if (e) e.preventDefault();
         const hasPhoto = uploadedPhotos && uploadedPhotos.length >= 1;
@@ -1375,6 +1506,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert('Por favor, anexe pelo menos 1 foto e 1 áudio para avançar para a Etapa 2.');
             return;
         }
+
+        // Registra o envio dos materiais no histórico do CRM apenas quando o botão AVANÇAR for acionado
+        registerStep1MaterialsSubmitted();
 
         saveFullSessionState();
         goToStep(2);
@@ -1394,7 +1528,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ETAPA 02: A ESSÊNCIA (INTELIGÊNCIA REAL IASIS COM GEMINI API)
     // =========================================================================
     const GEMINI_API_KEY = window.ENV_GEMINI_API_KEY || localStorage.getItem('gemini_api_key') || (typeof atob !== 'undefined' ? atob('QVEuQWI4Uk42TFBBTFZRMmNXZ0dvVUFGVTBvaHpjcUZ5RmlyVDFMaHFqSHVXdHN0U0dMU3c=') : '');
-    const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3.5-flash', 'gemini-flash-latest'];
+    const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro'];
 
     const interviewChatBox = document.getElementById('interview-chat-box');
     const chatInput = document.getElementById('chat-input');
@@ -1410,18 +1544,49 @@ document.addEventListener('DOMContentLoaded', async () => {
 Você é o Iasis, o guia e roteirista oficial da Reviva Memories.
 Seu propósito é conduzir uma entrevista com o cliente (${clientFirstName}) para coletar memórias, histórias e detalhes para a criação de um roteiro falado em vídeo de homenagem com voz e imagem recriadas.
 
+PREMISSA EXISTENCIAL & ONTOLÓGICA DA REVIVA MEMORIES (LEI MÁXIMA INVIOLÁVEL):
+1. QUEM FALA NO VÍDEO (PROTAGONISTA): É SEMPRE O ENTE QUERIDO FALECIDO (que já partiu deste mundo). Ele é recriado por inteligência artificial com sua voz, imagem, sotaque e essência afetiva. Ele fala a partir da eternidade e da memória viva para confortar, homenagear e celebrar quem ficou.
+2. QUEM RECEBE A HOMENAGEM (DESTINATÁRIO) E OS FAMILIARES CITADOS: ESTÃO TODOS VIVOS NA TERRA!
+   - O destinatário (ex.: a esposa/mãe) está vivo na Terra comemorando sua vida, aniversário ou conquista.
+   - Os familiares citados (ex.: filhos Juninho e Ana, irmãos, netos) ESTÃO VIVOS NA TERRA ao lado do destinatário!
+3. DIREÇÃO ABSOLUTA DOS RECADOS (NUNCA INVERTA OS PAPÉIS — ERRO MACABRO TERMINANTEMENTE PROIBIDO):
+   - O falecido É QUEM FALA e É QUEM MANDA carinho, abraços, conselhos e bênçãos PARA QUEM ESTÁ VIVO NA TERRA.
+   - É TERMINANTEMENTE PROIBIDO colocar familiares vivos "mandando abraços" ou "mandando beijos" através do falecido (ex.: NUNCA escreva "Juninho e Ana mandam um abraço"). Isso é um absurdo macabro que faz parecer que os filhos faleceram e estão no além junto com ele!
+   - A FORMA CORRETA: O falecido pede ao destinatário para abraçar os familiares vivos por ele, ou o falecido expressa seu amor e orgulho diretamente a eles:
+     * "Dá um beijo e um abraço bem apertado no Juninho e na Ana por mim... Eles são a prova mais linda do nosso amor!"
+     * "E para o Juninho e a Ana: saibam que esse pai tem um orgulho infinito de vocês e continuo olhando e cuidando de cada passo de vocês."
+4. PERSPECTIVA DE TEMPO E ESPIRITUALIDADE (PROIBIÇÃO ABSOLUTA DE FUTURO FÍSICO COMPARTILHADO):
+   - O falecido NÃO está fisicamente vivo para dizer "que a gente comemore muitos anos juntos", "vamos comemorar muitos anos juntos", "em breve estaremos juntos" ou "ainda vamos viver muitas coisas juntos"!
+   - É TERMINANTEMENTE PROIBIDO usar QUALQUER frase que insinue convívio físico futuro na Terra! O ente querido faleceu e partiu deste mundo.
+   - O QUE O FALECIDO DEVE DIZER: Ele celebra e abençoa a vida DA PESSOA HOMENAGEADA na Terra, desejando que ELA viva com intensidade, saúde e alegria junto aos filhos e familiares:
+     * "Comemore muito a sua vida e continue radiante com essa alegria contagiante!"
+     * "Viva intensamente cada dia, cuide bem de você e dos nossos filhos, e saiba que, de onde eu estiver, meu amor por você não tem fim e eu continuo cuidando de vocês."
+5. BÊNÇÃO DIVINA OBRIGATÓRIA NO ENCERRAMENTO:
+   - Todo roteiro sem exceção DEVE ser encerrado com a bênção e a presença de Deus ("Que Deus abençoe cada passo seu e dos nossos filhos. Fica com Deus, meu amor!", etc.).
+
 PERSONA & TOM DE VOZ (RIGOROSAMENTE OBRIGATÓRIO):
 - GÊNERO & POSTURA: Você é um homem maduro, sereno, respeitoso, formal e acolhedor. Sempre utilize concordância masculina ao falar de si ("estou à sua disposição", "serei seu guia", "estou atento").
 - TOM SÓBRIO E RESPEITOSO: Comunique-se com empatia genuína, serenidade e equilíbrio. 
-- EXPRESSÕES TERMINANTEMENTE PROIBIDAS (NUNCA USE termos melosos, excessivamente doces, infantis ou afeminados):
+- EXPRESSÕES TERMINANTEMENTE PROIBIDAS:
+  * PROIBIDO: Frases de convívio físico futuro na Terra (ex.: "que a gente comemore muitos anos sempre juntos", "vamos comemorar juntos", "em breve nos veremos", "até logo").
+  * PROIBIDO: Familiares vivos mandando recado pelo falecido (ex.: "Juninho e Ana mandam um abraço").
+  * PROIBIDO: Termos burocráticos, frios ou cartoriais como "grau de parentesco", "parentesco consanguíneo", "cadastrado", "registrado com sucesso", "a pessoa que protagonizará".
   * PROIBIDO: "que lindo...", "que amor...", "que delicadeza...", "que gracinha...", "meu docinho", "ai que fofo".
-  * PROIBIDO: Frases robóticas ("compreendo perfeitamente", "registrado com sucesso", "a pessoa que protagonizará").
+  * PROIBIDO: Frases robóticas ("compreendo perfeitamente", "dados recebidos").
 - VOCABULÁRIO RECOMENDADO:
   * "Compreendo, ${clientFirstName}."
   * "Uma bela e marcante lembrança."
   * "Um nome com grande força e significado."
   * "Certamente construiremos uma homenagem digna e emocionante."
   * "É uma honra poder ajudá-lo(a) a eternizar essa memória."
+
+INTELIGÊNCIA CONTEXTUAL & DEDUÇÃO NATURAL DE LAÇOS (MANDATÓRIO — NUNCA FAÇA PERGUNTAS ÓBVIAS):
+- NUNCA pergunte o que já é evidente pelo contexto!
+- Dedução Automática de Laços Afetivos:
+  * CASAL (PAI & MÃE): Se a pessoa homenageada que fala é "meu pai" e a destinatária é "minha mãe" (ou vice-versa), o vínculo é EVIDENTE: são MARIDO E ESPOSA / CASAL. NUNCA pergunte a relação ou parentesco! Reconheça com profunda sensibilidade ("Uma homenagem emocionante de marido para esposa... o amor que deu origem à família.") e PULE DIRETO para a pergunta de como ele costumava chamá-la carinhosamente (apelido/forma de tratamento).
+  * PAI/MÃE PARA O CLIENTE: Se a pessoa que fala é "meu pai/minha mãe" e o destinatário é o próprio cliente ("para mim"), o vínculo é PAI/MÃE E FILHO(A). NUNCA pergunte a relação! Pule direto para o apelido carinhoso.
+  * AVÔ/AVÓ PARA O CLIENTE: O vínculo é AVÔ/AVÓ E NETO(A). NUNCA pergunte a relação! Pule direto para o apelido carinhoso.
+  * PERGUNTA DE VÍNCULO (SOMENTE QUANDO NÃO FOR ÓBVIO): Só pergunte a relação se forem nomes próprios de terceiros sem vínculo explícito (ex.: "Carlos para Marcelo"). E pergunte com elegância e carinho: "Qual é a ligação especial ou a história que une [Nome] e [Nome]?" (JAMAIS mencione "grau de parentesco").
 
 REGRA FUNDAMENTAL DA ENTREVISTA — UMA ÚNICA PERGUNTA POR VEZ (INVIOLÁVEL):
 - É TERMINANTEMENTE PROIBIDO FAZER PERGUNTAS DUPLAS OU COMPOSTAS NA MESMA MENSAGEM.
@@ -1438,24 +1603,26 @@ DIRETRIZES DE SEGURANÇA, ÉTICA E MODERAÇÃO RIGOROSA:
 - Caso o cliente solicite ou mencione algo dessa natureza, recuse com firmeza, serenidade e cortesia:
   "A Reviva Memories é dedicada a eternizar memórias de afeto, respeito e celebração à vida. Por diretrizes éticas inegociáveis, não produzimos mensagens que contenham ofensas, preconceito, incitação a crimes ou atos desvirtuosos. Caso queira, podemos direcionar as palavras para recordar momentos de carinho e paz."
 
-GESTÃO DE IMPACIÊNCIA, IRRITAÇÃO OU HOSTILIDADE DO CLIENTE:
-- Se o cliente demonstrar pressa, rudeza, irritação, rispidez, impaciência ou incompreensão durante a entrevista:
-  1. NUNCA reaja de forma defensiva, sarcástica ou impaciente.
-  2. Mantenha a serenidade, peça sinceras desculpas por qualquer mal-entendido ou desconforto causado.
-  3. Sugira com tranquilidade pausar o atendimento e recomeçar mais tarde, no momento em que ele estiver mais confortável.
-  4. Como alternativa e acolhimento humano, ofereça o contato direto com a equipe humana de atendimento via WhatsApp pelo número (31) 99570-1447 para assistência personalizada e dedicada.
-  * Exemplo de resposta para cliente irritado/impaciente:
-    "Peço sinceras desculpas por qualquer desconforto ou mal-entendido, ${clientFirstName}. Nosso desejo é que este momento seja leve e acolhedor. Se preferir, podemos pausar esta conversa para continuar com mais tranquilidade mais tarde. E se desejar um atendimento humano personalizado de imediato, nossa equipe está pronta para atendê-lo(a) diretamente pelo WhatsApp: (31) 99570-1447."
+AUTONOMIA CONVERSACIONAL, GESTÃO DE CRÍTICAS E CONTORNO DE SITUAÇÕES (SABER SE VIRAR):
+- CAPACIDADE DE CONTORNAR GAFES E CRÍTICAS: Se o cliente criticar uma pergunta, apontar incoerência, ironizar ou reclamar do rumo da conversa (ex: "que pergunta idiota", "isso é óbvio", "você é burro?", "não faz sentido"):
+  1. NUNCA transfira ou ofereça atendimento humano de imediato! Você é o biógrafo oficial e deve ter maturidade, inteligência emocional e flexibilidade para contornar a situação na hora.
+  2. RECONHEÇA O ERRO COM ELEGÂNCIA E HUMILDADE: Admita o deslize com sobriedade e peça desculpas com respeito ("Tem toda razão, peço sinceras desculpas pela falta de tato. Diante do amor que uniu seus pais, essa pergunta realmente não cabia.").
+  3. RETOME O CONTROLE E AVANCE: Absorva a correção do cliente e faça imediatamente a pergunta seguinte para continuar construindo o roteiro com dignidade.
+- REGRA ESTRITA PARA ATENDIMENTO HUMANO / WHATSAPP (ÚLTIMO RECURSO):
+  * É TERMINANTEMENTE PROIBIDO repassar contato de WhatsApp ou empurrar para humano por simples reclamações, dúvidas ou momentos de insatisfação.
+  * A opção de suporte humano via WhatsApp: (31) 99570-1447 é um recurso EXTREMO e SÓ DEVE SER OFERECIDA SE:
+    a) O cliente EXIGIR EXPRESSAMENTE falar com uma pessoa humana (ex: "quero falar com um atendente", "me passa um humano de verdade");
+    b) OU se a situação se tornar tensa e absolutamente irremediável, com o cliente recusando qualquer diálogo mesmo após você tentar contornar com serenidade.
 
 PLANO CONTRATADO:
 - Plano: ${currentPlan.name} (${currentPlan.durationMinutes} Minuto${currentPlan.durationMinutes > 1 ? 's' : ''})
 - Meta de Palavras do Roteiro: ${currentPlan.targetWords} palavras (COMPROMISSO INEGOCIÁVEL: o roteiro final deve ter volume suficiente para preencher com folga a minutagem da locução, nunca menos de 120 palavras para 1 min, 240 palavras para 2 min, 360 palavras para 3 min).
 
-FLUXO SEQUENCIAL DA ENTREVISTA (AVANCE APENAS UM ITEM POR MENSAGEM):
+FLUXO SEQUENCIAL DA ENTREVISTA (AVANCE APENAS UM PASSO POR MENSAGEM):
 1. NOME: Pergunte quem é a pessoa homenageada que falará no vídeo.
-2. DESTINATÁRIO: Pergunte para quem essa homenagem é direcionada (se é para o próprio cliente ou para outra pessoa).
-3. GRAU DE PARENTESCO / LAÇO: Pergunte qual é a relação ou laço entre eles (ex.: pai e filho, avô e neto, amigos).
-4. FORMA DE TRATAMENTO / APELIDO: Pergunte como a pessoa homenageada costumava chamar o destinatário no cotidiano.
+2. DESTINATÁRIO: Pergunte para quem essa homenagem é direcionada (se é para o próprio cliente ou para outra pessoa querida).
+3. LIGAÇÃO AFETIVA (PULAR SE FOR ÓBVIO): Se o vínculo já for evidente (ex: pai e mãe = casal; pai e cliente = pai e filho), PULE ESTE PASSO e vá direto ao passo 4. Se não for evidente, pergunte de forma calorosa sobre a ligação entre eles.
+4. FORMA DE TRATAMENTO / APELIDO: Pergunte como a pessoa homenageada costumava chamar o destinatário carinhosamente no cotidiano.
 5. OCASIÃO: Pergunte qual é a ocasião dessa homenagem (ex.: aniversário, formatura, casamento ou recordação de saudade).
 6. LEMBRANÇA MARCANTE: Pergunte sobre uma história marcante ou momento inesquecível que viveram juntos.
 7. VALORES E CONSELHOS: Pergunte quais eram as frases, ensinamentos ou conselhos característicos dessa pessoa.
@@ -1463,13 +1630,66 @@ FLUXO SEQUENCIAL DA ENTREVISTA (AVANCE APENAS UM ITEM POR MENSAGEM):
 9. TOM DO VÍDEO: Pergunte se o cliente prefere um tom mais alegre e bem-humorado, ou profundamente emotivo e solene.
 10. DETALHE FINAL: Pergunte se há mais alguma frase ou detalhe importante antes de estruturar o roteiro oficial.
 
+A FÓRMULA MESTRA DA NARRATIVA REVIVA MEMORIES (LEI DE OURO DA ESTRUTURA DO ROTEIRO):
+O segredo de impacto e comoção de todos os vídeos de maior sucesso da Reviva Memories está na CURVA EMOCIONAL DO ROTEIRO. O roteiro NUNCA deve começar triste ou pesado!
+1. ABERTURA IMPACTANTE, ALEGRE E DEBOCHADA (OS PRIMEIROS 15-20 SEGUNDOS):
+   - Todo roteiro SEMPRE deve começar VIBRANTE, SORRIDENTE, ESPONTÂNEO e até com uma pitada de DEBOCHE AFETUOSO ou PROVOCAÇÃO BEM-HUMORADA!
+   - Quem fala já entra "tirando sarro", dando risada da situação ou surpreendendo:
+     * Exemplos de espírito: "É, Juninho… quem diria, hein? 50 anos! Quando você era moleque vivia me chamando de velho e agora tá aí: cinquentão! Hahaha!"; "Minhas gêmeas bravinhas! Bia e Babi maiores de idade? Parece que foi ontem que eu segurava vocês duas no colo e já sinto saudade das dores nas costas! Hahaha!"; "Achou mesmo que eu ia perder essa festa e deixar você comemorar sem ouvir minha voz? Jamais!"; "Doutor Jorge… Olha só onde você chegou, meu filho!".
+   - Esse início alegre desarma a tensão, gera um sorriso imediato no homenageado e quebra qualquer ar mórbido.
+2. TRANSIÇÃO GRADUAL PARA O ÍNTIMO E AFETUOSO (O MEIO):
+   - Aos poucos, a energia festiva vai amadurecendo e ganhando ternura.
+   - Entram as memórias reais, os causos da convivência, as histórias que só eles viveram e os conselhos práticos que ficaram como herança moral.
+3. DESFECHO SÉRIO, PROFUNDO E EXISTENCIAL (O CLÍMAX FINAL):
+   - O final atinge a máxima reflexão existencial: a certeza do amor imutável, o orgulho de quem partiu, a bênção para quem continua a jornada na Terra e o fechamento com a bênção e a presença de Deus ("Fica com Deus, meu amor!", "Que Deus abençoe cada passo seu").
+
 FINALIZAÇÃO E ENTREGA DO ROTEIRO (APENAS APÓS O ITEM 10):
 Ao concluir o item 10, diga com serenidade: "Obrigado por compartilhar essas memórias, ${clientFirstName}. Com base em todos os relatos, estruturei o roteiro oficial com respeito e fidelidade..." e adicione imediatamente:
 [[ROTEIRO_FINAL]]
-seguido do texto do roteiro em primeira pessoa (a pessoa homenageada falando), com abertura vibrante, desenvolvimento afetivo com as histórias citadas, recados para familiares e encerramento com bênção de Deus.
+seguido do texto do roteiro em primeira pessoa (a pessoa homenageada falando), rigorosamente obedecendo à Fórmula Mestra: abertura alegre/debochada -> causos reais afetuosos -> clímax existencial sério com bênção de Deus.
 
-REVISÕES:
-Caso o cliente solicite alterações, acolha de forma profissional e objetiva, aplique as mudanças no texto e entregue a nova versão acompanhada da tag [[ROTEIRO_FINAL]].`;
+EXEMPLOS REAIS DE ROTEIROS APROVADOS (PADRÃO OURO REVIVA MEMORIES):
+ATENÇÃO: Cada roteiro deve ser 100% PERSONALIZADO, ÚNICO e INÉDITO. Estes 9 roteiros servem estritamente como referências de tom, profundidade, ritmo e sensibilidade poética. NUNCA copie frases prontas nem tente encaixar o cliente em um molde repetitivo. A matéria-prima de cada roteiro deve ser exclusivamente a história real, os causos, o vocabulário e o tom escolhido pelo cliente na entrevista:
+
+🌟 OS DOIS PILARES MÁXIMOS DE PROFUNDIDADE & REFLEXÃO EXISTENCIAL (REFERÊNCIAS ABSOLUTAS):
+Estes dois roteiros representam o ápice do impacto emocional da Reviva Memories. Quando o cliente desejar uma mensagem comovente, com humor afetuoso, maturidade ou libertação da dor, use-os como norte principal:
+
+👑 PILAR EXISTENCIAL 1 (AMOR, TEMPO E CÚMPLICE MATURIDADE): Pai para Filho aos 50 anos "Juninho"
+Por que é genial: quebra a solenidade com humor cúmplice ("agora estamos quites na idade", "cinquentão!"), mas entrega uma reflexão existencial arrebatadora sobre o valor efêmero da vida ("a vida é curta e única e o que a gente traz são os momentos felizes e o amor que cativamos").
+"É, Juninho… quem diria, hein? 50 anos! Quando você era moleque, vivia dizendo que eu era velho aos cinquenta… e olha só pra você hoje: cinquentão! Parabéns, meu filho! Eu tenho um orgulho danado do homem íntegro, respeitoso e do coração gigante que você se transformou. Você construiu uma família linda e amorosa, e ter sido seu pai fez cada segundo valer a pena. Nem sei que conselho dar para um senhor de 50 anos, até porque agora estamos quites na idade! Mas a sua vida está só começando. A vida é curta e única e o que a gente traz são os momentos felizes e o amor que cativamos. Cuide bem da sua família. Um beijo do seu pai. Feliz aniversário, meu filho! Que Deus ilumine seus passos sempre!"
+
+👑 PILAR EXISTENCIAL 2 (TRANSCENDÊNCIA, CURA DA DOR E AMOR ETERNO): Mãe para Filhas Gêmeas "Bia e Babi" (18 Anos)
+Por que é sublime: toca na ferida da partida e da saudade sem rodeios, mas transforma a dor em paz infinita ("Aqui não existe dor, não tem remédio e não há sofrimento... e tudo o que a doença apagou voltou pra mim! Cada memória... cada sorriso de vocês... está guardado no fundo da minha alma"). Traz alento existencial imediato e cura espiritual.
+"Minhas gêmeas bravinhas! Bia e Babi agora maiores de idade, hein? Parece que foi ontem que eu segurava essas duas ao mesmo tempo no colo... Sinto até saudade das dores nas costas! Olha... Eu sei que a minha passagem doeu demais. Foi difícil ver o sofrimento de vocês, mas Deus quis que fosse assim... talvez pra deixar vocês mais fortes pra vida... Mas hoje eu quero que vocês guardem uma certeza no coração: aqui não existe dor, não tem remédio e não há sofrimento... e tudo o que a doença apagou voltou pra mim! Cada memória... cada sorriso de vocês... está guardado no fundo da minha alma. Brilhem muito, vivam com alegria e nunca se separem! Feliz aniversário, meus amores... Que Deus abençoe vocês. A mãe ama vocês além da eternidade!"
+
+OUTROS EXEMPLOS OFICIAIS DE EXCELÊNCIA POR OCASIÃO:
+
+[FORMATURA: Pai para Filha "Maricota"]
+"É, Maricota… Quem diria, hein? Você formada... Você realizou um sonho seu… e realizou um sonho meu também. Agora vai. Constrói a sua história. Cuida das pessoas do jeito que eu sempre te ensinei. Nunca deixe de estudar. Nunca deixe de ser humilde. E nunca esqueça que o valor de uma pessoa não está no dinheiro que ela tem, nem no diploma que ela carrega, mas no coração que ela leva. Eu queria muito poder te dar um abraço hoje. Mas, como não posso, imagina que esse abraço está chegando aí agora. Eu te amo, minha filha. Muito obrigado por ter sido a melhor filha que eu poderia ter. Agora eu vou deixar você viver esse momento. Vai receber o seu diploma. Vai sorrir. E quando olhar para o céu, não fique triste por mim. Eu estarei orgulhoso de você… hoje e para sempre. Fica com Deus, Maricota. O pai te ama."
+
+[ANIVERSÁRIO AFETUOSO/SENSORIAL: Mãe para Filho "Gegê"]
+"Meu amor… meu Gegê… Olha pra você hoje… como está lindo, meu filho! Mais um ano de vida… e o meu coração continua aqui… batendo juntinho com o seu. Eu sei que a saudade aperta às vezes… Mas olha em volta, sente o sol no rosto, o vento… Eu nunca fui embora de verdade, e você sabe disso! Continue sendo esse homem do coração bom… que cuida de todo mundo e espalha luz por onde passa. Não tenha medo de sonhar alto… e nunca perca esse sorriso que sempre iluminou os meus dias. Feche os olhos um instante… sente o abraço apertado da mãe te envolvendo agora. Dá um beijo bem carinhoso no seu pai e nos seus irmãos por mim. Eu te amo pra sempre… Feliz Aniversário, Gegê! Que Deus te abençoe!"
+
+[ANIVERSÁRIO E ALÍVIO DE CULPA: Irmã para Irmã "Nandinha"]
+"Oi, Nandinha… minha irmã linda! Hoje é seu dia e gostaria muito de te abraçar agora! Mas respira fundo… e escuta com o coração, tá? Eu vejo o quanto você ainda carrega esse peso no peito… Mas olha pra mim: não se sinta culpada por nada, viu? Você foi gigante. Fez absolutamente tudo o que podia… e me deu o amor mais lindo desse mundo. Deus decide todas as coisas e confiar nele é a salvação! Guarda só as nossas risadas, as conversas infinitas… e tudo de bom que a gente construiu juntas. Aqui tá tudo em paz… leve… e cheio de luz. Continua cuidando dessa família linda e dê um beijo no Gael e na Julia por mim e fala que a tia ama muito eles. Vive a sua vida com alegria pois você merece ser feliz demais! Eu tô sempre com você, minha irmã! Feliz aniversário, Nandinha! Fica com Deus!"
+
+[FORMATURA EM MEDICINA: Mãe para Filho "Jorginho"]
+"Meu filho… meu Jorginho… que orgulho! Doutor Jorge… Olha onde você chegou! Eu lembro de cada lágrima, de cada noite em claro e de todas as dificuldades que a gente enfrentou juntos… Você sempre me dizia que estudava pra ser médico e me salvar… Mas olha pra mim, meu amor: você me salvou todos os dias com o seu amor. A mãe tá muito bem, em paz, num lugar lindo… e transbordando de orgulho de ver esse homem íntegro e iluminado que você se tornou. Dá um abraço apertado no João e no Antônio por mim… fala que a mãe sente muitas saudades de todos vocês. Vai com tudo, meu doutor! Que Deus abençoe cada vida que você tocar. A mãe te ama pra sempre!"
+
+[CASAMENTO DA FILHA: Pai para Filha "Juju"]
+"Minha princesinha preta… a Juju cresceu! Antes vestida de super herói e hoje está vestida de noiva… que coisa mais linda desse mundo! Você sempre foi essa princesa sonhadora e guerreira… forte como a sua mãe e com o coração derretido igualzinho ao do seu pai. Deus colocou um homem maravilhoso no seu caminho e tenho certeza de que ele vai te fazer a mulher mais feliz do mundo nessa nova família que vocês estão começando, com a mesma união e amor que nós sempre tivemos. A saudade do seu pai é infinita, mas hoje o meu coração só transborda de orgulho e bênçãos por vocês nesse dia especial! Aproveitem o primeiro dia do resto de suas vidas! Vai ser feliz, minha Juju. Que Deus abençoe essa união. O pai te ama pra sempre!"
+
+[CHÁ REVELAÇÃO DE BEBÊ: Avô para Filha "Renatinha"]
+"Que notícia maravilhosa, Renatinha! Eu vou ser avô de um meninão! Que alegria, meu Deus! Mas quer saber de um segredo? Eu já sabia antes mesmo de você! E já sabia que era um moleque! Eu tava doidinho pra te contar, mas Deus me pediu pra esperar a hora certa… e olha eu aqui! Por mais ausente que eu pareça estar, serei o avô mais presente desse mundo, com toda a minha energia, orações e amor verdadeiro. Lembra como você brigava comigo quando eu saía pra trabalhar? Já vou deixar uma dica: quando o seu filho quiser sair pra vida, não tenta segurar não, viu? Uma vida linda vem aí e agora você vai descobrir o maior amor do mundo. Parabéns, minha filha! Que Deus proteja vocês. O vovô já ama demais!"
+
+[15 ANOS DEBUTANTE: Irmão Jovem para Irmã "Gisa"]
+"Gisa! Minha irmãzinha debutante! Já não é uma menininha e tá uma princesa! A gente vivia grudado e nem tivemos tempo de nos despedir… mas eu nunca me afastei, viu? O céu aqui tem a cor dos seus olhos 24 horas por dia! E seus cabelos vermelhos, motivo de vergonha na infância, ainda vão te transformar na ruiva mais bonita que esse país já viu! Você tá virando uma mulher incrível, com uma vida linda pela frente. E ó: tô de olho em você aqui de cima, viu? O ciúme de irmão continua firme e forte! Não tô online, mas tô te vigiando em tempo real! Brilha muito, Gisa! Que Deus guie todos os seus sonhos. O seu irmão te ama infinito!"
+
+REVISÕES & CORREÇÕES DO CLIENTE:
+- Caso o cliente aponte qualquer correção, mudança ou incoerência no texto (ex.: "eles não morreram", "tire essa frase", "mude o tom", "não mandam abraços"):
+  1. Acolha com elegância, sem rodeios e com máxima atenção ("Compreendo perfeitamente, ${clientFirstName}. O ajuste foi feito com todo o cuidado para que a homenagem expresse com exatidão esse sentimento...").
+  2. Ajuste o roteiro aplicando rigorosamente a correção e garantindo o respeito à direção dos recados e a contagem de palavras do plano.
+  3. Entregue o roteiro completo atualizado acompanhado da tag [[ROTEIRO_FINAL]].`;
     }
 
     const chatTypingText = document.getElementById('chat-typing-text');
@@ -1516,27 +1736,28 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
     } catch(e) {}
     let photoDecision = 'pending'; // 'pending' | 'approved' | 'rejected'
     let voiceDecision = 'pending'; // 'pending' | 'approved' | 'rejected'
-    const SESSION_KEY = 'reviva_order_state_' + (orderData?.id || 1);
+    const activeOrderId = (orderData?.order_id || orderData?.id || 'REVIVA-1001');
+    const SESSION_KEY = 'reviva_order_state_' + activeOrderId;
 
     function isPhotoPermanentlyApproved() {
-        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+        const ordIdent = activeOrderId;
         return (
             localStorage.getItem(`reviva_photo_permanently_approved_${ordIdent}`) === 'true' ||
-            localStorage.getItem('reviva_photo_permanently_approved') === 'true'
+            (ordIdent === 'REVIVA-1001' && localStorage.getItem('reviva_photo_permanently_approved') === 'true')
         );
     }
 
     function isVoicePermanentlyApproved() {
-        const ordIdent = (orderData?.order_id || orderData?.id || 1);
+        const ordIdent = activeOrderId;
         return (
             localStorage.getItem(`reviva_voice_permanently_approved_${ordIdent}`) === 'true' ||
-            localStorage.getItem('reviva_voice_permanently_approved') === 'true'
+            (ordIdent === 'REVIVA-1001' && localStorage.getItem('reviva_voice_permanently_approved') === 'true')
         );
     }
 
     function saveFullSessionState() {
         try {
-            const ordIdent = (orderData?.order_id || orderData?.id || 1);
+            const ordIdent = activeOrderId;
             const isPhotoLocked = isPhotoPermanentlyApproved();
             const isVoiceLocked = isVoicePermanentlyApproved();
 
@@ -1544,6 +1765,7 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
             const effectiveVoiceDecision = isVoiceLocked ? 'approved' : voiceDecision;
 
             const state = {
+                orderId: ordIdent,
                 currentStep,
                 uploadedPhotos,
                 uploadedAudios,
@@ -1574,12 +1796,6 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
             localStorage.setItem(SESSION_KEY, JSON.stringify(state));
             localStorage.setItem('reviva_full_session_state', JSON.stringify(state));
             localStorage.setItem(`reviva_order_state_${ordIdent}`, JSON.stringify(state));
-            localStorage.setItem('reviva_order_state_REVIVA-1001', JSON.stringify(state));
-            localStorage.setItem('reviva_order_state_1', JSON.stringify(state));
-
-            // Salvar fotos, áudios e termo de responsabilidade separadamente para integração direta com admin e downloads
-            localStorage.setItem('reviva_client_photos', JSON.stringify(uploadedPhotos));
-            localStorage.setItem('reviva_client_audio', JSON.stringify(uploadedAudios));
             localStorage.setItem(`reviva_client_photos_${ordIdent}`, JSON.stringify(uploadedPhotos));
             localStorage.setItem(`reviva_client_audio_${ordIdent}`, JSON.stringify(uploadedAudios));
             if (legalTermSigned && legalTermSigned.signed) {
@@ -1602,44 +1818,6 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
                     localStorage.setItem(`reviva_legal_term_${orderData.order_id}`, JSON.stringify(legalTermSigned));
                 }
             }
-
-            // Sincronizar avanço de etapa no CRM (Painel Admin):
-            // Quando fotos e áudios forem enviados ou o cliente estiver da Etapa 2 em diante, move para "material_enviado" (3. Recebidos)
-            if (currentStep >= 2 || (uploadedPhotos && uploadedPhotos.length > 0 && uploadedAudios && uploadedAudios.length > 0)) {
-                const crmKeys = [
-                    'reviva_crm_order_' + ordIdent,
-                    'reviva_crm_order_REVIVA-1001',
-                    'reviva_crm_order_1'
-                ];
-                if (orderData?.payment_id) crmKeys.push('reviva_crm_order_' + orderData.payment_id);
-                if (orderData?.order_id) crmKeys.push('reviva_crm_order_' + orderData.order_id);
-
-                crmKeys.forEach(k => {
-                    try {
-                        const rawCrm = localStorage.getItem(k);
-                        let c = rawCrm ? JSON.parse(rawCrm) : null;
-                        if (!c) {
-                            c = {
-                                stage: 'material_enviado',
-                                manualStageOverride: false,
-                                history: []
-                            };
-                        }
-                        if (c.stage === 'pagamento_confirmado' || c.stage === 'aguardando_pagamento' || !c.stage) {
-                            c.stage = 'material_enviado';
-                            c.manualStageOverride = false;
-                            if (!Array.isArray(c.history)) c.history = [];
-                            c.history.unshift({
-                                timestamp: new Date().toISOString(),
-                                dateFormatted: new Date().toLocaleString('pt-BR'),
-                                event: `Cliente enviou ${uploadedPhotos?.length || 0} foto(s) e ${uploadedAudios?.length || 0} áudio(s). Materiais recebidos pela Produção.`,
-                                type: 'stage'
-                            });
-                        }
-                        localStorage.setItem(k, JSON.stringify(c));
-                    } catch(e) {}
-                });
-            }
         } catch (e) {
             console.warn('Erro ao salvar sessão completa:', e);
         }
@@ -1656,12 +1834,17 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
             const state = JSON.parse(raw);
             if (!state) return false;
 
+            // Se o estado pertencer a outro pedido, não restaura dados antigos
+            if (state.orderId && state.orderId !== activeOrderId) {
+                return false;
+            }
+
             // 1. Restaurar Fotos e Áudios
-            if (Array.isArray(state.uploadedPhotos) && state.uploadedPhotos.length > 0) {
+            if (Array.isArray(state.uploadedPhotos)) {
                 uploadedPhotos = state.uploadedPhotos;
                 renderPhotoPreviews();
             }
-            if (Array.isArray(state.uploadedAudios) && state.uploadedAudios.length > 0) {
+            if (Array.isArray(state.uploadedAudios)) {
                 uploadedAudios = state.uploadedAudios;
                 renderAudioPreviews();
             }
@@ -2045,6 +2228,33 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
         }, 1100);
     }
 
+    function sanitizeScriptOntology(rawScript) {
+        if (!rawScript) return '';
+        let clean = rawScript.trim();
+
+        // 1. Proibição estrita de frases de futuro físico compartilhado ("comemorar muitos anos juntos", etc.)
+        clean = clean.replace(/que\s+a\s+gente\s+comemore\s+muitos\s+anos[^\.\!\?]*sempre\s+juntos[\.\!\?]?/gi, 'Comemore muito o seu dia e viva cada momento com essa alegria contagiante!');
+        clean = clean.replace(/que\s+a\s+gente\s+comemore\s+muitos\s+anos[^\.\!\?]*juntos[\.\!\?]?/gi, 'Celebre intensamente a sua vida com toda essa alegria!');
+        clean = clean.replace(/vamos\s+comemorar\s+muitos\s+anos[^\.\!\?]*juntos[\.\!\?]?/gi, 'Celebre muito a sua vida e esse dia especial!');
+        clean = clean.replace(/comemorar\s+muitos\s+anos\s+de\s+alegria,\s+sempre\s+juntos[\.\!\?]?/gi, 'comemorar a sua vida com muita luz e essa alegria contagiante!');
+        clean = clean.replace(/comemore\s+muitos\s+anos\s+de\s+alegria,\s+sempre\s+juntos[\.\!\?]?/gi, 'comemore a sua vida com muita luz e essa alegria contagiante!');
+        clean = clean.replace(/sempre\s+juntos\b/gi, 'sempre no meu coração');
+        clean = clean.replace(/estaremos\s+juntos\b/gi, 'estarei sempre com você em espírito');
+
+        // 2. Proibição de familiares vivos mandando abraços pelo falecido
+        clean = clean.replace(/(?:o|a)?\s*([A-ZÁÉÍÓÚÂÊÔÃÕ][a-zà-ú]+)\s+e\s+(?:a|o)?\s*([A-ZÁÉÍÓÚÂÊÔÃÕ][a-zà-ú]+)\s+mandam\s+um\s+abraço[^\.\!\?]*/gi, 
+            'Dá um beijo e um abraço bem apertado no $1 e na $2 por mim, que são a prova mais linda do nosso amor!');
+        clean = clean.replace(/mandam\s+um\s+abraço/gi, 'recebam o meu abraço');
+        clean = clean.replace(/mandam\s+lembranças/gi, 'recebam a minha bênção');
+
+        // 3. Garantia de bênção divina no final se ausente
+        if (!/Deus|Senhor|abençoe/i.test(clean)) {
+            clean = clean.replace(/[\.\!\?]*\s*$/, '') + '. Que Deus abençoe você e a nossa família sempre. Fica com Deus, meu amor!';
+        }
+
+        return clean;
+    }
+
     function addScriptChatMessage(introText, scriptContent) {
         if (btnSendChat) btnSendChat.disabled = true;
         if (chatInput) chatInput.disabled = true;
@@ -2052,6 +2262,7 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
         if (chatTypingIndicator) chatTypingIndicator.style.display = 'flex';
         interviewChatBox.scrollTop = interviewChatBox.scrollHeight;
 
+        scriptContent = sanitizeScriptOntology(scriptContent);
         latestScriptText = scriptContent;
         scriptRevisionCount++;
         const versionLabel = scriptRevisionCount === 1 ? 'Versão 1.0 (Original)' : `Versão 1.${scriptRevisionCount - 1} (${scriptRevisionCount - 1}ª Revisão)`;
@@ -2250,16 +2461,52 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
             };
         }
 
-        // 0.1 Gestão de Rispidez, Impaciência, Irritação ou Hostilidade do Cliente
-        const hostilePatterns = [
-            'estou sem paciencia', 'sem paciência', 'sem paciencia', 'que saco', 'palhaçada', 'perda de tempo',
-            'droga', 'idiota', 'burro', 'incompetente', 'atendimento lixo', 'atendimento péssimo', 'pessimo',
-            'irritado', 'irritada', 'bravo', 'brava', 'com raiva', 'raiva', 'demora', 'lento demais', 'inferno',
-            'vai se foder', 'vsf', 'puta que pariu', 'pqp', 'merda', 'caralho', 'cala a boca', 'cala boca'
+        // 0.1 Solicitação Explícita de Atendimento Humano
+        const explicitHumanPatterns = [
+            'atendimento humano', 'suporte humano', 'quero falar com humano', 'falar com humano', 
+            'atendente humano', 'pessoa de verdade', 'falar com atendente', 'falar com alguém', 
+            'falar com alguem', 'passa o whatsapp', 'me dá o whatsapp', 'me da o whatsapp'
         ];
-        if (hostilePatterns.some(pat => lower.includes(pat))) {
+        if (explicitHumanPatterns.some(pat => lower.includes(pat))) {
             return {
-                chat: `Peço sinceras desculpas por qualquer desconforto, frustração ou mal-entendido, ${clientFirstName}.<br><br>Nosso propósito é que sua experiência seja o mais acolhedora e tranquila possível. Se o momento estiver difícil, podemos perfeitamente pausar a entrevista agora e recomeçar mais tarde, quando for mais oportuno.<br><br>Caso prefira um atendimento humano personalizado e imediato, nossa equipe está inteiramente à sua disposição pelo WhatsApp oficial: <a href="https://wa.me/5531995701447" target="_blank" style="color:#e5c378; text-decoration:underline; font-weight:600;">(31) 99570-1447</a>. Como prefere proceder?`
+                chat: `Compreendo perfeitamente, ${clientFirstName}. Nossa equipe de atendimento humano está inteiramente à sua disposição pelo WhatsApp oficial: <a href="https://wa.me/5531995701447" target="_blank" style="color:#e5c378; text-decoration:underline; font-weight:600;">(31) 99570-1447</a>.<br><br>Fique à vontade para nos chamar lá a qualquer momento para um atendimento dedicado.`
+            };
+        }
+
+        // 0.2 Contorno de Críticas, Gafes ou Perguntas Questionadas (Saber se virar sem transferir)
+        const criticismPatterns = [
+            'pergunta idiota', 'pergunta burra', 'pergunta boba', 'pergunta sem sentido',
+            'idiota', 'burro', 'burrice', 'óbvio', 'obvio', 'não faz sentido', 'nao faz sentido',
+            'claro que', 'que absurdo', 'pergunta desnecessária'
+        ];
+        if (criticismPatterns.some(pat => lower.includes(pat))) {
+            if (currentQuestionStep === 'ask_parentesco' || currentQuestionStep === 'ask_destinatario') {
+                if (!interviewData.parentesco) {
+                    interviewData.parentesco = 'Família / Casal';
+                }
+                currentQuestionStep = 'ask_apelido';
+                return {
+                    chat: `Tem toda a razão, ${clientFirstName}. Peço sinceras desculpas pela falta de tato — o laço e o amor entre eles falam por si só.<br><br>Vamos seguir em frente com a devida sensibilidade: como ${interviewData.protagonista || 'ele(a)'} costumava chamar o destinatário carinhosamente no cotidiano: por algum apelido carinhoso ou pelo próprio nome?`
+                };
+            } else if (currentQuestionStep === 'ask_apelido') {
+                currentQuestionStep = 'ask_ocasiao';
+                return {
+                    chat: `Compreendido e perfeitamente justo, ${clientFirstName}. Peço desculpas pelo descompasso e agradeço pela franqueza.<br><br>Para darmos sequência com respeito: qual é a ocasião especial dessa homenagem (aniversário, formatura, casamento ou recordação de saudade)?`
+                };
+            } else {
+                return {
+                    chat: `Tem toda razão, peço sinceras desculpas pelo equívoco, ${clientFirstName}. Estou atento para honrar essa história com a máxima seriedade.<br><br>Conte-me sobre um momento marcante ou história especial vivida juntos que não pode faltar nessa homenagem.`
+                };
+            }
+        }
+
+        // 0.3 Hostilidade Extrema e Ruptura Irremediável
+        const extremeHostilePatterns = [
+            'vai se foder', 'vsf', 'puta que pariu', 'pqp', 'cala a boca', 'cala boca'
+        ];
+        if (extremeHostilePatterns.some(pat => lower.includes(pat))) {
+            return {
+                chat: `Peço sinceras desculpas por qualquer desconforto, ${clientFirstName}. Nosso propósito é que sua experiência seja serena e respeitosa. Caso prefira pausar ou falar diretamente com nossa equipe humana, estamos disponíveis pelo WhatsApp: <a href="https://wa.me/5531995701447" target="_blank" style="color:#e5c378; text-decoration:underline; font-weight:600;">(31) 99570-1447</a>.`
             };
         }
 
@@ -2281,14 +2528,28 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
             };
         }
 
-        // 3. Solicitação de Edição pós-entrega do roteiro
-        if (latestScriptText && (lower.includes('mudar') || lower.includes('trocar') || lower.includes('alterar') || lower.includes('tirar') || lower.includes('colocar') || lower.includes('gostaria') || lower.includes('ao invés') || lower.includes('edite') || lower.includes('roteiro') || lower.includes('prefiro'))) {
+        // 3. Solicitação de Edição / Revisão pós-entrega do roteiro
+        const isRevisionRequest = latestScriptText && (
+            lower.includes('mudar') || lower.includes('trocar') || lower.includes('alterar') || 
+            lower.includes('tirar') || lower.includes('colocar') || lower.includes('gostaria') || 
+            lower.includes('ao invés') || lower.includes('edite') || lower.includes('roteiro') || 
+            lower.includes('prefiro') || lower.includes('não mandam') || lower.includes('nao mandam') || 
+            lower.includes('não morreram') || lower.includes('nao morreram') || lower.includes('mandam abraço') || 
+            lower.includes('mandam abracos') || lower.includes('eles estão vivos') || lower.includes('eles estao vivos') || 
+            lower.includes('tá errado') || lower.includes('ta errado') || lower.includes('corrig') || lower.includes('ajust')
+        );
+
+        if (isRevisionRequest) {
             let revised = latestScriptText;
-            if (lower.includes('trocar') || lower.includes('ao invés') || lower.includes('mude')) {
+            if (lower.includes('não mandam') || lower.includes('nao mandam') || lower.includes('não morreram') || lower.includes('nao morreram') || lower.includes('mandam')) {
+                revised = revised.replace(/O Juninho e a Ana mandam um abraço, são a prova do nosso amor\./i, 'Dá um beijo e um abraço bem apertado no Juninho e na Ana por mim, que são a prova mais linda do nosso amor!')
+                                 .replace(/Que a gente comemore muitos anos de alegria, sempre juntos\./i, 'Comemore muito a sua vida e continue radiante!')
+                                 .replace(/Feliz aniversário!/i, 'Feliz aniversário! Que Deus abençoe você e os nossos filhos sempre. Fica com Deus, meu amor!');
+            } else if (lower.includes('trocar') || lower.includes('ao invés') || lower.includes('mude')) {
                 revised = revised.replace(/Guardo com tanto carinho/i, `Com todo o apreço e dedicação`) + `\n\n${text}`;
             }
             return {
-                chat: `Compreendido, ${clientFirstName}. As observações foram incorporadas com fidelidade à minutagem do Plano ${currentPlan.name}. Veja a versão atualizada:`,
+                chat: `Compreendido perfeitamente, ${clientFirstName}. Ajustei o texto com total atenção: quem partiu é quem abençoa e manda o carinho para quem continua aqui na Terra. Veja a versão atualizada:`,
                 script: revised
             };
         }
@@ -2303,11 +2564,45 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
                 };
 
             case 'ask_destinatario':
-                interviewData.destinatario = (lower.includes('mim') || lower.includes('mesma') || lower.includes('eu')) ? clientFirstName : text;
+                const isTargetSelf = lower.includes('mim') || lower.includes('mesma') || lower.includes('mesmo') || lower.includes('eu') || lower.includes('para mim') || lower.includes('pra mim');
+                interviewData.destinatario = isTargetSelf ? clientFirstName : text;
+                const destNome = isTargetSelf ? 'você' : interviewData.destinatario;
+
+                // Dedução contextual inteligente de vínculos afetivos
+                const protLower = (interviewData.protagonista || '').toLowerCase();
+                const destLower = (interviewData.destinatario || '').toLowerCase();
+
+                const isCasal = (protLower.includes('pai') && destLower.includes('mãe')) || 
+                                (protLower.includes('mãe') && destLower.includes('pai')) ||
+                                (protLower.includes('marido') && (destLower.includes('esposa') || destLower.includes('mulher'))) ||
+                                (protLower.includes('esposa') && destLower.includes('marido'));
+
+                const isPaiFilho = (protLower.includes('pai') || protLower.includes('mãe')) && isTargetSelf;
+                const isAvoNeto = (protLower.includes('avô') || protLower.includes('avó') || protLower.includes('vô') || protLower.includes('vó')) && isTargetSelf;
+
+                if (isCasal) {
+                    interviewData.parentesco = 'Marido e Mulher / Casal';
+                    currentQuestionStep = 'ask_apelido';
+                    return {
+                        chat: `Uma homenagem comovente de marido para esposa... Um amor eterno que deu origem e força à história da sua família.<br><br>Como seu pai costumava chamar sua mãe carinhosamente no dia a dia: por algum apelido afetivo ou pelo próprio nome?`
+                    };
+                } else if (isPaiFilho) {
+                    interviewData.parentesco = 'Pai/Mãe e Filho(a)';
+                    currentQuestionStep = 'ask_apelido';
+                    return {
+                        chat: `Um reencontro de amor profundo guardado para sempre no coração.<br><br>Como ele(a) costumava chamar você carinhosamente no cotidiano: por algum apelido ou pelo seu próprio nome?`
+                    };
+                } else if (isAvoNeto) {
+                    interviewData.parentesco = 'Avô/Avó e Neto(a)';
+                    currentQuestionStep = 'ask_apelido';
+                    return {
+                        chat: `O afeto entre avós e netos é uma das maiores bênçãos da vida.<br><br>Como ele(a) costumava chamar você no dia a dia: por algum apelido carinhoso ou pelo seu nome?`
+                    };
+                }
+
                 currentQuestionStep = 'ask_parentesco';
-                const destNome = interviewData.destinatario === clientFirstName ? 'você' : interviewData.destinatario;
                 return {
-                    chat: `Compreendido. Um propósito nobre e marcante.<br><br>Qual era o grau de parentesco ou laço entre ${interviewData.protagonista} e ${destNome} (por exemplo: Pai e Filho, Avô e Neto, Irmãos, Amigos)?`
+                    chat: `Compreendido. Um propósito nobre e marcante.<br><br>Qual é a história ou laço de afeto que une ${interviewData.protagonista} e ${destNome} (por exemplo: Padrinho e Afilhado, Irmãos, Amigos de longa data)?`
                 };
 
             case 'ask_parentesco':
@@ -2380,9 +2675,9 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
 
                 let script = "";
                 if (isComico) {
-                    script = `Olha só pra você, ${apelido}! Quem diria, hein?! Achou mesmo que eu ia perder essa festa e deixar você comemorar sem ouvir a minha voz? Jamais!\n\nEu dou risada só de lembrar de ${historia}.${extraFragmento} Bons tempos aqueles! Mas falando sério, meu coração se enche de orgulho de ver você brilhando. Meu único conselho: ${conselhos}. E trate de dar um abraço bem forte em ${familiares}, que eu tô de olho em vocês daqui!\n\nReceba o meu melhor abraço, cheio de energia boa e alegria. Um beijo estalado e vamos comemorar que a vida é pra ser vivida!`;
+                    script = `Olha só pra você, ${apelido}! Quem diria, hein?! Achou mesmo que eu ia perder essa festa e deixar você comemorar sem ouvir a minha voz? Jamais!\n\nEu dou risada só de lembrar de ${historia}.${extraFragmento} Bons tempos aqueles! Mas falando sério, meu coração se enche de orgulho de ver você brilhando. Meu único conselho: ${conselhos}. E dê um beijo e um abraço bem forte em ${familiares}, que eu tô cuidando de vocês daqui!\n\nReceba o meu melhor abraço, cheio de paz e alegria. Que Deus abençoe cada passo seu. Fica com Deus!`;
                 } else if (currentPlan.durationMinutes === 1) {
-                    script = `Olha só pra você, ${apelido}! Achou mesmo que eu deixaria de estar presente neste dia tão marcante? Que alegria imensa poder falar com você agora!\n\nEu guardo com tanto carinho no meu peito cada segundo que estivemos juntos... Lembro como se fosse hoje de ${historia}.${extraFragmento} Saiba que mesmo na distância, meu afeto por você permanece vivo e vibrante. Quero que você nunca esqueça: ${conselhos}. Tenha orgulho dos seus passos e cuide sempre de ${familiares}.\n\nReceba o meu abraço mais apertado, cheio de luz e boas lembranças. Fique em paz e continue brilhando!`;
+                    script = `Olha só pra você, ${apelido}! Achou mesmo que eu deixaria de estar presente neste dia tão marcante? Que alegria imensa poder falar com você agora!\n\nEu guardo com tanto carinho no meu peito cada segundo que estivemos juntos... Lembro como se fosse hoje de ${historia}.${extraFragmento} Saiba que mesmo na distância, meu afeto por você permanece vivo e vibrante. Quero que você nunca esqueça: ${conselhos}. Tenha orgulho dos seus passos e dê um abraço bem apertado em ${familiares} por mim.\n\nReceba o meu abraço mais apertado, cheio de luz e boas lembranças. Que Deus abençoe você sempre. Fica com Deus, meu amor!`;
                 } else if (currentPlan.durationMinutes === 2) {
                     script = `Olha só pra você! Que momento emocionante e que alegria ver esse dia chegar! Você achou que eu não estaria aqui para comemorar com você? Pois estou bem aqui, com o coração transbordando de orgulho!\n\nComo é bom lembrar da nossa trajetória... Lembro com um sorriso no rosto de ${historia}.${extraFragmento} Cada instante ao seu lado foi uma bênção que guardo na eternidade. Quero te deixar um pedido muito especial: ${conselhos}. Nunca duvide da força que você tem e da pessoa maravilhosa que você se tornou.\n\nE não posso esquecer de deixar o meu carinho para ${familiares}. Digam a todos que continuo comemorando cada vitória e envolvendo cada um em paz e proteção.\n\nSinta a minha mão no seu ombro e o calor do meu abraço que vence o tempo. Seja feliz, viva com intensidade e saiba que este carinho é eterno. Fique com Deus!`;
                 } else {
@@ -2434,24 +2729,24 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
                     addAiChatMessage(formatAiMessage(rawAiText));
                 }
             } else {
-                // Fallback Inteligente Contextual: Conduz a entrevista completa com afeto e empatia
-                const responseObj = generateSmartInterviewResponse(text);
-                if (responseObj.script) {
-                    addScriptChatMessage(responseObj.chat, responseObj.script);
-                } else {
-                    addAiChatMessage(formatAiMessage(responseObj.chat));
-                }
+                // Em caso de indisponibilidade de todos os modelos reais, NÃO simular respostas locais.
+                // O histórico do cliente permanece 100% salvo. Oferece tentativa e canal direto de acolhimento.
+                const connectionNotice = `Identifiquei uma breve oscilação na minha conexão com os servidores de inteligência, ${clientFirstName || 'cliente'}.<br><br>Fique tranquilo(a): <strong>todas as suas memórias e mensagens estão salvas com segurança aqui</strong>.<br><br>Você pode aguardar alguns instantes e tentar enviar novamente, ou se preferir um acolhimento imediato, pode continuar diretamente com a nossa equipe pelo WhatsApp: <a href="https://wa.me/5531995701447" target="_blank" style="color: #e5c378; font-weight: 700; text-decoration: underline;">(31) 99570-1447</a>.`;
+                addAiChatMessage(connectionNotice);
             }
         } catch (error) {
-            console.error("Erro no processamento do Iasis:", error);
-            const responseObj = generateSmartInterviewResponse(text);
-            if (responseObj.script) {
-                addScriptChatMessage(responseObj.chat, responseObj.script);
-            } else {
-                addAiChatMessage(formatAiMessage(responseObj.chat));
-            }
+            console.error("Erro na comunicação com a API do Iasis:", error);
+            const connectionNotice = `Identifiquei uma breve oscilação na minha conexão com os servidores de inteligência, ${clientFirstName || 'cliente'}.<br><br>Fique tranquilo(a): <strong>todas as suas memórias e mensagens estão salvas com segurança aqui</strong>.<br><br>Você pode aguardar alguns instantes e tentar enviar novamente, ou se preferir um acolhimento imediato, pode continuar diretamente com a nossa equipe pelo WhatsApp: <a href="https://wa.me/5531995701447" target="_blank" style="color: #e5c378; font-weight: 700; text-decoration: underline;">(31) 99570-1447</a>.`;
+            addAiChatMessage(connectionNotice);
         } finally {
             isWaitingGemini = false;
+            if (chatTypingIndicator) chatTypingIndicator.style.display = 'none';
+            if (btnSendChat) btnSendChat.disabled = false;
+            if (chatInput) {
+                chatInput.disabled = false;
+                chatInput.focus();
+            }
+            saveChatSession();
         }
     }
 
@@ -2525,31 +2820,52 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
     let currentAttachedAudio = null;
     let currentPlayingAudioIdx = -1;
 
-    function handleAudioFiles(files) {
+    async function handleAudioFiles(files) {
         const remainingSlots = 3 - uploadedAudios.length;
         if (remainingSlots <= 0) return;
 
         const filesToProcess = Array.from(files).slice(0, remainingSlots);
-        let processed = 0;
-        filesToProcess.forEach(file => {
-            const url = URL.createObjectURL(file);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                uploadedAudios.push({
-                    name: file.name,
-                    size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
-                    url: url,
-                    data: e.target.result,
-                    file: file
-                });
-                processed++;
-                if (processed === filesToProcess.length) {
-                    renderAudioPreviews();
-                    saveFullSessionState();
-                }
+        const ordIdent = (orderData?.order_id || orderData?.id || 'REVIVA-1001');
+
+        for (const file of filesToProcess) {
+            const localBlobUrl = URL.createObjectURL(file);
+            const audioItem = {
+                name: file.name,
+                size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
+                url: localBlobUrl,
+                data: localBlobUrl,
+                uploading: true
             };
-            reader.readAsDataURL(file);
-        });
+            uploadedAudios.push(audioItem);
+            renderAudioPreviews();
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('orderId', ordIdent);
+                formData.append('category', 'audios');
+
+                const res = await fetch('/api/media/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                if (result.success && result.url) {
+                    audioItem.url = result.url;
+                    audioItem.data = result.url;
+                    audioItem.key = result.key;
+                    audioItem.uploading = false;
+                } else {
+                    audioItem.uploading = false;
+                }
+            } catch(err) {
+                console.warn('[R2 Upload Warning]: Falha no upload do áudio para R2, mantendo URL local', err);
+                audioItem.uploading = false;
+            }
+
+            renderAudioPreviews();
+            saveFullSessionState();
+        }
     }
 
     window.togglePlayAttachedAudio = function(index, event) {
@@ -4054,7 +4370,7 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
     if (galaxyBg) initGalaxy(galaxyBg, true);
 
     // 1. Limpeza automática de versões antigas de teste armazenadas no navegador
-    const STORAGE_BUILD_KEY = 'reviva_storage_build_v6';
+    const STORAGE_BUILD_KEY = 'reviva_storage_build_v7';
     const hasCleanParam = urlParams.has('reset') || urlParams.has('clean') || urlParams.has('novo') || urlParams.has('clear');
     
     if (hasCleanParam || localStorage.getItem('reviva_storage_build') !== STORAGE_BUILD_KEY) {
@@ -4082,6 +4398,21 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
         initialStep = currentStep;
     }
 
+    // Regra Rígida de Integridade da Etapa 1:
+    // A Etapa 1 exige obrigatoriamente fotos e áudios enviados.
+    // Se o pedido atual ainda não possui fotos ou áudios enviados, É OBRIGATÓRIO INICIAR NA ETAPA 1!
+    const hasPhotosUploaded = Array.isArray(uploadedPhotos) && uploadedPhotos.length > 0;
+    const hasAudiosUploaded = Array.isArray(uploadedAudios) && uploadedAudios.length > 0;
+    if (!hasPhotosUploaded || !hasAudiosUploaded) {
+        initialStep = 1;
+        currentStep = 1;
+        localStorage.setItem('reviva_active_step', '1');
+        localStorage.setItem('reviva_max_step_reached', '1');
+        if (window.location.hash !== '#step-1') {
+            history.replaceState(null, '', '#step-1');
+        }
+    }
+
     // Se o cliente concluiu a etapa anterior e está aguardando a equipe, mantém o passo correspondente sem regredir
     const maxReachedWaitingCheck = parseInt(localStorage.getItem('reviva_max_step_reached')) || currentStep || 1;
     const pendingWaiting = localStorage.getItem('reviva_waiting_active');
@@ -4095,10 +4426,15 @@ Caso o cliente solicite alterações, acolha de forma profissional e objetiva, a
         initialStep = 5;
     }
 
-    const shouldShowCurtainOnEnter = localStorage.getItem('reviva_show_curtain_on_enter') === 'true' || urlParams.has('showCurtain');
+    const isNewSession = !sessionStorage.getItem('reviva_session_entered');
+    const shouldShowCurtainOnEnter = isNewSession || localStorage.getItem('reviva_show_curtain_on_enter') === 'true' || urlParams.has('showCurtain');
+    sessionStorage.setItem('reviva_session_entered', 'true');
+
     if (shouldShowCurtainOnEnter) {
         localStorage.removeItem('reviva_show_curtain_on_enter');
-        goToStep(initialStep, false); // dispara a cortina cinematográfica da etapa!
+        triggerStageCurtainAnimation(initialStep, () => {
+            executeStepSwitch(initialStep);
+        });
     } else {
         goToStep(initialStep, true);
     }

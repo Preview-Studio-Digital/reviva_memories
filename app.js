@@ -1837,6 +1837,52 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // =========================================================================
+    // GERADOR DE DADOS E CPF VÁLIDO PARA TESTES DE COMPRA REAL / SANDBOX
+    // =========================================================================
+    window.fillRandomTestClientData = function() {
+        const firstNames = ['Lucas', 'Beatriz', 'Gabriel', 'Larissa', 'Rodrigo', 'Juliana', 'Felipe', 'Fernanda', 'Mateus', 'Camila', 'Bruno', 'Renata'];
+        const lastNames = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Rodrigues', 'Ferreira', 'Alves', 'Pereira', 'Lima', 'Gomes', 'Costa', 'Ribeiro'];
+
+        const randomFirst = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const randomLast = lastNames[Math.floor(Math.random() * lastNames.length)];
+        const fullName = `${randomFirst} ${randomLast}`;
+
+        // Algoritmo oficial de validação de CPF (Módulo 11) para o Asaas aprovar
+        const r = () => Math.floor(Math.random() * 9);
+        const n = Array.from({ length: 9 }, r);
+        const d1 = n.reduce((s, e, i) => s + e * (10 - i), 0);
+        const v1 = (d1 * 10) % 11 % 10;
+        const d2 = n.reduce((s, e, i) => s + e * (11 - i), 0) + v1 * 2;
+        const v2 = (d2 * 10) % 11 % 10;
+        const rawCpf = n.join('') + v1 + v2;
+        const formattedCpf = rawCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+
+        const cleanEmailName = fullName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '.');
+        const email = `${cleanEmailName}.${Math.floor(Math.random() * 900 + 100)}@teste.com`;
+
+        const dddList = ['11', '21', '31', '41', '51', '61', '71', '81', '85'];
+        const ddd = dddList[Math.floor(Math.random() * dddList.length)];
+        const phoneNum = Math.floor(Math.random() * 90000000 + 10000000);
+        const formattedPhone = `(${ddd}) 9${String(phoneNum).slice(0, 4)}-${String(phoneNum).slice(4)}`;
+
+        const nameEl = document.getElementById('chk-input-name');
+        const cpfEl = document.getElementById('chk-input-cpf');
+        const emailEl = document.getElementById('chk-input-email');
+        const phoneEl = document.getElementById('chk-input-phone');
+
+        if (nameEl) nameEl.value = fullName;
+        if (cpfEl) cpfEl.value = formattedCpf;
+        if (emailEl) emailEl.value = email;
+        if (phoneEl) phoneEl.value = formattedPhone;
+
+        // Limpa mensagens de erro caso visíveis
+        const errName = document.getElementById('err-chk-name');
+        const errCpf = document.getElementById('err-chk-cpf');
+        if (errName) errName.style.display = 'none';
+        if (errCpf) errCpf.style.display = 'none';
+    };
+
+    // =========================================================================
     // INTEGRAÇÃO REAL DO CHECKOUT COM ASAAS (PIX AUTOMÁTICO)
     // =========================================================================
     let asaasPixPollingInterval = null;
