@@ -110,12 +110,15 @@ class RevivaDataService {
             if (error && error.code !== 'PGRST116') throw error;
             return data;
         }
-        const saved = localStorage.getItem('reviva_current_order');
+        const saved = localStorage.getItem('reviva_order_data') || localStorage.getItem('reviva_current_order');
         if (saved) {
-            const parsed = JSON.parse(saved);
-            const urlPlan = new URLSearchParams(window.location.search).get('plano') || new URLSearchParams(window.location.search).get('plan');
-            parsed.plan_name = urlPlan || 'affectus';
-            return parsed;
+            try {
+                const parsed = JSON.parse(saved);
+                const urlPlan = new URLSearchParams(window.location.search).get('plano') || new URLSearchParams(window.location.search).get('plan');
+                if (urlPlan) parsed.plan_name = urlPlan;
+                parsed.id = parsed.order_id || parsed.id || 'ord-demo-001';
+                return parsed;
+            } catch(e) {}
         }
 
         // Estado inicial de exemplo para demonstração (Padrão: Plano Affectus - 1 Minuto)

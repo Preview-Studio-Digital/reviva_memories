@@ -416,13 +416,20 @@
             height: 100vh;
             z-index: 1000100;
             display: none;
+            opacity: 0;
+            visibility: hidden;
             align-items: center;
             justify-content: center;
             padding: 16px;
             box-sizing: border-box;
             backdrop-filter: blur(22px);
             -webkit-backdrop-filter: blur(22px);
-            transition: background 0.8s ease, backdrop-filter 0.8s ease;
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 1.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.8s ease, backdrop-filter 0.8s ease;
+        }
+
+        #modal-aguardando-equipe.modal-visible {
+            opacity: 1;
+            visibility: visible;
         }
 
         /* Aura cósmica pulsante de fundo */
@@ -457,7 +464,14 @@
             overflow: hidden;
             text-align: center;
             z-index: 2;
-            transition: border-color 0.8s ease, box-shadow 0.8s ease, background 0.8s ease;
+            opacity: 0;
+            transform: translateY(18px) scale(0.96);
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.8s ease, box-shadow 0.8s ease, background 0.8s ease;
+        }
+
+        #modal-aguardando-equipe.modal-visible .waiting-modal-card {
+            opacity: 1;
+            transform: translateY(0) scale(1);
         }
 
         /* Badge superior com brilho */
@@ -2910,17 +2924,71 @@
         </div>
     </div>
     <script>
-        // Se estiver vindo de uma transição (termo ou parâmetro), cobre a tela imediatamente ANTES de pintar a interface
+        // Se estiver vindo de uma transição (login, termo, reload ou nova sessão), cobre a tela imediatamente ANTES de pintar a interface
         (function() {
             try {
                 var p = new URLSearchParams(window.location.search);
-                if (p.has('showCurtain') || localStorage.getItem('reviva_show_curtain_on_enter') === 'true') {
+                var isNewSession = !sessionStorage.getItem('reviva_session_entered');
+                var shouldShow = p.has('showCurtain') || localStorage.getItem('reviva_show_curtain_on_enter') === 'true' || isNewSession;
+
+                if (shouldShow) {
+                    var STAGES = {
+                        1: { badge: 'ETAPA 01', title: 'O RESGATE', sub: 'Envio de Imagens e Áudio de Referência' },
+                        2: { badge: 'ETAPA 02', title: 'A ESSÊNCIA', sub: 'Desenvolvimento Afetivo do Roteiro Oficial' },
+                        3: { badge: 'ETAPA 03', title: 'A HARMONIZAÇÃO', sub: 'Trilha Sonora e Ambiente de Fundo' },
+                        4: { badge: 'ETAPA 04', title: 'A LAPIDAÇÃO', sub: 'Aprovação da Imagem e da Voz Clonada' },
+                        5: { badge: 'ETAPA 05', title: 'O REENCONTRO', sub: 'Homenagem Pronta e Sala de Revelação' }
+                    };
+
+                    // Detectar etapa alvo imediatamente
+                    var targetStep = 1;
+                    var hashMatch = window.location.hash.match(/step-(\d+)/);
+                    if (hashMatch && hashMatch[1]) {
+                        targetStep = parseInt(hashMatch[1], 10);
+                    } else if (p.get('step')) {
+                        targetStep = parseInt(p.get('step'), 10);
+                    } else {
+                        var storedStep = parseInt(localStorage.getItem('reviva_active_step'), 10);
+                        if (storedStep && storedStep >= 1 && storedStep <= 5) targetStep = storedStep;
+                    }
+
+                    // Se for novo pedido ou não possui fotos/áudios enviados na etapa 1, força etapa 1
+                    try {
+                        var curOrd = JSON.parse(localStorage.getItem('reviva_order_data') || '{}');
+                        var curOrdId = curOrd.order_id || curOrd.id;
+                        if (curOrdId) {
+                            var photos = JSON.parse(localStorage.getItem('reviva_client_photos_' + curOrdId) || '[]');
+                            var audios = JSON.parse(localStorage.getItem('reviva_client_audio_' + curOrdId) || '[]');
+                            if (!photos.length || !audios.length) targetStep = 1;
+                        }
+                    } catch(e) {}
+
+                    var info = STAGES[targetStep] || STAGES[1];
+                    var badge = document.getElementById('stageCurtainBadge');
+                    var title = document.getElementById('stageCurtainTitle');
+                    var sub = document.getElementById('stageCurtainSub');
+                    if (badge) badge.textContent = info.badge;
+                    if (title) title.textContent = info.title;
+                    if (sub) sub.textContent = info.sub;
+
                     var c = document.getElementById('fullscreen-stage-curtain');
                     if (c) {
                         c.style.transition = 'none';
                         c.classList.add('active');
                         c.offsetHeight; // forçar aplicação síncrona
                         c.style.transition = '';
+
+                        // Trava de segurança absoluta: fade-out garantido após 3.5s caso qualquer script demore
+                        setTimeout(function() {
+                            if (c && c.classList.contains('active')) {
+                                c.classList.remove('active');
+                            }
+                        }, 3500);
+
+                        // Permite fechar a cortina ao clicar em qualquer lugar
+                        c.onclick = function() {
+                            c.classList.remove('active');
+                        };
                     }
                 }
             } catch(e) {}
@@ -2949,14 +3017,11 @@
 
             <!-- Direita: Termo Assinado, Usuário e Sair -->
             <div style="display: flex; align-items: center; justify-content: flex-end; gap: 15px;">
-                <div id="badge-termo-signed" onclick="openTermoModal(true)" style="display: none; align-items: center; gap: 6px; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 20px; padding: 4px 10px; font-size: 0.70rem; color: #86efac; cursor: pointer; transition: all 0.2s ease;" title="Clique para visualizar o Termo de Responsabilidade assinado">
-                    <i data-lucide="shield-check" style="width: 14px; height: 14px; color: #4ade80;"></i>
-                    <span id="badge-termo-signed-text" style="font-weight: 500;">Termo Assinado</span>
-                </div>
+                <!-- Termo fica restrito ao Card do Pedido no Admin -->
                 <div style="font-size: 0.8rem; color: var(--text-secondary);">
                     Olá, <strong id="topbar-user-name" style="color: #f6e3c5;">Mariana</strong>
                 </div>
-                <a href="login.html" onclick="/* Logout apenas da sessão ativa de navegação, preservando o progresso e o termo assinado */" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">Sair</a>
+                <a href="login.html" onclick="sessionStorage.removeItem('reviva_session_entered'); localStorage.setItem('reviva_show_curtain_on_enter', 'true');" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">Sair</a>
             </div>
         </header>
 
@@ -4080,27 +4145,25 @@
 
     <!-- ================= MODAL DO TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO ================= -->
     <div id="modal-termo-responsabilidade" style="position: fixed; inset: 0; background-color: #050302; background-image: radial-gradient(circle at 50% 0%, rgba(197, 160, 89, 0.12) 0%, transparent 60%), radial-gradient(circle at 80% 100%, rgba(197, 160, 89, 0.08) 0%, transparent 50%), linear-gradient(to bottom, rgba(5, 3, 2, 0.96) 0%, rgba(10, 6, 4, 0.98) 100%); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 1000100; display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;">
-        <div style="width: 100%; max-width: 860px; height: calc(100vh - 32px); max-height: calc(100vh - 32px); background: rgba(14, 9, 6, 0.94); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: 10px; padding: clamp(16px, 2.2vh, 24px) clamp(20px, 3vw, 36px); box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 195, 120, 0.18); backdrop-filter: blur(16px); display: flex; flex-direction: column; justify-content: space-between; gap: clamp(8px, 1.4vh, 14px); box-sizing: border-box; position: relative; overflow: hidden;">
+        <div style="width: 100%; max-width: 820px; height: auto; max-height: calc(100vh - 32px); background: rgba(14, 9, 6, 0.96); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: 12px; padding: clamp(16px, 2.2vh, 26px) clamp(20px, 3vw, 36px); box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 195, 120, 0.18); backdrop-filter: blur(16px); display: flex; flex-direction: column; gap: clamp(10px, 1.4vh, 16px); box-sizing: border-box; position: relative; overflow: hidden;">
             
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 12px; position: relative; width: 100%;">
-                <img src="logo.png" alt="Reviva Memories" style="height: 36px; margin: 0 auto 6px auto; display: block;">
-                <h3 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--gold-bright); letter-spacing: 1px; margin-bottom: 0;">TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO</h3>
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: clamp(8px, 1.2vh, 12px); position: relative; width: 100%; flex-shrink: 0;">
+                <img src="logo.png" alt="Reviva Memories" style="height: clamp(32px, 4vh, 40px); margin: 0 auto 6px auto; display: block;">
+                <h3 style="font-family: var(--font-serif); font-size: clamp(1.05rem, 1.35vw, 1.28rem); color: var(--gold-bright); letter-spacing: 1px; margin-bottom: 0;">TERMO DE RESPONSABILIDADE & CONSENTIMENTO ÉTICO</h3>
                 <button type="button" id="btn-close-termo-view" onclick="closeTermoModal()" style="display: none; position: absolute; top: 0; right: 0; background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; padding: 4px;">✕</button>
             </div>
 
-            <!-- Caixa de Texto Fundamentada do Termo Legal -->
-            <div style="background: rgba(8, 5, 3, 0.88); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 6px; padding: 14px 16px; font-size: 0.74rem; color: #ede3d2; line-height: 1.6; max-height: 180px; overflow-y: auto; text-align: justify;">
-                <p style="margin-bottom: 8px;"><strong>1. FINALIDADE AFETIVA E PRIVADA:</strong> As homenagens produzidas pela <em>Reviva Memories</em> destinam-se exclusivamente à preservação de memórias familiares, homenagens em vida ou póstumas e celebração de vínculos afetivos em âmbito estritamente pessoal e privado.</p>
-                
-                <p style="margin-bottom: 8px;"><strong>2. DECLARAÇÃO DE TITULARIDADE E CONSENTIMENTO:</strong> O(a) CONTRATANTE declara, sob as penas da lei (Art. 299 do Código Penal Brasileiro e Art. 186 do Código Civil), possuir legítima relação ou consentimento expresso para o fornecimento, restauração de imagem e recriação de voz a partir dos registros enviados.</p>
-                
-                <p style="margin-bottom: 8px;"><strong>3. CONFORMIDADE LGPD (LEI Nº 13.709/2018):</strong> Todos os dados biométricos, fotos e amostras sonoras fornecidas são processados sob sigilo absoluto em ambiente encriptado, sendo utilizados exclusivamente para a confecção da homenagem solicitada.</p>
-                
-                <p style="margin-bottom: 0;"><strong>4. VEDAÇÃO ABSOLUTA DE USOS RESTRITIVOS OU ILÍCITOS:</strong> É expressamente proibida a criação de vídeos para difamação, simulação fraudulenta, fins eleitorais, comerciais não autorizados, atos vexatórios ou sem anuência dos envolvidos. O CONTRATANTE assume integral e exclusiva responsabilidade civil e criminal por eventuais danos causados a terceiros, isentando a plataforma de qualquer uso indevido.</p>
+            <!-- Caixa de Texto Fundamentada do Termo Legal - Ajustada com largura harmoniosa, fonte maior e espaçamento natural -->
+            <div style="background: rgba(8, 5, 3, 0.92); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 8px; padding: clamp(14px, 1.8vh, 20px) clamp(16px, 2.2vw, 24px); font-size: clamp(0.82rem, 0.88vw, 0.90rem); color: #ede3d2; line-height: 1.65; display: flex; flex-direction: column; gap: clamp(10px, 1.3vh, 14px); flex: 1 1 auto; min-height: 0; overflow-y: auto; text-align: justify;">
+                <p style="margin: 0;"><strong style="color: var(--gold-light);">1. FINALIDADE AFETIVA E PESSOAL:</strong> As homenagens produzidas pela <em>Reviva Memories</em> destinam-se exclusivamente à preservação de memórias familiares e afetivas, para exibição privada em âmbito familiar restrito.</p>
+                <p style="margin: 0;"><strong style="color: var(--gold-light);">2. DECLARAÇÃO DE TITULARIDADE E CONSENTIMENTO:</strong> O(a) CONTRATANTE declara, sob as penas da lei (Art. 299 CP e Art. 186 CC), possuir legítimo vínculo e consentimento da família da pessoa homenageada.</p>
+                <p style="margin: 0;"><strong style="color: var(--gold-light);">3. CONFORMIDADE COM A LGPD (LEI 13.709/18):</strong> Mídias e dados biométricos são processados em ambiente seguro e encriptado, exclusivamente para a confecção da homenagem e descartados conforme nossa política.</p>
+                <p style="margin: 0;"><strong style="color: var(--gold-light);">4. VEDAÇÃO DE USOS RESTRITIVOS OU FRAUDULENTOS:</strong> É expressamente proibida a contratação para deepfakes difamatórias, fraudes, fins eleitorais, peças comerciais sem anuência ou violação da honra de terceiros.</p>
+                <p style="margin: 0;"><strong style="color: var(--gold-light);">5. RESPONSABILIDADE CIVIL E PENAL:</strong> O(a) CONTRATANTE assume responsabilidade civil e criminal exclusiva por declarações inverídicas, isentando a plataforma <em>Reviva Memories</em> e seus operadores perante terceiros.</p>
             </div>
 
             <!-- Formulário de Identificação do Responsável Legal e Relações -->
-            <form id="form-termo-responsabilidade" onsubmit="handleSignTermo(event)" style="display: flex; flex-direction: column; gap: 10px;">
+            <form id="form-termo-responsabilidade" onsubmit="handleSignTermo(event)" style="display: flex; flex-direction: column; gap: clamp(6px, 1vh, 10px); flex-shrink: 0;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div>
                         <label style="display: block; font-size: 0.68rem; color: var(--gold-primary); font-weight: 600; margin-bottom: 3px; white-space: nowrap;">NOME DO RESPONSÁVEL</label>
@@ -4181,6 +4244,56 @@
         <button type="button" id="btn-simulate-team-delivery" onclick="simulateTeamDelivery()" style="display: none; position: fixed; bottom: 12px; right: 12px; z-index: 1000102; padding: 6px 12px; background: rgba(14, 165, 233, 0.2); border: 1px dashed rgba(14, 165, 233, 0.6); border-radius: 20px; color: #38bdf8; font-size: 0.66rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(8px); opacity: 0.8; transition: opacity 0.2s ease;">
             ⚡ Liberar Envio (Modo Teste)
         </button>
+    </div>
+
+    <!-- ================= MODAL DEDICADO DE AVALIAÇÃO E APROVAÇÃO DO ROTEIRO (ETAPA 2) ================= -->
+    <div id="modal-aprovar-roteiro" style="position: fixed; inset: 0; background-color: rgba(5, 3, 2, 0.94); background-image: radial-gradient(circle at 50% 0%, rgba(197, 160, 89, 0.12) 0%, transparent 60%), radial-gradient(circle at 80% 100%, rgba(197, 160, 89, 0.08) 0%, transparent 50%), linear-gradient(to bottom, rgba(5, 3, 2, 0.96) 0%, rgba(10, 6, 4, 0.98) 100%); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 1000250; display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;">
+        <div style="width: 100%; max-width: 820px; height: auto; max-height: calc(100vh - 32px); background: rgba(14, 9, 6, 0.96); border: 1.5px solid rgba(197, 160, 89, 0.45); border-radius: 12px; padding: clamp(16px, 2.2vh, 26px) clamp(20px, 3vw, 36px); box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 195, 120, 0.18); backdrop-filter: blur(16px); display: flex; flex-direction: column; gap: clamp(10px, 1.4vh, 16px); box-sizing: border-box; position: relative; overflow: hidden;">
+            
+            <!-- Topo do Modal do Roteiro -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: clamp(8px, 1.2vh, 12px); position: relative; width: 100%; flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <i data-lucide="scroll" style="width: 20px; height: 20px; color: #e5c378;"></i>
+                    <span id="modal-script-version-tag" style="color: #e5c378; font-size: 0.76rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
+                        ROTEIRO OFICIAL DESENVOLVIDO
+                    </span>
+                </div>
+                <h3 style="font-family: var(--font-serif); font-size: clamp(1.05rem, 1.35vw, 1.28rem); color: var(--gold-bright); letter-spacing: 1px; margin: 0;">
+                    APROVAÇÃO DA NARRATIVA AFETIVA
+                </h3>
+                <p id="modal-script-plan-info" style="font-size: 0.74rem; color: #d8c7b0; margin: 4px 0 0 0;">
+                    Plano Selecionado • Tempo e Métrica Calculados
+                </p>
+            </div>
+
+            <!-- Caixa de Leitura do Roteiro -->
+            <div id="modal-script-content-body" style="background: rgba(8, 5, 3, 0.92); border: 1px solid rgba(197, 160, 89, 0.35); border-radius: 8px; padding: clamp(16px, 2vh, 24px); font-size: clamp(0.92rem, 1vw, 1.05rem); color: #fdf6ec; line-height: 1.85; font-family: var(--font-serif); font-style: italic; display: flex; flex-direction: column; gap: 12px; flex: 1 1 auto; min-height: 0; overflow-y: auto; text-align: left; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+                <!-- Conteúdo dos parágrafos inserido dinamicamente -->
+            </div>
+
+            <!-- Rodapé Informativo e Ações -->
+            <div style="display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; border-top: 1px solid rgba(197, 160, 89, 0.25); padding-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <span id="modal-script-meta-counts" style="color: #e5c378; font-size: 0.74rem; font-weight: 600; display: flex; align-items: center; gap: 5px;">
+                        <i data-lucide="check-circle-2" style="width: 14px; height: 14px; color: #4ade80;"></i>
+                        <span>0 palavras • Métrica compatível com a narração</span>
+                    </span>
+                    <button type="button" id="btn-modal-copy-script" class="btn btn-secondary" style="height: 30px !important; padding: 0 12px !important; font-size: 0.72rem !important; border-color: rgba(197, 160, 89, 0.5) !important;">
+                        <i data-lucide="copy" style="width: 12px; height: 12px;"></i> COPIAR TEXTO
+                    </button>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px;">
+                    <button type="button" id="btn-modal-edit-script" class="btn btn-secondary" style="height: 36px !important; padding: 0 18px !important; font-size: 0.78rem !important; border-color: rgba(197, 160, 89, 0.5) !important; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="edit-3" style="width: 13px; height: 13px;"></i> EDITAR NO CHAT
+                    </button>
+                    <button type="button" id="btn-modal-approve-script" class="btn btn-primary" style="height: 36px !important; padding: 0 24px !important; font-size: 0.82rem !important; font-weight: 700; background: linear-gradient(135deg, #c5a059 0%, #9c7247 100%); border-color: #e5c378; color: #fff; box-shadow: 0 0 18px rgba(197, 160, 89, 0.35); display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="check" style="width: 14px; height: 14px;"></i> APROVAR ROTEIRO
+                    </button>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <!-- ================= MODAL / LIGHTBOX DE ZOOM EM TELA CHEIA PARA AS PRÉVIAS (ETAPA 4) ================= -->

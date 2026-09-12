@@ -1391,6 +1391,126 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Inicialização Limpa e 100% Isolada para Novos Pedidos Pagos
+    function initializeNewPaidOrder(orderData, customerData) {
+        const ordIdent = orderData.order_id || orderData.id;
+        const name = customerData.name || orderData.customer_name || 'Cliente';
+        const cpf = customerData.cpf || orderData.customer_cpf || '';
+        const email = customerData.email || orderData.customer_email || '';
+        const phone = customerData.phone || orderData.customer_phone || '';
+
+        // 1. Salvar dados oficiais do pedido e da sessão
+        localStorage.setItem('reviva_order_data', JSON.stringify(orderData));
+        localStorage.setItem('reviva_current_order', JSON.stringify(orderData));
+        localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone, role: 'client' }));
+
+        // 2. Atualizar lista geral de pedidos para o Admin/Produção
+        try {
+            let ordersList = JSON.parse(localStorage.getItem('reviva_orders_list') || '[]');
+            ordersList = ordersList.map(o => {
+                if (o.order_id === ordIdent || o.id === ordIdent) {
+                    return { ...o, ...orderData, status: 'paid', isPaid: true };
+                }
+                return o;
+            });
+            if (!ordersList.some(o => (o.order_id === ordIdent || o.id === ordIdent))) {
+                ordersList.unshift(orderData);
+            }
+            localStorage.setItem('reviva_orders_list', JSON.stringify(ordersList));
+        } catch(e) {}
+
+        // 3. Atualizar CRM para 'pagamento_confirmado'
+        try {
+            const crmKey = `reviva_crm_order_${ordIdent}`;
+            let crmData = JSON.parse(localStorage.getItem(crmKey) || 'null');
+            const isDualFormat = orderData.has_upsell || String(orderData.plan_format || '').includes('+') || String(orderData.plan_format || '').toLowerCase().includes('ambos') || String(orderData.plan_format || '').toLowerCase().includes('both');
+            const canonicalFormat = isDualFormat ? 'both' : (String(orderData.plan_format || '').toLowerCase().includes('vertical') ? 'vertical' : 'horizontal');
+            if (!crmData) {
+                crmData = {
+                    stage: 'pagamento_confirmado',
+                    format: canonicalFormat,
+                    secondsWorked: 0,
+                    history: [{
+                        timestamp: new Date().toISOString(),
+                        dateFormatted: new Date().toLocaleString('pt-BR'),
+                        event: `Pagamento aprovado (${orderData.total_price || 'Confirmado'})`,
+                        type: 'system'
+                    }]
+                };
+            } else {
+                crmData.stage = 'pagamento_confirmado';
+                crmData.format = canonicalFormat;
+                if (!Array.isArray(crmData.history)) crmData.history = [];
+                crmData.history.unshift({
+                    timestamp: new Date().toISOString(),
+                    dateFormatted: new Date().toLocaleString('pt-BR'),
+                    event: `Pagamento aprovado (${orderData.total_price || 'Confirmado'})`,
+                    type: 'system'
+                });
+            }
+            localStorage.setItem(crmKey, JSON.stringify(crmData));
+        } catch(e) {}
+
+        // 4. RESET RIGOROSO DO FLUXO DO CLIENTE PARA A ETAPA 1
+        localStorage.setItem('reviva_active_step', '1');
+        localStorage.setItem('reviva_max_step_reached', '1');
+        localStorage.removeItem('reviva_waiting_active');
+        localStorage.removeItem('reviva_stage4_delivered');
+        localStorage.removeItem('reviva_stage5_delivered');
+        localStorage.removeItem('reviva_producer_image');
+        localStorage.removeItem('reviva_producer_audio');
+        localStorage.removeItem('reviva_producer_video');
+        localStorage.removeItem('reviva_photo_permanently_approved');
+        localStorage.removeItem('reviva_voice_permanently_approved');
+        localStorage.removeItem(`reviva_photo_permanently_approved_${ordIdent}`);
+        localStorage.removeItem(`reviva_voice_permanently_approved_${ordIdent}`);
+        localStorage.removeItem(`reviva_client_music_${ordIdent}`);
+        localStorage.removeItem(`reviva_client_bg_${ordIdent}`);
+        localStorage.removeItem('reviva_legal_term'); // Novo pedido exige novo aceite do termo
+
+        // 5. Estado limpo e 100% isolado para o novo pedido (sem herdar fotos/áudios anteriores)
+        const cleanState = {
+            orderId: ordIdent,
+            currentStep: 1,
+            uploadedPhotos: [],
+            uploadedAudios: [],
+            selectedBackground: 'ceu',
+            selectedMusic: 'sem_musica',
+            musicManuallyChosen: false,
+            geminiChatHistory: [],
+            scriptRevisionCount: 0,
+            latestScriptText: '',
+            isScriptApproved: false,
+            mediaRevisionsHistory: [],
+            latestPhotoFeedback: '',
+            latestVoiceFeedback: '',
+            legalTermSigned: null,
+            photoDecision: 'pending',
+            voiceDecision: 'pending',
+            photoPermanentlyApproved: false,
+            voicePermanentlyApproved: false,
+            isPhotoApprovedState: false,
+            isVoiceApprovedState: false,
+            interviewData: null,
+            currentQuestionStep: 'ask_protagonista',
+            chatHtml: '',
+            photoApproved: false,
+            voiceApproved: false,
+            timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('reviva_full_session_state', JSON.stringify(cleanState));
+        localStorage.setItem(`reviva_order_state_${ordIdent}`, JSON.stringify(cleanState));
+        localStorage.setItem(`reviva_client_photos_${ordIdent}`, JSON.stringify([]));
+        localStorage.setItem(`reviva_client_audio_${ordIdent}`, JSON.stringify([]));
+
+        // Limpa chaves legadas e globais para evitar contaminação cruzada
+        localStorage.removeItem('reviva_client_photos');
+        localStorage.removeItem('reviva_client_audio');
+        localStorage.removeItem('reviva_order_state_ord-demo-001');
+        localStorage.removeItem('reviva_client_photos_ord-demo-001');
+        localStorage.removeItem('reviva_client_audio_ord-demo-001');
+    }
+
     // Submissão direta do pedido via cupom 100% OFF para teste do produto sem custos
     window.submitFreeTestOrder = function(e) {
         if (e) e.preventDefault();
@@ -1451,9 +1571,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(err) {}
         const orderId = 'REVIVA-' + nextOrderSeq;
 
+        const isDualFormat = Boolean(planInfo.hasUpsell || (planInfo.format && (planInfo.format.includes('+') || planInfo.format.toLowerCase().includes('ambos'))));
+        const isVertical = !isDualFormat && Boolean(planInfo.format && planInfo.format.toLowerCase().includes('vertical'));
+        const canonicalFormat = isDualFormat ? 'both' : (isVertical ? 'vertical' : 'horizontal');
+        const canonicalFormatLabel = isDualFormat ? 'Formatos Horizontal + Vertical' : (isVertical ? 'Formato Vertical' : 'Formato Horizontal');
+
         // Criar registro de pedido pago/liberado via cupom
         const orderData = {
             order_id: orderId,
+            id: orderId,
             customer_name: name,
             customer_cpf: cpf,
             customer_email: email,
@@ -1461,8 +1587,9 @@ document.addEventListener('DOMContentLoaded', () => {
             plan_id: planInfo.planId || 'emocao',
             plan_name: planInfo.planName || 'Plano Legatum',
             plan_duration: planInfo.duration || '2 Minutos',
-            plan_format: planInfo.format || 'Formato Horizontal',
-            has_upsell: !!planInfo.hasUpsell,
+            plan_format: canonicalFormatLabel,
+            format: canonicalFormat,
+            has_upsell: isDualFormat,
             total_price: 'R$ 0,00 (Cupom TESTE100)',
             original_price: planInfo.priceFormatted || 'R$ 897,00',
             coupon_applied: 'TESTE100',
@@ -1471,30 +1598,8 @@ document.addEventListener('DOMContentLoaded', () => {
             created_at: new Date().toISOString()
         };
 
-        // Salvar na sessão local e inicializar estado
-        localStorage.setItem('reviva_order_data', JSON.stringify(orderData));
-        localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone, role: 'client' }));
-        localStorage.removeItem('reviva_legal_term'); // Exigir assinatura do termo com os dados digitados
-
-        try {
-            let existingList = JSON.parse(localStorage.getItem('reviva_orders_list') || '[]');
-            existingList = existingList.filter(o => o.order_id !== orderData.order_id);
-            existingList.unshift(orderData);
-            localStorage.setItem('reviva_orders_list', JSON.stringify(existingList));
-        } catch(e) {}
-
-        let fullState = {};
-        try {
-            const raw = localStorage.getItem('reviva_full_session_state');
-            if (raw) fullState = JSON.parse(raw);
-        } catch(err) {}
-        fullState.orderData = orderData;
-        fullState.legalTermSigned = null;
-        fullState.clientName = name;
-        fullState.clientCpf = cpf;
-        fullState.clientEmail = email;
-        fullState.clientPhone = phone;
-        localStorage.setItem('reviva_full_session_state', JSON.stringify(fullState));
+        // Inicializar estado limpo isolado para este pedido (sem herdar fotos/passos anteriores)
+        initializeNewPaidOrder(orderData, { name, cpf, email, phone });
 
         // Disparar envio de e-mail de confirmação e preparar WhatsApp
         let notificationPromise = null;
@@ -1548,8 +1653,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <i data-lucide="mail" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
                         Enviando confirmação para <strong>${email}</strong>...
                     </div>
-                    <button onclick="window.location.href='termo.html'" class="btn btn-primary" style="margin-top: 10px; padding: 12px 28px; font-size: 0.9rem; font-weight: 700; background: linear-gradient(135deg, #c5a059 0%, #9c7247 100%); border-color: #e5c378; color: #fff; box-shadow: 0 0 20px rgba(197, 160, 89, 0.4); text-transform: uppercase;">
-                        ASSINAR TERMO E INICIAR PRODUÇÃO →
+                    <button onclick="window.location.href='painel.html'" class="btn btn-primary" style="margin-top: 10px; padding: 12px 28px; font-size: 0.9rem; font-weight: 700; background: linear-gradient(135deg, #c5a059 0%, #9c7247 100%); border-color: #e5c378; color: #fff; box-shadow: 0 0 20px rgba(197, 160, 89, 0.4); text-transform: uppercase;">
+                        ACESSAR MEU PAINEL DE PRODUÇÃO →
                     </button>
                 </div>
             `;
@@ -1577,9 +1682,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Aguarda 4.5s ou o clique no botão para redirecionar para o termo
+        // Aguarda 4.5s ou o clique no botão para redirecionar para o painel
         setTimeout(() => {
-            window.location.href = 'termo.html';
+            window.location.href = 'painel.html';
         }, 4500);
     };
 
@@ -1720,13 +1825,22 @@ document.addEventListener('DOMContentLoaded', () => {
             priceFormatted: 'R$ 897,00'
         };
 
-        // Gerar número de pedido sequencial organizado (iniciando em REVIVA-1001)
+        // Gerar número de pedido sequencial organizado
         let nextOrderSeq = 1001;
         try {
-            const savedSeq = parseInt(localStorage.getItem('reviva_last_order_seq') || '1000', 10);
-            nextOrderSeq = isNaN(savedSeq) ? 1001 : (savedSeq + 1);
+            const savedSeq = parseInt(localStorage.getItem('reviva_last_order_seq') || '', 10);
+            if (!isNaN(savedSeq) && savedSeq >= 1000) {
+                nextOrderSeq = savedSeq + 1;
+            } else {
+                nextOrderSeq = Math.floor(1001 + (Date.now() % 9000));
+            }
             localStorage.setItem('reviva_last_order_seq', nextOrderSeq.toString());
         } catch(e) {}
+
+        const isDualFormat = Boolean(planInfo.hasUpsell || (planInfo.format && (planInfo.format.includes('+') || planInfo.format.toLowerCase().includes('ambos'))));
+        const isVertical = !isDualFormat && Boolean(planInfo.format && planInfo.format.toLowerCase().includes('vertical'));
+        const canonicalFormat = isDualFormat ? 'both' : (isVertical ? 'vertical' : 'horizontal');
+        const canonicalFormatLabel = isDualFormat ? 'Formatos Horizontal + Vertical' : (isVertical ? 'Formato Vertical' : 'Formato Horizontal');
 
         const orderData = {
             order_id: 'REVIVA-' + nextOrderSeq,
@@ -1737,8 +1851,9 @@ document.addEventListener('DOMContentLoaded', () => {
             plan_id: planInfo.planId || 'emocao',
             plan_name: planInfo.planName || 'Plano Legatum',
             plan_duration: planInfo.duration || '2 Minutos',
-            plan_format: planInfo.format || 'Formato Horizontal',
-            has_upsell: !!planInfo.hasUpsell,
+            plan_format: canonicalFormatLabel,
+            format: canonicalFormat,
+            has_upsell: isDualFormat,
             total_price: planInfo.priceFormatted || 'R$ 897,00',
             status: 'paid',
             created_at: new Date().toISOString()
@@ -1820,8 +1935,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
 
                     <!-- Botão Principal de Avanço -->
-                    <button type="button" onclick="window.location.href='termo.html'" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #c5a059 0%, #9c7247 100%); border: 1px solid #e5c378; border-radius: 8px; color: #fff; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.8px; cursor: pointer; box-shadow: 0 4px 20px rgba(197, 160, 89, 0.4); text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        <span>PROSSEGUIR PARA O PAINEL AGORA</span>
+                    <button type="button" onclick="window.location.href='painel.html'" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #c5a059 0%, #9c7247 100%); border: 1px solid #e5c378; border-radius: 8px; color: #fff; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.8px; cursor: pointer; box-shadow: 0 4px 20px rgba(197, 160, 89, 0.4); text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span>PROSSEGUIR PARA O PAINEL DE PRODUÇÃO</span>
                         <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
                     </button>
                 </div>
@@ -1831,9 +1946,55 @@ document.addEventListener('DOMContentLoaded', () => {
             successView.style.display = 'flex';
             if (window.lucide) lucide.createIcons();
         } else {
-            window.location.href = 'termo.html';
+            window.location.href = 'painel.html';
         }
         return false;
+    };
+
+    // =========================================================================
+    // GERADOR DE DADOS E CPF VÁLIDO PARA TESTES DE COMPRA REAL / SANDBOX
+    // =========================================================================
+    window.fillRandomTestClientData = function() {
+        const firstNames = ['Lucas', 'Beatriz', 'Gabriel', 'Larissa', 'Rodrigo', 'Juliana', 'Felipe', 'Fernanda', 'Mateus', 'Camila', 'Bruno', 'Renata'];
+        const lastNames = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Rodrigues', 'Ferreira', 'Alves', 'Pereira', 'Lima', 'Gomes', 'Costa', 'Ribeiro'];
+
+        const randomFirst = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const randomLast = lastNames[Math.floor(Math.random() * lastNames.length)];
+        const fullName = `${randomFirst} ${randomLast}`;
+
+        // Algoritmo oficial de validação de CPF (Módulo 11) para o Asaas aprovar
+        const r = () => Math.floor(Math.random() * 9);
+        const n = Array.from({ length: 9 }, r);
+        const d1 = n.reduce((s, e, i) => s + e * (10 - i), 0);
+        const v1 = (d1 * 10) % 11 % 10;
+        const d2 = n.reduce((s, e, i) => s + e * (11 - i), 0) + v1 * 2;
+        const v2 = (d2 * 10) % 11 % 10;
+        const rawCpf = n.join('') + v1 + v2;
+        const formattedCpf = rawCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+
+        // O e-mail de teste deve ser sempre o e-mail real do administrador/usuário para que o código de segurança (OTP) chegue na caixa de entrada
+        const email = 'diegooaraujoo2307@gmail.com';
+
+        const dddList = ['11', '21', '31', '41', '51', '61', '71', '81', '85'];
+        const ddd = dddList[Math.floor(Math.random() * dddList.length)];
+        const phoneNum = Math.floor(Math.random() * 90000000 + 10000000);
+        const formattedPhone = `(${ddd}) 9${String(phoneNum).slice(0, 4)}-${String(phoneNum).slice(4)}`;
+
+        const nameEl = document.getElementById('chk-input-name');
+        const cpfEl = document.getElementById('chk-input-cpf');
+        const emailEl = document.getElementById('chk-input-email');
+        const phoneEl = document.getElementById('chk-input-phone');
+
+        if (nameEl) nameEl.value = fullName;
+        if (cpfEl) cpfEl.value = formattedCpf;
+        if (emailEl) emailEl.value = email;
+        if (phoneEl) phoneEl.value = formattedPhone;
+
+        // Limpa mensagens de erro caso visíveis
+        const errName = document.getElementById('err-chk-name');
+        const errCpf = document.getElementById('err-chk-cpf');
+        if (errName) errName.style.display = 'none';
+        if (errCpf) errCpf.style.display = 'none';
     };
 
     // =========================================================================
@@ -1843,6 +2004,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.handleRealAsaasCheckout = async function(e) {
         if (e) e.preventDefault();
+        if (window._isCreatingPix) return;
 
         const nameEl = document.getElementById('chk-input-name');
         const cpfEl = document.getElementById('chk-input-cpf');
@@ -1908,11 +2070,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Gerar número de pedido
         let nextOrderSeq = 1001;
         try {
-            const savedSeq = parseInt(localStorage.getItem('reviva_last_order_seq') || '1000', 10);
-            nextOrderSeq = isNaN(savedSeq) ? 1001 : (savedSeq + 1);
+            const savedSeq = parseInt(localStorage.getItem('reviva_last_order_seq') || '', 10);
+            if (!isNaN(savedSeq) && savedSeq >= 1000) {
+                nextOrderSeq = savedSeq + 1;
+            } else {
+                nextOrderSeq = Math.floor(1001 + (Date.now() % 9000));
+            }
             localStorage.setItem('reviva_last_order_seq', nextOrderSeq.toString());
         } catch(e) {}
         const orderId = 'REVIVA-' + nextOrderSeq;
+        window._isCreatingPix = true;
 
         // Feedback no botão de envio
         const originalBtnHtml = btnSubmit ? btnSubmit.innerHTML : '';
@@ -1923,6 +2090,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            const isDualFormat = Boolean(planInfo.hasUpsell || (planInfo.format && (planInfo.format.includes('+') || planInfo.format.toLowerCase().includes('ambos'))));
+            const isVertical = !isDualFormat && Boolean(planInfo.format && planInfo.format.toLowerCase().includes('vertical'));
+            const formatSuffix = isDualFormat ? ' (Horizontal + Vertical)' : (isVertical ? ' (Vertical)' : ' (Horizontal)');
+            const canonicalFormat = isDualFormat ? 'both' : (isVertical ? 'vertical' : 'horizontal');
+            const canonicalFormatLabel = isDualFormat ? 'Formatos Horizontal + Vertical' : (isVertical ? 'Formato Vertical' : 'Formato Horizontal');
+
+            const cleanPlanBase = (planInfo.planName || 'Plano Legatum').replace(/\s*\([^)]*\)/g, '').trim();
+            const asaasPlanTitle = `${cleanPlanBase}${formatSuffix} (PIX com 10% OFF)`;
+            const asaasDescription = `Homenagem Afetiva - ${cleanPlanBase}${formatSuffix} (${orderId})`;
+
             const response = await fetch('/api/asaas/create-pix', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1933,8 +2110,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     phone: phone,
                     value: numericValuePix,
                     orderId: orderId,
-                    planName: `${planInfo.planName} (PIX com 10% OFF)`,
-                    description: `Homenagem Afetiva - ${planInfo.planName} (${orderId})`
+                    planName: asaasPlanTitle,
+                    description: asaasDescription
                 })
             });
 
@@ -1982,10 +2159,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 customer_email: email,
                 customer_phone: phone,
                 plan_id: planInfo.planId || 'emocao',
-                plan_name: planInfo.planName || 'Plano Legatum',
+                plan_name: `${cleanPlanBase}${formatSuffix}`,
                 plan_duration: planInfo.duration || '2 Minutos',
-                plan_format: planInfo.format || 'Formato Horizontal',
-                has_upsell: !!planInfo.hasUpsell,
+                plan_format: canonicalFormatLabel,
+                format: canonicalFormat,
+                has_upsell: isDualFormat,
                 total_price: `R$ ${numericValuePix.toFixed(2).replace('.', ',')}`,
                 status: 'pending_pix',
                 created_at: new Date().toISOString()
@@ -2001,8 +2179,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Iniciar Polling Real com o Asaas (a cada 3 segundos consulta a API)
             // SÓ LIBERA QUANDO O ASAAS CONFIRMAR STATUS: RECEIVED!
+            window._isCreatingPix = false;
+            const pixPlanInfo = {
+                ...planInfo,
+                planName: `${cleanPlanBase}${formatSuffix}`,
+                format: canonicalFormatLabel,
+                hasUpsell: isDualFormat,
+                priceFormatted: `R$ ${numericValuePix.toFixed(2).replace('.', ',')}`,
+                priceVal: numericValuePix
+            };
             startAsaasPaymentPolling(result.paymentId, {
-                orderId, name, cpf, email, phone, planInfo
+                orderId, name, cpf, email, phone, planInfo: pixPlanInfo
             });
 
         } catch (err) {
@@ -2071,6 +2258,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusTextEl.innerHTML = `<strong style="color: #f6e3c5;">Aguardando pagamento...</strong><br><span style="font-size: 0.72rem; color: #cbd5e1;">O painel liberará automaticamente na compensação bancária.</span>`;
             }
 
+            window._isCreatingPix = false;
             return;
         }
     };
@@ -2212,8 +2400,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let nextOrderSeq = 1001;
         try {
-            const savedSeq = parseInt(localStorage.getItem('reviva_last_order_seq') || '1000', 10);
-            nextOrderSeq = isNaN(savedSeq) ? 1001 : (savedSeq + 1);
+            const savedSeq = parseInt(localStorage.getItem('reviva_last_order_seq') || '', 10);
+            if (!isNaN(savedSeq) && savedSeq >= 1000) {
+                nextOrderSeq = savedSeq + 1;
+            } else {
+                nextOrderSeq = Math.floor(1001 + (Date.now() % 9000));
+            }
             localStorage.setItem('reviva_last_order_seq', nextOrderSeq.toString());
         } catch(err) {}
         const orderId = 'REVIVA-' + nextOrderSeq;
@@ -2223,6 +2415,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnText) btnText.textContent = 'PROCESSANDO CARTÃO...';
 
         try {
+            const isDualFormat = Boolean(planInfo.hasUpsell || (planInfo.format && (planInfo.format.includes('+') || planInfo.format.toLowerCase().includes('ambos'))));
+            const isVertical = !isDualFormat && Boolean(planInfo.format && planInfo.format.toLowerCase().includes('vertical'));
+            const formatSuffix = isDualFormat ? ' (Horizontal + Vertical)' : (isVertical ? ' (Vertical)' : ' (Horizontal)');
+            const canonicalFormat = isDualFormat ? 'both' : (isVertical ? 'vertical' : 'horizontal');
+            const canonicalFormatLabel = isDualFormat ? 'Formatos Horizontal + Vertical' : (isVertical ? 'Formato Vertical' : 'Formato Horizontal');
+
+            const cleanPlanBase = (planInfo.planName || 'Plano Legatum').replace(/\s*\([^)]*\)/g, '').trim();
+            const asaasPlanTitle = `${cleanPlanBase}${formatSuffix} (${installments}x no Cartão)`;
+            const asaasDescription = `Homenagem Afetiva - ${cleanPlanBase}${formatSuffix} (${orderId})`;
+
             const response = await fetch('/api/asaas/pay-credit-card', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2233,7 +2435,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     phone,
                     value: totalValue,
                     orderId,
-                    planName: planInfo.planName,
+                    planName: asaasPlanTitle,
+                    description: asaasDescription,
                     installmentCount: installments,
                     creditCard: {
                         holderName: cardHolder,
@@ -2266,10 +2469,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 phone: phone,
                 planInfo: {
                     planId: planInfo.planId || 'emocao',
-                    planName: planInfo.planName,
+                    planName: `${cleanPlanBase}${formatSuffix}`,
                     duration: planInfo.duration,
-                    format: planInfo.format,
-                    hasUpsell: !!planInfo.hasUpsell,
+                    format: canonicalFormatLabel,
+                    canonicalFormat: canonicalFormat,
+                    hasUpsell: isDualFormat,
                     totalValue: totalValue
                 }
             };
@@ -2282,18 +2486,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 customer_email: email,
                 customer_phone: phone,
                 plan_id: orderMeta.planInfo.planId,
-                plan_name: orderMeta.planInfo.planName,
+                plan_name: `${cleanPlanBase}${formatSuffix}`,
                 plan_duration: orderMeta.planInfo.duration,
-                plan_format: orderMeta.planInfo.format,
-                has_upsell: orderMeta.planInfo.hasUpsell,
+                plan_format: canonicalFormatLabel,
+                format: canonicalFormat,
+                has_upsell: isDualFormat,
                 total_price: `R$ ${totalValue.toFixed(2).replace('.', ',')}`,
                 installments: installments,
                 payment_method: 'credit_card',
                 status: 'paid_confirmed',
                 paid_at: new Date().toISOString()
             };
-            localStorage.setItem('reviva_order_data', JSON.stringify(paidOrderData));
-            localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone, role: 'client' }));
+            paidOrderData.id = orderId;
+            initializeNewPaidOrder(paidOrderData, { name, cpf, email, phone });
 
             // Enviar e-mail de confirmação e preparar WhatsApp
             if (window.RevivaNotifications) {
@@ -2338,7 +2543,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             Código do Pedido: <strong>${orderId}</strong>
                         </div>
                         <button onclick="window.location.href='painel.html'" class="btn btn-primary" style="margin-top: 10px; padding: 12px 28px; font-size: 0.9rem; font-weight: 700; background: linear-gradient(135deg, #22c55e, #16a34a); border-color: #4ade80; color: #fff; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);">
-                            ACESSAR MEU PAINEL AGORA →
+                            ACESSAR MEU PAINEL DE PRODUÇÃO →
                         </button>
                     </div>
                 `;
@@ -2439,8 +2644,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function concludePaidOrder({ orderId, name, cpf, email, phone, planInfo }) {
+        const isDualFormat = Boolean(planInfo.hasUpsell || (planInfo.format && (planInfo.format.includes('+') || planInfo.format.toLowerCase().includes('ambos'))));
+        const isVertical = !isDualFormat && Boolean(planInfo.format && planInfo.format.toLowerCase().includes('vertical'));
+        const canonicalFormat = isDualFormat ? 'both' : (isVertical ? 'vertical' : 'horizontal');
+        const canonicalFormatLabel = isDualFormat ? 'Formatos Horizontal + Vertical' : (isVertical ? 'Formato Vertical' : 'Formato Horizontal');
+
         const orderData = {
             order_id: orderId,
+            id: orderId,
             customer_name: name,
             customer_cpf: cpf,
             customer_email: email,
@@ -2448,29 +2659,16 @@ document.addEventListener('DOMContentLoaded', () => {
             plan_id: planInfo.planId || 'emocao',
             plan_name: planInfo.planName || 'Plano Legatum',
             plan_duration: planInfo.duration || '2 Minutos',
-            plan_format: planInfo.format || 'Formato Horizontal',
-            has_upsell: !!planInfo.hasUpsell,
+            plan_format: canonicalFormatLabel,
+            format: canonicalFormat,
+            has_upsell: isDualFormat,
             total_price: planInfo.priceFormatted || 'R$ 897,00',
             status: 'paid',
             created_at: new Date().toISOString()
         };
 
-        localStorage.setItem('reviva_order_data', JSON.stringify(orderData));
-        localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone }));
-        localStorage.removeItem('reviva_legal_term');
-
-        let fullState = {};
-        try {
-            const raw = localStorage.getItem('reviva_full_session_state');
-            if (raw) fullState = JSON.parse(raw);
-        } catch(err) {}
-        fullState.orderData = orderData;
-        fullState.legalTermSigned = null;
-        fullState.clientName = name;
-        fullState.clientCpf = cpf;
-        fullState.clientEmail = email;
-        fullState.clientPhone = phone;
-        localStorage.setItem('reviva_full_session_state', JSON.stringify(fullState));
+        // Inicialização limpa do pedido, resetando progresso e isolando estado
+        initializeNewPaidOrder(orderData, { name, cpf, email, phone });
 
         // Enviar notificações automáticas e aguardar conclusão dos e-mails
         let notifPromise = null;
@@ -2485,18 +2683,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Aguarda os envios terminarem (ou no máximo 3.5s) antes de navegar para o termo
-        const proceedToTermo = () => {
-            window.location.href = 'termo.html';
+        // Aguarda os envios terminarem (ou no máximo 3.5s) antes de navegar para o painel
+        const proceedToPainel = () => {
+            window.location.href = 'painel.html';
         };
 
         if (notifPromise) {
             Promise.race([
                 notifPromise,
                 new Promise(resolve => setTimeout(resolve, 3500))
-            ]).then(proceedToTermo).catch(proceedToTermo);
+            ]).then(proceedToPainel).catch(proceedToPainel);
         } else {
-            setTimeout(proceedToTermo, 1500);
+            setTimeout(proceedToPainel, 1500);
         }
     }
 
@@ -2555,7 +2753,6 @@ document.addEventListener('DOMContentLoaded', () => {
             btnSubmit.innerHTML = '<i data-lucide="qr-code"></i> <span>GERAR PIX OFICIAL (ASAAS)</span>';
             if (window.lucide) lucide.createIcons();
         }
-        formChk.addEventListener('submit', window.handleSimulateCheckout);
     }
 
     // Vincular botões "Contratar" dos cards para abrir o checkout simulado
