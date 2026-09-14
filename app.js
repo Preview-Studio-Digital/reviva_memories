@@ -2097,8 +2097,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const canonicalFormatLabel = isDualFormat ? 'Formatos Horizontal + Vertical' : (isVertical ? 'Formato Vertical' : 'Formato Horizontal');
 
             const cleanPlanBase = (planInfo.planName || 'Plano Legatum').replace(/\s*\([^)]*\)/g, '').trim();
-            const asaasPlanTitle = `${cleanPlanBase}${formatSuffix} (PIX com 10% OFF)`;
-            const asaasDescription = `Homenagem Afetiva - ${cleanPlanBase}${formatSuffix} (${orderId})`;
+            const durationClean = (planInfo.duration || '2 Minutos').trim();
+            const asaasPlanTitle = `${cleanPlanBase} (${durationClean}) ${formatSuffix} (PIX com 10% OFF)`;
+            const asaasDescription = `Homenagem Afetiva - ${cleanPlanBase} (${durationClean}) - Formato:${formatSuffix} (${orderId})`;
 
             const response = await fetch('/api/asaas/create-pix', {
                 method: 'POST',
@@ -2422,8 +2423,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const canonicalFormatLabel = isDualFormat ? 'Formatos Horizontal + Vertical' : (isVertical ? 'Formato Vertical' : 'Formato Horizontal');
 
             const cleanPlanBase = (planInfo.planName || 'Plano Legatum').replace(/\s*\([^)]*\)/g, '').trim();
-            const asaasPlanTitle = `${cleanPlanBase}${formatSuffix} (${installments}x no Cartão)`;
-            const asaasDescription = `Homenagem Afetiva - ${cleanPlanBase}${formatSuffix} (${orderId})`;
+            const durationClean = (planInfo.duration || '2 Minutos').trim();
+            const asaasPlanTitle = `${cleanPlanBase} (${durationClean}) ${formatSuffix} (${installments}x no Cartão)`;
+            const asaasDescription = `Homenagem Afetiva - ${cleanPlanBase} (${durationClean}) - Formato:${formatSuffix} (${orderId})`;
 
             const response = await fetch('/api/asaas/pay-credit-card', {
                 method: 'POST',

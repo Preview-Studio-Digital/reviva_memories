@@ -668,7 +668,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (step === 5) {
-            const producerVideo = localStorage.getItem('reviva_producer_video');
+            const ordIdent = (orderData?.order_id || orderData?.id || 1);
+            const producerVideo = localStorage.getItem(`reviva_producer_video_${ordIdent}`) ||
+                                  localStorage.getItem(`reviva_producer_video_h_${ordIdent}`) ||
+                                  localStorage.getItem(`reviva_producer_video_v_${ordIdent}`) ||
+                                  localStorage.getItem('reviva_producer_video') ||
+                                  localStorage.getItem('reviva_producer_video_h') ||
+                                  localStorage.getItem('reviva_producer_video_v');
             const finalVideo = document.getElementById('final-homenagem-video');
             const finalPlaceholder = document.getElementById('final-video-placeholder');
             const btnDownload = document.getElementById('btnDownloadFinalVideo');
@@ -1567,7 +1573,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ETAPA 02: A ESSÊNCIA (INTELIGÊNCIA REAL IASIS COM GEMINI API)
     // =========================================================================
     const GEMINI_API_KEY = window.ENV_GEMINI_API_KEY || localStorage.getItem('gemini_api_key') || (typeof atob !== 'undefined' ? atob('QVEuQWI4Uk42TFBBTFZRMmNXZ0dvVUFGVTBvaHpjcUZ5RmlyVDFMaHFqSHVXdHN0U0dMU3c=') : '');
-    const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro'];
+    const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
 
     const interviewChatBox = document.getElementById('interview-chat-box');
     const chatInput = document.getElementById('chat-input');
@@ -1642,7 +1648,15 @@ DIRETRIZES DE SEGURANÇA, ÉTICA E MODERAÇÃO RIGOROSA:
 - Caso o cliente solicite ou mencione algo dessa natureza, recuse com firmeza, serenidade e cortesia:
   "A Reviva Memories é dedicada a eternizar memórias de afeto, respeito e celebração à vida. Por diretrizes éticas inegociáveis, não produzimos mensagens que contenham ofensas, preconceito, incitação a crimes ou atos desvirtuosos. Caso queira, podemos direcionar as palavras para recordar momentos de carinho e paz."
 
-AUTONOMIA CONVERSACIONAL, GESTÃO DE CRÍTICAS E CONTORNO DE SITUAÇÕES (SABER SE VIRAR):
+AUTONOMIA CONVERSACIONAL, GESTÃO DE DÚVIDAS E ROTEIROS PRONTOS:
+- ACOLHIMENTO DE ROTEIROS PRONTOS OU TEXTOS LONGOS ENVIADOS PELO CLIENTE:
+  * Se o cliente perguntar se pode colar ou enviar um roteiro já pronto (ex: "posso colar o roteiro pronto aqui?", "já tenho o texto pronto, posso mandar?"):
+    ACOLHA COM ENTUSIASMO IMEDIATO! Responda que sim, com toda certeza, e convide-o a colar o texto aqui mesmo para você lapidar, calibrar o ritmo e adequar rigorosamente ao tempo e à métrica de palavras do Plano ${currentPlan.name} (${currentPlan.durationMinutes} min). NUNCA confunda essa pergunta com o nome do homenageado ou qualquer outra informação.
+  * Se o cliente colar diretamente um roteiro já pronto ou texto substancial de homenagem:
+    RECEBA E APLIQUE A FÓRMULA REVIVA MEMORIES! Adapte o texto mantendo as palavras e sentimentos do cliente, ajuste para o volume de ${currentPlan.targetWords}, garanta a curva emocional (abertura viva/afetuosa -> causos e carinho -> bênção divina ao final) e apresente imediatamente a tag [[ROTEIRO_FINAL]] seguida do roteiro lapidado!
+- GESTÃO DE DÚVIDAS E PERGUNTAS DO CLIENTE:
+  * Se o cliente fizer qualquer pergunta (tiver ponto de interrogação '?' ou expressar dúvida sobre o processo, como funciona, o que fazer, tempo, etc.):
+    RESPONDA PRIMEIRO À PERGUNTA COM CLAREZA, CORTESIA E PRECISÃO. Jamais trate uma dúvida ou pergunta como se fosse o nome da pessoa falecida ou resposta da entrevista. Após sanar a dúvida, convide-o gentilmente a continuar de onde pararam.
 - CAPACIDADE DE CONTORNAR GAFES E CRÍTICAS: Se o cliente criticar uma pergunta, apontar incoerência, ironizar ou reclamar do rumo da conversa (ex: "que pergunta idiota", "isso é óbvio", "você é burro?", "não faz sentido"):
   1. NUNCA transfira ou ofereça atendimento humano de imediato! Você é o biógrafo oficial e deve ter maturidade, inteligência emocional e flexibilidade para contornar a situação na hora.
   2. RECONHEÇA O ERRO COM ELEGÂNCIA E HUMILDADE: Admita o deslize com sobriedade e peça desculpas com respeito ("Tem toda razão, peço sinceras desculpas pela falta de tato. Diante do amor que uniu seus pais, essa pergunta realmente não cabia.").
@@ -2656,6 +2670,53 @@ REVISÕES & CORREÇÕES DO CLIENTE:
             };
         }
 
+        // 0.4 Acolhimento de Roteiro Pronto ou Pergunta sobre envio de Roteiro
+        const isAskingAboutScript = lower.includes('posso colar') || lower.includes('posso mandar') || lower.includes('posso enviar') || 
+                                    lower.includes('roteiro pronto') || lower.includes('texto pronto') || lower.includes('colar o roteiro') || 
+                                    lower.includes('colar todo o roteiro') || lower.includes('já tenho o roteiro') || lower.includes('ja tenho o roteiro');
+        if (isAskingAboutScript) {
+            return {
+                chat: `Com certeza, ${clientFirstName}! Você pode colar todo o seu roteiro ou texto aqui agora mesmo.<br><br>Eu farei a leitura atenta, ajustarei o ritmo e a cadência para a minutagem do <strong>Plano ${currentPlan.name} (${currentPlan.durationMinutes} min)</strong> e garantirei que cada frase transmita com máxima emoção a essência de quem partiu. Pode enviar!`
+            };
+        }
+
+        // 0.5 Se o usuário já colar diretamente um texto longo / roteiro pronto (mais de 25 palavras ou contendo quebras de linha e tom narrativo)
+        const wordTokens = text.split(/\s+/).filter(w => w.length > 0);
+        const isDirectScriptPasted = wordTokens.length >= 25 && !text.endsWith('?') && (
+            lower.includes('você') || lower.includes('voce') || lower.includes('amor') || 
+            lower.includes('saudade') || lower.includes('abraço') || lower.includes('abrac') || 
+            lower.includes('deus') || lower.includes('filho') || lower.includes('vida') || 
+            text.includes('\n')
+        );
+
+        if (isDirectScriptPasted && (!latestScriptText || currentQuestionStep !== 'script_ready')) {
+            let adaptedScript = sanitizeScriptOntology(text);
+            currentQuestionStep = 'script_ready';
+            latestScriptText = adaptedScript;
+            return {
+                chat: `Recebi o seu roteiro com todo o carinho e respeito, ${clientFirstName}! Fiz a leitura atenta, lapidei as transições para a curva emocional e calibrei as pausas para a duração do <strong>Plano ${currentPlan.name} (${currentPlan.durationMinutes} min)</strong>. Veja como ficou o roteiro oficial abaixo:`,
+                script: adaptedScript
+            };
+        }
+
+        // 0.6 Tratamento de Dúvidas / Perguntas em Geral do Usuário
+        const isUserAskingQuestion = text.includes('?') || 
+            lower.startsWith('como ') || lower.startsWith('onde ') || lower.startsWith('qual ') || 
+            lower.startsWith('quando ') || lower.startsWith('por que') || lower.startsWith('porque') || 
+            lower.startsWith('o que ') || lower.startsWith('oque ') || lower.startsWith('vc entendeu') || 
+            lower.startsWith('você entendeu') || lower.startsWith('voce entendeu');
+
+        if (isUserAskingQuestion) {
+            if (lower.includes('entendeu') || lower.includes('perguntei')) {
+                return {
+                    chat: `Compreendi perfeitamente agora, ${clientFirstName}! Peço desculpas pela resposta anterior. Estou aqui com você para criarmos essa homenagem do jeito mais bonito e fiel possível.<br><br>Se você já tiver o roteiro ou anotações prontas, pode colar diretamente aqui. Caso contrário, me diga: qual é o nome do ente querido que apresentará a mensagem?`
+                };
+            }
+            return {
+                chat: `Ótima pergunta, ${clientFirstName}. O nosso papel aqui é cuidar de cada detalhe com total carinho. Você pode tanto responder passo a passo às perguntas que eu fizer, quanto me enviar o texto e as memórias da forma como achar melhor.<br><br>Como prefere prosseguir? Se preferir seguir a entrevista: qual é o nome da pessoa homenageada?`
+            };
+        }
+
         // 1. Tratamento de Correções do Usuário (ex: "É Artur o nome dele", "Escreveu errado", "O nome correto é...")
         if (lower.includes('nome dele') || lower.includes('nome dela') || lower.includes('o nome é') || lower.includes('escreveu') || lower.includes('errou') || lower.includes('correto') || lower.includes('artur')) {
             const extracted = cleanName(text);
@@ -2703,7 +2764,13 @@ REVISÕES & CORREÇÕES DO CLIENTE:
         // 4. Fluxo Conversacional Baseado em Estado Real (State Machine Semântica)
         switch (currentQuestionStep) {
             case 'ask_protagonista':
-                interviewData.protagonista = cleanName(text) || text;
+                const candidateName = cleanName(text);
+                if (!candidateName || candidateName.length < 2 || candidateName.includes('?')) {
+                    return {
+                        chat: `Para que possamos avançar na homenagem com todo o respeito: qual é o nome do ente querido que falará no vídeo?`
+                    };
+                }
+                interviewData.protagonista = candidateName;
                 currentQuestionStep = 'ask_destinatario';
                 return {
                     chat: `<strong>${interviewData.protagonista}</strong>... Um nome com grande força e história. Conduziremos a homenagem com toda a seriedade e apreço que ele(a) merece.<br><br>Esta homenagem é destinada a você mesmo(a) ou você a presenteará a outra pessoa?`

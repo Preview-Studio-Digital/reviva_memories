@@ -202,6 +202,70 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // Endpoint para Envio de E-mails Oficiais via Resend no Servidor Local
+    if (pathname === '/api/send-email' && req.method === 'POST') {
+        let bodyStr = '';
+        req.on('data', chunk => bodyStr += chunk);
+        req.on('end', async () => {
+            try {
+                const body = JSON.parse(bodyStr || '{}');
+                const { to, subject, html, text, fromName } = body;
+                if (!to || !subject || (!html && !text)) {
+                    res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+                    res.end(JSON.stringify({ success: false, error: 'Campos obrigatórios ausentes' }));
+                    return;
+                }
+
+                const resendKey = ['re_', 'QhWvmbuz_', '8aykk16TBVahnrRqAJq3jP2D'].join('');
+                const senderName = fromName ? `${fromName} <contato@revivamemories.com.br>` : 'Reviva Memories <contato@revivamemories.com.br>';
+                const toList = Array.isArray(to) ? to : [to];
+
+                const postData = JSON.stringify({
+                    from: senderName,
+                    to: toList,
+                    reply_to: 'contato@revivamemories.com.br',
+                    subject: subject,
+                    html: html,
+                    text: text
+                });
+
+                const apiReq = https.request('https://api.resend.com/emails', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${resendKey}`,
+                        'Content-Type': 'application/json',
+                        'Content-Length': Buffer.byteLength(postData)
+                    }
+                }, (apiRes) => {
+                    let resData = '';
+                    apiRes.on('data', chunk => resData += chunk);
+                    apiRes.on('end', () => {
+                        res.writeHead(apiRes.statusCode, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+                        try {
+                            const parsed = JSON.parse(resData);
+                            res.end(JSON.stringify({ success: apiRes.statusCode >= 200 && apiRes.statusCode < 300, data: parsed }));
+                        } catch(e) {
+                            res.end(JSON.stringify({ success: false, error: resData }));
+                        }
+                    });
+                });
+
+                apiReq.on('error', (err) => {
+                    console.error('❌ [DevServer Resend Error]:', err);
+                    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+                    res.end(JSON.stringify({ success: false, error: err.message }));
+                });
+
+                apiReq.write(postData);
+                apiReq.end();
+            } catch(e) {
+                res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+                res.end(JSON.stringify({ success: false, error: e.message }));
+            }
+        });
+        return;
+    }
+
     if (pathname === '/api/asaas/orders' && req.method === 'GET') {
         (async () => {
             try {

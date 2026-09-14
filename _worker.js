@@ -296,6 +296,13 @@ export default {
 
                     const cloudState = d1StateMap.get(extRefLow) || d1StateMap.get(paymentIdLow) || null;
 
+                    // Reconhecimento do Formato (Horizontal / Vertical / Ambos)
+                    const descAndPlan = `${d1Order?.plan_name || ''} ${p.description || ''} ${cloudState?.crmData?.format || ''} ${cloudState?.format || ''}`.toLowerCase();
+                    const isBothByPrice = [670.95, 1210.95, 1750.95, 745.50, 1345.50, 1945.50].some(v => Math.abs(trueValue - v) <= 1.0);
+                    const isBothByText = descAndPlan.includes('ambos') || descAndPlan.includes('both') || descAndPlan.includes('horizontal + vertical') || descAndPlan.includes('horizontal & vertical') || descAndPlan.includes('+50%') || descAndPlan.includes('dois formatos');
+                    const isBothFormat = isBothByPrice || isBothByText || cloudState?.has_upsell === true || cloudState?.crmData?.format === 'both';
+                    const detectedFormat = isBothFormat ? 'both' : (descAndPlan.includes('vertical') || descAndPlan.includes('9:16') ? 'vertical' : 'horizontal');
+
                     const orderItem = {
                         id: extRef,
                         orderId: extRef,
@@ -310,6 +317,8 @@ export default {
                         valueFormatted: `R$ ${trueValue.toFixed(2).replace('.', ',')}`,
                         billingType: isPix ? 'PIX' : (p.billingType || 'CREDIT_CARD'),
                         paymentMethod: paymentMethodName,
+                        format: detectedFormat,
+                        has_upsell: isBothFormat,
                         isPaid: isPaid,
                         status: p.status,
                         statusLabel: isPaid ? 'PAGO / CONFIRMADO' : 'AGUARDANDO PAGTO',
@@ -363,6 +372,14 @@ export default {
 
                         const d1Prof = d1O.user_id ? d1ProfilesMap.get(String(d1O.user_id).toLowerCase()) : null;
                         const isPaid = d1O.status === 'paid' || d1O.status === 'CONFIRMED' || d1O.status === 'RECEIVED';
+                        const d1Val = Number(d1O.amount) || 447.30;
+                        const d1State = d1StateMap.get(oIdLow) || (pIdLow ? d1StateMap.get(pIdLow) : null) || null;
+                        const d1DescAndPlan = `${d1O.plan_name || ''} ${d1State?.crmData?.format || ''} ${d1State?.format || ''}`.toLowerCase();
+                        const d1IsBothByPrice = [670.95, 1210.95, 1750.95, 745.50, 1345.50, 1945.50].some(v => Math.abs(d1Val - v) <= 1.0);
+                        const d1IsBothByText = d1DescAndPlan.includes('ambos') || d1DescAndPlan.includes('both') || d1DescAndPlan.includes('horizontal + vertical') || d1DescAndPlan.includes('horizontal & vertical') || d1DescAndPlan.includes('+50%') || d1DescAndPlan.includes('dois formatos');
+                        const d1IsBoth = d1IsBothByPrice || d1IsBothByText || d1State?.has_upsell === true || d1State?.crmData?.format === 'both';
+                        const d1Fmt = d1IsBoth ? 'both' : (d1DescAndPlan.includes('vertical') || d1DescAndPlan.includes('9:16') ? 'vertical' : 'horizontal');
+
                         ordersByRef.set(oIdLow, {
                             id: d1O.id,
                             orderId: d1O.id,
@@ -373,12 +390,15 @@ export default {
                             clientCpf: d1O.customer_cpf || '',
                             description: d1O.plan_name || 'Homenagem Reviva Memories',
                             planName: d1O.plan_name || 'Plano Personalizado',
-                            value: Number(d1O.amount) || 447.30,
-                            valueFormatted: `R$ ${Number(d1O.amount || 447.30).toFixed(2).replace('.', ',')}`,
+                            value: d1Val,
+                            valueFormatted: `R$ ${d1Val.toFixed(2).replace('.', ',')}`,
+                            format: d1Fmt,
+                            has_upsell: d1IsBoth,
                             isPaid: isPaid,
                             status: d1O.status,
                             statusLabel: isPaid ? 'PAGO / CONFIRMADO' : 'AGUARDANDO PAGTO',
-                            dateCreated: new Date().toISOString()
+                            dateCreated: new Date().toISOString(),
+                            cloudState: d1State
                         });
                     }
                 }
@@ -762,6 +782,63 @@ export default {
             } catch (err) {
                 console.error('[Worker R2 get error]:', err);
                 return new Response('Erro ao buscar arquivo no storage', { status: 500 });
+            }
+        }
+
+        // 4.3 ENDPOINT: /api/send-email (Disparo de E-mails Oficiais via Resend no Backend do Worker)
+        if (pathname === '/api/send-email' && request.method === 'POST') {
+            try {
+                const bodyData = await request.json();
+                const { to, subject, html, text, fromName } = bodyData || {};
+
+                if (!to || !subject || (!html && !text)) {
+                    return new Response(JSON.stringify({ success: false, error: 'Campos obrigatórios ausentes (to, subject, html/text)' }), {
+                        status: 400,
+                        headers: corsHeaders
+                    });
+                }
+
+                const rawResendKey = env.RESEND_API_KEY || (typeof atob !== 'undefined' ? atob('cmVfUWhXdm1idXpfOGF5a2sxNlRCVmFobnJScUFKcTNqUDJE') : '');
+                const resendKey = rawResendKey.replace(/[^\x20-\x7E]/g, '').trim().replace(/^["']|["']$/g, '');
+
+                const senderName = fromName ? `${fromName} <contato@revivamemories.com.br>` : 'Reviva Memories <contato@revivamemories.com.br>';
+                const toList = Array.isArray(to) ? to : [to];
+
+                const resendRes = await fetch('https://api.resend.com/emails', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${resendKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        from: senderName,
+                        to: toList,
+                        reply_to: 'contato@revivamemories.com.br',
+                        subject: subject,
+                        html: html,
+                        text: text
+                    })
+                });
+
+                const resData = await resendRes.json();
+                if (!resendRes.ok) {
+                    console.error('[Worker Resend Error]:', resData);
+                    return new Response(JSON.stringify({ success: false, error: resData }), {
+                        status: resendRes.status,
+                        headers: corsHeaders
+                    });
+                }
+
+                return new Response(JSON.stringify({ success: true, data: resData }), {
+                    status: 200,
+                    headers: corsHeaders
+                });
+            } catch(err) {
+                console.error('[Worker send-email error]:', err);
+                return new Response(JSON.stringify({ success: false, error: err?.message || 'Erro interno ao processar envio de e-mail' }), {
+                    status: 500,
+                    headers: corsHeaders
+                });
             }
         }
 

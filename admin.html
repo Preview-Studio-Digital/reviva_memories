@@ -1807,15 +1807,14 @@
             box-sizing: border-box;
         }
 
-        /* Botão do Termo de Responsabilidade - Altura 30px e mesma fonte var(--font-serif) do Baixar Pacote */
+        /* Botão do Termo de Responsabilidade - Idêntico em fonte, tamanho, espaçamento e proporção ao Baixar Pacote */
         .cockpit-termo-btn {
             width: 100%;
-            height: 30px;
             padding: 6px 12px;
-            font-family: var(--font-serif);
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 1px;
+            font-family: var(--font-serif) !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 1px !important;
             text-transform: uppercase;
             display: inline-flex;
             align-items: center;
@@ -1824,59 +1823,73 @@
             border-radius: var(--radius-sm);
             flex-shrink: 0;
             cursor: pointer;
-            transition: var(--transition-smooth);
+            transition: all 0.2s ease !important;
             box-sizing: border-box;
             user-select: none;
         }
-        .cockpit-termo-btn,
         .cockpit-termo-btn span {
             font-family: var(--font-serif) !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 1px !important;
         }
 
-        /* 1ª Etapa (Pendentes): Vermelho Inacessível - Idêntico ao Baixar Pacote, totalmente sem efeito */
+        /* 1ª Etapa (Pendentes): Vermelho Inacessível - Idêntico ao .btn-pkg-locked */
         .cockpit-termo-btn.termo-stage-1 {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.5);
-            color: #f87171;
+            background: rgba(239, 68, 68, 0.15) !important;
+            border: 1px solid rgba(239, 68, 68, 0.5) !important;
+            color: #f87171 !important;
             box-shadow: none !important;
             cursor: not-allowed !important;
             pointer-events: none !important;
+            opacity: 0.75 !important;
         }
-        .cockpit-termo-btn.termo-stage-1:hover {
-            background: rgba(239, 68, 68, 0.2) !important;
-            border: 1px solid rgba(239, 68, 68, 0.5) !important;
-            box-shadow: none !important;
-            transform: none !important;
+        .cockpit-termo-btn.termo-stage-1 i,
+        .cockpit-termo-btn.termo-stage-1 svg {
+            color: #f87171 !important;
         }
 
-        /* 2ª Etapa (Confirmados): Amarelo Pendente */
+        /* 2ª Etapa (Confirmados / Pendente de Assinatura): Amarelo harmônico e inacessível - Idêntico ao .btn-pkg-stage-2 */
         .cockpit-termo-btn.termo-stage-2 {
-            background: rgba(234, 179, 8, 0.15);
-            border: 1px solid rgba(234, 179, 8, 0.55);
-            color: #facc15;
-            box-shadow: 0 0 10px rgba(234, 179, 8, 0.15);
-            cursor: pointer;
+            background: rgba(234, 179, 8, 0.15) !important;
+            border: 1px solid rgba(234, 179, 8, 0.55) !important;
+            color: #facc15 !important;
+            box-shadow: 0 0 10px rgba(234, 179, 8, 0.15) !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+            opacity: 0.7 !important;
         }
-        .cockpit-termo-btn.termo-stage-2:hover {
-            background: rgba(234, 179, 8, 0.25);
-            border-color: #facc15;
-            box-shadow: 0 0 14px rgba(234, 179, 8, 0.3);
-            transform: translateY(-1px);
+        .cockpit-termo-btn.termo-stage-2 i,
+        .cockpit-termo-btn.termo-stage-2 svg {
+            color: #facc15 !important;
         }
 
-        /* 3ª Etapa em diante (Recebidos +): Verde */
+        /* Termo Assinado pelo Cliente (Verde Ativo e Clicável) - Idêntico ao .btn-pkg-sent */
         .cockpit-termo-btn.termo-stage-3 {
-            background: rgba(34, 197, 94, 0.15);
-            border: 1px solid rgba(34, 197, 94, 0.55);
-            color: #4ade80;
-            box-shadow: 0 0 10px rgba(34, 197, 94, 0.15);
-            cursor: pointer;
+            background: rgba(34, 197, 94, 0.16) !important;
+            border: 1px solid rgba(34, 197, 94, 0.65) !important;
+            color: #4ade80 !important;
+            box-shadow: 0 0 14px rgba(34, 197, 94, 0.22) !important;
+            cursor: pointer !important;
+            pointer-events: auto !important;
+            opacity: 1 !important;
+        }
+        .cockpit-termo-btn.termo-stage-3 i,
+        .cockpit-termo-btn.termo-stage-3 svg {
+            color: #4ade80 !important;
+            transition: transform 0.2s ease;
         }
         .cockpit-termo-btn.termo-stage-3:hover {
-            background: rgba(34, 197, 94, 0.25);
-            border-color: #4ade80;
-            box-shadow: 0 0 14px rgba(34, 197, 94, 0.3);
+            background: rgba(34, 197, 94, 0.28) !important;
+            border-color: #4ade80 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 18px rgba(34, 197, 94, 0.4) !important;
             transform: translateY(-1px);
+        }
+        .cockpit-termo-btn.termo-stage-3:hover i,
+        .cockpit-termo-btn.termo-stage-3:hover svg {
+            transform: translateY(1px);
+            color: #ffffff !important;
         }
 
         .material-status-slot {
@@ -1998,6 +2011,22 @@
             transform: none !important;
         }
 
+        /* Botão Baixar Pacote na 1ª Etapa (Pendentes): Vermelho inacessível */
+        .btn-pkg-locked {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border: 1px solid rgba(239, 68, 68, 0.5) !important;
+            color: #f87171 !important;
+            box-shadow: none !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+            opacity: 0.75 !important;
+        }
+
+        .btn-pkg-locked i,
+        .btn-pkg-locked svg {
+            color: #f87171 !important;
+        }
+
         /* Botão Baixar Pacote na 2ª Etapa (Confirmados): Amarelo harmônico com os cards pendentes, inacessível até envio */
         .btn-pkg-stage-2 {
             background: rgba(234, 179, 8, 0.15) !important;
@@ -2014,10 +2043,20 @@
         }
 
         .material-status-slot.slot-locked {
-            opacity: 0.55;
+            opacity: 0.65;
             cursor: not-allowed;
-            border-color: rgba(239, 68, 68, 0.3);
-            background: rgba(20, 10, 10, 0.6);
+            border-color: rgba(239, 68, 68, 0.4) !important;
+            background: rgba(20, 10, 10, 0.7) !important;
+            pointer-events: none !important;
+        }
+
+        .material-status-slot.slot-locked i,
+        .material-status-slot.slot-locked svg {
+            color: #f87171 !important;
+        }
+
+        .material-status-slot.slot-locked span:first-of-type {
+            color: #fca5a5 !important;
         }
 
         .producer-drop-card:hover {
@@ -2398,11 +2437,6 @@
                 <i data-lucide="search" style="width: 12px; height: 12px; color: var(--gold-bright);"></i>
             </button>
 
-            <!-- 3.5 ESPELHAR DADOS (SINCRONIZADOR) -->
-            <button id="btn-sync-toggle" onclick="openSyncModal()" class="btn-dashboard-header" title="Espelhar Dados do Publicado / Local" style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.15);">
-                <i data-lucide="refresh-cw" style="width: 12px; height: 12px;"></i>
-            </button>
-
             <!-- 4. LIMPAR TODOS OS PEDIDOS (RESET DE TESTES) -->
             <button onclick="if(confirm('⚠️ LIMPAR TODOS OS PEDIDOS DE TESTE?\n\nEsta ação excluirá todos os pedidos do painel definitivamente e deixará o painel 100% limpo para novos testes.')) purgeAllOrdersForCleanTest();" class="btn-logout-header" title="Limpar todos os pedidos de teste" style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
                 <i data-lucide="trash-2" style="width: 12px; height: 12px;"></i>
@@ -2589,14 +2623,15 @@
                         </div>
 
                         <!-- Coluna 2, Linha 3: Plano & Formato -->
-                        <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
                             <span style="color: var(--text-secondary); font-size: 0.60rem; text-transform: uppercase; letter-spacing: 0.4px;">Plano & Formato</span>
                             <div style="display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.72rem;">
                                 <strong style="color: #f6e3c5;" id="cockpit-plan-name">Plano</strong>
                                 <span style="color: #f6e3c5;">•</span>
                                 <strong style="color: #f6e3c5;" id="cockpit-duration-text">--</strong>
-                                <span style="color: #f6e3c5;">•</span>
-                                <strong style="color: #f6e3c5;" id="cockpit-format-badge">--</strong>
+                            </div>
+                            <div id="cockpit-format-badge" style="margin-top: 1px;">
+                                <!-- Badge de formato renderizado sem corte -->
                             </div>
                         </div>
 
@@ -2621,9 +2656,9 @@
                     <div style="display: flex; flex-direction: column; gap: 6px; height: 100%; min-height: 0; box-sizing: border-box;">
                         
                         <!-- BOTÃO DE ACESSO AO TERMO DE RESPONSABILIDADE -->
-                        <button type="button" id="cockpit-btn-termo" onclick="handleTermoButtonClick()" class="cockpit-termo-btn termo-stage-2" title="Termo de Responsabilidade" style="font-family: var(--font-serif);">
+                        <button type="button" id="cockpit-btn-termo" onclick="handleTermoButtonClick()" class="cockpit-termo-btn termo-stage-2" title="Termo de Responsabilidade" style="width: 100%; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: var(--radius-sm); flex-shrink: 0;">
                             <i data-lucide="file-check-2" id="cockpit-termo-icon" style="width: 13px; height: 13px;"></i>
-                            <span id="cockpit-termo-text" style="font-family: var(--font-serif);">TERMO DE RESPONSABILIDADE</span>
+                            <span id="cockpit-termo-text">TERMO DE RESPONSABILIDADE</span>
                         </button>
 
                         <div id="cockpit-materials-grid" class="materials-status-grid">
@@ -2687,26 +2722,26 @@
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 1; align-content: stretch;">
                             <!-- Tempo de Produção Trabalhado -->
-                            <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 5px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0;">
-                                <span style="font-size: 0.62rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap;">Trabalhado</span>
+                            <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 5px; padding: 5px 8px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; min-width: 0;">
+                                <span style="font-size: 0.60rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap;">Trabalhado</span>
                                 <strong id="cockpit-metric-time" style="font-family: var(--font-mono); font-size: 0.82rem; color: #e5c378; font-weight: 700; white-space: nowrap;">00:00:00</strong>
                             </div>
 
                             <!-- Valor Hora Resultante -->
-                            <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 5px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0;">
-                                <span style="font-size: 0.62rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap;">Valor / Hora</span>
+                            <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 5px; padding: 5px 8px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; min-width: 0;">
+                                <span style="font-size: 0.60rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap;">Valor / Hora</span>
                                 <strong id="cockpit-metric-hourly-rate" style="font-family: var(--font-mono); font-size: 0.82rem; color: #4ade80; font-weight: 700; white-space: nowrap;">R$ 0,00/h</strong>
                             </div>
 
-                            <!-- Tempo Total na Esteira (Confirmados -> Vídeo Final) -->
-                            <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 5px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0;">
-                                <span style="font-size: 0.62rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap;">Tempo Total</span>
+                            <!-- Tempo Total na Esteira (Recebidos -> Vídeo Final) -->
+                            <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 5px; padding: 5px 8px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; min-width: 0;">
+                                <span style="font-size: 0.60rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap;">Tempo Total</span>
                                 <strong id="cockpit-metric-total-duration" style="font-family: var(--font-mono); font-size: 0.82rem; color: #f3d79b; font-weight: 700; white-space: nowrap;">--:--:--</strong>
                             </div>
 
                             <!-- Rentabilidade / Eficiência -->
-                            <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 5px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0;">
-                                <span style="font-size: 0.62rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap;">Eficiência</span>
+                            <div style="background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 5px; padding: 5px 8px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; min-width: 0;">
+                                <span style="font-size: 0.60rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap;">Eficiência</span>
                                 <strong id="cockpit-metric-efficiency" style="font-size: 0.70rem; color: #f3d79b; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(243, 215, 155, 0.12); border: 1px solid rgba(243, 215, 155, 0.3); white-space: nowrap;">Pendente</strong>
                             </div>
                         </div>
@@ -2916,9 +2951,9 @@
             <div style="padding: 16px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; font-size: 0.76rem; color: #e2e8f0; line-height: 1.55;">
                 
                 <!-- Box de Identificação e Certificado Digital -->
-                <div style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 6px; padding: 12px 14px;">
+                <div id="admin-termo-cert-box" style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 6px; padding: 12px 14px; transition: all 0.2s ease;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="font-size: 0.70rem; font-weight: 700; color: #4ade80; text-transform: uppercase; display: flex; align-items: center; gap: 5px;">
+                        <span id="admin-termo-cert-title" style="font-size: 0.70rem; font-weight: 700; color: #4ade80; text-transform: uppercase; display: flex; align-items: center; gap: 5px;">
                             <i data-lucide="shield-check" style="width: 13px; height: 13px;"></i> Aceite Eletrônico Válido (MP nº 2.200-2/2001)
                         </span>
                         <span id="admin-termo-badge-modal" style="font-size: 0.65rem; color: #4ade80; font-weight: 700; font-family: var(--font-mono);">CONFIRMADO ✓</span>
@@ -2941,7 +2976,7 @@
                             <strong id="admin-termo-signed-at" style="color: #fff; font-family: var(--font-mono);">---</strong>
                         </div>
                     </div>
-                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(34, 197, 94, 0.2); font-size: 0.65rem; display: flex; align-items: center; justify-content: space-between;">
+                    <div id="admin-termo-hash-row" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(34, 197, 94, 0.2); font-size: 0.65rem; display: flex; align-items: center; justify-content: space-between;">
                         <span style="color: #94a3b8;">Hash Criptográfico de Integridade:</span>
                         <code id="admin-termo-hash" style="color: #4ade80; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;">REVIVA-AUTH-E7F2B9...</code>
                     </div>
@@ -2975,13 +3010,10 @@
 
             <!-- Footer com Botões de Ação -->
             <div style="padding: 12px 20px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0;">
-                <button type="button" onclick="downloadCurrentOrderTermoPDF()" class="btn-gold" style="padding: 8px 16px; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 7px; border-radius: var(--radius-sm);">
+                <button type="button" id="admin-termo-btn-download-pdf" onclick="downloadCurrentOrderTermoPDF()" class="btn-gold" style="padding: 8px 16px; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 7px; border-radius: var(--radius-sm);">
                     <i data-lucide="file-down" style="width: 14px; height: 14px;"></i> BAIXAR TERMO (PDF)
                 </button>
                 <div style="display: flex; gap: 8px;">
-                    <button type="button" onclick="downloadFullOrderPackage()" style="background: rgba(197, 160, 89, 0.15); border: 1px solid var(--border-gold); color: var(--gold-bright); padding: 8px 14px; font-size: 0.74rem; font-weight: 700; border-radius: var(--radius-sm); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                        <i data-lucide="archive" style="width: 14px; height: 14px;"></i> BAIXAR PACOTE COMPLETO (.ZIP)
-                    </button>
                     <button type="button" onclick="closeAdminTermoModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 14px; font-size: 0.74rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;">
                         FECHAR
                     </button>
@@ -3050,10 +3082,7 @@
                 <!-- Itens de áudio gerados dinamicamente com player e botão baixar -->
             </div>
 
-            <div style="padding: 14px 28px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
-                <button type="button" onclick="downloadFullOrderPackage()" class="btn-gold" style="padding: 8px 16px; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; border-radius: var(--radius-sm);">
-                    <i data-lucide="archive" style="width: 14px; height: 14px;"></i> BAIXAR PACOTE COMPLETO (.ZIP)
-                </button>
+            <div style="padding: 14px 28px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0;">
                 <button type="button" onclick="closeAdminAudiosModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 18px; font-size: 0.74rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
                     FECHAR
                 </button>
@@ -3084,10 +3113,7 @@
                 <!-- Thumbnails das fotos com visualização sem cortes e botões de alta resolução -->
             </div>
 
-            <div style="padding: 14px 28px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
-                <button type="button" onclick="downloadFullOrderPackage()" class="btn-gold" style="padding: 8px 16px; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; border-radius: var(--radius-sm);">
-                    <i data-lucide="archive" style="width: 14px; height: 14px;"></i> BAIXAR PACOTE COMPLETO (.ZIP)
-                </button>
+            <div style="padding: 14px 28px; border-top: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0;">
                 <button type="button" onclick="closeAdminPhotosModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 18px; font-size: 0.74rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
                     FECHAR
                 </button>
@@ -3113,6 +3139,27 @@
         </div>
         <div style="flex: 1; width: 100%; max-width: 1300px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;" onclick="if(event.target === this) closePhotoLightbox()">
             <img id="lightbox-photo-img" src="" alt="Foto sem cortes" style="max-width: 100%; max-height: calc(100vh - 120px); width: auto; height: auto; object-fit: contain; border-radius: 6px; box-shadow: 0 0 50px rgba(0,0,0,0.9), 0 0 20px rgba(197,160,89,0.25); border: 1px solid rgba(197,160,89,0.35);">
+        </div>
+    </div>
+
+    <!-- ================= LIGHTBOX EXPANDIDO DE VÍDEO EM TELA CHEIA ================= -->
+    <div id="modal-admin-video-lightbox" style="display: none; position: fixed; inset: 0; z-index: 100005; background: rgba(0, 0, 0, 0.96); backdrop-filter: blur(12px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; width: 100vw; height: 100vh; flex-direction: column;" onclick="if(event.target === this) closeVideoLightbox()">
+        <div style="width: 100%; max-width: 1100px; display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; margin-bottom: 12px; border-bottom: 1px solid rgba(197,160,89,0.3); background: rgba(10,6,4,0.7); border-radius: 6px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i data-lucide="film" style="width: 18px; height: 18px; color: var(--gold-bright);"></i>
+                <span id="lightbox-video-title" style="color: #fff; font-size: 0.88rem; font-weight: 600;">Vídeo Publicado</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button type="button" id="lightbox-video-btn-download" style="background: rgba(197, 160, 89, 0.2); border: 1px solid var(--border-gold-bright); color: var(--gold-bright); padding: 5px 12px; font-size: 0.72rem; font-weight: 700; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <i data-lucide="download" style="width: 13px; height: 13px;"></i> BAIXAR VÍDEO
+                </button>
+                <button type="button" onclick="closeVideoLightbox()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer; padding: 5px 12px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; gap: 4px;">
+                    <i data-lucide="x" style="width: 16px; height: 16px;"></i> FECHAR
+                </button>
+            </div>
+        </div>
+        <div style="flex: 1; width: 100%; max-width: 1100px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;" onclick="if(event.target === this) closeVideoLightbox()">
+            <video id="lightbox-video-player" controls autoplay style="max-width: 100%; max-height: calc(100vh - 120px); width: auto; height: auto; border-radius: 6px; box-shadow: 0 0 50px rgba(0,0,0,0.9), 0 0 20px rgba(197,160,89,0.25); border: 1px solid rgba(197,160,89,0.35); outline: none; background: #000;"></video>
         </div>
     </div>
 
@@ -3502,12 +3549,28 @@
                     localStorage.setItem(`reviva_producer_image_${orderId}`, st.producerImage);
                     localStorage.setItem(`reviva_stage4_delivered_${orderId}`, "true");
                 }
+                if (st.producerPhotoH) {
+                    localStorage.setItem(`reviva_producer_photo_h_${orderId}`, st.producerPhotoH);
+                    localStorage.setItem(`reviva_stage4_delivered_${orderId}`, "true");
+                }
+                if (st.producerPhotoV) {
+                    localStorage.setItem(`reviva_producer_photo_v_${orderId}`, st.producerPhotoV);
+                    localStorage.setItem(`reviva_stage4_delivered_${orderId}`, "true");
+                }
                 if (st.producerAudio) {
                     localStorage.setItem(`reviva_producer_audio_${orderId}`, st.producerAudio);
                     localStorage.setItem(`reviva_stage4_delivered_${orderId}`, "true");
                 }
                 if (st.producerVideo) {
                     localStorage.setItem(`reviva_producer_video_${orderId}`, st.producerVideo);
+                    localStorage.setItem(`reviva_stage5_delivered_${orderId}`, "true");
+                }
+                if (st.producerVideoH) {
+                    localStorage.setItem(`reviva_producer_video_h_${orderId}`, st.producerVideoH);
+                    localStorage.setItem(`reviva_stage5_delivered_${orderId}`, "true");
+                }
+                if (st.producerVideoV) {
+                    localStorage.setItem(`reviva_producer_video_v_${orderId}`, st.producerVideoV);
                     localStorage.setItem(`reviva_stage5_delivered_${orderId}`, "true");
                 }
                 if (st.crmData) {
@@ -3975,14 +4038,23 @@
         // =========================================================================
         function detectOrderFormat(order) {
             if (!order) return 'horizontal';
-            if (order.format) return order.format;
-            if (order.has_upsell === true || order.hasUpsell === true || order.format === 'both' || order.plan_format === 'Formatos Horizontal + Vertical') return 'both';
+            if (order.format === 'both' || order.has_upsell === true || order.hasUpsell === true || order.plan_format === 'Formatos Horizontal + Vertical') return 'both';
 
             const rawFormat = (order.format || order.plan_format || '');
             const str = `${rawFormat} ${order.planName || ''} ${order.description || ''}`.toLowerCase();
             if (str.includes('ambos') || str.includes('both') || str.includes('horizontal + vertical') || str.includes('horizontal & vertical') || str.includes('+50%') || str.includes('dois formatos')) {
                 return 'both';
             }
+
+            // Checagem por valor do pedido (+50% dos 2 formatos contratados)
+            const numVal = Number(order.value || 0);
+            const bothPrices = [670.95, 1210.95, 1750.95, 745.50, 1345.50, 1945.50];
+            if (bothPrices.some(p => Math.abs(numVal - p) <= 1.0)) {
+                return 'both';
+            }
+
+            if (order.format) return order.format;
+
             if (str.includes('vertical') || str.includes('9:16') || str.includes('reels') || str.includes('shorts')) {
                 return 'vertical';
             }
@@ -4465,9 +4537,10 @@
         }
 
         // =========================================================================
-        // TEMPO TOTAL NA LINHA DE PRODUÇÃO (CONFIRMADOS -> VÍDEO FINAL)
-        // Mede o tempo decorrido desde a confirmação do pagamento até a conclusão
-        // do vídeo final (ou tempo corrente se ainda estiver na esteira).
+        // TEMPO TOTAL NA LINHA DE PRODUÇÃO (CONFIRMADOS -> VÍDEO ENTREGUE)
+        // Mede o tempo decorrido desde a confirmação do pagamento (Etapa 2) até a
+        // entrega do vídeo final ao cliente (o Pós-Venda fica fora da contagem).
+        // Bloqueado apenas enquanto aguarda pagamento (Etapa 1).
         // =========================================================================
         function getOrderPipelineSeconds(order, crmData) {
             if (!order) return 0;
@@ -4475,7 +4548,7 @@
             const isAwaitingPayment = crmData ? (crmData.stage === 'aguardando_pagamento' || !order.isPaid) : !order.isPaid;
             if (isAwaitingPayment) return 0;
 
-            // 1. Momento de Início: Quando o pagamento foi confirmado
+            // 1. Momento de Início: Quando o pagamento foi confirmado (Entrada na Esteira)
             let startTime = null;
             if (crmData && Array.isArray(crmData.history)) {
                 // Procura o evento mais antigo de pagamento confirmado ou criação
@@ -4499,16 +4572,16 @@
             }
             if (!startTime) startTime = Date.now();
 
-            // 2. Momento de Fim: Quando atingiu Produção Vídeo Final (Etapa 7) ou Pós-Venda (Etapa 8)
+            // 2. Momento de Fim: Envio/entrega do vídeo final (deixando o Pós-Venda fora da contagem)
             const currentStage = crmData ? crmData.stage : (order.stage || 'pagamento_confirmado');
             let endTime = null;
 
             if (currentStage === 'producao_final' || currentStage === 'entregues') {
-                // Verifica se há evento de entrega ou transição para vídeo final no histórico
+                // Verifica no histórico se já houve envio/entrega do vídeo final ou entrada no pós-venda
                 if (crmData && Array.isArray(crmData.history)) {
                     for (const h of crmData.history) {
                         const evText = (h.event || '').toLowerCase();
-                        if (evText.includes('vídeo final') || evText.includes('video final') || evText.includes('entregue') || evText.includes('sala de revelação')) {
+                        if (evText.includes('entregue') || evText.includes('pós-venda') || evText.includes('pos-venda') || evText.includes('vídeo final enviado') || evText.includes('sala de revelação')) {
                             const t = new Date(h.timestamp).getTime();
                             if (!isNaN(t) && t >= startTime) {
                                 endTime = t;
@@ -4517,17 +4590,26 @@
                         }
                     }
                 }
-                // Se não registrou evento específico ainda, mas já está na etapa final/entregue
-                if (!endTime) {
+                // Se o pedido já está em Pós-Venda (entregues), congela o tempo na entrega
+                if (!endTime && currentStage === 'entregues') {
                     if (order.id === 'REVIVA-1008') {
-                        // Demo order entregue: finalizado após 18 horas de esteira
+                        // Demo order entregue: esteira congelada em 18 horas
                         endTime = startTime + (18 * 3600 * 1000);
+                    } else if (order.deliveryDate) {
+                        const dt = new Date(order.deliveryDate).getTime();
+                        if (!isNaN(dt)) endTime = dt;
+                    }
+                }
+                // Se está na produção final e ainda não concluiu a entrega, o tempo segue correndo até o envio
+                if (!endTime) {
+                    if (currentStage === 'entregues') {
+                        endTime = Date.now();
                     } else {
                         endTime = Date.now();
                     }
                 }
             } else {
-                // Em andamento na esteira de produção: cronômetro corrido desde a contratação
+                // Em andamento na esteira (Confirmados até Produção Final): tempo corrente
                 endTime = Date.now();
             }
 
@@ -4619,6 +4701,22 @@
                 if (mTotalDurEl) {
                     const pipeSec = getOrderPipelineSeconds(order, crmData);
                     mTotalDurEl.textContent = formatPipelineDuration(pipeSec);
+                }
+
+                // Alterna o título do cabeçalho do Cockpit entre WORKING e o nome da etapa
+                const stageBadgeEl = document.getElementById('cockpit-stage-badge');
+                if (stageBadgeEl) {
+                    const baseStage = stageBadgeEl.getAttribute('data-base-stage') || 'PRODUÇÃO';
+                    const isEvenTick = Math.floor(Date.now() / 2500) % 2 === 0;
+                    if (isEvenTick) {
+                        stageBadgeEl.textContent = 'WORKING';
+                        stageBadgeEl.style.color = '#4ade80';
+                        stageBadgeEl.style.textShadow = '0 0 12px rgba(74, 222, 128, 0.6)';
+                    } else {
+                        stageBadgeEl.textContent = baseStage;
+                        stageBadgeEl.style.color = 'var(--gold-bright)';
+                        stageBadgeEl.style.textShadow = '';
+                    }
                 }
 
                 // Se o modal de métricas individuais estiver aberto, atualiza em tempo real
@@ -5613,19 +5711,7 @@
                         }
                     }
 
-                    // Status do Termo de Responsabilidade: exibido com exclusividade no card do pedido
-                    const isTermSigned = isOrderTermSigned(order);
-                    const termoCardBadge = isTermSigned
-                        ? `<div style="display: flex; align-items: center; justify-content: center; margin: 3px 0 1px 0;">
-                             <span style="font-size: 0.62rem; color: #4ade80; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(74, 222, 128, 0.4); border-radius: 4px; padding: 2px 7px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="Termo de Responsabilidade e Consentimento assinado pelo cliente">
-                               <i data-lucide="shield-check" style="width: 11px; height: 11px; color: #4ade80;"></i> Termo Assinado ✓
-                             </span>
-                           </div>`
-                        : `<div style="display: flex; align-items: center; justify-content: center; margin: 3px 0 1px 0;">
-                             <span style="font-size: 0.62rem; color: #facc15; background: rgba(250, 204, 21, 0.10); border: 1px solid rgba(250, 204, 21, 0.35); border-radius: 4px; padding: 2px 7px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="Aguardando assinatura do Termo de Responsabilidade pelo cliente">
-                               <i data-lucide="clock" style="width: 11px; height: 11px; color: #facc15;"></i> Termo Pendente
-                             </span>
-                           </div>`;
+
 
                     // Prévias enviadas ao cliente (Foto Horizontal, Vertical e Áudio da Voz Clonada)
                     const isHorizontal = crmData.format === 'horizontal';
@@ -5825,22 +5911,14 @@
                                 <strong style="color: var(--gold-primary); font-size: 0.73rem;">${order.valueFormatted}</strong>
                             </div>
 
-                            <!-- LINHA 5.1: STATUS DO TERMO DE RESPONSABILIDADE -->
-                            ${termoCardBadge}
-
-                            <!-- LINHA 6: DATA DE CONTRATAÇÃO E AÇÕES -->
+                            <!-- LINHA 6: DATA DE CONTRATAÇÃO -->
                             <div class="card-actions-row" style="padding-top: 3px; border-top: 1px solid rgba(197, 160, 89, 0.15); display: flex; align-items: center; justify-content: space-between; padding-left: 4px; padding-right: 4px; gap: 6px;">
                                 <span style="font-size: 0.63rem; color: var(--text-secondary);">${order.date || ''}</span>
-                                <div style="display: inline-flex; align-items: center; gap: 6px;">
-                                    ${crmData.archived ? `
-                                        <span style="font-size: 0.58rem; padding: 1px 5px; border-radius: 3px; background: rgba(148, 163, 184, 0.2); border: 1px solid rgba(148, 163, 184, 0.4); color: #cbd5e1; font-weight: 700; text-transform: uppercase; display: inline-flex; align-items: center; gap: 3px;">
-                                            <i data-lucide="archive" style="width: 8px; height: 8px;"></i> Arquivado
-                                        </span>
-                                    ` : ''}
-                                    <button type="button" onclick="event.stopPropagation(); deleteCurrentCockpitOrder('${order.id}')" title="Excluir este pedido definitivamente" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); color: #f87171; border-radius: 3px; cursor: pointer; padding: 2px 4px; display: inline-flex; align-items: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.25)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'">
-                                        <i data-lucide="trash-2" style="width: 10px; height: 10px;"></i>
-                                    </button>
-                                </div>
+                                ${crmData.archived ? `
+                                    <span style="font-size: 0.58rem; padding: 1px 5px; border-radius: 3px; background: rgba(148, 163, 184, 0.2); border: 1px solid rgba(148, 163, 184, 0.4); color: #cbd5e1; font-weight: 700; text-transform: uppercase; display: inline-flex; align-items: center; gap: 3px;">
+                                        <i data-lucide="archive" style="width: 8px; height: 8px;"></i> Arquivado
+                                    </span>
+                                ` : ''}
                             </div>
 
                             <!-- OVERLAY QUE COBRE TODO O CARD EM TRABALHO ATIVO -->
@@ -6246,9 +6324,28 @@
                 entregues: 'ETAPA 8: PÓS-VENDA'
             };
 
+            const stageFormatted = stageCleanNames[crmData.stage] || `ETAPA: ${crmData.stage.toUpperCase()}`;
+
+            // Se o timer estiver rodando para este pedido, alterna dinamicamente com "WORKING"
+            const isTimerActiveForOrder = crmData.timerRunning && (crmData.stage !== 'aguardando_pagamento' && crmData.stage !== 'pagamento_confirmado');
             if (stageBadgeEl) {
-                const stageFormatted = stageCleanNames[crmData.stage] || `ETAPA: ${crmData.stage.toUpperCase()}`;
-                stageBadgeEl.textContent = stageFormatted;
+                stageBadgeEl.setAttribute('data-base-stage', stageFormatted);
+                if (isTimerActiveForOrder) {
+                    const isEvenTick = Math.floor(Date.now() / 2500) % 2 === 0;
+                    if (isEvenTick) {
+                        stageBadgeEl.textContent = 'WORKING';
+                        stageBadgeEl.style.color = '#4ade80';
+                        stageBadgeEl.style.textShadow = '0 0 12px rgba(74, 222, 128, 0.6)';
+                    } else {
+                        stageBadgeEl.textContent = stageFormatted;
+                        stageBadgeEl.style.color = 'var(--gold-bright)';
+                        stageBadgeEl.style.textShadow = '';
+                    }
+                } else {
+                    stageBadgeEl.textContent = stageFormatted;
+                    stageBadgeEl.style.color = 'var(--gold-bright)';
+                    stageBadgeEl.style.textShadow = '';
+                }
             }
 
             // 2. Coluna 1: Dossiê e Cronômetro
@@ -6288,13 +6385,14 @@
             if (durationTextEl) durationTextEl.textContent = durationStr;
 
             if (formatBadgeEl) {
-                let formatText = 'Horizontal';
                 if (crmData.format === 'both') {
-                    formatText = 'Horizontal + Vertical';
+                    formatBadgeEl.innerHTML = `<span style="background: rgba(229, 195, 120, 0.22); border: 1px solid var(--border-gold-bright); color: var(--gold-bright); padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 0.68rem; letter-spacing: 0.3px; display: inline-flex; align-items: center; box-shadow: 0 1px 6px rgba(0,0,0,0.3);">Horizontal + Vertical</span>`;
                 } else if (crmData.format === 'vertical') {
-                    formatText = 'Vertical';
+                    formatBadgeEl.innerHTML = `<span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.25); color: #fff; padding: 2px 7px; border-radius: 4px; font-weight: 600; font-size: 0.68rem; display: inline-flex; align-items: center;">Vertical</span>`;
+                } else {
+                    formatBadgeEl.innerHTML = `<span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.25); color: #fff; padding: 2px 7px; border-radius: 4px; font-weight: 600; font-size: 0.68rem; display: inline-flex; align-items: center;">Horizontal</span>`;
                 }
-                formatBadgeEl.textContent = formatText;
+                if (window.lucide) lucide.createIcons();
             }
 
             // Exibir Escolhas do Cliente no Cockpit: Ambiente de Fundo e Trilha Sonora (apenas texto, sem miniatura)
@@ -6381,13 +6479,13 @@
                     termoBtn.style.boxShadow = '';
                     termoBtn.title = 'Termo de Responsabilidade (Assinado pelo Cliente com Validade Jurídica)';
                 } else {
-                    // Pedido pago, mas cliente ainda não assinou na entrada do painel: AMARELO PENDENTE
+                    // Pedido pago, mas cliente ainda não assinou na entrada do painel: AMARELO PENDENTE E INACESSÍVEL
                     termoBtn.classList.add('termo-stage-2');
-                    termoBtn.disabled = false;
-                    termoBtn.style.pointerEvents = 'auto';
-                    termoBtn.style.cursor = 'pointer';
-                    termoBtn.style.boxShadow = '';
-                    termoBtn.title = 'Termo de Responsabilidade (Pendente: Aguardando Assinatura do Cliente)';
+                    termoBtn.disabled = true;
+                    termoBtn.style.pointerEvents = 'none';
+                    termoBtn.style.cursor = 'not-allowed';
+                    termoBtn.style.boxShadow = 'none';
+                    termoBtn.title = 'Termo de Responsabilidade inacessível: aguardando aceite formal do cliente no painel';
                 }
             }
 
@@ -6549,10 +6647,11 @@
                 if (pkgBtn) {
                     pkgBtn.style.display = 'inline-flex';
                     pkgBtn.disabled = true;
-                    pkgBtn.classList.remove('btn-pkg-sent');
-                    pkgBtn.style.background = 'rgba(239, 68, 68, 0.2)';
-                    pkgBtn.style.border = '1px solid rgba(239, 68, 68, 0.5)';
-                    pkgBtn.style.color = '#f87171';
+                    pkgBtn.classList.remove('btn-pkg-sent', 'btn-pkg-stage-2');
+                    pkgBtn.classList.add('btn-pkg-locked');
+                    pkgBtn.style.background = '';
+                    pkgBtn.style.border = '';
+                    pkgBtn.style.color = '';
                     pkgBtn.style.cursor = 'not-allowed';
                     pkgBtn.style.pointerEvents = 'none';
                     pkgBtn.style.boxShadow = 'none';
@@ -6574,7 +6673,7 @@
                     if (pkgBtn) {
                         pkgBtn.style.display = 'inline-flex';
                         pkgBtn.disabled = false;
-                        pkgBtn.classList.remove('btn-pkg-stage-2');
+                        pkgBtn.classList.remove('btn-pkg-stage-2', 'btn-pkg-locked');
                         pkgBtn.classList.add('btn-pkg-sent');
                         pkgBtn.style.background = '';
                         pkgBtn.style.border = '';
@@ -6590,7 +6689,7 @@
                     if (pkgBtn) {
                         pkgBtn.style.display = 'inline-flex';
                         pkgBtn.disabled = true;
-                        pkgBtn.classList.remove('btn-pkg-sent');
+                        pkgBtn.classList.remove('btn-pkg-sent', 'btn-pkg-locked');
                         pkgBtn.classList.add('btn-pkg-stage-2');
                         pkgBtn.style.background = '';
                         pkgBtn.style.border = '';
@@ -6971,7 +7070,8 @@
             const termoKeys = [
                 `reviva_legal_term_${order.id}`,
                 order.paymentId ? `reviva_legal_term_${order.paymentId}` : null,
-                order.orderId ? `reviva_legal_term_${order.orderId}` : null
+                order.orderId ? `reviva_legal_term_${order.orderId}` : null,
+                (order.id === 'REVIVA-1001' ? 'reviva_legal_term' : null)
             ].filter(Boolean);
 
             for (const tk of termoKeys) {
@@ -6979,7 +7079,7 @@
                     const raw = localStorage.getItem(tk);
                     if (raw) {
                         const parsed = JSON.parse(raw);
-                        if (parsed && (parsed.signed === true || parsed.authHash || parsed.name || parsed.cpf)) {
+                        if (parsed && (parsed.signed === true || (parsed.signed !== false && parsed.authHash && parsed.authHash.length > 8))) {
                             return true;
                         }
                     }
@@ -6987,7 +7087,7 @@
             }
 
             // 2. Registro no orderStateForMedia
-            if (orderStateForMedia?.legalTermSigned && (orderStateForMedia.legalTermSigned.signed || orderStateForMedia.legalTermSigned.cpf)) {
+            if (orderStateForMedia?.legalTermSigned && (orderStateForMedia.legalTermSigned.signed === true || (orderStateForMedia.legalTermSigned.signed !== false && orderStateForMedia.legalTermSigned.authHash))) {
                 return true;
             }
 
@@ -7004,15 +7104,14 @@
                     const raw = localStorage.getItem(sk);
                     if (raw) {
                         const parsed = JSON.parse(raw);
-                        if (parsed?.legalTermSigned && (parsed.legalTermSigned.signed || parsed.legalTermSigned.cpf)) {
+                        if (parsed?.legalTermSigned && (parsed.legalTermSigned.signed === true || (parsed.legalTermSigned.signed !== false && parsed.legalTermSigned.authHash))) {
                             return true;
                         }
                     }
                 } catch(e) {}
             }
 
-            // 4. Regra de Negócio: Se o cliente já enviou fotos ou áudios:
-            // "os envios podem ser pendentes e o termo ja pode estar assinado mas nunca o contrario!"
+            // 4. Regra de Negócio: Se o cliente já enviou fotos ou áudios no painel, ele já passou do Termo (Etapa 1)
             const photos = getOrderUploadedPhotos(order);
             const audios = getOrderUploadedAudios(order);
             if (photos.length > 0 || audios.length > 0) {
@@ -7128,7 +7227,13 @@
                 return;
             }
 
-            // 2ª etapa em diante: abre o modal completo do Termo
+            // O termo só é acessível após ser aceito pelo cliente (idêntico aos botões de materiais)
+            const signed = typeof isOrderTermSigned === 'function' ? isOrderTermSigned(order) : false;
+            if (!signed) {
+                return;
+            }
+
+            // Apenas quando assinado: abre o modal completo do Termo
             openAdminTermoModal();
         }
 
@@ -7363,6 +7468,35 @@
             if (img) img.src = '';
         }
 
+        // Lightbox para reprodução de vídeo em tela cheia
+        function openVideoLightbox(src, name) {
+            const modal = document.getElementById('modal-admin-video-lightbox');
+            const video = document.getElementById('lightbox-video-player');
+            const title = document.getElementById('lightbox-video-title');
+            const btnDownload = document.getElementById('lightbox-video-btn-download');
+            if (!modal || !video) return;
+
+            video.src = src;
+            if (title) title.textContent = name || 'Vídeo Final Publicado';
+            if (btnDownload) {
+                btnDownload.onclick = () => downloadSingleMedia(src, name || 'video_final_reviva');
+            }
+
+            modal.style.display = 'flex';
+            if (window.lucide) lucide.createIcons();
+            video.play().catch(() => {});
+        }
+
+        function closeVideoLightbox() {
+            const modal = document.getElementById('modal-admin-video-lightbox');
+            const video = document.getElementById('lightbox-video-player');
+            if (video) {
+                video.pause();
+                video.src = '';
+            }
+            if (modal) modal.style.display = 'none';
+        }
+
         // =========================================================================
         // REPRODUÇÃO RÁPIDA DE ÁUDIO DE PRÉVIA DIRETO NO CARD DO KANBAN
         // =========================================================================
@@ -7554,12 +7688,14 @@
                 if (!termoData && orderStateForMedia?.legalTermSigned) termoData = orderStateForMedia.legalTermSigned;
             } catch(e) {}
 
+            const isSigned = typeof isOrderTermSigned === 'function' ? isOrderTermSigned(order, orderStateForMedia) : false;
+
             const clientName = order.clientName || termoData?.name || 'Cliente Reviva Memories';
             const clientCpf = order.clientCpf || termoData?.cpf || '000.000.000-00';
             const dt = order.dateCreated ? new Date(order.dateCreated) : new Date();
             const dateFormatted = `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth()+1).padStart(2, '0')}/${String(dt.getFullYear()).slice(-2)} às ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
-            const signedAt = termoData?.dateFormatted || termoData?.signedAt || dateFormatted;
-            const authHash = termoData?.authHash || ('REVIVA-AUTH-' + Math.abs(order.id.split('').reduce((a,b)=>(((a<<5)-a)+b.charCodeAt(0))|0, 0)).toString(16).toUpperCase() + '9B2C');
+            const signedAt = isSigned ? (termoData?.dateFormatted || termoData?.signedAt || dateFormatted) : 'Aguardando aceite no painel';
+            const authHash = isSigned ? (termoData?.authHash || ('REVIVA-AUTH-' + Math.abs(order.id.split('').reduce((a,b)=>(((a<<5)-a)+b.charCodeAt(0))|0, 0)).toString(16).toUpperCase() + '9B2C')) : 'Não assinado (Pendente)';
 
             const nameEl = document.getElementById('admin-termo-client-name');
             const cpfEl = document.getElementById('admin-termo-client-cpf');
@@ -7567,19 +7703,66 @@
             const signedAtEl = document.getElementById('admin-termo-signed-at');
             const hashEl = document.getElementById('admin-termo-hash');
             const badgeEl = document.getElementById('admin-termo-badge-modal');
+            const certBoxEl = document.getElementById('admin-termo-cert-box');
+            const certTitleEl = document.getElementById('admin-termo-cert-title');
+            const hashRowEl = document.getElementById('admin-termo-hash-row');
+            const btnDownloadPdf = document.getElementById('admin-termo-btn-download-pdf');
 
             if (nameEl) nameEl.textContent = clientName;
             if (cpfEl) cpfEl.textContent = clientCpf;
             if (orderIdEl) orderIdEl.textContent = `#${order.id}`;
-            if (signedAtEl) signedAtEl.textContent = signedAt;
-            if (hashEl) hashEl.textContent = authHash;
-            if (badgeEl) {
-                if (crmData.stage === 'aguardando_pagamento' && !order.isPaid) {
-                    badgeEl.textContent = 'PENDENTE DE ACEITE';
-                    badgeEl.style.color = '#facc15';
-                } else {
+            if (signedAtEl) {
+                signedAtEl.textContent = signedAt;
+                signedAtEl.style.color = isSigned ? '#fff' : '#facc15';
+            }
+            if (hashEl) {
+                hashEl.textContent = authHash;
+                hashEl.style.color = isSigned ? '#4ade80' : '#facc15';
+            }
+
+            if (isSigned) {
+                if (badgeEl) {
                     badgeEl.textContent = 'CONFIRMADO ✓';
                     badgeEl.style.color = '#4ade80';
+                }
+                if (certBoxEl) {
+                    certBoxEl.style.background = 'rgba(34, 197, 94, 0.08)';
+                    certBoxEl.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+                }
+                if (certTitleEl) {
+                    certTitleEl.style.color = '#4ade80';
+                    certTitleEl.innerHTML = '<i data-lucide="shield-check" style="width: 13px; height: 13px;"></i> Aceite Eletrônico Válido (MP nº 2.200-2/2001)';
+                }
+                if (hashRowEl) {
+                    hashRowEl.style.borderTopColor = 'rgba(34, 197, 94, 0.2)';
+                }
+                if (btnDownloadPdf) {
+                    btnDownloadPdf.disabled = false;
+                    btnDownloadPdf.style.opacity = '1';
+                    btnDownloadPdf.style.cursor = 'pointer';
+                    btnDownloadPdf.title = 'Baixar Termo em PDF com assinatura';
+                }
+            } else {
+                if (badgeEl) {
+                    badgeEl.textContent = 'PENDENTE DE ACEITE ✗';
+                    badgeEl.style.color = '#facc15';
+                }
+                if (certBoxEl) {
+                    certBoxEl.style.background = 'rgba(234, 179, 8, 0.08)';
+                    certBoxEl.style.borderColor = 'rgba(234, 179, 8, 0.4)';
+                }
+                if (certTitleEl) {
+                    certTitleEl.style.color = '#facc15';
+                    certTitleEl.innerHTML = '<i data-lucide="alert-circle" style="width: 13px; height: 13px;"></i> Aceite Eletrônico Pendente (Aguardando Cliente)';
+                }
+                if (hashRowEl) {
+                    hashRowEl.style.borderTopColor = 'rgba(234, 179, 8, 0.2)';
+                }
+                if (btnDownloadPdf) {
+                    btnDownloadPdf.disabled = true;
+                    btnDownloadPdf.style.opacity = '0.5';
+                    btnDownloadPdf.style.cursor = 'not-allowed';
+                    btnDownloadPdf.title = 'Termo ainda não assinado pelo cliente.';
                 }
             }
 
@@ -7596,10 +7779,6 @@
         }
 
         function downloadCurrentOrderTermoPDF() {
-            if (!window.RevivaDocumentService) {
-                alert('Serviço de geração de documentos ainda está carregando...');
-                return;
-            }
             const order = allAdminOrders.find(o => o.id === selectedAdminOrderId) || allAdminOrders[0];
             if (!order) return;
 
@@ -7611,6 +7790,17 @@
                             (order.id === 'REVIVA-1001' ? localStorage.getItem('reviva_full_session_state') : null);
                 if (raw) orderStateForMedia = JSON.parse(raw);
             } catch(e) {}
+
+            const isSigned = typeof isOrderTermSigned === 'function' ? isOrderTermSigned(order, orderStateForMedia) : false;
+            if (!isSigned) {
+                alert('Atenção: O Termo de Responsabilidade ainda não foi assinado pelo cliente. O PDF só pode ser emitido após o aceite formal no painel.');
+                return;
+            }
+
+            if (!window.RevivaDocumentService) {
+                alert('Serviço de geração de documentos ainda está carregando...');
+                return;
+            }
 
             let termoData = null;
             try {
@@ -8161,42 +8351,71 @@
                 </div>
             `;
 
+            // Helpers de renderização de conteúdo dos Dropcards de Vídeo
+            const renderVideoDropContent = (videoSrc, labelTitle, orientation) => {
+                const inputId = orientation === 'h' ? 'input-video-h' : (orientation === 'v' ? 'input-video-v' : 'input-admin-video');
+                const onchangeFn = orientation === 'h' ? "handleAdminVideoUploadSpecific(event, 'h')" : (orientation === 'v' ? "handleAdminVideoUploadSpecific(event, 'v')" : "handleAdminVideoUpload(event)");
+                
+                if (videoSrc) {
+                    return `
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 10px; padding: 2px 4px; box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                                <button type="button" 
+                                        onclick="event.stopPropagation(); openVideoLightbox('${videoSrc.replace(/'/g, "\\'")}', '${labelTitle} - Pedido #${order.orderId || order.id}')"
+                                        style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: 1.5px solid #34d399; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 8px rgba(16,185,129,0.35); transition: transform 0.15s ease;"
+                                        title="Clique para assistir o vídeo publicado em tela cheia">
+                                    <i data-lucide="play" style="width: 14px; height: 14px; margin-left: 2px;"></i>
+                                </button>
+                                <div style="display: flex; flex-direction: column; align-items: flex-start; min-width: 0; text-align: left;">
+                                    <strong style="font-size: 0.76rem; color: #fff; line-height: 1.2;">${labelTitle}</strong>
+                                    <div style="font-size: 0.62rem; font-weight: 700; color: #4ade80; margin-top: 2px; line-height: 1.2;">
+                                        VÍDEO PUBLICADO ✓
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" 
+                                    onclick="event.stopPropagation(); document.getElementById('${inputId}').click();"
+                                    style="padding: 4px 8px; font-size: 0.62rem; font-weight: 600; color: #e2e8f0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 4px; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;"
+                                    title="Substituir vídeo final enviado">
+                                <i data-lucide="refresh-cw" style="width: 10px; height: 10px;"></i>
+                                <span>Substituir</span>
+                            </button>
+                        </div>
+                        <input type="file" id="${inputId}" accept="video/*" style="display: none;" onchange="${onchangeFn}">
+                    `;
+                }
+
+                return `
+                    <strong style="font-size: 0.76rem; color: #fff;">${labelTitle}</strong>
+                    <span style="font-size: 0.62rem; color: var(--text-secondary); margin-top: 2px;">Etapas 04 e 05</span>
+                    <div style="font-size: 0.62rem; font-weight: 700; color: ${isVideoLocked ? '#94a3b8' : '#facc15'}; margin-top: 4px;">
+                        ${pendingVideoStatusLabel}
+                    </div>
+                    <input type="file" id="${inputId}" accept="video/*" style="display: none;" onchange="${onchangeFn}">
+                `;
+            };
+
             // 3. LINHA 3: VÍDEO FINAL EM ALTA RESOLUÇÃO (DIVIDIDO LADO A LADO SE FORMATO DUPLO, OU FULL SE FORMATO ÚNICO)
             if (isBoth) {
                 html += `
                     <!-- LINHA 3: VÍDEOS FINAIS DIVIDIDOS VERTICALMENTE (LADO A LADO) -->
                     <div class="producer-upload-row">
                         <!-- 3A. Vídeo Horizontal -->
-                        <div class="producer-drop-card ${videoH ? 'filled' : ''}" style="${lockedVideoStyle}" ${clickVideoH}>
-                            <strong style="font-size: 0.76rem; color: #fff;">3A. Vídeo Horizontal</strong>
-                            <span style="font-size: 0.62rem; color: var(--text-secondary); margin-top: 2px;">Etapas 04 e 05</span>
-                            <div style="font-size: 0.62rem; font-weight: 700; color: ${videoH ? '#4ade80' : (isVideoLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
-                                ${videoH ? 'VÍDEO PUBLICADO ✓' : pendingVideoStatusLabel}
-                            </div>
-                            <input type="file" id="input-video-h" accept="video/*" style="display: none;" onchange="handleAdminVideoUploadSpecific(event, 'h')">
+                        <div class="producer-drop-card ${videoH ? 'filled' : ''}" style="${lockedVideoStyle}" ${videoH ? '' : clickVideoH}>
+                            ${renderVideoDropContent(videoH, '3A. Vídeo Horizontal', 'h')}
                         </div>
 
                         <!-- 3B. Vídeo Vertical -->
-                        <div class="producer-drop-card ${videoV ? 'filled' : ''}" style="${lockedVideoStyle}" ${clickVideoV}>
-                            <strong style="font-size: 0.76rem; color: #fff;">3B. Vídeo Vertical</strong>
-                            <span style="font-size: 0.62rem; color: var(--text-secondary); margin-top: 2px;">Etapas 04 e 05</span>
-                            <div style="font-size: 0.62rem; font-weight: 700; color: ${videoV ? '#4ade80' : (isVideoLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
-                                ${videoV ? 'VÍDEO PUBLICADO ✓' : pendingVideoStatusLabel}
-                            </div>
-                            <input type="file" id="input-video-v" accept="video/*" style="display: none;" onchange="handleAdminVideoUploadSpecific(event, 'v')">
+                        <div class="producer-drop-card ${videoV ? 'filled' : ''}" style="${lockedVideoStyle}" ${videoV ? '' : clickVideoV}>
+                            ${renderVideoDropContent(videoV, '3B. Vídeo Vertical', 'v')}
                         </div>
                     </div>
                 `;
             } else {
                 html += `
                     <div class="producer-upload-row">
-                        <div class="producer-drop-card ${videoSingle ? 'filled' : ''}" style="${lockedVideoStyle}" ${clickVideoSingle}>
-                            <strong style="font-size: 0.80rem; color: #fff;">3. Vídeo ${isVertical ? 'Vertical' : 'Horizontal'}</strong>
-                            <span style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px;">Etapas 04 e 05</span>
-                            <div style="font-size: 0.64rem; font-weight: 700; color: ${videoSingle ? '#4ade80' : (isVideoLocked ? '#94a3b8' : '#facc15')}; margin-top: 4px;">
-                                ${videoSingle ? 'VÍDEO PUBLICADO ✓' : pendingVideoStatusLabel}
-                            </div>
-                            <input type="file" id="input-admin-video" accept="video/*" style="display: none;" onchange="handleAdminVideoUpload(event)">
+                        <div class="producer-drop-card ${videoSingle ? 'filled' : ''}" style="${lockedVideoStyle}" ${videoSingle ? '' : clickVideoSingle}>
+                            ${renderVideoDropContent(videoSingle, `3. Vídeo ${isVertical ? 'Vertical' : 'Horizontal'}`, 'single')}
                         </div>
                     </div>
                 `;
@@ -8206,18 +8425,48 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        function handleAdminPhotoUploadSpecific(e, orientation) {
+        async function handleAdminPhotoUploadSpecific(e, orientation) {
             const file = e.target.files[0];
             if (!file || !selectedAdminOrderId) return;
+
+            let fileUrl = '';
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('orderId', String(selectedAdminOrderId));
+                formData.append('category', `producer_photo_${orientation}`);
+
+                const res = await fetch(`${API_BASE_URL}/api/media/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success && data.url) {
+                    fileUrl = data.url;
+                }
+            } catch (err) {
+                console.warn('[Admin Photo Specific R2 Warning]:', err);
+            }
+
             const reader = new FileReader();
             reader.onload = (event) => {
-                const dataUrl = event.target.result;
+                const dataUrl = fileUrl || event.target.result;
                 localStorage.setItem(`reviva_producer_image_${selectedAdminOrderId}`, dataUrl);
                 if (orientation === 'h') {
                     localStorage.setItem(`reviva_producer_photo_h_${selectedAdminOrderId}`, dataUrl);
                 } else if (orientation === 'v') {
                     localStorage.setItem(`reviva_producer_photo_v_${selectedAdminOrderId}`, dataUrl);
                 }
+
+                const cloudPayload = { stage4Delivered: true };
+                if (orientation === 'h') {
+                    cloudPayload.producerPhotoH = dataUrl;
+                    cloudPayload.producerImage = dataUrl;
+                } else if (orientation === 'v') {
+                    cloudPayload.producerPhotoV = dataUrl;
+                }
+                sendOrderCloudUpdate(selectedAdminOrderId, cloudPayload);
+
                 const order = allAdminOrders.find(o => o.id === selectedAdminOrderId);
                 if (order) {
                     const crmData = getOrCreateCrmOrderData(order);
@@ -8601,6 +8850,14 @@
                     localStorage.setItem(`reviva_producer_video_v_${selectedAdminOrderId}`, fileUrl);
                 }
             } catch(err) {}
+
+            const videoPayload = { producerVideo: fileUrl, stage5Delivered: true };
+            if (orientation === 'h') {
+                videoPayload.producerVideoH = fileUrl;
+            } else if (orientation === 'v') {
+                videoPayload.producerVideoV = fileUrl;
+            }
+            sendOrderCloudUpdate(selectedAdminOrderId, videoPayload);
 
             if (order) {
                 renderCockpitProducerUploads(order, crmData);
