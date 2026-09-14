@@ -1234,18 +1234,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const planName = planNameEl ? planNameEl.textContent.trim() : 'Plano Legatum';
         const duration = planDurationEl ? planDurationEl.textContent.trim() : '2 Minutos';
         const formatPrimary = activeFormatBtn ? activeFormatBtn.getAttribute('data-format') : 'horizontal';
-        const hasUpsell = upsellCheckbox ? upsellCheckbox.checked : false;
+        const hasUpsell = Boolean(upsellCheckbox && upsellCheckbox.checked);
 
         let formatText = formatPrimary === 'horizontal' ? 'Formato Horizontal' : 'Formato Vertical';
         if (hasUpsell) {
             formatText = 'Formatos Horizontal + Vertical';
         }
 
-        const priceText = 'R$ ' + (amountSpan ? amountSpan.textContent.trim() : '897') + (centsSpan ? centsSpan.textContent.trim() : ',00');
-        
         let planId = 'emocao';
-        if (planName.toLowerCase().includes('affectus') || duration.includes('1')) planId = 'essencial';
-        else if (planName.toLowerCase().includes('tributum') || duration.includes('3')) planId = 'tributo';
+        let defaultBase = 897;
+        if (planName.toLowerCase().includes('affectus') || duration.includes('1')) {
+            planId = 'essencial';
+            defaultBase = 497;
+        } else if (planName.toLowerCase().includes('tributum') || duration.includes('3')) {
+            planId = 'tributo';
+            defaultBase = 1297;
+        }
+
+        const basePrice = parseFloat(priceDisplay?.getAttribute('data-base') || defaultBase);
+        const upsellPrice = parseFloat(priceDisplay?.getAttribute('data-upsell') || (basePrice * 0.5));
+        const finalCardVal = hasUpsell ? (basePrice + upsellPrice) : basePrice;
+        const priceText = `R$ ${finalCardVal.toFixed(2).replace('.', ',')}`;
 
         currentSelectedPlanData = {
             planId: planId,
@@ -1254,7 +1263,7 @@ document.addEventListener('DOMContentLoaded', () => {
             format: formatText,
             hasUpsell: hasUpsell,
             priceFormatted: priceText,
-            priceVal: parseFloat(priceDisplay?.getAttribute('data-base') || 897) + (hasUpsell ? parseFloat(priceDisplay?.getAttribute('data-upsell') || 0) : 0)
+            priceVal: finalCardVal
         };
 
         const chkPlanName = document.getElementById('chk-plan-name');
@@ -1262,7 +1271,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const chkPlanPricePix = document.getElementById('chk-plan-price-pix');
         const chkPlanPriceCard = document.getElementById('chk-plan-price-card');
 
-        const baseValNum = currentSelectedPlanData.priceVal;
+        const baseValNum = finalCardVal;
         const pixValNum = Math.round(baseValNum * 0.90 * 100) / 100;
         const parcelaCard = (baseValNum / 6).toFixed(2).replace('.', ',');
 
@@ -1441,12 +1450,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 crmData.stage = 'pagamento_confirmado';
                 crmData.format = canonicalFormat;
                 if (!Array.isArray(crmData.history)) crmData.history = [];
-                crmData.history.unshift({
+                const payApprovedEvent = {
                     timestamp: new Date().toISOString(),
                     dateFormatted: new Date().toLocaleString('pt-BR'),
                     event: `Pagamento aprovado (${orderData.total_price || 'Confirmado'})`,
                     type: 'system'
-                });
+                };
+                const existingPayIdx = crmData.history.findIndex(h => h.event && (h.event.includes('Pagamento aprovado') || h.event.includes('Pagamento confirmado')));
+                if (existingPayIdx >= 0) {
+                    crmData.history[existingPayIdx] = payApprovedEvent;
+                } else {
+                    crmData.history.unshift(payApprovedEvent);
+                }
             }
             localStorage.setItem(crmKey, JSON.stringify(crmData));
         } catch(e) {}
@@ -1844,6 +1859,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const orderData = {
             order_id: 'REVIVA-' + nextOrderSeq,
+            id: 'REVIVA-' + nextOrderSeq,
             customer_name: name,
             customer_cpf: cpf,
             customer_email: email,
@@ -1859,9 +1875,8 @@ document.addEventListener('DOMContentLoaded', () => {
             created_at: new Date().toISOString()
         };
 
-        // Salvar na sessão local
-        localStorage.setItem('reviva_order_data', JSON.stringify(orderData));
-        localStorage.setItem('reviva_session_user', JSON.stringify({ name, cpf, email, phone }));
+        // Salvar na sessão local e inicializar pedido no CRM
+        initializeNewPaidOrder(orderData, { name, cpf, email, phone });
         
         // Resetar o termo para exigir assinatura nova com o nome e CPF desta simulação
         localStorage.removeItem('reviva_legal_term');
@@ -2052,16 +2067,27 @@ document.addEventListener('DOMContentLoaded', () => {
             duration: '2 Minutos',
             format: 'Formato Horizontal',
             hasUpsell: false,
-            priceFormatted: 'R$ 897,00'
+            priceFormatted: 'R$ 897,00',
+            priceVal: 897
         };
 
-        // Extrair valor numérico do plano (ex: "R$ 897,00" -> 897.00)
-        let numericValue = 897.00;
-        try {
-            const cleanVal = planInfo.priceFormatted.replace(/[^\d,]/g, '').replace(',', '.');
-            const parsedVal = parseFloat(cleanVal);
-            if (!isNaN(parsedVal) && parsedVal > 0) numericValue = parsedVal;
-        } catch(e) {}
+        const isDualFormat = Boolean(planInfo.hasUpsell || (planInfo.format && (planInfo.format.includes('+') || planInfo.format.toLowerCase().includes('ambos'))));
+        const isVertical = !isDualFormat && Boolean(planInfo.format && planInfo.format.toLowerCase().includes('vertical'));
+        const formatSuffix = isDualFormat ? ' (Horizontal + Vertical)' : (isVertical ? ' (Vertical)' : ' (Horizontal)');
+        const canonicalFormat = isDualFormat ? 'both' : (isVertical ? 'vertical' : 'horizontal');
+        const canonicalFormatLabel = isDualFormat ? 'Formatos Horizontal + Vertical' : (isVertical ? 'Formato Vertical' : 'Formato Horizontal');
+
+        // Cálculo seguro e determinístico do valor do plano
+        const cleanPlanLower = (planInfo.planName || '').toLowerCase();
+        let planBaseVal = 897.00;
+        if (cleanPlanLower.includes('affectus') || (planInfo.duration || '').includes('1')) {
+            planBaseVal = 497.00;
+        } else if (cleanPlanLower.includes('tributum') || (planInfo.duration || '').includes('3')) {
+            planBaseVal = 1297.00;
+        }
+
+        const expectedCardVal = isDualFormat ? (planBaseVal * 1.5) : planBaseVal;
+        const numericValue = (typeof planInfo.priceVal === 'number' && planInfo.priceVal > 0) ? planInfo.priceVal : expectedCardVal;
 
         // APLICAÇÃO DE DESCONTO EXCLUSIVO NO PIX (10% DE DESCONTO À VISTA)
         const numericValuePix = Math.round(numericValue * 0.90 * 100) / 100;
@@ -2090,11 +2116,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const isDualFormat = Boolean(planInfo.hasUpsell || (planInfo.format && (planInfo.format.includes('+') || planInfo.format.toLowerCase().includes('ambos'))));
-            const isVertical = !isDualFormat && Boolean(planInfo.format && planInfo.format.toLowerCase().includes('vertical'));
-            const formatSuffix = isDualFormat ? ' (Horizontal + Vertical)' : (isVertical ? ' (Vertical)' : ' (Horizontal)');
-            const canonicalFormat = isDualFormat ? 'both' : (isVertical ? 'vertical' : 'horizontal');
-            const canonicalFormatLabel = isDualFormat ? 'Formatos Horizontal + Vertical' : (isVertical ? 'Formato Vertical' : 'Formato Horizontal');
 
             const cleanPlanBase = (planInfo.planName || 'Plano Legatum').replace(/\s*\([^)]*\)/g, '').trim();
             const durationClean = (planInfo.duration || '2 Minutos').trim();
@@ -2203,7 +2224,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Chave PIX oficial registrada no Asaas da Preview Studio Digital
             const pixKey = 'a019b9e8-e022-493b-b02f-79989bc9b69f';
-            const pixPayload = `00020126580014br.gov.bcb.pix0136${pixKey}520400005303986540${numericValue.toFixed(2)}5802BR5925PREVIEW STUDIO DIGITAL LTDA6009SAO PAULO62070503***6304`;
+            const pixPayload = `00020126580014br.gov.bcb.pix0136${pixKey}520400005303986540${numericValuePix.toFixed(2)}5802BR5925PREVIEW STUDIO DIGITAL LTDA6009SAO PAULO62070503***6304`;
 
             if (qrImg) {
                 qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(pixPayload)}`;
@@ -2212,12 +2233,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 copiaColaInput.value = pixPayload;
             }
             if (statusTextEl) {
-                statusTextEl.innerHTML = `<span>Valor: <strong>R$ ${numericValue.toFixed(2).replace('.', ',')}</strong> • Titular: <strong>Preview Studio Digital Ltda</strong></span>`;
+                statusTextEl.innerHTML = `<span>Valor: <strong>R$ ${numericValuePix.toFixed(2).replace('.', ',')}</strong> • Titular: <strong>Preview Studio Digital Ltda</strong></span>`;
             }
 
             // Salvar os dados do pedido localmente para o cliente não perder
             const orderData = {
                 order_id: orderId,
+                id: orderId,
                 customer_name: name,
                 customer_cpf: cpf,
                 customer_email: email,
@@ -2227,7 +2249,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 plan_duration: planInfo.duration || '2 Minutos',
                 plan_format: planInfo.format || 'Formato Horizontal',
                 has_upsell: !!planInfo.hasUpsell,
-                total_price: `R$ ${numericValue.toFixed(2).replace('.', ',')}`,
+                total_price: `R$ ${numericValuePix.toFixed(2).replace('.', ',')}`,
+                billingType: 'PIX',
+                paymentMethod: 'PIX',
+                payment_method: 'pix',
                 status: 'pending_pix',
                 created_at: new Date().toISOString()
             };
@@ -2665,6 +2690,9 @@ document.addEventListener('DOMContentLoaded', () => {
             format: canonicalFormat,
             has_upsell: isDualFormat,
             total_price: planInfo.priceFormatted || 'R$ 897,00',
+            billingType: planInfo.billingType || 'PIX',
+            paymentMethod: planInfo.paymentMethod || 'PIX',
+            payment_method: planInfo.payment_method || 'pix',
             status: 'paid',
             created_at: new Date().toISOString()
         };
@@ -2709,7 +2737,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const user = JSON.parse(localStorage.getItem('reviva_session_user') || '{}');
         concludePaidOrder({
-            orderId: order?.order_id || 'REVIVA-1001',
+            orderId: order?.order_id || order?.id || 'REVIVA-1001',
             name: user.name || order?.customer_name || 'Cliente',
             cpf: user.cpf || order?.customer_cpf || '',
             email: user.email || order?.customer_email || '',
@@ -2719,7 +2747,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 planName: order?.plan_name,
                 duration: order?.plan_duration,
                 format: order?.plan_format,
-                priceFormatted: order?.total_price
+                hasUpsell: order?.has_upsell,
+                priceFormatted: order?.total_price,
+                billingType: order?.billingType || 'PIX',
+                paymentMethod: order?.paymentMethod || 'PIX'
             }
         });
     };

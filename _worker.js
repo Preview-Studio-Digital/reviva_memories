@@ -298,10 +298,27 @@ export default {
 
                     // Reconhecimento do Formato (Horizontal / Vertical / Ambos)
                     const descAndPlan = `${d1Order?.plan_name || ''} ${p.description || ''} ${cloudState?.crmData?.format || ''} ${cloudState?.format || ''}`.toLowerCase();
-                    const isBothByPrice = [670.95, 1210.95, 1750.95, 745.50, 1345.50, 1945.50].some(v => Math.abs(trueValue - v) <= 1.0);
                     const isBothByText = descAndPlan.includes('ambos') || descAndPlan.includes('both') || descAndPlan.includes('horizontal + vertical') || descAndPlan.includes('horizontal & vertical') || descAndPlan.includes('+50%') || descAndPlan.includes('dois formatos');
-                    const isBothFormat = isBothByPrice || isBothByText || cloudState?.has_upsell === true || cloudState?.crmData?.format === 'both';
+                    const isExplicitSingle = !isBothByText && (cloudState?.crmData?.format === 'horizontal' || cloudState?.crmData?.format === 'vertical' || cloudState?.format === 'horizontal' || cloudState?.format === 'vertical' || d1Order?.format === 'horizontal' || d1Order?.format === 'vertical');
+                    const isBothByPrice = !isExplicitSingle && [670.95, 1210.95, 1750.95, 745.50, 1345.50, 1945.50].some(v => Math.abs(trueValue - v) <= 1.0);
+                    const isBothFormat = isBothByText || isBothByPrice || cloudState?.has_upsell === true || cloudState?.crmData?.format === 'both';
                     const detectedFormat = isBothFormat ? 'both' : (descAndPlan.includes('vertical') || descAndPlan.includes('9:16') ? 'vertical' : 'horizontal');
+
+                    let finalValue = trueValue;
+                    let finalValueFormatted = `R$ ${trueValue.toFixed(2).replace('.', ',')}`;
+
+                    if (detectedFormat !== 'both' && !isBothFormat) {
+                        if ((descAndPlan.includes('affectus') || descAndPlan.includes('1 minuto') || extRefLow === 'reviva-1008') && (Math.abs(trueValue - 670.95) <= 1.0 || Math.abs(trueValue - 745.50) <= 1.0)) {
+                            finalValue = isPix ? 447.30 : 497.00;
+                            finalValueFormatted = isPix ? 'R$ 447,30' : 'R$ 497,00';
+                        } else if ((descAndPlan.includes('legatum') || descAndPlan.includes('2 minuto')) && (Math.abs(trueValue - 1210.95) <= 1.0 || Math.abs(trueValue - 1345.50) <= 1.0)) {
+                            finalValue = isPix ? 807.30 : 897.00;
+                            finalValueFormatted = isPix ? 'R$ 807,30' : 'R$ 897,00';
+                        } else if ((descAndPlan.includes('tributum') || descAndPlan.includes('3 minuto')) && (Math.abs(trueValue - 1750.95) <= 1.0 || Math.abs(trueValue - 1945.50) <= 1.0)) {
+                            finalValue = isPix ? 1167.30 : 1297.00;
+                            finalValueFormatted = isPix ? 'R$ 1.167,30' : 'R$ 1.297,00';
+                        }
+                    }
 
                     const orderItem = {
                         id: extRef,
@@ -313,12 +330,12 @@ export default {
                         clientCpf: clientCpf,
                         description: p.description || d1Order?.plan_name || 'Homenagem Reviva Memories',
                         planName: d1Order?.plan_name || p.description || 'Plano Personalizado',
-                        value: trueValue,
-                        valueFormatted: `R$ ${trueValue.toFixed(2).replace('.', ',')}`,
+                        value: finalValue,
+                        valueFormatted: finalValueFormatted,
                         billingType: isPix ? 'PIX' : (p.billingType || 'CREDIT_CARD'),
                         paymentMethod: paymentMethodName,
-                        format: detectedFormat,
-                        has_upsell: isBothFormat,
+                        format: extRefLow === 'reviva-1008' ? 'horizontal' : detectedFormat,
+                        has_upsell: extRefLow === 'reviva-1008' ? false : isBothFormat,
                         isPaid: isPaid,
                         status: p.status,
                         statusLabel: isPaid ? 'PAGO / CONFIRMADO' : 'AGUARDANDO PAGTO',
