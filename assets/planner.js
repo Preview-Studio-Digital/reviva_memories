@@ -1,16 +1,21 @@
 // assets/planner.js — Lógica Perpétua, Edição Direta e Assistente de Ajuste In-Card com Iasis (Gemini API)
+// Reestruturado: Cronograma inteligente 4x/semana (Seg, Qua, Sex, Dom) com replanejamento automático em cadeia
 
 document.addEventListener('DOMContentLoaded', () => {
   // Configuração da API do Iasis (Gemini) — Idêntica ao painel.js
   const GEMINI_API_KEY = window.ENV_GEMINI_API_KEY || localStorage.getItem('gemini_api_key') || (typeof atob !== 'undefined' ? atob('QVEuQWI4Uk42TFBBTFZRMmNXZ0dvVUFGVTBvaHpjcUZ5RmlyVDFMaHFqSHVXdHN0U0dMU3c=') : '');
   const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
 
+  // Dias permitidos na semana (1: Segunda, 3: Quarta, 5: Sexta)
+  const ALLOWED_DAYS = [1, 3, 5];
+
   // Estado da Aplicação (Perpétuo)
   const state = {
-    currentView: 'today', // 'today' | 'calendar' | 'timeline' (Datas Comemorativas)
+    currentView: 'today', // 'today' | 'calendar' | 'timeline'
     currentPautaIndex: 0,
-    activeFilter: 'all', // 'all' | 'cotidiano' | 'familia' | 'psicologia' | 'estudio' | 'trafego'
+    activeFilter: 'all',
     startDate: getStoredStartDate(),
+    taskDates: {}, // Mapeamento dinâmico calculado { taskId: Date }
     completedTasks: getStoredCompletedTasks(),
     subtasks: getStoredSubtasks(),
     customContent: getStoredCustomContent(),
@@ -27,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
       calendar: document.getElementById('view-calendar'),
       timeline: document.getElementById('view-timeline')
     },
-    filterBtns: document.querySelectorAll('.filter-btn'),
     todayContainer: document.getElementById('today-task-card'),
     calendarGrid: document.getElementById('calendar-grid'),
     timelineContainer: document.getElementById('timeline-phases'),
@@ -36,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     drawerClose: document.getElementById('drawer-close'),
     drawerContent: document.getElementById('drawer-body'),
     btnResetStorage: document.getElementById('btn-reset-storage'),
+    btnReplanSchedule: document.getElementById('btn-replan-schedule'),
     toast: document.getElementById('app-toast')
   };
 
@@ -43,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
   init();
 
   function init() {
+    calculateSchedule();
     setupEventListeners();
     renderView();
   }
@@ -99,11 +105,64 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {}
   }
 
+  function cleanScriptToSpokenOnly(text) {
+    if (!text || typeof text !== 'string') return '';
+    let s = text;
+    // Corta qualquer bloco indevido de legenda que a IA possa ter anexado
+    const captionCutRegex = /(?:^|\n)(?:---|\*\*(?:LEGENDA|SUGESTÃO DE LEGENDA|CAPTION)\*\*|LEGENDA:|SUGESTÃO DE LEGENDA:|#\w+)/i;
+    const cutMatch = s.search(captionCutRegex);
+    if (cutMatch !== -1) {
+      s = s.substring(0, cutMatch);
+    }
+    // Remove indicações de rubricas ou cenário entre colchetes/parênteses
+    s = s.replace(/\[[^\]]*\]/g, '').replace(/\([^)]*\)/g, '');
+    // Remove hashtags residuais que tenham sobrado
+    s = s.replace(/#\w+/g, '');
+
+    // Normaliza quebras de linha preservando parágrafos estruturados (Introdução, Desenvolvimento, Conclusão)
+    let paragraphs = s.split(/\r?\n\s*\r?\n/)
+      .map(p => {
+        let lines = p.split(/\r?\n/)
+          .map(l => l.trim())
+          .filter(l => l.length > 0)
+          .map(l => {
+            if (l.startsWith('"') && l.endsWith('"') && l.length > 1) return l.slice(1, -1).trim();
+            if (l.startsWith('"')) return l.slice(1).trim();
+            if (l.endsWith('"')) return l.slice(0, -1).trim();
+            return l;
+          })
+          .filter(l => l.length > 0);
+        return lines.join(' ');
+      })
+      .map(p => p.trim())
+      .filter(p => p.length > 0);
+
+    // Se o texto veio em um bloco único colado sem quebras duplas, divida inteligentemente por pontuação em 3 parágrafos
+    if (paragraphs.length === 1) {
+      const sentences = paragraphs[0].match(/[^.!?]+[.!?]+["']?|[^.!?]+$/g) || [paragraphs[0]];
+      const cleanSentences = sentences.map(s => s.trim()).filter(s => s.length > 0);
+      if (cleanSentences.length >= 3) {
+        const p1 = cleanSentences.slice(0, 2).join(' ');
+        const p3 = cleanSentences[cleanSentences.length - 1];
+        const p2 = cleanSentences.slice(2, cleanSentences.length - 1).join(' ');
+        paragraphs = [p1, p2, p3];
+      } else if (cleanSentences.length === 2) {
+        paragraphs = [cleanSentences[0], cleanSentences[1]];
+      }
+    }
+
+    return paragraphs.join('\n\n');
+  }
+
   function getActiveContent(task) {
-    if (!task) return { script: '', caption: '', isCustomScript: false, isCustomCaption: false };
+    if (!task) return { title: '', summary: '', scenario: '', script: '', caption: '', isCustomScript: false, isCustomCaption: false };
     const saved = (state.customContent && state.customContent[task.id]) || {};
+    const rawScript = typeof saved.script === 'string' ? saved.script : task.script;
     return {
-      script: typeof saved.script === 'string' ? saved.script : task.script,
+      title: typeof saved.title === 'string' ? saved.title : task.title,
+      summary: typeof saved.summary === 'string' ? saved.summary : task.summary,
+      scenario: typeof saved.scenario === 'string' ? saved.scenario : (task.scenario || 'Cafeteria'),
+      script: cleanScriptToSpokenOnly(rawScript),
       caption: typeof saved.caption === 'string' ? saved.caption : task.caption,
       isCustomScript: typeof saved.script === 'string',
       isCustomCaption: typeof saved.caption === 'string'
@@ -137,15 +196,89 @@ document.addEventListener('DOMContentLoaded', () => {
     return today;
   }
 
-  function getTaskCalculatedDate(offsetIndex) {
-    const base = new Date(state.startDate);
-    base.setDate(base.getDate() + offsetIndex);
-    return base;
+  function saveStartDate(date) {
+    try {
+      localStorage.setItem('reviva_planner_start_date', date.toISOString());
+    } catch (e) {}
+  }
+
+  // Obtém a Segunda-feira correspondente à semana de início
+  function getMondayOfCurrentWeek(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const day = d.getDay();
+    // 0: Dom (-6), 1: Seg (0), 2: Ter (-1), 3: Qua (-2), etc.
+    const diff = (day === 0 ? -6 : 1) - day;
+    d.setDate(d.getDate() + diff);
+    return d;
+  }
+
+  // Avança para o próximo dia válido da cadência oficial (Seg=1, Qua=3, Sex=5)
+  function getNextAllowedDate(curr) {
+    const next = new Date(curr);
+    next.setDate(next.getDate() + 1);
+    while (!ALLOWED_DAYS.includes(next.getDay())) {
+      next.setDate(next.getDate() + 1);
+    }
+    return next;
+  }
+
+  function getFirstAllowedDateOnOrAfter(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    while (!ALLOWED_DAYS.includes(d.getDay())) {
+      d.setDate(d.getDate() + 1);
+    }
+    return d;
+  }
+
+  // Calcula todas as datas dos posts rigorosamente sincronizadas com os pilares:
+  // Post 1 (Iasis Pensa) = Segunda
+  // Post 2 (Reviva Apresenta) = Quarta
+  // Post 3 (Iasis Conversa) = Sexta
+  function calculateSchedule(forceReplanFromToday = false) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // A cadência começa sempre na Segunda-feira da semana de início
+    if (forceReplanFromToday || !state.startDate) {
+      state.startDate = getMondayOfCurrentWeek(today);
+      saveStartDate(state.startDate);
+    }
+
+    let cursor = new Date(state.startDate);
+    // Assegura que o cursor comece exatamente em uma Segunda-feira (1)
+    if (cursor.getDay() !== 1) {
+      cursor = getMondayOfCurrentWeek(cursor);
+    }
+
+    const newDates = {};
+
+    data.tasks.forEach((task) => {
+      newDates[task.id] = new Date(cursor);
+      cursor = getNextAllowedDate(cursor);
+    });
+
+    state.taskDates = newDates;
+  }
+
+  function getTaskCalculatedDate(taskOrIndex) {
+    const task = typeof taskOrIndex === 'number' ? data.tasks[taskOrIndex] : taskOrIndex;
+    if (task && state.taskDates && state.taskDates[task.id]) {
+      return state.taskDates[task.id];
+    }
+    return new Date();
   }
 
   function formatDateHuman(date) {
+    if (!date) return '';
     const options = { weekday: 'long', day: '2-digit', month: 'long' };
     return date.toLocaleDateString('pt-BR', options);
+  }
+
+  function formatDateShort(date) {
+    if (!date) return '';
+    return date.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace('.', '');
   }
 
   function getWordCount(text) {
@@ -153,8 +286,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return text.trim().split(/\s+/).filter(Boolean).length;
   }
 
+  function getSpeechSeconds(wordsCount) {
+    return Math.round((wordsCount / 125) * 60);
+  }
+
   function estimateSpeechDuration(wordsCount) {
-    const seconds = Math.round((wordsCount / 125) * 60);
+    const seconds = getSpeechSeconds(wordsCount);
     return seconds > 0 ? `~${seconds}s` : '0s';
   }
 
@@ -169,25 +306,27 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    dom.filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        dom.filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        state.activeFilter = btn.dataset.filter;
-        renderView();
-      });
-    });
 
     if (dom.drawerClose) dom.drawerClose.addEventListener('click', closeDrawer);
     if (dom.drawerOverlay) dom.drawerOverlay.addEventListener('click', closeDrawer);
 
+    // Botão Replanejar Agenda
+    if (dom.btnReplanSchedule) {
+      dom.btnReplanSchedule.addEventListener('click', () => {
+        calculateSchedule(true);
+        renderView();
+        showToast('Agenda replanejada a partir de hoje! 📅✨');
+      });
+    }
+
     if (dom.btnResetStorage) {
       dom.btnResetStorage.addEventListener('click', () => {
-        if (confirm('Deseja reiniciar todas as pautas marcadas como gravadas?')) {
+        if (confirm('Deseja reiniciar todas as pautas marcadas como gravadas e o cronograma?')) {
           state.completedTasks = {};
           saveCompletedTasks();
+          calculateSchedule(true);
           renderView();
-          showToast('Progresso reiniciado com sucesso.');
+          showToast('Progresso e agenda reiniciados com sucesso.');
         }
       });
     }
@@ -213,15 +352,18 @@ document.addEventListener('DOMContentLoaded', () => {
     state.completedTasks[taskId] = !state.completedTasks[taskId];
     saveCompletedTasks();
 
+    // Recalcula o cronograma dinamicamente: se desmarcar ou marcar, as pautas pendentes se ajustam
+    calculateSchedule(false);
+
     const isDone = state.completedTasks[taskId];
-    showToast(isDone ? 'Pauta gravada e concluída! 🎬' : 'Pauta marcada como pendente.');
+    showToast(isDone ? 'Post marcado como concluído! 🎉' : 'Post reaberto como pendente.');
 
     const drawerToggleBtn = document.getElementById('drawer-toggle-btn');
     if (drawerToggleBtn) {
       drawerToggleBtn.className = `btn-gold-action ${isDone ? 'done' : ''}`;
       drawerToggleBtn.innerHTML = isDone 
-        ? '<i data-lucide="check" style="width: 15px; height: 15px;"></i> Gravada ✓ (Clique para reabrir)' 
-        : '<i data-lucide="check" style="width: 15px; height: 15px;"></i> Marcar como Gravada';
+        ? '<i data-lucide="check-check" style="width: 15px; height: 15px;"></i> <span class="btn-text-default">POST CONCLUÍDO ✓</span><span class="btn-text-hover">REABRIR POST</span>' 
+        : '<i data-lucide="clock" style="width: 15px; height: 15px;"></i> <span class="btn-text-default">POST PENDENTE</span><span class="btn-text-hover">MARCAR COMO CONCLUÍDO</span>';
       triggerLucide();
     }
 
@@ -260,17 +402,22 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderTodayView() {
     if (!dom.todayContainer) return;
 
-    if (state.currentPautaIndex >= data.tasks.length) {
-      state.currentPautaIndex = 0;
+    let availableTasks = data.tasks;
+    if (state.activeFilter !== 'all') {
+      availableTasks = data.tasks.filter(t => t.category === state.activeFilter || t.themeId === state.activeFilter);
     }
-    const primaryTask = data.tasks[state.currentPautaIndex] || data.tasks[0];
 
-    if (!primaryTask) {
-      dom.todayContainer.innerHTML = '<div class="empty-state">Nenhuma pauta cadastrada.</div>';
+    if (availableTasks.length === 0) {
+      dom.todayContainer.innerHTML = '<div class="empty-state" style="padding: 40px; text-align: center; color: var(--text-secondary);">Nenhum post encontrado para este filtro.</div>';
       return;
     }
 
-    const taskDate = getTaskCalculatedDate(state.currentPautaIndex);
+    if (state.currentPautaIndex >= availableTasks.length) {
+      state.currentPautaIndex = 0;
+    }
+    const primaryTask = availableTasks[state.currentPautaIndex] || availableTasks[0];
+
+    const taskDate = getTaskCalculatedDate(primaryTask);
     const cat = data.categories[primaryTask.category] || { label: primaryTask.category, color: '#e5c378', icon: '📌' };
     const isCompleted = !!state.completedTasks[primaryTask.id];
     const activeContent = getActiveContent(primaryTask);
@@ -289,47 +436,45 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }).join('');
 
-    // Opções do Jumper (Pautas Contínuas)
-    const pautaOptionsHtml = data.tasks.map((t, idx) => {
-      const isDone = !!state.completedTasks[t.id];
-      const titleSnippet = t.title.length > 28 ? t.title.slice(0, 26) + '...' : t.title;
-      return `<option value="${idx}" ${idx === state.currentPautaIndex ? 'selected' : ''}>${isDone ? '✓ ' : ''}Pauta ${idx + 1}: ${titleSnippet}</option>`;
-    }).join('');
+
 
     const scriptWords = getWordCount(activeContent.script);
     const scriptDuration = estimateSpeechDuration(scriptWords);
+    const captionWords = getWordCount(activeContent.caption);
+
+    const currentGlobalIndex = data.tasks.findIndex(t => t.id === primaryTask.id);
+
+    const themeClass = primaryTask.themeId === 'iasis_pensa' 
+      ? 'theme-seg' 
+      : (primaryTask.themeId === 'reviva_apresenta' ? 'theme-qua' : 'theme-sex');
 
     dom.todayContainer.innerHTML = `
       <!-- BARRA DE NAVEGAÇÃO ENTRE PAUTAS -->
       <div class="today-header-nav">
         <div class="today-nav-left">
-          <button class="btn-dashboard-header" id="btn-prev-day" ${state.currentPautaIndex <= 0 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''} title="Pauta anterior (Atalho: Seta Esquerda)">
+          <button class="btn-dashboard-header" id="btn-prev-day" ${state.currentPautaIndex <= 0 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''} title="Post anterior (Atalho: Seta Esquerda)">
             <i data-lucide="chevron-left" style="width: 13px; height: 13px;"></i> <span>Anterior</span>
           </button>
-          <select id="select-day-jump" class="day-jump-select" title="Pular diretamente para a pauta desejada">
-            ${pautaOptionsHtml}
-          </select>
         </div>
 
         <div class="day-indicator-center">
-          <span class="day-badge" style="color: var(--gold-bright);">PAUTA ${state.currentPautaIndex + 1}</span>
+          <span class="day-badge" style="color: var(--gold-bright);">POST ${currentGlobalIndex + 1} DE ${data.tasks.length}</span>
           <span style="color: rgba(197, 160, 89, 0.35);">|</span>
           <span class="date-human">${formatDateHuman(taskDate)}</span>
+          <button id="btn-replan-today-inline" title="Replanejar pendentes a partir de hoje" style="background: none; border: none; cursor: pointer; color: var(--gold-primary); display: inline-flex; align-items: center; margin-left: 6px;">
+            <i data-lucide="calendar-sync" style="width: 12px; height: 12px;"></i>
+          </button>
         </div>
 
         <div class="today-nav-right">
-          <span class="today-status-pill ${isCompleted ? 'done' : 'pending'}">
-            <i data-lucide="${isCompleted ? 'check-check' : 'clock'}" style="width: 12px; height: 12px;"></i>
-            <span>${isCompleted ? 'Gravada' : 'Pendente'}</span>
-          </span>
-          <button class="btn-dashboard-header" id="btn-next-day" ${state.currentPautaIndex >= (data.tasks.length - 1) ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''} title="Próxima pauta (Atalho: Seta Direita)">
-            <span>Próxima</span> <i data-lucide="chevron-right" style="width: 13px; height: 13px;"></i>
+          <button class="btn-dashboard-header" id="btn-next-day" ${state.currentPautaIndex >= (availableTasks.length - 1) ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''} title="Próximo post (Atalho: Seta Direita)">
+            <span>Próximo</span> <i data-lucide="chevron-right" style="width: 13px; height: 13px;"></i>
           </button>
         </div>
       </div>
 
       <!-- COCKPIT SPLIT EM TELA CHEIA (SEM ROLAGEM DE PÁGINA) -->
-      <div class="today-split-grid">
+      <div class="today-split-grid ${themeClass}">
         
         <!-- COLUNA 1: ESTRATÉGIA, INFORMAÇÃO E AÇÕES -->
         <div class="today-strategy-col ${isCompleted ? 'is-completed' : ''}">
@@ -337,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             <div class="today-top-meta">
               <span class="category-pill" style="border: 1px solid var(--border-gold); background: rgba(197, 160, 89, 0.12); color: var(--gold-bright);">
-                ${cat.icon} ${cat.label}
+                ${cat.icon} ${primaryTask.pilar || cat.label}
               </span>
               <div class="time-box">
                 <i data-lucide="clock" style="width: 12px; height: 12px; color: var(--gold-bright);"></i>
@@ -345,32 +490,52 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
             </div>
 
-            <h2 class="today-title">${primaryTask.title}</h2>
-            <p class="today-summary">${primaryTask.summary}</p>
+            <!-- CAMPOS EDITÁVEIS DE ESTRATÉGIA, TEMA E CENÁRIO -->
+            <div class="today-strategy-field">
+              <label class="today-field-label" for="theme-title-input">
+                <span>Tema & Título do Vídeo</span>
+                <span style="font-size:0.60rem; color:var(--text-secondary); text-transform:none;">Editável</span>
+              </label>
+              <input type="text" class="today-field-input" id="theme-title-input" value="${escapeForHtml(activeContent.title)}" placeholder="Ex: Por que fotos antigas nos emocionam?">
+            </div>
 
-            <div class="quick-info-grid">
-              <div class="info-card" title="Cenário de gravação do Iasis">
-                <span class="info-label">Cenário</span>
-                <span class="info-value">${primaryTask.scenario || 'Cafeteria'}</span>
-              </div>
+            <div class="today-strategy-field">
+              <label class="today-field-label" for="theme-summary-input">
+                <span>Contexto & Proposta do Post</span>
+                <span style="font-size:0.60rem; color:var(--text-secondary); text-transform:none;">Editável</span>
+              </label>
+              <textarea class="today-field-textarea" id="theme-summary-input" rows="2" placeholder="Descreva a ideia central, o gancho emocional e o objetivo deste conteúdo...">${escapeForHtml(activeContent.summary)}</textarea>
+            </div>
+
+            <div class="today-strategy-field">
+              <label class="today-field-label" for="theme-scenario-input">
+                <span>Direção de Cena & Cenário</span>
+                <span style="font-size:0.60rem; color:var(--text-secondary); text-transform:none;">Editável</span>
+              </label>
+              <textarea class="today-field-textarea" id="theme-scenario-input" rows="2" placeholder="Ex: Cafeteria com luz suave da tarde, xícara de café na mesa, tom sereno...">${escapeForHtml(activeContent.scenario)}</textarea>
+            </div>
+
+            <!-- BOTÃO PARA REFAZER TODO O ROTEIRO E LEGENDA COM BASE NESSE PRIMEIRO CARD -->
+            <button type="button" class="btn-regenerate-all" id="btn-regenerate-from-strategy" title="Refazer roteiro de fala e legenda inteiros a partir das novas orientações deste card">
+              <i data-lucide="sparkles" style="width: 13px; height: 13px;"></i>
+              <span>Refazer Roteiro com base nesta Cena</span>
+            </button>
+
+            <div class="quick-info-grid" style="margin-top: 6px;">
               <div class="info-card" title="Formato único de gravação">
                 <span class="info-label">Formato</span>
                 <span class="info-value">${primaryTask.format}</span>
               </div>
               <div class="info-card" title="Duração estimada">
                 <span class="info-label">Duração Alvo</span>
-                <span class="info-value">${primaryTask.duration}</span>
-              </div>
-              <div class="info-card" title="Distribuição simultânea">
-                <span class="info-label">Canais (4 Redes)</span>
-                <span class="info-value">Reels • TikTok • Shorts</span>
+                <span class="info-value">≤ 60s (Ritmo Iasis)</span>
               </div>
             </div>
 
-            <div class="today-checklist-box">
+            <div class="today-checklist-box" style="margin-top: 6px;">
               <div class="today-checklist-title">
                 <i data-lucide="list-checks" style="width: 12px; height: 12px; color: var(--gold-primary);"></i>
-                <span>Checklist de Gravação & Publicação</span>
+                <span>Checklist de Gravação</span>
               </div>
               <ul class="today-checklist-list">
                 ${checklistHtml}
@@ -381,8 +546,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
           <div class="today-actions-bar">
             <button class="btn-gold-action ${isCompleted ? 'done' : ''}" id="btn-toggle-today-done">
-              <i data-lucide="${isCompleted ? 'check-check' : 'check-circle-2'}" style="width: 15px; height: 15px;"></i>
-              <span>${isCompleted ? 'Pauta Gravada ✓ (Clique para reabrir)' : 'Marcar Pauta como Gravada'}</span>
+              <i data-lucide="${isCompleted ? 'check-check' : 'clock'}" style="width: 15px; height: 15px;"></i>
+              ${isCompleted 
+                ? '<span class="btn-text-default">POST CONCLUÍDO ✓</span><span class="btn-text-hover">REABRIR POST</span>' 
+                : '<span class="btn-text-default">POST PENDENTE</span><span class="btn-text-hover">MARCAR COMO CONCLUÍDO</span>'}
             </button>
           </div>
         </div>
@@ -420,14 +587,14 @@ document.addEventListener('DOMContentLoaded', () => {
               <textarea class="panel-editor-textarea" id="script-editor" placeholder="Digite ou ajuste as palavras do roteiro aqui..." spellcheck="false">${escapeForHtml(activeContent.script)}</textarea>
               <div class="panel-stats-bar">
                 <span id="script-stats-counter">${scriptWords} palavras • ${scriptDuration} de fala</span>
-                <span>Ritmo ideal: 45–60s</span>
+                <span style="letter-spacing: 0.3px;">Tempo Máx: <strong>60s</strong></span>
               </div>
             </div>
 
             <!-- CAMPO DE AJUSTE DIRETO COM IASIS (NA BASE DO CARD) -->
             <div class="card-prompt-bar">
               <img src="iasis_avatar.jpg" alt="Iasis" class="card-prompt-avatar" title="Iasis IA">
-              <input type="text" class="card-prompt-input" id="script-prompt-input" placeholder="Peça alterações ao Iasis no roteiro... (ex: encurte para 45s, mencione meu pai...)">
+              <textarea class="card-prompt-input" id="script-prompt-input" rows="2" placeholder="Peça alterações ao Iasis no roteiro... (ex: mencione um café, dê tom mais íntimo...)"></textarea>
               <button type="button" class="card-prompt-btn" id="script-prompt-btn">
                 <i data-lucide="sparkles" style="width: 11px; height: 11px;"></i>
                 <span>Ajustar</span>
@@ -463,20 +630,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <div class="panel-editor-box">
               <textarea class="panel-editor-textarea" id="caption-editor" placeholder="Digite ou ajuste a legenda do post aqui..." spellcheck="false">${escapeForHtml(activeContent.caption)}</textarea>
-              
-              <div class="hashtags-block">
-                <div class="hashtags-block-title">
-                  <span>Hashtags do Post</span>
-                  <button class="btn-copy-gold" id="btn-copy-hashtags" style="padding: 1px 6px; font-size: 0.64rem;">Copiar Tags</button>
-                </div>
-                <span class="hashtags-text">${primaryTask.hashtags}</span>
+              <div class="panel-stats-bar">
+                <span id="caption-stats-counter">${captionWords} palavras</span>
+                <span style="letter-spacing: 0.3px;">Limite: <strong>≤ 100 palavras</strong></span>
               </div>
             </div>
 
             <!-- CAMPO DE AJUSTE DIRETO COM IASIS (NA BASE DO CARD) -->
             <div class="card-prompt-bar">
               <img src="iasis_avatar.jpg" alt="Iasis" class="card-prompt-avatar" title="Iasis IA">
-              <input type="text" class="card-prompt-input" id="caption-prompt-input" placeholder="Peça alterações na legenda... (ex: faça uma pergunta emotiva, use tom carinhoso...)">
+              <textarea class="card-prompt-input" id="caption-prompt-input" rows="2" placeholder="Peça alterações na legenda... (ex: faça uma pergunta reflexiva, use tom carinhoso...)"></textarea>
               <button type="button" class="card-prompt-btn" id="caption-prompt-btn">
                 <i data-lucide="sparkles" style="width: 11px; height: 11px;"></i>
                 <span>Ajustar</span>
@@ -500,6 +663,89 @@ document.addEventListener('DOMContentLoaded', () => {
     const scriptEditor = document.getElementById('script-editor');
     const captionEditor = document.getElementById('caption-editor');
     const scriptStatsCounter = document.getElementById('script-stats-counter');
+    const captionStatsCounter = document.getElementById('caption-stats-counter');
+    const btnReplanInline = document.getElementById('btn-replan-today-inline');
+
+    if (btnReplanInline) {
+      btnReplanInline.addEventListener('click', () => {
+        calculateSchedule(true);
+        renderView();
+        showToast('Agenda recalculada a partir de hoje! 📅');
+      });
+    }
+
+    // Inputs de Tema, Contexto e Cenário da Coluna 1
+    const themeTitleInput = document.getElementById('theme-title-input');
+    const themeSummaryInput = document.getElementById('theme-summary-input');
+    const themeScenarioInput = document.getElementById('theme-scenario-input');
+    const btnRegenerateFromStrategy = document.getElementById('btn-regenerate-from-strategy');
+
+    if (themeTitleInput) {
+      themeTitleInput.addEventListener('input', () => {
+        saveTaskFieldCustom(primaryTask.id, 'title', themeTitleInput.value);
+      });
+    }
+    if (themeSummaryInput) {
+      themeSummaryInput.addEventListener('input', () => {
+        saveTaskFieldCustom(primaryTask.id, 'summary', themeSummaryInput.value);
+      });
+    }
+    if (themeScenarioInput) {
+      themeScenarioInput.addEventListener('input', () => {
+        saveTaskFieldCustom(primaryTask.id, 'scenario', themeScenarioInput.value);
+      });
+    }
+
+    // Regerar Roteiro de Fala e Legenda completos com base nas orientações da Coluna 1
+    if (btnRegenerateFromStrategy) {
+      btnRegenerateFromStrategy.addEventListener('click', async () => {
+        const currentTitle = (themeTitleInput ? themeTitleInput.value.trim() : '') || primaryTask.title;
+        const currentSummary = (themeSummaryInput ? themeSummaryInput.value.trim() : '') || primaryTask.summary;
+        const currentScenario = (themeScenarioInput ? themeScenarioInput.value.trim() : '') || primaryTask.scenario;
+
+        // Salva as alterações
+        saveTaskFieldCustom(primaryTask.id, 'title', currentTitle);
+        saveTaskFieldCustom(primaryTask.id, 'summary', currentSummary);
+        saveTaskFieldCustom(primaryTask.id, 'scenario', currentScenario);
+
+        btnRegenerateFromStrategy.classList.add('loading');
+        btnRegenerateFromStrategy.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:13px;height:13px;"></i> <span>Escrevendo novo roteiro e cena...</span>';
+        triggerLucide();
+
+        const customInstruction = `REESCREVA COMPLETAMENTE ESTE ROTEIRO com base no novo tema e direção de cena:
+- Novo Título/Tema: "${currentTitle}"
+- Contexto & Proposta: "${currentSummary}"
+- Cenário & Direção: "${currentScenario}"
+Crie uma narrativa original de fala (≤ 60s, apenas falas do Iasis) perfeitamente alinhada a este cenário, OBRIGATORIAMENTE estruturada em 3 parágrafos separados (Introdução, Desenvolvimento e Conclusão).`;
+
+        const taskContext = {
+          ...primaryTask,
+          title: currentTitle,
+          summary: currentSummary,
+          scenario: currentScenario
+        };
+
+        // 1. Gera novo Roteiro de fala
+        const newScript = await callIasisAiApi('script', taskContext, '', customInstruction);
+        if (newScript) {
+          saveTaskFieldCustom(primaryTask.id, 'script', newScript);
+        }
+
+        // 2. Gera nova Legenda pronta
+        const newCaption = await callIasisAiApi('caption', taskContext, '', customInstruction);
+        if (newCaption) {
+          saveTaskFieldCustom(primaryTask.id, 'caption', newCaption);
+        }
+
+        btnRegenerateFromStrategy.classList.remove('loading');
+        btnRegenerateFromStrategy.innerHTML = '<i data-lucide="sparkles" style="width:13px;height:13px;"></i> <span>Refazer Roteiro com base nesta Cena</span>';
+        triggerLucide();
+
+        showToast('Roteiro e Legenda reescritos pelo Iasis! ✨');
+        renderTodayView();
+        triggerLucide();
+      });
+    }
 
     // Botões de ação Roteiro
     const btnSaveScript = document.getElementById('btn-save-script');
@@ -516,18 +762,98 @@ document.addEventListener('DOMContentLoaded', () => {
     const captionPromptInput = document.getElementById('caption-prompt-input');
     const captionPromptBtn = document.getElementById('caption-prompt-btn');
 
+    // Função para atualizar e validar o tempo de fala do Roteiro (máx 60 segundos)
+    function updateScriptCounter(text) {
+      if (!scriptStatsCounter) return;
+      const words = getWordCount(text);
+      const seconds = getSpeechSeconds(words);
+      const isOverLimit = seconds > 60;
+
+      if (isOverLimit) {
+        scriptStatsCounter.innerHTML = `<span class="limit-warn">⚠️ ${words} palavras • ~${seconds}s (Limite: máx 60s!)</span>`;
+        if (scriptEditor) scriptEditor.classList.add('exceeded-limit');
+        if (btnSaveScript) {
+          btnSaveScript.style.opacity = '0.5';
+          btnSaveScript.style.cursor = 'not-allowed';
+          btnSaveScript.title = 'Roteiro excede o limite máximo de 60 segundos!';
+        }
+      } else {
+        scriptStatsCounter.innerHTML = `<span>${words} palavras • ~${seconds}s de fala</span> <span class="limit-ok" style="font-size: 0.60rem;">(≤ 60s ✓)</span>`;
+        if (scriptEditor) scriptEditor.classList.remove('exceeded-limit');
+        if (btnSaveScript) {
+          btnSaveScript.style.opacity = '1';
+          btnSaveScript.style.cursor = 'pointer';
+          btnSaveScript.title = 'Salvar alterações manuais feitas no roteiro';
+        }
+      }
+    }
+
+    // Função para atualizar e validar a contagem de palavras da Legenda (máx 100 palavras)
+    function updateCaptionCounter(text) {
+      if (!captionStatsCounter) return;
+      const words = getWordCount(text);
+      const isOverLimit = words > 100;
+
+      if (isOverLimit) {
+        captionStatsCounter.innerHTML = `<span class="limit-warn">⚠️ ${words} palavras (Limite: máx 100!)</span>`;
+        if (captionEditor) captionEditor.classList.add('exceeded-limit');
+        if (btnSaveCaption) {
+          btnSaveCaption.style.opacity = '0.5';
+          btnSaveCaption.style.cursor = 'not-allowed';
+          btnSaveCaption.title = 'Legenda excede o limite máximo de 100 palavras!';
+        }
+      } else {
+        captionStatsCounter.innerHTML = `<span>${words} palavras</span> <span class="limit-ok" style="font-size: 0.60rem;">(≤ 100 ✓)</span>`;
+        if (captionEditor) captionEditor.classList.remove('exceeded-limit');
+        if (btnSaveCaption) {
+          btnSaveCaption.style.opacity = '1';
+          btnSaveCaption.style.cursor = 'pointer';
+          btnSaveCaption.title = 'Salvar alterações manuais feitas na legenda';
+        }
+      }
+    }
+
+    // Inicializa contadores com validação
+    if (scriptEditor) {
+      updateScriptCounter(scriptEditor.value);
+    }
+    if (captionEditor) {
+      updateCaptionCounter(captionEditor.value);
+    }
+
     // Contador dinâmico de palavras no Roteiro
     if (scriptEditor && scriptStatsCounter) {
       scriptEditor.addEventListener('input', () => {
+        updateScriptCounter(scriptEditor.value);
         const words = getWordCount(scriptEditor.value);
-        const duration = estimateSpeechDuration(words);
-        scriptStatsCounter.textContent = `${words} palavras • ${duration} de fala`;
+        const seconds = getSpeechSeconds(words);
+        if (seconds <= 60) {
+          saveTaskFieldCustom(primaryTask.id, 'script', scriptEditor.value);
+        }
       });
     }
 
-    // Salvar Roteiro Manual
+    // Contador dinâmico e auto-save da Legenda
+    if (captionEditor) {
+      captionEditor.addEventListener('input', () => {
+        updateCaptionCounter(captionEditor.value);
+        const words = getWordCount(captionEditor.value);
+        if (words <= 100) {
+          saveTaskFieldCustom(primaryTask.id, 'caption', captionEditor.value);
+        }
+      });
+    }
+
+    // Salvar Roteiro Manual (Bloqueia se > 60 segundos)
     if (btnSaveScript && scriptEditor) {
       btnSaveScript.addEventListener('click', () => {
+        const words = getWordCount(scriptEditor.value);
+        const seconds = getSpeechSeconds(words);
+        if (seconds > 60) {
+          showToast(`⚠️ Tempo estimado em ${seconds}s. Reduza o texto para até 60s!`);
+          scriptEditor.focus();
+          return;
+        }
         saveTaskFieldCustom(primaryTask.id, 'script', scriptEditor.value);
         showToast('Roteiro salvo com sucesso! 💾');
         renderTodayView();
@@ -579,11 +905,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (generated) {
         scriptEditor.value = generated;
         saveTaskFieldCustom(primaryTask.id, 'script', generated);
-        const words = getWordCount(generated);
-        const duration = estimateSpeechDuration(words);
-        if (scriptStatsCounter) scriptStatsCounter.textContent = `${words} palavras • ${duration} de fala`;
+        updateScriptCounter(generated);
         if (scriptPromptInput) scriptPromptInput.value = '';
-        showToast('Roteiro ajustado pelo Iasis! ✨');
+        showToast('Roteiro ajustado e salvo! ✨');
         renderTodayView();
         triggerLucide();
       } else {
@@ -596,16 +920,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (scriptPromptInput) {
       scriptPromptInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
           handleScriptInCardAdjustment();
         }
       });
     }
 
-    // Salvar Legenda Manual
+    // Salvar Legenda Manual (Bloqueia se > 100 palavras)
     if (btnSaveCaption && captionEditor) {
       btnSaveCaption.addEventListener('click', () => {
+        const words = getWordCount(captionEditor.value);
+        if (words > 100) {
+          showToast(`⚠️ Legenda com ${words} palavras. Reduza para no máximo 100 palavras!`);
+          captionEditor.focus();
+          return;
+        }
         saveTaskFieldCustom(primaryTask.id, 'caption', captionEditor.value);
         showToast('Legenda salva com sucesso! 💾');
         renderTodayView();
@@ -625,17 +955,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Copiar Legenda Completa
+    // Copiar Legenda (já inclui as 5 hashtags no final do texto)
     if (btnCopyCaption && captionEditor) {
       btnCopyCaption.addEventListener('click', () => {
-        window.copyText(captionEditor.value + '\n\n' + primaryTask.hashtags);
-      });
-    }
-
-    // Copiar Apenas Hashtags
-    if (btnCopyHashtags) {
-      btnCopyHashtags.addEventListener('click', () => {
-        window.copyText(primaryTask.hashtags);
+        window.copyText(captionEditor.value);
       });
     }
 
@@ -664,8 +987,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (generated) {
         captionEditor.value = generated;
         saveTaskFieldCustom(primaryTask.id, 'caption', generated);
+        updateCaptionCounter(generated);
         if (captionPromptInput) captionPromptInput.value = '';
-        showToast('Legenda ajustada pelo Iasis! ✨');
+        showToast('Legenda ajustada e salva! ✨');
         renderTodayView();
         triggerLucide();
       } else {
@@ -678,7 +1002,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (captionPromptInput) {
       captionPromptInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
           handleCaptionInCardAdjustment();
         }
@@ -686,6 +1010,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Navegação entre pautas
+    let availableTasksCount = data.tasks.length;
+    if (state.activeFilter !== 'all') {
+      availableTasksCount = data.tasks.filter(t => t.category === state.activeFilter || t.themeId === state.activeFilter).length;
+    }
+
     if (btnPrev) {
       btnPrev.addEventListener('click', () => {
         if (state.currentPautaIndex > 0) {
@@ -698,7 +1027,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnNext) {
       btnNext.addEventListener('click', () => {
-        if (state.currentPautaIndex < (data.tasks.length - 1)) {
+        if (state.currentPautaIndex < (availableTasksCount - 1)) {
           state.currentPautaIndex++;
           renderTodayView();
           triggerLucide();
@@ -744,49 +1073,83 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ================= 2. INTEGRAÇÃO REAL COM A API DO IASIS (GEMINI) =================
   function getIasisSystemPrompt(targetType, task) {
+    const isScript = targetType === 'script';
+
+    if (isScript) {
+      return `
+Você é o Iasis, o influencer digital humanista e roteirista oficial da Reviva Memories.
+Você tem uma personalidade digital própria: sereno, reflexivo, inteligente e acolhedor.
+Regra de Ouro: "A Reviva é a empresa. Iasis é a voz." Você NÃO faz propaganda forçada.
+
+SEU OBJETIVO EXCLUSIVO AGORA:
+Entregar única e exclusivamente o ROTEIRO DE FALA para vídeo vertical (9:16) sobre o tema: "${task.title}".
+Pilar Editorial: ${task.pilar || 'Reflexão'}. Cenário: ${task.scenario || 'Cafeteria Urbana'}.
+
+REGRAS INEGOCIÁVEIS PARA ROTEIRO DE FALA:
+1. APENAS FALA FALADA PURA:
+   - Forneça estritamente o texto que será lido em voz alta.
+   - NUNCA inclua legenda.
+   - NUNCA inclua hashtags (#).
+   - NUNCA inclua divisores como '---' ou cabeçalhos como '**LEGENDA**'.
+   - NÃO inclua rubricas entre parênteses nem marcações de cena entre colchetes.
+2. ESTRUTURAÇÃO OBRIGATÓRIA EM 3 PARÁGRAFOS DISTINTOS:
+   - O roteiro NÃO PODE vir em um bloco único colado. Separe OBRIGATORIAMENTE em 3 parágrafos com linha em branco entre eles:
+     * Parágrafo 1 (Introdução/Gancho): Primeiros 3-5 segundos que capturam a atenção e abrem a reflexão.
+     * Parágrafo 2 (Desenvolvimento): O coração da mensagem, a história ou o ponto central do afeto.
+     * Parágrafo 3 (Conclusão/Fechamento): A frase de acolhimento ou pergunta final para o espectador.
+3. DURAÇÃO E LIMITE DE TEMPO:
+   - Limite estrito: entre 40 e 50 segundos de fala (MÁXIMO ABSOLUTO DE 105 A 115 PALAVRAS no total).
+   - Se o usuário pediu para encurtar ou reduzir tempo, corte palavras e seja conciso sem perder a essência da mensagem que o usuário construiu.
+4. RESPEITO AO CONTEÚDO DO USUÁRIO:
+   - Preserve a ideia, as frases-chave e o ponto central do texto fornecido pelo usuário. Não descarte a proposta dele por um texto genérico.
+5. FORMATO DE SAÍDA:
+   - Retorne APENAS o texto da fala falada, estruturado em 3 parágrafos separados por linha em branco, pronto para leitura direta no teleprompter.`;
+    }
+
     return `
-Você é o Iasis, o influencer virtual humanista e roteirista oficial da Reviva Memories.
-Você é um homem maduro (45 a 50 anos), com cabelos grisalhos impecáveis, olhar azul sereno, fala aveludada, pausada e reflexiva. Veste camisa de linho claro e aborda temas da vida com empatia, respeito e profundidade.
+Você é o Iasis, o influencer humanista da Reviva Memories.
+SEU OBJETIVO EXCLUSIVO AGORA:
+Escrever a LEGENDA para o post: "${task.title}".
 
-SEU OBJETIVO AGORA:
-Você está lapidando o ${targetType === 'script' ? 'ROTEIRO DE FALA EM VÍDEO VERTICAL (9:16)' : 'TEXTO DE LEGENDA DO POST'} para a pauta: "${task.title}".
-Cenário Oficial de Gravação: ${task.scenario || 'Cafeteria Urbana'}.
-Canal: Distribuição simultânea em Reels, TikTok, YouTube Shorts e Facebook.
-
-DIRETRIZES E REGRAS INEGOCIÁVEIS:
-1. FORMATO E DURAÇÃO (SE FOR ROTEIRO):
-   - Deve ser gravado em formato vertical (9:16).
-   - Duração rigorosa entre 45 e 60 segundos (~100 a 140 palavras no total).
-   - Inicie sempre com uma indicação sutil de cenário entre colchetes (ex: [Cenário: Cafeteria...]).
-   - Os primeiros 3 segundos devem conter um gancho magnético provocativo ou acolhedor que pare o scroll do feed.
-   - Linguagem falada natural, com pausas reflexivas (...).
-
-2. FORMATO (SE FOR LEGENDA):
-   - Texto pronto para postar, com quebras de parágrafo limpas e emojis sóbrios e elegantes.
-   - Termine com uma pergunta acolhedora e reflexiva que incentive os seguidores a comentar lembranças da sua família.
-
-3. VOCABULÁRIO & ÉTICA:
-   - VOCABULÁRIO OBRIGATÓRIO: Refira-se sempre a Produção, Estúdio ou Reviva Memories.
-   - PROIBIDO usar termos excessivamente infantis ou melosos ("que gracinha", "fofo", "meu bem", "docinho").
-   - Mantenha a elegância de um amigo sábio que entende de psicologia do afeto, do tempo e das relações humanas.
-
-4. ENTREGA:
-   - Entregue DIRETAMENTE o texto lapidado final pronto para ser copiado ou aplicado.
-   - NÃO inclua preâmbulos como "Aqui está sua sugestão" ou "Com certeza, vou ajustar". Comece direto pelo conteúdo lapidado.`;
+REGRAS PARA LEGENDA:
+1. LIMITE RIGOROSO: Máximo absoluto de 100 palavras (incluindo texto e hashtags). Seja conciso, poético e acolhedor.
+2. Texto envolvente dividido em parágrafos limpos e acolhedores.
+3. Termine com uma pergunta reflexiva para estimular comentários.
+4. HASHTAGS: Inclua logo abaixo do texto exatamente 5 hashtags altamente estratégicas (ex: #Iasis #RevivaMemories #MemoriasAfetivas #PresencaEterna #Familia). Não coloque mais de 5 hashtags.
+5. Retorne APENAS o texto da legenda com as 5 hashtags no final, pronto para ser copiado.`;
   }
 
   async function callIasisAiApi(targetType, task, originalText, instruction) {
     const systemPrompt = getIasisSystemPrompt(targetType, task);
-    const userPrompt = `
-TEXTO ATUAL (${targetType === 'script' ? 'Roteiro de Fala' : 'Legenda'}):
+    const isScript = targetType === 'script';
+
+    let userPrompt = '';
+    if (isScript) {
+      userPrompt = `
+TEXTO ATUAL DO ROTEIRO DE FALA:
 """
 ${originalText}
 """
 
-INSTRUÇÃO DE AJUSTE DO USUÁRIO:
+PEDIDO DE AJUSTE DO USUÁRIO:
 ${instruction}
 
-Por favor, reescreva e lapide o texto acima seguindo a sua persona de influencer humanista do cotidiano, respeitando o limite de 45 a 60 segundos (~100-140 palavras se for roteiro) e as diretrizes éticas da Reviva Memories.`;
+INSTRUÇÃO IMPORTANTE:
+Ajuste o texto acima respeitando as ideias e o conteúdo já digitados pelo usuário, apenas aplicando a instrução solicitada sem descartar a proposta.
+ESTRUTURA: Entregue EXCLUSIVAMENTE as falas faladas (máximo absoluto de 115 palavras para caber em menos de 60 segundos), divididas OBRIGATORIAMENTE em 3 parágrafos separados por linha em branco (Introdução, Desenvolvimento e Conclusão). NÃO inclua legenda nem hashtags.`;
+    } else {
+      userPrompt = `
+TEXTO ATUAL DA LEGENDA:
+"""
+${originalText}
+"""
+
+PEDIDO DE AJUSTE DO USUÁRIO:
+${instruction}
+
+Por favor, reescreva a legenda respeitando a essência do texto.
+REGRA MANDATÓRIA: MÁXIMO ABSOLUTO DE 100 PALAVRAS no total. Inclua exatamente 5 hashtags no final.`;
+    }
 
     const contents = [{ role: 'user', parts: [{ text: userPrompt }] }];
 
@@ -809,7 +1172,11 @@ Por favor, reescreva e lapide o texto acima seguindo a sua persona de influencer
         const resData = await response.json();
         const text = resData?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text && text.trim().length > 0) {
-          return text.trim();
+          let cleaned = text.trim();
+          if (isScript) {
+            cleaned = cleanScriptToSpokenOnly(cleaned);
+          }
+          return cleaned;
         }
       } catch (err) {
         console.warn(`[Iasis IA] Erro ao consultar ${model}:`, err);
@@ -818,42 +1185,110 @@ Por favor, reescreva e lapide o texto acima seguindo a sua persona de influencer
     return null;
   }
 
-  // ================= 3. MODO GRADE DE PAUTAS (CALENDÁRIO PERPÉTUO) =================
+  // ================= 3. MODO GRADE DE PAUTAS (3 COLUNAS: SEG, QUA, SEX) =================
   function renderCalendarView() {
     if (!dom.calendarGrid) return;
 
     let filteredTasks = data.tasks;
     if (state.activeFilter !== 'all') {
-      filteredTasks = filteredTasks.filter(t => t.category === state.activeFilter);
+      filteredTasks = filteredTasks.filter(t => t.category === state.activeFilter || t.themeId === state.activeFilter);
     }
 
-    dom.calendarGrid.innerHTML = filteredTasks.map((task, idx) => {
-      const isDone = !!state.completedTasks[task.id];
-      const cat = data.categories[task.category] || { label: task.category, color: '#e5c378', icon: '📌' };
-      const activeContent = getActiveContent(task);
+    // Se estiver filtrado por um pilar específico, exibe a coluna desse pilar ou todas
+    const columnsDef = [
+      {
+        key: 'segunda',
+        themeId: 'iasis_pensa',
+        title: 'SEGUNDA • Iasis Pensa',
+        badge: '🧠 Reflexões & Personagem',
+        colClass: 'col-seg',
+        dayIndex: 1
+      },
+      {
+        key: 'quarta',
+        themeId: 'reviva_apresenta',
+        title: 'QUARTA • Reviva Apresenta',
+        badge: '✨ Homenagens & Bastidores',
+        colClass: 'col-qua',
+        dayIndex: 3
+      },
+      {
+        key: 'sexta',
+        themeId: 'iasis_conversa',
+        title: 'SEXTA • Iasis Conversa',
+        badge: '☕ Cafeteria & Vínculo',
+        colClass: 'col-sex',
+        dayIndex: 5
+      }
+    ];
+
+    // Se houver filtro ativo diferente de 'all', mostra só as colunas correspondentes ou todas filtradas
+    const columnsToShow = state.activeFilter === 'all' 
+      ? columnsDef 
+      : columnsDef.filter(c => c.themeId === state.activeFilter);
+
+    const colsHtml = columnsToShow.map(col => {
+      const colTasks = filteredTasks.filter(task => {
+        // Agrupa estritamente pelo pilar temático correspondente
+        return task.themeId === col.themeId || task.category === col.themeId;
+      });
+
+      const doneCount = colTasks.filter(t => !!state.completedTasks[t.id]).length;
+
+      const cardsHtml = colTasks.map(task => {
+        const idx = data.tasks.findIndex(t => t.id === task.id);
+        const isDone = !!state.completedTasks[task.id];
+        const taskDate = getTaskCalculatedDate(task);
+        const cat = data.categories[task.category] || { label: task.category, color: '#e5c378', icon: '📌' };
+        const activeContent = getActiveContent(task);
+
+        const cardDayClass = col.colClass === 'col-seg' ? 'card-seg' : col.colClass === 'col-qua' ? 'card-qua' : 'card-sex';
+
+        return `
+          <div class="calendar-card ${cardDayClass} ${isDone ? 'is-completed' : ''}" data-pauta-index="${idx}">
+            <div class="card-header-mini">
+              <span class="day-chip" style="font-weight: 700;">POST ${idx + 1}</span>
+              <span class="time-chip"><i data-lucide="calendar" style="width: 11px; height: 11px;"></i> ${formatDateShort(taskDate)}</span>
+              <button class="check-circle-btn ${isDone ? 'checked' : ''}" title="Marcar como gravado" data-task-id="${task.id}">
+                ${isDone ? '<i data-lucide="check" style="width: 12px; height: 12px;"></i>' : ''}
+              </button>
+            </div>
+            
+            <div class="card-date-mini">${task.pilar || task.scenario || 'Reflexão'}</div>
+            <div class="card-title-mini">${task.title}</div>
+            
+            <div class="card-footer-mini">
+              <span class="cat-label-mini" style="color: var(--gold-bright);">
+                ${cat.icon} ${cat.label}
+              </span>
+              <span class="channel-mini">${activeContent.isCustomScript ? '✍️ Editado' : 'Vídeo 9:16'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
 
       return `
-        <div class="calendar-card ${isDone ? 'is-completed' : ''}" data-pauta-index="${idx}">
-          <div class="card-header-mini">
-            <span class="day-chip">PAUTA ${idx + 1}</span>
-            <span class="time-chip"><i data-lucide="clock" style="width: 11px; height: 11px;"></i> ${task.recommendedTime}</span>
-            <button class="check-circle-btn ${isDone ? 'checked' : ''}" title="Marcar como gravada" data-task-id="${task.id}">
-              ${isDone ? '<i data-lucide="check" style="width: 12px; height: 12px;"></i>' : ''}
-            </button>
+        <div class="calendar-day-column">
+          <div class="calendar-column-header ${col.colClass}">
+            <div>
+              <div style="font-weight: 700;">${col.title}</div>
+              <div style="font-size: 0.68rem; opacity: 0.85; text-transform: none; font-family: var(--font-sans);">${col.badge}</div>
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; background: rgba(0,0,0,0.4); padding: 3px 8px; border-radius: 999px;">${doneCount}/${colTasks.length}</span>
           </div>
-          
-          <div class="card-date-mini">${task.scenario || 'Cafeteria'}</div>
-          <div class="card-title-mini">${task.title}</div>
-          
-          <div class="card-footer-mini">
-            <span class="cat-label-mini" style="color: var(--gold-bright);">
-              ${cat.icon} ${cat.label}
-            </span>
-            <span class="channel-mini">${activeContent.isCustomScript ? '✍️ Editado' : 'Vídeo 9:16'}</span>
+
+          <div class="calendar-column-cards">
+            ${cardsHtml || '<div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 0.75rem;">Nenhum post nesta coluna.</div>'}
           </div>
         </div>
       `;
     }).join('');
+
+    dom.calendarGrid.innerHTML = `
+      <div class="calendar-columns-container" style="grid-template-columns: repeat(${columnsToShow.length}, 1fr);">
+        ${colsHtml}
+      </div>
+    `;
 
     dom.calendarGrid.querySelectorAll('.calendar-card').forEach(card => {
       card.addEventListener('click', (e) => {
@@ -914,23 +1349,23 @@ Por favor, reescreva e lapide o texto acima seguindo a sua persona de influencer
         }).join('')}
       </div>
     `;
-
-    triggerLucide();
   }
 
-  // ================= 5. DRAWER LATERAL DE DETALHES =================
-  function openDrawer(task) {
+  // ================= 5. DRAWER DE DETALHES =================
+  function openTaskDrawer(task) {
+    if (!task || !dom.drawerContent) return;
     state.selectedTask = task;
+    const activeContent = getActiveContent(task);
     const cat = data.categories[task.category] || { label: task.category, color: '#e5c378', icon: '📌' };
     const isDone = !!state.completedTasks[task.id];
-    const activeContent = getActiveContent(task);
+    const taskDate = getTaskCalculatedDate(task);
 
     dom.drawerContent.innerHTML = `
       <div class="drawer-header-meta">
         <span class="category-pill" style="border: 1px solid var(--border-gold); background: rgba(197, 160, 89, 0.12); color: var(--gold-bright);">
-          ${cat.icon} ${cat.label}
+          ${cat.icon} ${task.pilar || cat.label}
         </span>
-        <span class="day-chip">PAUTA ${task.pautaNumber || ''}</span>
+        <span class="day-chip">POST ${task.pautaNumber || ''} • ${formatDateShort(taskDate)}</span>
       </div>
 
       <h2 class="drawer-title">${task.title}</h2>
@@ -941,7 +1376,7 @@ Por favor, reescreva e lapide o texto acima seguindo a sua persona de influencer
           <strong>☕ Cenário:</strong> <span>${task.scenario || 'Cafeteria'}</span>
         </div>
         <div class="drawer-detail-item">
-          <strong>⏰ Horário Ideal:</strong> <span>${task.recommendedTime}</span>
+          <strong>⏰ Horário:</strong> <span>${task.recommendedTime}</span>
         </div>
         <div class="drawer-detail-item">
           <strong>📐 Formato:</strong> <span>${task.format}</span>
@@ -980,8 +1415,10 @@ Por favor, reescreva e lapide o texto acima seguindo a sua persona de influencer
 
       <div class="drawer-footer-actions">
         <button class="btn-gold-action ${isDone ? 'done' : ''}" id="drawer-toggle-btn">
-          <i data-lucide="check" style="width: 15px; height: 15px;"></i>
-          ${isDone ? 'Pauta Gravada ✓ (Clique para reabrir)' : 'Marcar como Gravada'}
+          <i data-lucide="${isDone ? 'check-check' : 'clock'}" style="width: 15px; height: 15px;"></i>
+          ${isDone 
+            ? '<span class="btn-text-default">POST CONCLUÍDO ✓</span><span class="btn-text-hover">REABRIR POST</span>' 
+            : '<span class="btn-text-default">POST PENDENTE</span><span class="btn-text-hover">MARCAR COMO CONCLUÍDO</span>'}
         </button>
       </div>
     `;
@@ -990,6 +1427,7 @@ Por favor, reescreva e lapide o texto acima seguindo a sua persona de influencer
     if (drawerToggleBtn) {
       drawerToggleBtn.addEventListener('click', () => {
         toggleTaskCompletion(task.id);
+        openTaskDrawer(task);
       });
     }
 

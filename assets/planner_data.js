@@ -1,1052 +1,995 @@
-// assets/planner_data.js — Base de dados do Planejamento Perpétuo & Calendário Afetivo da Reviva Memories
-// Modelo perpétuo contínuo com pautas em vídeo vertical 9:16 para 4 redes + Datas Festivas e Comemorativas
-
 window.PLANNER_DATA = {
-  themes: [
+  "themes": [
     {
-      id: "cotidiano",
-      title: "Tema 1: Presença, Tempo & Cotidiano",
-      subtitle: "Cenário: Cafeteria Urbana • Desacelerando a pressa do mundo",
-      badge: "Café & Cotidiano",
-      color: "#38bdf8",
-      description: "Conectar com a audiência através de reflexões sobre a correria moderna, a falta de tempo para quem amamos e a beleza das pequenas pausas."
+      "id": "iasis_pensa",
+      "title": "Pilar 1: Iasis Pensa 🧠",
+      "subtitle": "Segunda-feira • Reflexões, comportamento e psicologia leve",
+      "badge": "🧠 Iasis Pensa",
+      "color": "#38bdf8",
+      "description": "Reflexões sobre memória, comportamento, relações, tempo e vida. Constrói a profundidade do personagem."
     },
     {
-      id: "familia",
-      title: "Tema 2: Raízes, Família & Envelhecer",
-      subtitle: "Cenário: Parque ao Entardecer • A força dos laços familiares",
-      badge: "Raízes & Família",
-      color: "#4ade80",
-      description: "Caminhadas reflexivas sobre os ensinamentos dos pais e avós, os conselhos que ecoam na alma e o valor do abraço em vida."
+      "id": "reviva_apresenta",
+      "title": "Pilar 2: Reviva Apresenta ✨",
+      "subtitle": "Quarta-feira • Homenagens, bastidores, tecnologia e diferenciais",
+      "badge": "✨ Reviva Apresenta",
+      "color": "#fbbf24",
+      "description": "Homenagens reais, ocasiões (casamentos, 15 anos, formaturas), processo artesanal e depoimentos. Constrói desejo e confiança."
     },
     {
-      id: "psicologia",
-      title: "Tema 3: Psicologia, Memória & Afeto",
-      subtitle: "Cenário: Livraria & Varanda • A mente e a saudade com amor",
-      badge: "Mente & Memória",
-      color: "#c084fc",
-      description: "Explorar a psicologia do luto e da memória: por que certas vozes e aromas nos marcam, e como transformar a dor em consolo e celebração."
-    },
-    {
-      id: "estudio",
-      title: "Tema 4: A Arte de Eternizar & Estúdio",
-      subtitle: "Cenário: Estúdio Reviva Memories • Tecnologia a serviço do afeto",
-      badge: "Estúdio & Cases",
-      color: "#e5c378",
-      description: "Bastidores da produção ética, cases emocionantes de bênçãos e formaturas, e a apresentação do Iasis como guia na Reviva Memories."
+      "id": "iasis_conversa",
+      "title": "Pilar 3: Iasis Conversa ☕",
+      "subtitle": "Sexta-feira • Conteúdo pessoal, cafeteria, perguntas e vínculo",
+      "badge": "☕ Iasis Conversa",
+      "color": "#f43f5e",
+      "description": "Iasis em cafés, caminhando, observando situações cotidianas e fazendo perguntas para a audiência. Constrói vínculo e intimidade."
     }
   ],
-
-  categories: {
-    cotidiano: { label: "Café & Cotidiano", color: "#38bdf8", icon: "☕" },
-    familia: { label: "Parque & Família", color: "#4ade80", icon: "🌳" },
-    psicologia: { label: "Livraria & Mente", color: "#c084fc", icon: "📖" },
-    estudio: { label: "Estúdio & Cases", color: "#e5c378", icon: "✨" },
-    especial: { label: "Data Festiva", color: "#f472b6", icon: "⭐" },
-    trafego: { label: "Mídia Paga (Ads)", color: "#f87171", icon: "🚀" }
+  "categories": {
+    "iasis_pensa": {
+      "label": "Iasis Pensa",
+      "color": "#38bdf8",
+      "icon": "🧠"
+    },
+    "reviva_apresenta": {
+      "label": "Reviva Apresenta",
+      "color": "#fbbf24",
+      "icon": "✨"
+    },
+    "iasis_conversa": {
+      "label": "Iasis Conversa",
+      "color": "#f43f5e",
+      "icon": "☕"
+    }
   },
-
-  // ================= CALENDÁRIO DE DATAS FESTIVAS & COMEMORATIVAS =================
-  specialDates: [
+  "specialDates": [
     {
-      id: "esp_maes",
-      name: "Dia das Mães",
-      period: "Maio (2º Domingo)",
-      badge: "⭐ Maior Data do Ano",
-      color: "#f472b6",
-      scenario: "Estúdio & Memória Afetiva",
-      format: "Vídeo Vertical (9:16) • 50 a 60s",
-      summary: "A data de maior impacto emocional do ano para homenagens e bênçãos de mães e avós.",
-      script: `[Cenário: Iasis no estúdio de produção, segurando uma foto antiga de mãe e filho, olhar afetuoso]
-
-Quantas vezes a sua mãe deixou de comprar algo para ela para garantir que você tivesse o melhor?
-A gente cresce, a rotina nos puxa para longe, e no Dia das Mães a gente pensa em flores ou presentes materiais.
-Mas o que uma mãe mais quer não cabe em uma caixa de presente.
-Ela quer presença. Ela quer ouvir que todo o sacrifício dela valeu a pena.
-E para você que já não tem a sua mãe por perto fisicamente... saiba que o amor dela continua vivo em cada gesto de bondade que você pratica.
-Hoje, honre a sua mãe. Com um abraço demorado, ou com uma oração cheia de paz e gratidão.`,
-      caption: `O amor de mãe é o único que desafia a distância, o tempo e a própria ausência. 🌸🤍
-
-Neste Dia das Mães, o maior presente que você pode dar é o seu tempo, o seu carinho e a sua gratidão. Para as mães que estão presentes e para as que já viraram luz eterna: todo o nosso amor e respeito.
-
-Qual é a lembrança mais linda que você guarda da sua mãe? Conte para nós nos comentários. ✨`,
-      hashtags: "#DiaDasMaes #AmorDeMae #Iasis #HomenagemAfetiva #RevivaMemories #MaeEterna #Gratidao"
+      "id": "esp_maes",
+      "name": "Dia das Mães",
+      "period": "Maio",
+      "badge": "⭐ Maior Data do Ano",
+      "color": "#f472b6",
+      "scenario": "Estúdio & Memória Afetiva",
+      "format": "Vídeo Vertical (9:16) • 50 a 60s",
+      "summary": "A data de maior impacto emocional do ano para homenagens e bênçãos de mães e avós.",
+      "script": "[Cenário: Estúdio de gravação]\n\nQuantas vezes a sua mãe deixou de comprar algo para ela para garantir que você tivesse o melhor?\nO amor de mãe é o único que desafia a distância e o tempo.",
+      "caption": "O amor de mãe é eterno. 🌸🤍\n\nQual é a lembrança mais linda que você guarda da sua mãe?",
+      "hashtags": "#DiaDasMaes #AmorDeMae #RevivaMemories"
     },
     {
-      id: "esp_pais",
-      name: "Dia dos Pais",
-      period: "Agosto (2º Domingo)",
-      badge: "⭐ Alta Relevância",
-      color: "#60a5fa",
-      scenario: "Parque / Varanda",
-      format: "Vídeo Vertical (9:16) • 50 a 60s",
-      summary: "Celebração do pai protetor, das mãos calejadas e dos conselhos que sustentam a família.",
-      script: `[Cenário: Iasis caminhando no parque, postura serena e reflexiva]
-
-O silêncio de um pai muitas vezes diz mais do que mil discursos.
-Quantos pais guardam as próprias dores e cansaços para que os filhos tenham segurança para sonhar?
-Neste Dia dos Pais, não deixe para expressar sua gratidão no futuro.
-Diga ao seu pai o quanto a força dele foi fundamental para os seus passos.
-E se o seu pai já partiu, sorria com orgulho... porque a firmeza de caráter que você carrega hoje é a assinatura viva dele em você.
-Feliz Dia dos Pais a todos os homens que amam e cuidam de suas famílias.`,
-      caption: `A verdadeira herança de um pai não se mede em bens, mas nos valores e na honra que ele deixa no coração dos filhos. 👔🤍
-
-Neste Dia dos Pais, celebre a bênção da presença e a eternidade do legado. Um abraço afetuoso a todos os pais do Brasil.
-
-Qual conselho do seu pai você nunca esqueceu? Deixe sua homenagem aqui. ✨`,
-      hashtags: "#DiaDosPais #PaiPresente #ConselhoDePai #Iasis #RevivaMemories #AmorDePai #Legado"
-    },
-    {
-      id: "esp_avos",
-      name: "Dia dos Avós",
-      period: "26 de Julho",
-      badge: "⭐ Raízes & Ternura",
-      color: "#fbbf24",
-      scenario: "Cafeteria & Varanda",
-      format: "Vídeo Vertical (9:16) • 50 a 60s",
-      summary: "Celebração das raízes mais doces da família: o bolo da avó, as histórias do avô e o amor em dobro.",
-      script: `[Cenário: Iasis sentado na varanda com uma xícara de café, sorriso acolhedor]
-
-Dizem que os avós são o amor com açúcar: a sabedoria que educa sem a pressa de punir.
-Quem teve a bênção de crescer com o colo dos avós guarda um tesouro que dinheiro nenhum no mundo compra.
-O cheiro de café coado, as histórias repetidas com o mesmo brilho no olhar, a bênção dada com a mão trêmula na saída.
-Hoje é o Dia dos Avós. Se os seus ainda estão aqui, vá correndo dar um abraço.
-Se já descansam em Deus... agradeça aos céus por ter tido raízes tão doces e abençoadas.`,
-      caption: `Os avós são a doçura e a raiz mais forte da nossa árvore genealógica. 👵👴🤍
-
-Neste 26 de Julho, celebramos aqueles que nos amaram em dobro e nos ensinaram que a vida se vive com calma e afeto.
-
-Qual é o nome dos seus avós? Deixe um comentário em honra a eles hoje! ✨`,
-      hashtags: "#DiaDosAvos #AmorDeAvo #ColoDeAvo #Iasis #RevivaMemories #RaizesFamiliares"
-    },
-    {
-      id: "esp_finados",
-      name: "Dia de Finados (Memória & Alento)",
-      period: "02 de Novembro",
-      badge: "⭐ Consolo & Paz",
-      color: "#a78bfa",
-      scenario: "Livraria / Estúdio",
-      format: "Vídeo Vertical (9:16) • 50 a 60s",
-      summary: "Ressignificar o luto: a saudade não como dor paralisante, mas como amor e gratidão perpétua.",
-      script: `[Cenário: Iasis com iluminação âmbar acolhedora, voz serena e respeitosa]
-
-O Dia de Finados não precisa ser um dia de escuridão ou silêncio doloroso.
-Para nós, a saudade é o amor que sobreviveu à ausência física.
-Quem amamos não virou poeira ou esquecimento. Virou os nossos valores, o nosso jeito de rir, a fé que nos sustenta nos dias difíceis.
-Hoje, acenda uma luz de paz no seu coração. Celebre as histórias, os ensinamentos e o privilégio de ter compartilhado a vida com quem você tanto ama.
-Eles vivem na sua memória. E o amor nunca termina.`,
-      caption: `A saudade não é o fim do amor: é a certeza de que ele foi tão grande que nenhuma despedida consegue apagar. 🕊️🤍
-
-Neste Dia de Finados, convidamos você a olhar para quem partiu não com dor, mas com gratidão pelas pegadas de luz que deixaram em sua vida.
-
-Quem é a pessoa que você guarda com mais carinho no peito hoje? Escreva o nome dela aqui. ✨`,
-      hashtags: "#DiaDeFinados #SaudadeComAmor #Alento #PazNoCoracao #MemoriaViva #Iasis #RevivaMemories"
-    },
-    {
-      id: "esp_natal",
-      name: "Natal & Fim de Ano (A Cadeira Vazia)",
-      period: "Dezembro (Natal e Ano Novo)",
-      badge: "⭐ Família & União",
-      color: "#34d399",
-      scenario: "Estúdio com Luzes Quentes",
-      format: "Vídeo Vertical (9:16) • 50 a 60s",
-      summary: "O acolhimento para a ceia de Natal: honrar quem falta à mesa com amor e celebrar a união da família.",
-      script: `[Cenário: Iasis no estúdio com iluminação suave e acolhedora, olhar afetuoso]
-
-Quando chega a noite de Natal e a família se reúne ao redor da mesa, é quase inevitável: o olhar procura aquela cadeira que hoje está vazia.
-O peito aperta. E uma lágrima silenciosa teima em cair.
-Mas quero te fazer um convite para este Natal: não olhe para aquela cadeira como um símbolo de vazio. Olhe como um trono de gratidão.
-Aquela pessoa viveu, amou, ensinou e construiu tudo o que está reunido ali hoje.
-Sorria. Brinde à memória dela. O maior presente que você pode dar a quem partiu é ver a família unida e em paz.`,
-      caption: `A mesa de Natal pode ter uma cadeira vazia, mas o coração da família está transbordando de amor e gratidão. 🎄✨🤍
-
-Neste Natal, honre a memória dos que partiram celebrando a união, o perdão e o carinho com quem está ao seu lado hoje.
-
-Um Feliz Natal de muita paz e consolo a todas as famílias. ✨`,
-      hashtags: "#NatalEmFamilia #CadeiraVaziaComAmor #CeiaDeNatal #Iasis #RevivaMemories #PazEAmor"
-    },
-    {
-      id: "esp_casamentos",
-      name: "Temporada de Casamentos (Bênção dos Pais)",
-      period: "Maio, Setembro e Outubro",
-      badge: "⭐ Bênção & Emoção",
-      color: "#f43f5e",
-      scenario: "Estúdio Reviva Memories",
-      format: "Vídeo Vertical (9:16) • 50 a 60s",
-      summary: "A bênção inesquecível de um pai ou mãe que partiu para o dia do casamento da noiva ou noivo.",
-      script: `[Cenário: Iasis no estúdio, com tom cerimonial caloroso]
-
-O dia do casamento é um dos momentos mais aguardados de uma vida.
-E para quem sonhava em entrar na igreja de braços dados com o pai ou com a mãe... a ausência parece ensurdecedora.
-Mas e se a voz desse pai pudesse abençoar a noiva antes de subir ao altar?
-E se o olhar dele pudesse dizer: 'Minha filha, eu estou aqui com você'?
-O amor não conhece barreiras físicas. Quando a arte e a tecnologia se unem com respeito, a presença se faz real e o altar é abençoado para sempre.
-Conheça essa experiência na Reviva Memories.`,
-      caption: `Você já imaginou ouvir a bênção de quem você mais ama no dia do seu casamento? 👰💍🕊️
-
-A ausência física não precisa impedir que o amor esteja presente no momento mais importante da sua vida. Na Reviva Memories, eternizamos esse momento com a mais profunda emoção e respeito.
-
-Conheça nossos cases de casamento no link da bio. ✨`,
-      hashtags: "#Casamento #BencaoDePai #Noiva #EntradaDaNoiva #HomenagemAfetiva #RevivaMemories"
-    },
-    {
-      id: "esp_formaturas",
-      name: "Temporada de Formaturas (A Promessa aos Avós)",
-      period: "Julho e Dezembro",
-      badge: "⭐ Orgulho & Conquista",
-      color: "#38bdf8",
-      scenario: "Estúdio Reviva Memories",
-      format: "Vídeo Vertical (9:16) • 50 a 60s",
-      summary: "O formando que prometeu o diploma aos avós ou pais e a celebração da conquista com homenagem em vídeo.",
-      script: `[Cenário: Iasis com postura solene de celebração]
-
-Todo diploma carrega um suor invisível: o esforço de pais e avós que muitas vezes não tiveram a chance de estudar, mas deram a vida para que nós chegássemos lá.
-E quando chega a colação de grau, tudo o que queremos é olhar para a plateia e ver aquele olhar brilhando de orgulho.
-Se a pessoa que mais acreditou em você já partiu... honre essa vitória com a bênção dela no telão.
-O orgulho de quem nos ama transcende o tempo. O diploma é seu, mas a glória é de toda a sua família.`,
-      caption: `Toda vitória profissional começou no amor e na renúncia de quem veio antes de nós. 🎓👨‍🎓🤍
-
-Nesta temporada de formaturas, celebre não apenas o diploma, mas a história de quem sonhou essa conquista junto com você.
-
-A quem você dedica o seu diploma hoje? ✨`,
-      hashtags: "#Formatura #ColacaoDeGrau #OrgulhoDaFamilia #Diploma #Iasis #RevivaMemories"
+      "id": "esp_natal",
+      "name": "Natal da Família",
+      "period": "Dezembro (24 e 25)",
+      "badge": "⭐ Grande Celebração",
+      "color": "#ef4444",
+      "scenario": "Sala acolhedora com luz de Natal",
+      "format": "Vídeo Vertical (9:16) • 60s",
+      "summary": "O reencontro de gerações em torno da ceia de Natal.",
+      "script": "[Cenário: Noite de Natal, luz suave de velas]\n\nO maior presente de Natal não cabe numa sacola de compras. O maior presente é a presença de quem amamos.",
+      "caption": "Feliz e Abençoado Natal a todas as famílias brasileiras! 🎄🤍",
+      "hashtags": "#NatalReviva #AmorDeFamilia #PresencaEterna"
     }
   ],
-
-  // ================= ESTEIRA PERPÉTUA CONTÍNUA (30 PAUTAS ROTATIVAS) =================
-  tasks: [
-    // --- TEMA 1: CAFETERIA & COTIDIANO ---
+  "tasks": [
     {
-      id: "pauta_1",
-      pautaNumber: 1,
-      theme: "cotidiano",
-      category: "cotidiano",
-      scenario: "Cafeteria Urbana",
-      title: "O Café que Esfria: Por que estamos sempre com pressa?",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "12:15",
-      duration: "~50s",
-      summary: "Iasis na cafeteria observa como engolimos a vida sem saborear o momento e adiantamos as coisas erradas.",
-      script: `[Cenário: Iasis sentado numa cafeteria charmosa, segurando uma xícara fumegante de café]
-
-Repare ao seu redor. Quase todo mundo aqui está com o celular na mão, olhando para o relógio ou respondendo mensagens com pressa.
-Engraçado como passamos a vida correndo para ganhar tempo... e no fim, não temos tempo para quem mais importa.
-O café esfria, a tarde passa, e aquela conversa com seu pai ou com sua mãe fica para 'semana que vem'.
-Mas e se você respirasse fundo agora? 
-Ligue para quem você ama hoje. Não deixe para quando a saudade for a única companhia. 
-Um café quente e um coração presente. É tudo o que precisamos.`,
-      caption: `Quantas vezes você deixou o café esfriar porque a pressa engoliu o seu dia? ☕🤍
-
-Vivemos correndo para ganhar tempo, mas esquecemos de viver os momentos que realmente deixam saudade. Se puder, desacelere cinco minutos hoje e mande uma mensagem de carinho para quem faz a sua vida valer a pena.
-
-Quando foi a última vez que você ligou para os seus pais sem ter pressa? Compartilhe com a gente. ✨`,
-      hashtags: "#Iasis #RevivaMemories #TempoDeQualidade #Desacelere #Cotidiano #Presenca #AmorDeFamilia",
-      checklist: ["Gravar vídeo do Iasis na cafeteria (9:16)", "Inserir legenda dinâmica e trilha suave de piano", "Publicar simultaneamente nas 4 redes às 12h15", "Responder aos primeiros comentários"]
+      "id": "post_01",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "Quem é Iasis?",
+      "summary": "Apresentação oficial do Iasis e o nascimento do personagem da Reviva.",
+      "scenario": "Ambiente acolhedor / Estúdio intimista com luz suave e livros",
+      "format": "Vídeo Vertical (9:16) • 45 a 60s",
+      "duration": "45-60s",
+      "recommendedTime": "18:00 (Melhor engajamento)",
+      "checklist": [
+        "Gravar fala com tom calmo, empático e olhar direto para a lente",
+        "Inserir transição suave com a logo discreta da Reviva no final",
+        "Publicar simultaneamente no Instagram Reels, TikTok, YouTube Shorts e Facebook"
+      ],
+      "script": "Olá! Eu sou o Iasis. Talvez você esteja se perguntando: quem é essa voz que resolveu falar com você hoje?\n\nEu sou alguém fascinado pelo que o tempo não consegue apagar: as nossas memórias. Cada história de família, cada gargalhada na mesa de domingo, cada abraço apertado de despedida... tudo isso constrói quem somos. Mas na pressa do dia a dia, a gente costuma esquecer de proteger o que realmente importa. É exatamente por isso que nasceu a Reviva Memories. Não para inventar nada novo, mas para permitir que o amor, a voz e a presença de quem amamos permaneçam vivos, tocando o coração de quem fica.\n\nMuito prazer. A partir de hoje, quero te convidar a olhar com outros olhos para a sua própria história.",
+      "caption": "Olá! Eu sou o Iasis... e este é o começo de uma conversa sobre tudo o que o tempo não apaga. ✨🤍\n\nEm um mundo tão acelerado, onde tudo é efêmero e passageiro, criamos a Reviva Memories com um único propósito: transformar lembranças em novos momentos de presença e afeto.\n\nSeja muito bem-vindo à nossa comunidade. Nos próximos dias, vou compartilhar reflexões, bastidores e histórias emocionantes com você.\n\nConta pra mim nos comentários: de onde você está nos acompanhando hoje? 👇\n\n#Iasis #RevivaMemories #QuemEIasis #MemoriasAfetivas #PresencaEterna",
+      "hashtags": "#Iasis #RevivaMemories #QuemEIasis #MemoriasAfetivas #PresencaEterna"
     },
     {
-      id: "pauta_2",
-      pautaNumber: 2,
-      theme: "cotidiano",
-      category: "cotidiano",
-      scenario: "Cafeteria Urbana",
-      title: "A Última Vez que Você Ligou sem Ter um Motivo",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "19:30",
-      duration: "~52s",
-      summary: "Reflexão sobre só nos comunicarmos por obrigação prática e esquecermos de ligar apenas para ouvir a voz.",
-      script: `[Cenário: Iasis olhando pela janela da cafeteria ao entardecer, com olhar acolhedor]
-
-Você já reparou que a gente só telefona quando precisa de alguma coisa?
-'Mãe, onde tá aquela certidão?' ou 'Pai, me ajuda com um conserto'.
-Mas quando foi a última vez que você ligou só para perguntar: 'Como foi o seu dia? Só queria ouvir a sua voz'?
-A gente acha que as pessoas que amamos estarão sempre ali, a um toque na tela. Mas a vida tem o seu próprio relógio.
-Hoje à noite, antes de dormir, faça essa ligação despretensiosa. Apenas para ouvir o som da voz de quem te ensinou a dar os primeiros passos.`,
-      caption: `Você já ligou para alguém hoje só para ouvir a voz, sem pressa e sem motivo prático? 📞🤍
-
-No corre-corre da rotina, a gente se acostuma a falar só sobre boletos, trabalho e obrigações. Mas o que realmente constrói memórias inesquecíveis é o afeto do cotidiano.
-
-Faça essa ligação hoje. A vida agradece. ✨`,
-      hashtags: "#Iasis #Familia #OuvirAVoz #Saudade #Maternidade #Paternidade #RevivaMemories",
-      checklist: ["Gravar interpretação com olhar sincero", "Adicionar legendas dinâmicas", "Distribuir nas 4 plataformas às 19h30", "Compartilhar nos Stories"]
+      "id": "post_02",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "O que é a Reviva Memories?",
+      "summary": "Apresentação clara e elegante da proposta da Reviva Memories com exemplos visuais.",
+      "scenario": "Estúdio Reviva / Mesa com fotos antigas e tablet de produção",
+      "format": "Vídeo Vertical (9:16) • 50 a 60s",
+      "duration": "50-60s",
+      "recommendedTime": "12:30 (Horário do almoço)",
+      "checklist": [
+        "Exibir fotos antigas sendo restauradas em tela dividida / b-roll",
+        "Mostrar a transição da fotografia estática para animação realista",
+        "Incluir chamada para conhecer o link na bio"
+      ],
+      "script": "O que é a Reviva Memories? Muita gente nos pergunta se somos um aplicativo ou um estúdio de vídeo comum.\n\nA verdade é que a Reviva nasceu para transformar memórias em novos momentos de presença. Sabe aquela fotografia amarelada no fundo da gaveta? Aquele áudio antigo de WhatsApp com a voz carinhosa de quem já partiu? Nós resgatamos essa essência. Restauramos cada detalhe com máxima fidelidade, harmonizamos o tom da voz e recriamos uma experiência única em vídeo, onde aquela pessoa querida pode voltar a abençoar, desejar parabéns ou simplesmente dizer que está tudo bem. Não é sobre tecnologia fria. É sobre conforto, ponte entre gerações e cura emocional.\n\nIsso é Reviva Memories.",
+      "caption": "A Reviva não faz apenas vídeos. Nós construímos pontes entre gerações e resgatamos momentos inesquecíveis. 🕊️✨\n\nCom um trabalho minucioso de restauração, harmonização vocal e sensibilidade artística, damos vida e voz a lembranças que merecem ser ouvidas e sentidas de novo.\n\nConheça mais sobre como eternizar a história de quem você ama acessando o link na nossa bio. 🔗\n\nVocê já imaginou ouvir novamente um conselho de alguém que marcou a sua vida? Comente aqui! 👇\n\n#RevivaMemories #EternizarMomentos #HomenagemAfetiva #TecnologiaComProposito #SaudadeComAmor",
+      "hashtags": "#RevivaMemories #EternizarMomentos #HomenagemAfetiva #TecnologiaComProposito #SaudadeComAmor"
     },
     {
-      id: "pauta_3",
-      pautaNumber: 3,
-      theme: "cotidiano",
-      category: "cotidiano",
-      scenario: "Cafeteria Urbana",
-      title: "Trabalhar 50 Horas e não Ter 15 Minutos para a Família",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "12:30",
-      duration: "~48s",
-      summary: "Provocação sobre a economia moderna do tempo: para que serve o sucesso se perdemos quem amamos no caminho?",
-      script: `[Cenário: Iasis fechando um caderno de couro na cafeteria, com sorriso reflexivo]
-
-Muitas pessoas me dizem: 'Iasis, eu trabalho 10 horas por dia para dar o melhor para os meus filhos e honrar meus pais'.
-Isso é nobre. Muito nobre.
-Mas você já se perguntou o que é o 'melhor'?
-Ninguém no final da vida diz: 'Ah, como eu queria ter passado mais duas horas na planilha de Excel'.
-O que fica no peito são as risadas à mesa, o bolo que a sua avó fazia, o cheiro de café passado e o abraço demorado.
-Não troque a presença pela correria. O maior legado que você deixa para os seus filhos é o seu tempo.`,
-      caption: `O que é o verdadeiro 'melhor' que podemos dar a quem amamos? ⏳
-
-Trabalhar e construir o futuro é fundamental, mas nenhuma carreira substitui a bênção de um jantar em família ou o abraço apertado de quem te viu crescer.
-
-Qual memória da sua infância você mais guarda com carinho no coração? ✨`,
-      hashtags: "#Iasis #EconomiaDoTempo #PresencaReal #TrabalhoEVida #PaiEFilho #MaeEFilha #RevivaMemories",
-      checklist: ["Gravar vídeo com entonação firme e madura", "Revisar legenda com chamada à reflexão", "Agendar para as 12h30", "Monitorar compartilhamentos"]
+      "id": "post_03",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "Por que algumas memórias nunca envelhecem?",
+      "summary": "Iasis em ambiente de cafeteria refletindo sobre por que certas lembranças continuam vívidas.",
+      "scenario": "Cafeteria aconchegante com xícara de cappuccino e luz âmbar",
+      "format": "Vídeo Vertical (9:16) • 40 a 50s",
+      "duration": "40-50s",
+      "recommendedTime": "19:30 (Noite de sexta)",
+      "checklist": [
+        "Tom íntimo, estilo conversa casual com um amigo de mesa",
+        "Plano médio aproximando lentamente para close emocional",
+        "Incentivar reflexão profunda nos comentários"
+      ],
+      "script": "É curioso, né? Algumas coisas que aconteceram há trinta anos continuam parecendo ter acontecido ontem de manhã.\n\nO cheiro do bolo na casa da avó. O timbre de uma risada alta na sala. A textura da mão do seu pai segurando a sua no primeiro dia de aula. O cérebro esquece datas, números e compromissos... mas ele não esquece o que nos fez sentir vivos. A memória humana não arquiva fatos; ela arquiva emoções. E enquanto houver alguém para lembrar com carinho, aquela lembrança continua tão jovem e pulsante quanto no dia em que foi criada.\n\nQual é a lembrança mais antiga que continua viva dentro de você?",
+      "caption": "O tempo passa no calendário, mas no coração as memórias mais preciosas continuam intactas. ☕🤍\n\nVocê já percebeu como certas lembranças de décadas atrás parecem ter acontecido ontem? Isso acontece porque o afeto não envelhece.\n\nFeche os olhos por um segundo... qual é a primeira memória carinhosa que veio à sua mente agora? Compartilhe com a gente nos comentários. ✨\n\n#IasisConversa #TempoEMemoria #LembrancasVivas #PausaParaCafe #Afeto",
+      "hashtags": "#IasisConversa #TempoEMemoria #LembrancasVivas #PausaParaCafe #Afeto"
     },
     {
-      id: "pauta_4",
-      pautaNumber: 4,
-      theme: "cotidiano",
-      category: "cotidiano",
-      scenario: "Cafeteria Urbana",
-      title: "O Olhar que Não se Desvia da Tela",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "20:00",
-      duration: "~55s",
-      summary: "Iasis fala sobre o hábito moderno de estar no mesmo ambiente físico, mas com a atenção roubada pelo algoritmo.",
-      script: `[Cenário: Cafeteria com iluminação âmbar aconchegante, Iasis gesticula calmamente]
-
-Hoje observei um pai e um filho sentados aqui perto.
-Dividiam a mesma mesa, mas não dividiam o mesmo momento. Cada um preso à sua própria tela.
-A tecnologia tem o poder de aproximar quem está longe, mas se não tivermos cuidado, ela distancia quem está exatamente ao nosso lado.
-Quando estiver com seus pais, seus filhos ou seus amigos... guarde o celular por alguns instantes.
-Olhe nos olhos. Perceba os novos fios brancos, as marcas de expressão que contam uma vida inteira de luta.
-Esses olhares são únicos. E nunca voltam.`,
-      caption: `Você já sentiu que o mundo virtual às vezes rouba o que temos de mais precioso no mundo real? 📱👀
-
-A tecnologia é maravilhosa quando serve para resgatar e eternizar o amor. Mas quando estamos juntos fisicamente, nada substitui o calor do olho no olho.
-
-Experimente colocar o celular no bolso hoje no jantar. O momento presente é o maior presente. ✨`,
-      hashtags: "#Iasis #PresencaDigital #OlhoNoOlho #RelacoesHumanas #Maturidade #RevivaMemories",
-      checklist: ["Gravar clipe com iluminação suave", "Legendar com fonte legível e dinâmica", "Postar às 20h00", "Fixar comentário provocador"]
+      "id": "post_04",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "Por que uma fotografia consegue nos transportar no tempo?",
+      "summary": "Explicação psicológica e poética sobre a conexão entre imagens estáticas e viagens no tempo emocional.",
+      "scenario": "Livraria clássica ou estante com álbuns antigos e luz quente",
+      "format": "Vídeo Vertical (9:16) • 45 a 55s",
+      "duration": "45-55s",
+      "recommendedTime": "18:30",
+      "checklist": [
+        "Iasis folheia um álbum de fotografias analógicas no início do vídeo",
+        "Efeito sutil sonoro de relógio desacelerando",
+        "CTA para guardar com carinho as fotografias familiares"
+      ],
+      "script": "Por que uma simples folha de papel tem o poder de nos jogar 30 anos para trás? Porque a fotografia é a única máquina do tempo que inventamos.\n\nEla congela um segundo e diz: esse instante agora é eterno. Quando você olha para o rosto de quem ama numa foto antiga, seu cérebro não vê apenas uma imagem. Ele ouve a respiração, sente o carinho daquele dia e revive toda a história que existia ali.\n\nNão deixe essas fotos esquecidas em gavetas ou celulares velhos. Elas são a certidão do amor da sua família.",
+      "caption": "Uma foto não é apenas imagem congelada: é a prova viva de que o amor existiu naquele segundo e continua ecoando hoje. 📸⏳\n\nQuantas fotos preciosas da sua infância ou dos seus antepassados estão guardadas em caixas de sapato ou esquecidas em celulares antigos?\n\nValorize cada imagem. Elas contam quem você é.\n\nVocê tem alguma fotografia na sua casa que considera um verdadeiro tesouro? Conta pra nós! 👇\n\n#IasisPensa #FotografiaAfetiva #MaquinaDoTempo #AlbumDeFamilia #MemoriaViva",
+      "hashtags": "#IasisPensa #FotografiaAfetiva #MaquinaDoTempo #AlbumDeFamilia #MemoriaViva"
     },
     {
-      id: "pauta_5",
-      pautaNumber: 5,
-      theme: "cotidiano",
-      category: "cotidiano",
-      scenario: "Cafeteria Urbana",
-      title: "A Saudade Não Avisa o Dia que Vai Chegar",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "19:00",
-      duration: "~54s",
-      summary: "Uma reflexão sensível sobre a impermanência e como valorizar cada conversa antes que vire recordação.",
-      script: `[Cenário: Iasis toma um gole de café, olha para a câmera com serenidade e respeito]
-
-A gente vive como se o tempo fosse infinito.
-Adiamos aquele café, aquele almoço de sábado, aquele pedido de desculpas sincero.
-Pensamos: 'No próximo mês eu vou lá visitar'.
-Mas a saudade não manda aviso prévio. Ela chega sem bater na porta, e quando nos damos conta, o que era cotidiano vira lembrança eterna.
-Por que esperar a ausência para valorizar a presença?
-Se você tem a bênção de ter quem você ama por perto hoje... honre esse milagre. Diga o que sente enquanto as palavras podem ser ouvidas com um sorriso.`,
-      caption: `A gente nunca sabe qual é o último café, a última piada ou o último conselho. 🤍
-
-A vida não nos dá garantias de amanhã, mas nos presenteia com o hoje. Honre a presença de quem você ama enquanto há tempo de abraçar forte.
-
-A quem você diria um 'eu te amo' sincero agora mesmo? Marque ou mande esse vídeo para essa pessoa. ✨`,
-      hashtags: "#Iasis #SaudadeComAmor #Gratidao #AmorIncondicional #Lembrancas #RevivaMemories",
-      checklist: ["Gravar take com expressão acolhedora", "Ajustar trilha sonora tocante", "Publicar às 19h00", "Repassar para grupos de WhatsApp"]
+      "id": "post_05",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "A homenagem começa antes do vídeo",
+      "summary": "Apresentação das 5 etapas da experiência Reviva: resgate, essência, harmonização, lapidação e reencontro.",
+      "scenario": "Mesa de design / Sala de edição com iluminação profissional",
+      "format": "Vídeo Vertical (9:16) • 60s",
+      "duration": "60s",
+      "recommendedTime": "13:00",
+      "checklist": [
+        "Inserir gráficos na tela com os 5 pilares: Resgate, Essência, Harmonização, Lapidação, Reencontro",
+        "Ressaltar o respeito ético, aprovação da família e cuidado humano",
+        "Inserir trechos dos bastidores do processo artesanal"
+      ],
+      "script": "Muitas pessoas acham que fazer uma homenagem na Reviva é só subir uma foto em um programa de inteligência artificial. Mas a verdade é que a homenagem começa muito antes do vídeo ficar pronto.\n\nNós seguimos cinco etapas sagradas: Primeiro, o Resgate da imagem com restauração artesanal. Segundo, a Essência: ouvimos a família para entender o jeito, os bordões e o olhar daquela pessoa. Terceiro, a Harmonização acústica da voz com precisão de timbre e respiração. Quarto, a Lapidação artística e ética da mensagem, com aprovação passo a passo da família. E quinto... o Reencontro: o momento em que a emoção transborda na tela.\n\nNão é algoritmo. É respeito, carinho e reverência à história de quem você ama.",
+      "caption": "Não é só tecnologia. É respeito, sensibilidade e honra a quem construiu a nossa história. 🤍✨\n\nConheça as 5 etapas da experiência Reviva:\n1️⃣ Resgate minucioso da fotografia\n2️⃣ Compreensão profunda da essência da pessoa\n3️⃣ Harmonização acústica e timbre real da voz\n4️⃣ Lapidação ética e artesanal\n5️⃣ O Reencontro inesquecível\n\nQuer saber como eternizar uma homenagem com esse cuidado? Chame a gente no direct ou clique no link da bio! 📩\n\n#RevivaApresenta #ProcessoReviva #BastidoresReviva #CuidadoHumano #EticaEAfeto",
+      "hashtags": "#RevivaApresenta #ProcessoReviva #BastidoresReviva #CuidadoHumano #EticaEAfeto"
     },
     {
-      id: "pauta_6",
-      pautaNumber: 6,
-      theme: "cotidiano",
-      category: "cotidiano",
-      scenario: "Cafeteria Urbana",
-      title: "O que Aprendi Observando uma Mesa de Família",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "11:45",
-      duration: "~50s",
-      summary: "Iasis compartilha uma crônica do cotidiano sobre uma avó contando histórias para os netos.",
-      script: `[Cenário: Iasis sorri com ternura, xícara na mão na varanda da cafeteria]
-
-Ontem vi uma senhora aqui na cafeteria com seus dois netos.
-Ela tirou da bolsa uma foto amarelada e começou a contar como conheceu o avô deles, 50 anos atrás.
-O brilho nos olhos daqueles jovens ouvindo a história... foi algo mágico.
-As histórias da nossa família são o nosso maior tesouro. Quando os mais velhos contam o passado, eles estão nos entregando as nossas próprias raízes.
-Você conhece a história de amor dos seus avós? Já parou para perguntar como eles superaram os momentos difíceis?
-Pergunte. Grave. Guarde no peito.`,
-      caption: `Nossas raízes familiares são a bússola que nos guia pela vida. 📖👵👴
-
-Quantas histórias lindas estão guardadas na memória dos seus pais e avós esperando apenas uma pergunta sua para virem à tona?
-
-Você sabe como seus pais ou avós se conheceram? Conte nos comentários! ✨`,
-      hashtags: "#Iasis #Avos #HistoriasDeFamilia #Raizes #Ancestralidade #MemoriaViva #RevivaMemories",
-      checklist: ["Gravar vídeo com tom afetuoso de crônica", "Legendar falas principais", "Publicar às 11h45", "Incentivar histórias nos comentários"]
+      "id": "post_06",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "Você já sentiu saudade ao ouvir uma voz?",
+      "summary": "Conversa íntima sobre como o timbre vocal é uma das marcas mais profundas que alguém deixa em nós.",
+      "scenario": "Banco de praça arborizada no fim de tarde / Fones de ouvido no pescoço",
+      "format": "Vídeo Vertical (9:16) • 45 a 55s",
+      "duration": "45-55s",
+      "recommendedTime": "19:00",
+      "checklist": [
+        "Iasis tira um fone de ouvido de forma natural antes de começar a falar",
+        "Luz dourada de pôr do sol (golden hour)",
+        "Voz mansa e convidativa para conexão afetiva"
+      ],
+      "script": "Você já reparou como a voz é uma das primeiras coisas que a gente tem medo de esquecer? Com o passar dos anos, o rosto a gente até relembra pelas fotografias. Mas o timbre da voz... aquele jeito único de pronunciar o seu nome, o 'benção' antes de dormir, o tom da risada ao telefone...\n\nQuando um áudio antigo toca sem querer, parece que o coração dá um salto no peito. A voz carrega a alma de quem fala.\n\nSe você pudesse escutar mais uma vez a voz de alguém querido te chamando pelo nome hoje... quem seria essa pessoa?",
+      "caption": "O rosto a gente guarda no porta-retrato... mas o som da voz mora no fundo do coração. 🎙️🕊️\n\nOuvir novamente quem amamos é um dos sentimentos mais poderosos do mundo. A voz tem alma, calor e aconchego.\n\nQuem é a pessoa cuja voz você daria tudo para ouvir dizendo o seu nome mais uma vez? Deixe sua homenagem nos comentários. 🤍\n\n#IasisConversa #VozDaSaudade #PoderDaVoz #Lembrancas #Saudade",
+      "hashtags": "#IasisConversa #VozDaSaudade #PoderDaVoz #Lembrancas #Saudade"
     },
     {
-      id: "pauta_7",
-      pautaNumber: 7,
-      theme: "cotidiano",
-      category: "trafego",
-      scenario: "Estratégia & Anúncios",
-      title: "Impulsionamento Perpétuo: O Café que Esfria (Meta Ads)",
-      format: "Configuração de Anúncios no Gerenciador",
-      channel: "Meta Ads (Instagram & Facebook)",
-      recommendedTime: "10:00",
-      duration: "Ajuste Técnico",
-      summary: "Impulsionar o vídeo reflexivo mais assistido da semana com orçamento contínuo (R$ 20/dia) para público aberto de 35 a 65+ anos.",
-      script: `[Ação Operacional do Gestor de Tráfego]:
-1. Acessar o Gerenciador de Anúncios do Meta Ads.
-2. Selecionar o vídeo com maior retenção orgânica (ex: Pauta 1 'O Café que Esfria' ou Pauta 5 'A Saudade').
-3. Criar Campanha Perpétua de Engajamento & Visualização de Vídeo (ThruPlay):
-   - Orçamento: R$ 20 a R$ 30 por dia contínuo (Always-On).
-   - Público: Brasil, Homens e Mulheres de 35 a 65+ anos.
-   - Interesses: Família, Psicologia, Espiritualidade, Homenagens.
-4. Manter a campanha rodando perenemente para atrair seguidores qualificados.`,
-      caption: `Configuração da máquina perpétua de distribuição paga dos melhores conteúdos reflexivos do Iasis.`,
-      hashtags: "#MetaAds #TrafegoPerpetuo #EstrategiaDigital #RevivaMemories",
-      checklist: ["Verificar métricas orgânicas da semana", "Subir campanha de visualização ThruPlay", "Inserir link da bio trackeado (UTM)", "Monitorar custo por clique"]
-    },
-
-    // --- TEMA 2: PARQUE & FAMÍLIA ---
-    {
-      id: "pauta_8",
-      pautaNumber: 8,
-      theme: "familia",
-      category: "familia",
-      scenario: "Parque ao Entardecer",
-      title: "A Árvore que Seus Avós Plantaram",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "17:45",
-      duration: "~52s",
-      summary: "Iasis caminha pelo parque ao pôr do sol e fala sobre raízes profundas que nos sustentam nas tempestades.",
-      script: `[Cenário: Iasis caminhando por uma alameda de árvores frondosas no parque, luz dourada do entardecer]
-
-Olhe para esta árvore centenária.
-Ela enfrentou vendavais, tempestades e secas rigorosas. E continua firme.
-Sabe por quê? Porque as raízes dela são profundas e invisíveis aos olhos de quem passa com pressa.
-Na nossa vida, a nossa família é essa raiz.
-Os valores que seu pai te ensinou, a fé da sua mãe, o abraço silencioso dos seus avós... são essas raízes que não te deixam cair quando o vento da vida sopra forte.
-Nunca esqueça de onde você veio. Honrar as suas raízes é o maior segredo para crescer com sabedoria.`,
-      caption: `Quem tem raízes fortes não teme as tempestades da vida. 🌳✨
-
-Tudo o que somos hoje começou nos passos, nas lutas e no amor de quem veio antes de nós. Honrar a história dos nossos pais e avós é manter acesa a nossa própria essência.
-
-Qual é o maior ensinamento que você herdou da sua família? 🤍`,
-      hashtags: "#Iasis #RaizesFortes #Ancestrais #Familia #Sabedoria #Maturidade #RevivaMemories",
-      checklist: ["Gravar caminhada suave no parque", "Capturar a luz dourada do entardecer", "Adicionar legenda dinâmica", "Publicar às 17h45 em todas as redes"]
+      "id": "post_07",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "O que realmente faz alguém permanecer em nossa memória?",
+      "summary": "Reflexão sobre como pequenos detalhes cotidianos mantêm as pessoas vivas em nós.",
+      "scenario": "Caminhada urbana tranquila / Calçada com arquitetura clássica",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Iasis caminhando em plano médio enquanto fala com o espectador",
+        "Enumerar com os dedos: a frase, a risada, o jeito, a mania, a história",
+        "Mensagem final que valoriza quem está ao nosso lado hoje"
+      ],
+      "script": "O que realmente faz alguém ficar gravado para sempre na nossa memória? Não é o cargo que ela ocupava, nem a roupa que ela usava.\n\nO que fica são as sutilezas: Uma frase que só ela falava; Uma risada escandalosa que contagiava a casa inteira; O jeito paciente de ouvir os nossos desabafos; Aquela mania engraçada de guardar tudo em potinhos; Ou as histórias que ela repetia em todo almoço de domingo. Nós somos feitos dos pedacinhos das pessoas que nos amaram.\n\nE você? Que marca você acha que está deixando nas pessoas que convivem com você hoje?",
+      "caption": "Não são os grandes títulos que ficam... são as pequenas delicadezas do dia a dia. 🌿💭\n\nAs frases típicas, o café passado com carinho, a risada inconfundível. É assim que as pessoas continuam vivas em nós.\n\nQual é a mania ou frase inesquecível daquela pessoa especial que sempre faz você sorrir ao lembrar? Compartilhe aqui! 👇\n\n#IasisPensa #MarcasDoAmor #PessoasInesqueciveis #LegadoAfetivo #DetalhesQueFicam",
+      "hashtags": "#IasisPensa #MarcasDoAmor #PessoasInesqueciveis #LegadoAfetivo #DetalhesQueFicam"
     },
     {
-      id: "pauta_9",
-      pautaNumber: 9,
-      theme: "familia",
-      category: "familia",
-      scenario: "Parque ao Entardecer",
-      title: "O Conselho do Seu Pai que Você só Entendeu Adulto",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "19:30",
-      duration: "~55s",
-      summary: "Reflexão sobre a maturidade que nos faz reconhecer a sabedoria dos pais quando antes achávamos exagero.",
-      script: `[Cenário: Iasis encostado num banco de madeira no parque, olhar sereno]
-
-Quando somos jovens, achamos que sabemos tudo.
-Quantas vezes ouvimos um conselho do nosso pai ou da nossa mãe e pensamos: 'Que exagero... eles não entendem nada do mundo moderno'.
-Aí os anos passam. A vida nos cobra, as responsabilidades chegam, os filhos nascem.
-E de repente, em um momento difícil, aquela frase dita há vinte anos ecoa na nossa mente com uma clareza impressionante.
-A sabedoria dos nossos pais não vinha de livros; vinha da vida gasta com amor por nós.
-Se seu pai ainda está por aqui, agradeça a ele hoje. Se ele já partiu... sorria, porque o conselho dele ainda vive em você.`,
-      caption: `Você já se pegou repetindo exatamente a mesma frase que o seu pai ou a sua mãe dizia? 💭🤍
-
-A maturidade tem esse dom: ela nos faz enxergar o amor e a sabedoria que existiam por trás de cada 'não' e de cada conselho dos nossos pais.
-
-Qual conselho do seu pai ou da sua mãe você carrega para sempre? ✨`,
-      hashtags: "#Iasis #ConselhosDePai #AmorDeMae #Maturidade #Gratidao #Legado #RevivaMemories",
-      checklist: ["Gravar com expressão emotiva", "Ajustar áudio límpido da voz do Iasis", "Publicar às 19h30", "Interagir com histórias de pais e mães"]
+      "id": "post_08",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "Uma voz pode voltar a estar presente",
+      "summary": "Apresentação sem excesso de explicações, deixando a experiência da homenagem falar por si.",
+      "scenario": "Estúdio com luz suave, fones de estúdio na bancada",
+      "format": "Vídeo Vertical (9:16) • 45 a 60s",
+      "duration": "45-60s",
+      "recommendedTime": "12:45",
+      "checklist": [
+        "Começar direto com o trecho de uma homenagem emocionante já autorizada",
+        "Iasis faz introdução e fechamento curtos, deixando a emoção em primeiro plano",
+        "Legenda com convite para conversar no WhatsApp"
+      ],
+      "script": "Às vezes, a gente não precisa explicar muita coisa. A gente só precisa sentir. Quando a família da Dona Maria nos procurou, eles tinham apenas uma foto antiga de 1978 e um bilhete escrito à mão.\n\nO neto dela ia se formar em Medicina e o grande sonho dele era ter a bênção da avó nesse dia. Olha o que aconteceu...\n\nIsso é presença. Isso é o que nos move todos os dias na Reviva.",
+      "caption": "Quando as palavras encontram o coração, a distância simplesmente desaparece. 🎓🕊️\n\nUma foto antiga, uma memória guardada com amor e o reencontro mais esperado da vida de um neto.\n\nPermita que as pessoas que você ama façam parte dos seus momentos mais marcantes. Fale conosco pelo link da bio e saiba como preparar a sua homenagem. ✨\n\n#RevivaApresenta #HomenagemEmocionante #Formatura #BencaoDeVo #VozPresente",
+      "hashtags": "#RevivaApresenta #HomenagemEmocionante #Formatura #BencaoDeVo #VozPresente"
     },
     {
-      id: "pauta_10",
-      pautaNumber: 10,
-      theme: "familia",
-      category: "familia",
-      scenario: "Parque ao Entardecer",
-      title: "A Voz da Sua Mãe: Quando Foi a Última Vez que Você Gravou?",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "12:15",
-      duration: "~49s",
-      summary: "Um alerta afetuoso sobre o perigo de guardarmos milhares de fotos de paisagens e nenhuma gravação da voz de quem amamos.",
-      script: `[Cenário: Iasis segurando um gravador antigo ou celular no parque]
-
-Faça um teste rápido no seu celular.
-Role a sua galeria. Você vai achar centenas de fotos de comida, viagens, recibos, selfies e paisagens.
-Agora me responda com sinceridade: quantas gravações de áudio da voz da sua mãe ou do seu pai você tem salvas?
-A voz é a primeira coisa que a mente humana começa a esquecer com o passar dos anos.
-E é o som que mais traz conforto e consolo para o peito quando a saudade aperta.
-Grave a risada da sua mãe. Grave uma história boba que seu pai conta à mesa.
-Esse áudio vai ser o seu bem mais valioso no futuro.`,
-      caption: `Temos milhares de fotos no celular, mas quando foi a última vez que guardamos o som da voz de quem amamos? 🎙️🤍
-
-A voz carrega a alma, o sotaque e o carinho inconfundível dos nossos pais e avós. Nunca deixe de registrar as risadas e histórias enquanto elas acontecem ao vivo.
-
-Guarde esse lembrete no coração. ✨`,
-      hashtags: "#Iasis #VozDeMae #LembrancaViva #Eternizar #AmorEterno #RevivaMemories",
-      checklist: ["Gravar take intimista", "Legendar destacando a importância da voz", "Publicar às 12h15", "Estimular envio de áudios de família"]
+      "id": "post_09",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "As pequenas coisas que mais sentimos falta",
+      "summary": "Iasis conversando em cafeteria sobre como a saudade reside nos pequenos hábitos banais.",
+      "scenario": "Mesa de café com livro aberto e xícara fumegante",
+      "format": "Vídeo Vertical (9:16) • 45s",
+      "duration": "45s",
+      "recommendedTime": "20:00",
+      "checklist": [
+        "Clima despretensioso, gravado na vertical bem próximo",
+        "Iluminação intimista",
+        "Final com gancho para salvar o vídeo e enviar para alguém da família"
+      ],
+      "script": "Sabe do que a gente mais sente falta quando alguém se vai? Nunca é dos dias grandiosos de festa.\n\nA gente sente falta é daquele 'cuidado com o sereno na volta' que a mãe falava. Do barulho da chave rodando na fechadura às seis da tarde anunciando que o pai chegou do trabalho. Do prato feito com aquele tempero que ninguém na família conseguiu copiar até hoje. A vida é feita dessas pequenas notas musicais que, juntas, criam a canção mais bonita da nossa história.\n\nSe você ainda tem quem te ligue só pra saber se você almoçou... agradeça hoje.",
+      "caption": "A saudade tem morada nos detalhes que a gente achava que eram bobos. ☕💛\n\nO barulho da porta abrindo, a mensagem de bom dia no grupo, o prato favorito feito com carinho. Valorize quem divide a rotina com você hoje.\n\nEnvie esse vídeo agora para quem faz o seu dia a dia mais especial. ✨\n\n#IasisConversa #PequenasCoisas #SaudadeDosDetalhes #Familia #AmorCotidiano",
+      "hashtags": "#IasisConversa #PequenasCoisas #SaudadeDosDetalhes #Familia #AmorCotidiano"
     },
     {
-      id: "pauta_11",
-      pautaNumber: 11,
-      theme: "familia",
-      category: "familia",
-      scenario: "Parque ao Entardecer",
-      title: "Envelhecer é uma Arte que a Juventude Ignora",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "18:30",
-      duration: "~54s",
-      summary: "Reflexão sobre valorizar a terceira idade e aprender a ter paciência com o ritmo mais calmo dos mais velhos.",
-      script: `[Cenário: Iasis caminhando no parque ao lado de bancos onde idosos conversam calmamente]
-
-O mundo moderno tem uma pressa cruel.
-Queremos tudo em cinco segundos: a entrega rápida, a resposta imediata, o vídeo acelerado em 2x.
-E quando estamos com uma pessoa idosa, às vezes nos falta a paciência para ouvir aquele mesmo relato pela terceira vez.
-Mas envelhecer não é perder o vigor; é acumular vida.
-Quem tem passos lentos já correu muito para que você pudesse chegar onde está hoje.
-Abaixe o seu ritmo. Dê a mão. Escute com carinho.
-Um dia, se Deus quiser, os passos lentos serão os nossos. E tudo o que vamos querer é alguém que segure a nossa mão sem pressa.`,
-      caption: `Você já parou para agradecer a quem desacelerou os passos para te ensinar a andar? 👵👴🤍
-
-A paciência com os mais velhos é a forma mais pura de amor e gratidão. Respeite o tempo, as rugas e a história de quem construiu o caminho por onde você passa hoje.
-
-Compartilhe com quem tem um amor imenso pelos avós ou pais idosos. ✨`,
-      hashtags: "#Iasis #TerceiraIdade #Respeito #AmorAosIdosos #Paciencia #RevivaMemories",
-      checklist: ["Gravar clipe com iluminação suave", "Adicionar trilha de cordas serena", "Postar às 18h30", "Responder comentários carinhosos"]
+      "id": "post_10",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "Por que algumas datas são tão importantes para nós?",
+      "summary": "Reflexão sobre aniversários, casamentos e formaturas como rituais de passagem da memória.",
+      "scenario": "Espaço sofisticado com relógio de parede antigo ou calendário rústico",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Iasis mostra um calendário com datas marcadas",
+        "Ritmo pontuado refletindo a passagem do tempo",
+        "Conectar a importância das datas com as homenagens que preparamos"
+      ],
+      "script": "Por que uma data no calendário consegue mexer tanto com o nosso coração? Aniversário de casamento, 15 anos de uma filha, o baile de formatura, ou simplesmente aquele dia do ano em que a ausência de alguém bate mais forte...\n\nDatas não são apenas números. Elas são portais. São dias em que a gente para tudo para fazer um balanço do amor, da conquista e da gratidão. Mas em todas essas datas especiais, existe sempre uma cadeira vazia que a gente gostaria imensamente que estivesse ocupada.\n\nE se essa distância pudesse ser quebrada por um instante de presença?",
+      "caption": "Datas especiais não são apenas folhas viradas no calendário. Elas são portais de afeto. 🗓️💫\n\nEm cada aniversário, conquista ou marco de vida, a gente olha ao redor e lembra com carinho de quem ajudou a construir cada vitória.\n\nQual data do ano é mais especial e sagrada para você e sua família? Comente aqui! 👇\n\n#IasisPensa #DatasEspeciais #CiclosDaVida #Aniversario #Casamento",
+      "hashtags": "#IasisPensa #DatasEspeciais #CiclosDaVida #Aniversario #Casamento"
     },
     {
-      id: "pauta_12",
-      pautaNumber: 12,
-      theme: "familia",
-      category: "familia",
-      scenario: "Parque ao Entardecer",
-      title: "O Abraço que Não Demos Antes da Partida",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "20:15",
-      duration: "~53s",
-      summary: "Uma mensagem de perdão e alívio para quem carrega a culpa de não ter se despedido como gostaria.",
-      script: `[Cenário: Iasis sentado na grama do parque, sob a copa de uma árvore acolhedora]
-
-Eu sei que algumas pessoas me assistem agora carregando um peso silencioso no peito.
-A culpa de não ter dado aquele último abraço, de ter brigado por uma bobagem, ou de não ter chegado a tempo da despedida.
-Se esse for o seu caso, escute com atenção o que vou te dizer:
-O amor não se mede pelos últimos cinco minutos de uma vida.
-Ele se mede pelos anos de convivência, pelos risos sinceros, pela dedicação e pelo afeto verdadeiro que vocês construíram.
-Perdoe a si mesmo. Quem partiu levou o seu amor inteiro, e não a imperfeição daquele último momento.
-Fique em paz.`,
-      caption: `Uma mensagem de carinho para você que carrega o peso de uma despedida imperfeita. 🕊️🤍
-
-Não deixe que a dor do fim apague a beleza de toda a caminhada que vocês construíram juntos. O amor transcende qualquer ausência física e continua vivo no seu coração.
-
-Respire fundo e sinta essa paz hoje. ✨`,
-      hashtags: "#Iasis #Consolo #Alento #PazNoCoracao #Superacao #SaudadeComAmor #RevivaMemories",
-      checklist: ["Gravar com tom de acolhimento profundo", "Legenda limpa e elegante", "Publicar às 20h15", "Acolher mensagens com carinho"]
+      "id": "post_11",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "E se ele pudesse participar desse momento?",
+      "summary": "Apresentação da solução Reviva para casamentos, 15 anos e formaturas.",
+      "scenario": "Estúdio com projetor exibindo um casamento emocionante",
+      "format": "Vídeo Vertical (9:16) • 55s",
+      "duration": "55s",
+      "recommendedTime": "12:30",
+      "checklist": [
+        "B-roll de noiva emocionada vendo a homenagem do pai no telão",
+        "Mostrar o contraste: emoção respeitosa sem apelação",
+        "CTA claro para noivos, debutantes e formandos"
+      ],
+      "script": "Imagine o dia do seu casamento. O vestido perfeito, as flores, a música... mas a dor de saber que o seu pai não estará lá para te levar até o altar. Ou a festa de 15 anos da sua filha, sem o abraço do avô que ela tanto amava.\n\nE se ele pudesse participar desse momento? Na Reviva Memories, nós preparamos homenagens surpresa para cerimônias de casamento, festas de 15 anos e formaturas. Uma mensagem em vídeo de alta fidelidade, onde quem partiu deixa bênçãos, conselhos e palavras de orgulho para os noivos ou formandos. O salão inteiro chora, se emociona e aplaude em pé.\n\nPorque o amor não se ausenta: ele se faz presente.",
+      "caption": "E se a pessoa mais importante da sua vida pudesse te abençoar no dia do seu casamento? 💍🕊️\n\nA Reviva prepara homenagens inesquecíveis para noivas, debutantes e formandos que desejam honrar quem sempre estará no coração.\n\nSe você tem um casamento ou formatura chegando na família, mande uma mensagem para nossa equipe. Vamos sonhar esse momento juntos. ✨\n\n#RevivaApresenta #CasamentoEmocionante #Noivas2026 #HomenagemPai #15Anos",
+      "hashtags": "#RevivaApresenta #CasamentoEmocionante #Noivas2026 #HomenagemPai #15Anos"
     },
     {
-      id: "pauta_13",
-      pautaNumber: 13,
-      theme: "familia",
-      category: "familia",
-      scenario: "Parque ao Entardecer",
-      title: "Histórias que Somem se Ninguém Contar",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "15:00",
-      duration: "~48s",
-      summary: "Incentivo a registrar e documentar o legado familiar antes que as lembranças se percam no tempo.",
-      script: `[Cenário: Iasis caminhando pelo parque com um livro antigo na mão]
-
-Você sabia que a maioria das famílias esquece o nome dos seus bisavós em menos de três gerações?
-Parece duro, mas é a verdade.
-Se ninguém registrar, as histórias de coragem, os sacrifícios e as superações que permitiram a sua família existir simplesmente desaparecem no ar.
-A memória é um patrimônio sagrado.
-Faça perguntas hoje. Anote num caderno. Grave vídeos.
-Não deixe que o amor dos seus ancestrais vire apenas poeira esquecida em um porta-retrato velho.
-Eles merecem ser lembrados para sempre.`,
-      caption: `O que você sabe sobre a história de luta dos seus bisavós? 📜✨
-
-Uma família que não preserva sua memória perde sua bússola. Nós somos feitos das histórias que contamos e do amor que escolhemos eternizar.
-
-Vamos começar a registrar essas lembranças hoje? Comente um nome importante da sua família! 🤍`,
-      hashtags: "#Iasis #LegadoFamiliar #Ancestralidade #MemoriaViva #HistoriaDeFamilia #RevivaMemories",
-      checklist: ["Gravar fala reflexiva", "Legendar palavras principais", "Publicar às 15h00", "Fixar comentário engajador"]
+      "id": "post_12",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "Qual momento da sua vida você gostaria de reviver?",
+      "summary": "Pergunta aberta e direta de Iasis para a audiência, maximizando comentários e vínculo.",
+      "scenario": "Banqueta em balcão de cafeteria ou varanda olhando para a cidade",
+      "format": "Vídeo Vertical (9:16) • 35 a 45s",
+      "duration": "35-45s",
+      "recommendedTime": "19:00",
+      "checklist": [
+        "Começar sem rodeios com a pergunta forte",
+        "Pausa para o espectador assimilar",
+        "Iasis compartilha uma resposta pessoal rápida e convida a comentar"
+      ],
+      "script": "Se você recebesse agora uma chave capaz de abrir qualquer dia do seu passado... apenas por cinco minutos... Qual momento da sua vida você escolheria reviver?\n\nAquele almoço de domingo barulhento na casa dos seus pais nos anos 90? A primeira vez que você segurou seu filho no colo? Ou aquela conversa na beira da cama com quem já descansou?\n\nPensa com carinho e me escreve aqui embaixo. Eu faço questão de ler cada história.",
+      "caption": "Se você pudesse voltar a um único dia do seu passado por 5 minutos... qual seria? 🗝️⏳\n\nA vida é feita de capítulos tão bonitos que dá vontade de congelar o tempo.\n\nQual momento mora no lugar mais doce da sua memória? Deixe seu comentário aqui, quero muito ler a sua resposta. ☕👇\n\n#IasisConversa #QualMomento #VoltarNoTempo #PerguntasDoIasis #Nostalgia",
+      "hashtags": "#IasisConversa #QualMomento #VoltarNoTempo #PerguntasDoIasis #Nostalgia"
     },
     {
-      id: "pauta_14",
-      pautaNumber: 14,
-      theme: "familia",
-      category: "trafego",
-      scenario: "Estratégia & Anúncios",
-      title: "Remarketing Perpétuo: Públicos de Família no Meta Ads",
-      format: "Gestão de Tráfego Contínuo",
-      channel: "Meta Ads & TikTok Ads",
-      recommendedTime: "11:00",
-      duration: "Ajuste Técnico",
-      summary: "Criar público personalizado de quem assistiu aos vídeos de família e direcionar suavemente para o site.",
-      script: `[Ação Operacional do Gestor de Tráfego]:
-1. Criar Público Personalizado de Vídeo (Engajamento 50%+ e 75%+) nos vídeos de família.
-2. Ativar Conjunto de Remarketing Suave:
-   - Criativo: Vídeo do Iasis apresentando a missão da Reviva Memories com link direto para o site.
-   - Orçamento: R$ 15/dia contínuo.
-   - Meta: Visitas qualificadas à Galeria de Homenagens (Cases de Casamento e Formatura).
-3. Analisar custo por visitante e mensagens no WhatsApp.`,
-      caption: `Otimização técnica do funil contínuo: transformando espectadores reflexivos em admiradores da Reviva Memories.`,
-      hashtags: "#MetaAds #Remarketing #TrafegoAfetivo #RevivaMemories",
-      checklist: ["Criar público de quem assistiu 50% dos vídeos", "Ligar anúncio suave convidando para a Galeria", "Verificar pixel de conversão"]
-    },
-
-    // --- TEMA 3: LIVRARIA & MENTE ---
-    {
-      id: "pauta_15",
-      pautaNumber: 15,
-      theme: "psicologia",
-      category: "psicologia",
-      scenario: "Livraria & Varanda",
-      title: "Por que a Mente Guarda o Cheiro de Quem Partiu?",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "19:30",
-      duration: "~53s",
-      summary: "Explicação neurocientífica e sensível sobre a memória olfativa e por que certos aromas nos transportam no tempo.",
-      script: `[Cenário: Iasis folheando um livro clássico em uma livraria aconchegante com estantes de madeira]
-
-Você já sentiu um aroma qualquer na rua e, em um segundo, sentiu como se estivesse na cozinha da sua infância?
-A neurociência explica isso. O nosso olfato é o único sentido com ligação direta ao sistema límbico, a área do cérebro que comanda as emoções e as memórias mais primitivas.
-Por isso o perfume da sua mãe ou o cheiro do café da sua avó não são apenas sensações físicas; são portais no tempo.
-A mente humana foi feita para amar e para lembrar.
-A saudade que você sente é a prova viva de que o amor que você recebeu nunca se perdeu. Ele continua gravado em cada célula da sua história.`,
-      caption: `Qual é o aroma que te transporta instantaneamente para os melhores dias da sua infância? ☕🌸
-
-A ciência e o coração concordam: nada do que vivemos com amor genuíno desaparece. Nossas memórias são guardadas com fidelidade na alma.
-
-Conte aqui qual cheirinho te faz lembrar de alguém especial. ✨`,
-      hashtags: "#Iasis #PsicologiaDoAfeto #Neurociencia #MemoriaOlfativa #SaudadeBoa #RevivaMemories",
-      checklist: ["Gravar em livraria com luz quente", "Inserir legendas claras", "Publicar às 19h30", "Responder com curiosidades e carinho"]
+      "id": "post_13",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "Por que algumas pessoas deixam marcas tão profundas?",
+      "summary": "Reflexão sobre vínculos genuínos e como certas pessoas moldam nosso caráter.",
+      "scenario": "Ambiente rústico e sofisticado com quadros e peças em madeira",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Iasis com expressão de profunda gratidão e respeito",
+        "Foco na transmissão de valores entre gerações",
+        "Incentivar o compartilhamento com mentores e familiares"
+      ],
+      "script": "Por que algumas pessoas têm a capacidade de mudar o rumo da nossa vida para sempre? Não é pelo que elas tinham, mas pelo que elas nos ensinaram a ser.\n\nÉ aquele professor que acreditou em você quando nem você acreditava. É aquela mãe que passava noites em claro para que você pudesse estudar. É aquele avô que, com poucas palavras e muito exemplo, te ensinou o valor da honestidade. A gente não perde quem amamos de verdade, porque os princípios deles continuam pulsando no nosso sangue e nas nossas atitudes diárias.\n\nHonrar a memória de alguém é viver à altura do que essa pessoa nos ensinou.",
+      "caption": "Quem nos amou de verdade nunca vai embora: vira parte dos nossos princípios e atitudes. 🌳🤍\n\nNossos pais, avós e mestres moldaram nosso caráter e nossa coragem. Cada vitória sua hoje tem a assinatura invisível de quem te apoiou lá atrás.\n\nQuem foi a pessoa que deixou a marca mais bonita e profunda na sua história? Marque ou homenageie ela aqui. ✨\n\n#IasisPensa #MarcasProfundas #ValoresDeFamilia #ExemploDeVida #Gratidao",
+      "hashtags": "#IasisPensa #MarcasProfundas #ValoresDeFamilia #ExemploDeVida #Gratidao"
     },
     {
-      id: "pauta_16",
-      pautaNumber: 16,
-      theme: "psicologia",
-      category: "psicologia",
-      scenario: "Livraria & Varanda",
-      title: "O Luto não é Esquecimento: É o Amor sem Lugar para Morar",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "20:00",
-      duration: "~55s",
-      summary: "Frase célebre da psicologia ressignificada: o luto é a continuação do amor quando a presença física cessa.",
-      script: `[Cenário: Iasis sentado numa poltrona de leitura, fechando um livro devagar]
-
-Há uma frase muito verdadeira na psicologia que diz:
-'O luto é todo o amor que você queria entregar e não tem mais onde colocar'.
-Muitas pessoas acham que superar uma perda significa esquecer, virar a página, fingir que nada aconteceu.
-Não é verdade. Você não precisa esquecer quem te ensinou a amar.
-Superar não é apagar; é dar um novo lar para esse amor.
-É transformá-lo em carinho com quem ficou, em valores passados adiante e em gratidão por ter tido a honra de caminhar junto.
-A sua dor merece respeito. Mas o seu amor merece a eternidade.`,
-      caption: `O luto não é fraqueza e não é silêncio forçado: é a medida exata do amor que existiu. 🤍🕊️
-
-Não se cobre para esquecer. Dê um novo significado à saudade, celebrando a vida, os conselhos e o privilégio de ter compartilhado a jornada com quem você ama.
-
-Deixe seu coração em paz hoje. ✨`,
-      hashtags: "#Iasis #PsicologiaDoLuto #AmorQueFica #Consolo #SuperacaoComPaz #RevivaMemories",
-      checklist: ["Gravar take intimista com voz aveludada", "Legenda dinâmica impecável", "Postar às 20h00", "Monitorar mensagens de consolo"]
+      "id": "post_14",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "Uma homenagem feita com cuidado",
+      "summary": "Bastidores do cuidado humano: foto original → restauração → voz → animação → resultado.",
+      "scenario": "Bancada do estúdio com iluminação lateral profissional",
+      "format": "Vídeo Vertical (9:16) • 55s",
+      "duration": "55s",
+      "recommendedTime": "13:00",
+      "checklist": [
+        "Mostrar o monitor com camadas de ajuste da foto (antes e depois impressionante)",
+        "Destacar que tecnologia sem sensibilidade humana vira caricatura",
+        "Reforçar o compromisso de perfeição da Reviva"
+      ],
+      "script": "Olha só essa fotografia de 1964. Rasgada na borda, desbotada pelo sol e pelo tempo.\n\nMuita gente achava que não dava mais para recuperar. Mas na Reviva, a tecnologia é só uma ferramenta; o que manda é a sensibilidade humana. Nós recuperamos textura de pele, expressão do olhar, brilho nos olhos e até os mínimos detalhes do sorriso. Depois harmonizamos o tom de voz com base em áudios antigos e ajustamos cada palavra para que soe exatamente como a pessoa falava.\n\nNão existe produção em massa aqui. Cada homenagem é uma obra de arte única tratada com a máxima reverência.",
+      "caption": "Existe inteligência artificial... mas na Reviva existe principalmente CORAÇÃO e CUIDADO HUMANO. 🎨✨\n\nRestaurar uma foto antiga e recriar uma presença não é apertar um botão: é um trabalho artesanal de respeito a uma vida inteira.\n\nVeja como recuperamos até as fotografias mais desgastadas pelo tempo. Quer restaurar a história da sua família? Link na bio. 🔗\n\n#RevivaApresenta #Bastidores #RestauracaoDeFotos #AntesEDepois #CuidadoComAmor",
+      "hashtags": "#RevivaApresenta #Bastidores #RestauracaoDeFotos #AntesEDepois #CuidadoComAmor"
     },
     {
-      id: "pauta_17",
-      pautaNumber: 17,
-      theme: "psicologia",
-      category: "psicologia",
-      scenario: "Livraria & Varanda",
-      title: "Cartas e Bilhetes na Gaveta: O Valor do Palpável",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "12:15",
-      duration: "~50s",
-      summary: "Reflexão sobre a perda de registros físicos na era digital e o valor de uma letra escrita à mão.",
-      script: `[Cenário: Iasis segura um bilhete antigo escrito à mão na varanda ensolarada]
-
-Quando foi a última vez que você viu a caligrafia da sua mãe ou do seu pai?
-Antes do WhatsApp, a gente escrevia bilhetes, cartões de aniversário, receitas em cadernos pautados.
-A caligrafia de alguém é quase como uma impressão digital da alma: o jeito de fazer o 'T', a força da caneta no papel, o recado carinhoso deixado na porta da geladeira.
-Na era das mensagens descartáveis de 24 horas, guardar esses registros físicos é um ato de resistência do afeto.
-Se você tem um bilhete guardado em uma gaveta... tire-o de lá hoje. Releia. Sinta a presença que continua ali.`,
-      caption: `Você ainda guarda algum bilhete ou carta escrita à mão por alguém que ama? ✍️💌
-
-Na velocidade das mensagens automáticas, a letra de quem amamos carrega um calor que nenhuma tela de vidro consegue imitar.
-
-Guarde esses papéis como ouro. Eles são fragmentos da alma. ✨`,
-      hashtags: "#Iasis #CartasDeAmor #Caligrafia #LembrancaPalpavel #AfetoVerdadeiro #RevivaMemories",
-      checklist: ["Gravar clipe com foco no papel", "Adicionar legendas destacando as palavras", "Publicar às 12h15", "Pedir fotos de bilhetes nos Stories"]
+      "id": "post_15",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "Se você pudesse fazer uma pergunta para alguém...",
+      "summary": "Pergunta aberta que gera identificação profunda e centenas de comentários na publicação.",
+      "scenario": "Mesa de café no fim de tarde / Olhar sereno para a câmera",
+      "format": "Vídeo Vertical (9:16) • 40s",
+      "duration": "40s",
+      "recommendedTime": "20:00",
+      "checklist": [
+        "Iasis começa com uma pausa e pergunta bem colocada",
+        "Sensação de intimidade máxima",
+        "Estimular a resposta sincera nos comentários"
+      ],
+      "script": "Se você pudesse sentar hoje nessa cadeira aqui na minha frente... Com aquela pessoa que você tanto amava e que já partiu...\n\nE você tivesse o direito de fazer apenas uma pergunta... O que você perguntaria? Você pediria um conselho sobre a sua vida agora? Perguntaria se ela está em paz? Ou simplesmente diria: 'você tem orgulho de mim?'\n\nSe você tiver coragem de abrir o coração, escreve para mim nos comentários. Esse espaço aqui é de acolhimento.",
+      "caption": "Se você pudesse fazer uma última pergunta para quem já partiu... o que você perguntaria? 🕊️💬\n\nÀs vezes, tudo o que o nosso coração queria era apenas mais cinco minutinhos de conversa e um abraço demorado.\n\nDeixe a sua resposta aqui nos comentários. Este espaço é nosso, feito de respeito e afeto. 🤍\n\n#IasisConversa #SePudessePerguntar #SaudadeComAfeto #EspacoDeAcolhimento #VozDoCoracao",
+      "hashtags": "#IasisConversa #SePudessePerguntar #SaudadeComAfeto #EspacoDeAcolhimento #VozDoCoracao"
     },
     {
-      id: "pauta_18",
-      pautaNumber: 18,
-      theme: "psicologia",
-      category: "psicologia",
-      scenario: "Livraria & Varanda",
-      title: "Perdoar quem já Partiu para Encontrar a Paz Interior",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "19:00",
-      duration: "~54s",
-      summary: "Uma reflexão profunda sobre perdoar falhas de pais e avós que já se foram para curar o próprio coração.",
-      script: `[Cenário: Iasis contemplando o céu no fim de tarde na varanda, voz serena]
-
-Nem toda relação familiar é um comercial de margarina.
-Muitos de nós carregam feridas, mágoas e desentendimentos com pessoas queridas que já partiram.
-E às vezes pensamos: 'Agora é tarde demais para acertar as coisas'.
-Não é. O perdão não precisa de um encontro físico; ele precisa de um movimento sincero dentro do seu próprio peito.
-Compreenda que seus pais ou avós fizeram o melhor que sabiam com as ferramentas emocionais que eles tinham na época deles.
-Liberte o passado. Solte a mágoa.
-Quando você perdoa quem já partiu, a ferida finalmente vira cicatriz de sabedoria e paz.`,
-      caption: `O perdão não muda o passado, mas liberta o seu futuro. 🕊️🤍
-
-Ninguém é perfeito na caminhada da vida. Quando compreendemos as limitações de quem nos criou, encontramos a paz que cura qualquer mágoa antiga.
-
-Respire fundo e liberte esse peso do peito. ✨`,
-      hashtags: "#Iasis #Perdao #PazInterior #CuraEmocional #Familia #RevivaMemories",
-      checklist: ["Gravar com expressão de profunda empatia", "Trilha suave e reconfortante", "Publicar às 19h00", "Acolher relatos nos comentários"]
+      "id": "post_16",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "Por que guardamos objetos de quem amamos?",
+      "summary": "Reflexão sobre fotos, cartas, roupas, relógios e como a matéria guarda memórias afetivas.",
+      "scenario": "Mesa com uma caixinha de madeira rústica, relógio antigo e carta amarelada",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Iasis segura com cuidado um relógio antigo de bolso ou um bilhete",
+        "Conexão poética entre objetos físicos e memória viva",
+        "Chamada para valorizar os pequenos guardados de família"
+      ],
+      "script": "Por que uma gaveta com um relógio parado, um lenço ou uma carta antiga tem tanto valor para nós? Porque a gente sabe que as mãos de quem amamos tocaram ali.\n\nA matéria vira uma âncora para a memória. A gente guarda esses objetos porque temos medo de que o tempo apague as lembranças. Mas o relógio não é a pessoa. A carta não é a pessoa. O que realmente importa é o amor que ficou gravado em você.\n\nE quando a tecnologia permite transformar esses guardados em voz e presença viva... aí sim a memória ganha asas.",
+      "caption": "Uma carta guardada, um relógio antigo, o cheiro de um casaco... a gente guarda objetos porque quer segurar o amor com as mãos. 📜⌚\n\nQual é o objeto mais especial que você guarda de alguém que já partiu?\n\nConte a história desse tesouro aqui nos comentários. Vamos adorar conhecer. ✨\n\n#IasisPensa #ObjetosDeMemoria #TesourosDeFamilia #RelogioAntigo #LembrancasEternas",
+      "hashtags": "#IasisPensa #ObjetosDeMemoria #TesourosDeFamilia #RelogioAntigo #LembrancasEternas"
     },
     {
-      id: "pauta_19",
-      pautaNumber: 19,
-      theme: "psicologia",
-      category: "psicologia",
-      scenario: "Livraria & Varanda",
-      title: "A Música que Traz Alguém de Volta em Três Segundos",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "18:00",
-      duration: "~48s",
-      summary: "A relação íntima entre música, afeto e memória emotiva que nunca se apaga.",
-      script: `[Cenário: Iasis ao lado de uma vitrola ou rádio antigo na livraria]
-
-Três notas no violão ou o acorde inicial de uma canção antiga.
-É só disso que o cérebro precisa para te fazer chorar de saudade ou sorrir sozinho no trânsito.
-A música tem a chave mestra das nossas memórias mais secretas.
-Qual é a canção que, quando toca no rádio, imediatamente te faz ver o rosto do seu pai dirigindo na estrada, ou a sua mãe cantando enquanto arrumava a casa no domingo?
-Essas canções são o patrimônio afetivo da sua vida.
-Escute essa música hoje. Feche os olhos. E permita-se reencontrar com esse momento.`,
-      caption: `Qual é a música que é praticamente um abraço de alguém que você ama? 🎵🤍
-
-A música atravessa o tempo e revive sentimentos que pareciam adormecidos. Nunca deixe de cantar as canções que marcaram a sua história.
-
-Diga nos comentários: qual música tem o nome de quem você ama? ✨`,
-      hashtags: "#Iasis #MusicaEMemoria #TrilhaSonoraDaVida #NostalgiaBoa #RevivaMemories",
-      checklist: ["Gravar vídeo com tom nostálgico", "Adicionar efeito sutil de vinil", "Publicar às 18h00", "Montar playlist de músicas sugeridas"]
+      "id": "post_17",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "Não é sobre Inteligência Artificial",
+      "summary": "Post manifesto essencial: desmistificar a IA como fim e posicioná-la como mero instrumento de afeto.",
+      "scenario": "Estúdio moderno com estética limpa e luz elegante",
+      "format": "Vídeo Vertical (9:16) • 50 a 60s",
+      "duration": "50-60s",
+      "recommendedTime": "12:30",
+      "checklist": [
+        "Tom seguro, filosófico e esclarecedor",
+        "Frase-chave: 'A tecnologia é impressionante, mas não é ela que torna a homenagem especial'",
+        "Construir autoridade ética e confiança inabalável na marca"
+      ],
+      "script": "Deixa eu te contar um segredo sobre a Reviva: Não é sobre inteligência artificial.\n\nA tecnologia que usamos hoje é fantástica, sim. É impressionante ver uma foto de 50 anos atrás ganhar nitidez, movimento natural e voz idêntica. Mas a tecnologia é apenas o pincel. O que realmente importa é o amor de quem encomenda a homenagem. O que emociona uma família não é um algoritmo sofisticado; é a verdade da mensagem, a oração que a mãe fazia, a saudade que o filho guardou por vinte anos.\n\nA tecnologia sem alma é vazia. Na Reviva, a tecnologia só existe para servir ao coração.",
+      "caption": "A tecnologia é impressionante... mas ela não é o que torna uma homenagem especial. O valor está no amor e na história. 🤍✨\n\nNão fazemos vídeos por fazer. Usamos o que há de mais avançado no mundo para um único propósito nobre: reconectar famílias através do afeto.\n\nVocê concorda que nenhuma máquina substitui o calor humano? Deixe sua opinião aqui. 👇\n\n#RevivaApresenta #ManifestoReviva #TecnologiaComAlma #EticaEAfeto #InteligenciaAfetiva",
+      "hashtags": "#RevivaApresenta #ManifestoReviva #TecnologiaComAlma #EticaEAfeto #InteligenciaAfetiva"
     },
     {
-      id: "pauta_20",
-      pautaNumber: 20,
-      theme: "psicologia",
-      category: "psicologia",
-      scenario: "Livraria & Varanda",
-      title: "O Medo de Esquecer o Tom da Voz de Quem Amamos",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "19:30",
-      duration: "~55s",
-      summary: "A ponte sutil entre a dor do esquecimento da voz e o propósito da Reviva Memories.",
-      script: `[Cenário: Iasis olha diretamente para a câmera, com sinceridade e serenidade]
-
-Muitas pessoas me procuram com uma mesma angústia guardada no olhar:
-'Iasis... faz cinco anos que perdi meu pai. Eu lembro do rosto dele nas fotos, mas tenho tanto medo de esquecer o timbre exato da voz dele dizendo o meu nome'.
-Essa dor é real. A voz humana é a assinatura viva do afeto.
-E foi exatamente para responder a essa angústia que a tecnologia deu um passo adiante com a arte.
-Hoje é possível resgatar timbres, reconstruir palavras não ditas e permitir que essa voz abençoe momentos fundamentais da família.
-A memória viva não precisa se apagar. Ela pode continuar falando ao coração.`,
-      caption: `O som da voz de quem amamos é uma das lembranças mais sagradas que guardamos na alma. 🕊️✨
-
-Quando o medo de esquecer aperta, a união entre afeto, arte e tecnologia surge para construir uma ponte de alento e consolo.
-
-A voz de quem partiu ainda ecoa forte no seu coração? Comente aqui. 🤍`,
-      hashtags: "#Iasis #VozViva #Eternizar #AmorEterno #RevivaMemories #Consolo",
-      checklist: ["Gravar interpretação solene", "Legenda destacando 'A memória viva não precisa se apagar'", "Publicar às 19h30", "Responder às famílias"]
+      "id": "post_18",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "O que significa estar presente?",
+      "summary": "Conteúdo filosófico de Iasis em ambiente agradável e natural, sem tom comercial.",
+      "scenario": "Jardim botânico ou banco de parque com luz filtrada pelas folhas",
+      "format": "Vídeo Vertical (9:16) • 45s",
+      "duration": "45s",
+      "recommendedTime": "19:30",
+      "checklist": [
+        "Ambiente bonito, verde e pacífico",
+        "Iasis fala de forma reflexiva e calma",
+        "Zero apelo de venda; foco 100% em conexão e vínculo com a audiência"
+      ],
+      "script": "O que significa estar presente de verdade? A gente pode estar sentado ao lado de alguém mexendo no celular... e estar a mil quilômetros de distância.\n\nE, ao mesmo tempo, alguém que partiu há dez anos pode estar incrivelmente presente num conselho que você lembra antes de tomar uma decisão difícil. Estar presente não é uma questão de espaço físico ou de geografia. É uma questão de relevância no coração.\n\nHoje, esteja presente de verdade para quem está perto de você. Olhe nos olhos, ouça sem pressa e diga o quanto essa pessoa importa.",
+      "caption": "Estar presente não é sobre estar no mesmo cômodo... é sobre estar inteiro no coração. 🌿🕊️\n\nNeste fim de semana, desacelere um pouco a pressa e ofereça o seu presente mais valioso: a sua presença atenta a quem você ama.\n\nCom quem você gostaria de estar mais presente hoje? Marque essa pessoa aqui. ✨\n\n#IasisConversa #PresencaVerdadeira #TempoDeQualidade #Desacelerar #AmorReal",
+      "hashtags": "#IasisConversa #PresencaVerdadeira #TempoDeQualidade #Desacelerar #AmorReal"
     },
     {
-      id: "pauta_21",
-      pautaNumber: 21,
-      theme: "psicologia",
-      category: "trafego",
-      scenario: "Estratégia & Anúncios",
-      title: "Distribuição Contínua de Vídeos com Maior Compartilhamento",
-      format: "Painel de Métricas Meta & TikTok",
-      channel: "Instagram Insights, TikTok Analytics & Meta Ads",
-      recommendedTime: "10:30",
-      duration: "Ajuste Técnico",
-      summary: "Identificar os vídeos do tema psicologia com maior taxa de salvamento e compartilhamento para impulsionamento perene.",
-      script: `[Ação Operacional do Gestor de Tráfego]:
-1. Acessar métricas orgânicas dos temas de psicologia e memória.
-2. Medir a taxa de compartilhamentos e salvamentos.
-3. Selecionar o melhor criativo (ex: Pauta 16 'O Luto é o Amor sem Lugar' ou Pauta 20 'O Tom da Voz').
-4. Alocar R$ 25/dia na campanha contínua de tráfego direcionado para a página institucional da Reviva Memories.`,
-      caption: `Monitoramento contínuo da tração emocional e ampliação perpétua dos conteúdos de maior alcance.`,
-      hashtags: "#Analytics #TrafegoPerpetuo #EstrategiaDigital #RevivaMemories",
-      checklist: ["Verificar métricas de salvamentos", "Inserir melhor vídeo na campanha", "Ajustar segmentação"]
-    },
-
-    // --- TEMA 4: ESTÚDIO & REVIVA MEMORIES ---
-    {
-      id: "pauta_22",
-      pautaNumber: 22,
-      theme: "estudio",
-      category: "estudio",
-      scenario: "Estúdio Reviva Memories",
-      title: "Quando a Tecnologia tem Alma: Como Recriamos um Olhar",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "19:30",
-      duration: "~52s",
-      summary: "Iasis no estúdio de produção mostrando que inteligência artificial sem sensibilidade humana é apenas código frio.",
-      script: `[Cenário: Estúdio de Produção da Reviva Memories, telas ao fundo com restauração de fotos antigas e ondas sonoras]
-
-Muita gente me pergunta se a inteligência artificial não é fria demais para lidar com sentimentos tão sagrados.
-E eu sempre respondo: a tecnologia é apenas um instrumento. Quem dá alma ao processo é a sensibilidade humana.
-Aqui no nosso estúdio, cada foto que recebemos de uma família é tratada com reverência.
-Analisamos a microexpressão do olhar, o jeito único de sorrir, a cadência da respiração na voz.
-Não estamos criando um robô; estamos reconstruindo uma ponte de amor para que uma família sinta a presença de quem partiu no dia mais importante de suas vidas.
-Isso não é sobre tecnologia. É sobre cura.`,
-      caption: `Tecnologia sem afeto é apenas código. Mas quando guiada pelo amor, ela vira um instrumento de consolo e bênção. ✨🕊️
-
-Conheça os bastidores do nosso estúdio de criação na Reviva Memories, onde cada detalhe é recriado com respeito absoluto à memória de quem você ama.
-
-Acesse o link na nossa bio e veja como essa arte acontece. 🤍`,
-      hashtags: "#Iasis #EstudioReviva #TecnologiaEAfeito #Bastidores #ProducaoHumanizada #RevivaMemories",
-      checklist: ["Gravar no ambiente do estúdio de produção", "Inserir takes b-roll sutis das telas de edição", "Publicar às 19h30 nas 4 redes", "Fixar link da bio"]
+      "id": "post_19",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "Por que lembramos de algumas coisas e esquecemos de outras?",
+      "summary": "Psicologia leve sobre como a emoção, o contexto e os sentidos selecionam nossas memórias.",
+      "scenario": "Livraria ou estúdio com livros abertos de psicologia e neurociência",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Iasis explica de forma acessível e envolvente",
+        "Citar os gatilhos dos 5 sentidos (cheiros de infância, músicas, lugares)",
+        "Reforçar o Iasis como especialista em memória e comportamento"
+      ],
+      "script": "Você já se perguntou por que você não lembra o que almoçou na terça-feira passada, mas lembra exatamente da roupa que usava no dia em que conheceu o amor da sua vida? A neurociência explica que o cérebro não guarda informações soltas. Ele só grava aquilo que foi carimbado pela emoção.\n\nO hipocampo — a área do cérebro responsável pela memória — trabalha colado na amígdala, que processa os nossos sentimentos. Ou seja: para uma memória ser eterna, ela precisa ter sido sentida com intensidade. É por isso que o cheiro do café da sua mãe ou uma música no rádio te transportam no tempo instantaneamente.\n\nNós somos as emoções que sobrevivem em nós.",
+      "caption": "O cérebro não guarda o que foi pensado... ele só grava o que foi sentido com a alma. 🧠✨\n\nA psicologia e a neurociência mostram que nossas memórias mais fortes são aquelas seladas pelo amor e pela emoção.\n\nQual música ou cheiro tem o poder imediato de te transportar para a sua infância? Conte aqui! 👇\n\n#IasisPensa #PsicologiaDaMemoria #NeurocienciaLeve #EmocaoEMemoria #Sentimentos",
+      "hashtags": "#IasisPensa #PsicologiaDaMemoria #NeurocienciaLeve #EmocaoEMemoria #Sentimentos"
     },
     {
-      id: "pauta_23",
-      pautaNumber: 23,
-      theme: "estudio",
-      category: "estudio",
-      scenario: "Estúdio Reviva Memories",
-      title: "Case Real: A Bênção do Pai para a Noiva no Altar",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "20:00",
-      duration: "~56s",
-      summary: "Narrativa emocionante de um dos cases mais marcantes: a noiva que ouviu a bênção do pai falecido antes de entrar na igreja.",
-      script: `[Cenário: Iasis no estúdio, segurando um tablet mostrando brevemente a foto de um casamento com lágrimas de emoção]
-
-Imagine a cena: uma jovem noiva no camarim, minutos antes de subir ao altar.
-O coração dela aperta porque a pessoa mais importante da sua vida não está ali fisicamente para conduzi-la: o seu pai, que partiu há quatro anos.
-De repente, a mãe entrega um fone de ouvido.
-Na tela, com o olhar límpido e o mesmo sorriso terno de sempre, a imagem e a voz do pai surgem dizendo:
-'Minha filha, você está linda. Eu estou aqui abençoando cada passo seu'.
-As lágrimas que caíram ali não foram de tristeza; foram de alívio e plenitude.
-Eternizar momentos como esse é a razão pela qual existimos.`,
-      caption: `Você consegue imaginar a emoção de ouvir a bênção de quem você mais ama no dia do seu casamento? 👰💍🕊️
-
-A ausência física não precisa impedir que o amor se faça presente nos momentos mais importantes da nossa vida. A Reviva Memories nasceu para tornar esses reencontros possíveis.
-
-Veja o case completo no link da nossa bio. ✨`,
-      hashtags: "#Iasis #CasamentoDosSonhos #BencaoDePai #NoivaEmocionada #HomenagemAfetiva #RevivaMemories",
-      checklist: ["Gravar narrativa com ritmo emocionante", "Inserir música de piano clássico", "Publicar às 20h00", "Monitorar directs"]
+      "id": "post_20",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "Como protegemos uma memória tão íntima?",
+      "summary": "Segurança, privacidade, sigilo, aprovação da família e cuidado ético para derrubar objeções.",
+      "scenario": "Estúdio com visual corporativo nobre e acolhedor",
+      "format": "Vídeo Vertical (9:16) • 55s",
+      "duration": "55s",
+      "recommendedTime": "13:00",
+      "checklist": [
+        "Iasis aborda com total seriedade a questão da privacidade e ética",
+        "Destacar que nada é publicado sem autorização prévia por escrito",
+        "Transpassar segurança inabalável para famílias tradicionais"
+      ],
+      "script": "Quando uma família confia a nós a foto e a história de quem amam, nós sabemos o peso dessa responsabilidade. Uma das perguntas que mais recebemos é: 'Como vocês protegem a nossa privacidade?'\n\nNa Reviva Memories, o sigilo é absoluto. Primeiro: nenhuma imagem ou áudio é compartilhado com terceiros ou usado publicamente sem autorização formal da família. Segundo: todos os materiais são tratados em ambiente criptografado e exclusivo. Terceiro: a família tem controle total sobre o roteiro e aprova cada segundo antes da entrega final.\n\nNós não fazemos entretenimento passageiro. Nós cuidamos de heranças de família com a reverência que elas merecem.",
+      "caption": "A história da sua família é sagrada. E nós cuidamos dela com sigilo absoluto e respeito inegociável. 🔐🕊️\n\nNa Reviva Memories, a ética vem antes de tudo:\n✅ Privacidade e segurança de dados\n✅ Aprovação rigorosa de cada detalhe pela família\n✅ Sem exibição pública sem a sua autorização expressa\n\nTire todas as suas dúvidas diretamente com nossa equipe no WhatsApp pelo link da bio. 💬\n\n#RevivaApresenta #EticaEConfianca #PrivacidadeGarantida #RespeitoAFamilia #Seguranca",
+      "hashtags": "#RevivaApresenta #EticaEConfianca #PrivacidadeGarantida #RespeitoAFamilia #Seguranca"
     },
     {
-      id: "pauta_24",
-      pautaNumber: 24,
-      theme: "estudio",
-      category: "estudio",
-      scenario: "Estúdio Reviva Memories",
-      title: "Case Real: O Avô que Assistiu à Formatura em Medicina",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "12:30",
-      duration: "~54s",
-      summary: "Case do avô agricultor que sonhava em ver o neto médico e cuja homenagem em vídeo marcou a colação de grau.",
-      script: `[Cenário: Iasis no estúdio, com postura respeitosa e calorosa]
-
-O Seu Antônio era um agricultor simples do interior. As mãos calejadas trabalharam a vida toda com um único grande sonho: ver o neto se formar em Medicina.
-Infelizmente, ele faleceu seis meses antes da colação de grau.
-No dia do baile, a família preparou uma surpresa no telão principal.
-O Seu Antônio apareceu, com a camisa xadrez que ele adorava e aquele jeitinho manso de falar:
-'Meu neto doutor... o vovô tá aqui te aplaudindo de pé'.
-O salão inteiro parou. A dor da perda deu lugar ao orgulho e à certeza de que a promessa foi cumprida.
-Honrar quem acreditou em nós é a coisa mais linda que podemos fazer.`,
-      caption: `Honrar a promessa feita aos nossos avós é um dos maiores privilégios da vida. 🎓👨‍⚕️🤍
-
-O Seu Antônio não pôde estar de corpo presente na formatura do neto, mas a sua voz e o seu olhar abençoaram aquele momento para sempre.
-
-A quem você dedicaria a sua maior conquista hoje? ✨`,
-      hashtags: "#Iasis #Formatura #Medicina #OrgulhoDoAvo #PromessaCumprida #RevivaMemories",
-      checklist: ["Gravar take expressivo", "Legenda com palavras de destaque", "Postar às 12h30", "Estimular comentários"]
+      "id": "post_21",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "Uma conversa sobre o tempo",
+      "summary": "Reflexão elegante sobre o tempo como filtro do que realmente importa.",
+      "scenario": "Cafeteria ou banco ao entardecer com luz suave",
+      "format": "Vídeo Vertical (9:16) • 45s",
+      "duration": "45s",
+      "recommendedTime": "19:00",
+      "checklist": [
+        "Tom maduro, acolhedor e profundamente inspirador",
+        "Vincular à filosofia da Reviva de forma natural e sem anúncio",
+        "Ótimo para compartilhamento no WhatsApp e Stories"
+      ],
+      "script": "A gente costuma pensar que o tempo é um ladrão que leva tudo embora... A juventude, os dias tranquilos, as pessoas queridas...\n\nMas se você parar para pensar com calma, o tempo também é um mestre generoso. Porque é ele que filtra as ilusões e nos mostra aquilo que realmente tem valor duradouro. O dinheiro passa, as casas mudam, as modas desaparecem. O que fica? A lembrança do afeto, a honra de quem nos criou e as sementes de bem que plantamos nos outros.\n\nO tempo não apaga o que foi construído com amor. Ele apenas eterniza.",
+      "caption": "O tempo não leva tudo embora... ele apenas revela o que realmente importa. ⏳🤍\n\nQuando olhamos para trás, percebemos que o amor é a única coisa que desafia a passagem dos anos e continua brilhando intacto.\n\nO que o tempo te ensinou de mais valioso até hoje? Compartilhe sua sabedoria conosco. ✨\n\n#IasisConversa #ReflexaoSobreOTempo #Maturidade #LicaoDeVida #Eternidade",
+      "hashtags": "#IasisConversa #ReflexaoSobreOTempo #Maturidade #LicaoDeVida #Eternidade"
     },
     {
-      id: "pauta_25",
-      pautaNumber: 25,
-      theme: "estudio",
-      category: "estudio",
-      scenario: "Estúdio Reviva Memories",
-      title: "A Ética Inegociável de Trazer uma Voz de Volta",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "19:00",
-      duration: "~52s",
-      summary: "Transparência total sobre respeito ético, consentimento e integridade da imagem e mensagem.",
-      script: `[Cenário: Iasis sentado na mesa de reuniões do estúdio de produção, olhar firme e sério]
-
-Muitas pessoas me perguntam sobre os limites éticos do nosso trabalho.
-E essa é a pergunta mais importante de todas.
-Na Reviva Memories, nós temos um código inegociável:
-Nunca recriamos mensagens que a pessoa em vida não diria. Jamais usamos o nome de alguém para piadas, desavenças ou manipulações.
-Todo roteiro é construído lado a lado com a família, resgatando apenas palavras de bênção, afeto, consolo e reconciliação.
-A tecnologia tem que servir à dignidade humana, nunca ao desrespeito.
-É com esse compromisso sagrado que acolhemos cada história que chega até nós.`,
-      caption: `O respeito e a dignidade humana são a nossa primeira e mais importante diretriz. 🛡️🕊️
-
-Na Reviva Memories, cada recriação de voz e imagem passa por um rigoroso compromisso ético: resgatar apenas a verdade do amor, da paz e do afeto que aquela pessoa sempre representou.
-
-Conheça os nossos princípios no site oficial. Link na bio. ✨`,
-      hashtags: "#Iasis #EticaEIA #RespeitoSempre #Dignidade #Seguranca #RevivaMemories",
-      checklist: ["Gravar com postura de autoridade", "Legendar destacando o compromisso ético", "Publicar às 19h00", "Responder dúvidas técnicas"]
+      "id": "post_22",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "O que torna um momento inesquecível?",
+      "summary": "Iasis reúne os temas fundamentais: pessoas + emoção + presença + significado.",
+      "scenario": "Espaço intimista com velas ou luz de abajur dourada",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Amarrar os pilares das semanas anteriores com oratória emocionante",
+        "Preparar o terreno para o vídeo de reencontro da quarta-feira",
+        "Post de alto salvamento e retenção"
+      ],
+      "script": "Ao longo dessas últimas semanas, nós conversamos sobre fotografias, vozes, ausências e reencontros. E você sabe o que realmente torna um momento inesquecível?\n\nÉ a união perfeita de quatro elementos: Pessoas que amamos; Emoção sentida sem medo; Presença plena no aqui e no agora; E significado que transcende o tempo. Momentos inesquecíveis não acontecem por acaso. Eles são cultivados quando a gente decide honrar quem faz parte da nossa trajetória.\n\nNunca deixe para demonstrar o seu amor amanhã.",
+      "caption": "Pessoas + Emoção + Presença + Significado = Um momento que a eternidade não apaga. ✨🤍\n\nAo longo de nossa jornada, descobrimos que honrar nossa história é o maior presente que podemos deixar para as próximas gerações.\n\nQual foi o momento mais inesquecível que você já viveu ao lado da sua família? Conta pra mim aqui! 👇\n\n#IasisPensa #MomentoInesquecivel #PresencaEterna #FamiliaUnida #HistoriasQueFicam",
+      "hashtags": "#IasisPensa #MomentoInesquecivel #PresencaEterna #FamiliaUnida #HistoriasQueFicam"
     },
     {
-      id: "pauta_26",
-      pautaNumber: 26,
-      theme: "estudio",
-      category: "estudio",
-      scenario: "Estúdio Reviva Memories",
-      title: "Depoimento de Família: O Choro que Virou Alívio",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "20:00",
-      duration: "~50s",
-      summary: "Iasis lê trecho de uma mensagem de WhatsApp enviada por uma cliente emocionada após receber a homenagem.",
-      script: `[Cenário: Iasis segurando o celular no estúdio, com um sorriso de gratidão sincera]
-
-Hoje de manhã recebi uma mensagem que iluminou o meu dia.
-Uma cliente de Belo Horizonte nos escreveu dizendo:
-'Iasis, quando o vídeo chegou, eu tive medo de dar o play e sentir aquela dor aguda de novo.
-Mas quando a voz da minha mãe soou, chamando o meu apelido de infância e me abençoando... todo o peso do meu peito se desfez. Eu chorei, mas foi um choro de alívio e paz'.
-Ouvir isso confirma a nossa missão.
-A saudade não precisa ser um fardo escuro. Ela pode ser uma luz suave que te acompanha para sempre.`,
-      caption: `Quando a saudade se transforma em paz e consolo no peito. 🤍🕊️
-
-Nosso maior presente é receber relatos como este, onde o medo da ausência dá lugar à certeza de que o amor nunca nos abandona.
-
-Veja mais depoimentos e conheça a nossa galeria no link da bio. ✨`,
-      hashtags: "#Iasis #ProvaSocial #DepoimentoReal #Alento #Consolo #Paz #RevivaMemories",
-      checklist: ["Gravar com sentimento genuíno de gratidão", "Inserir print sutil da mensagem", "Publicar às 20h00", "Fixar depoimento nos comentários"]
+      "id": "post_23",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "O reencontro",
+      "summary": "O vídeo mais forte do ciclo: homenagem completa emocionante com reação real de família.",
+      "scenario": "Estúdio Reviva com tela mostrando reação de uma família emocionada",
+      "format": "Vídeo Vertical (9:16) • 60s",
+      "duration": "60s",
+      "recommendedTime": "12:30",
+      "checklist": [
+        "Exibir o vídeo de homenagem completa com áudio impecável",
+        "Mostrar a reação genuína da família recebendo o vídeo (abraços, lágrimas, sorrisos)",
+        "Fechamento com forte apelo emocional e CTA para agendar uma homenagem"
+      ],
+      "script": "Nós poderíamos passar horas falando sobre tecnologia e inteligência artificial. Mas nada do que eu disser vai se comparar ao que você vai sentir agora.\n\nEssa foi a reação da família Silveira ao receber a bênção surpresa do patriarca que partiu no ano passado, durante as bodas de ouro. Assista com o coração aberto.\n\nÉ por momentos como esse que a Reviva existe. Se você deseja viver esse reencontro na sua família, mande uma mensagem agora para nossa equipe.",
+      "caption": "Quando o amor rompe a barreira do tempo... isso é Reviva Memories. 🕊️🤍\n\nPoucas palavras conseguem descrever o que acontece quando uma família se reencontra com a presença e a bênção de quem sempre amou.\n\nPermita que a sua família viva essa experiência inesquecível. Fale com nossos consultores pelo link da bio. ✨\n\n#RevivaApresenta #OReencontro #EmocaoPura #HomenagemDeFamilia #BodasDeOuro",
+      "hashtags": "#RevivaApresenta #OReencontro #EmocaoPura #HomenagemDeFamilia #BodasDeOuro"
     },
     {
-      id: "pauta_27",
-      pautaNumber: 27,
-      theme: "estudio",
-      category: "estudio",
-      scenario: "Estúdio Reviva Memories",
-      title: "Como Funciona o Processo de Criação na Reviva Memories",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "18:30",
-      duration: "~54s",
-      summary: "Didática rápida e acolhedora das 5 etapas da jornada do cliente no painel de produção.",
-      script: `[Cenário: Iasis demonstrando os passos no estúdio de forma simples e acolhedora]
-
-Se você tem vontade de preparar uma homenagem como essa para a sua família, mas não sabe por onde começar, deixe-me te explicar.
-O processo é simples e totalmente acompanhado por mim:
-Primeiro, você escolhe as fotos mais marcantes e um áudio da pessoa, mesmo que seja curto.
-Depois, nós conversamos no nosso Painel de Produção para que você me conte as histórias e apelidos de carinho.
-Nossa equipe artística faz o tratamento minucioso de imagem e voz.
-E você aprova cada detalhe antes da entrega final.
-Você não precisa se preocupar com nada técnico. Nós cuidamos de tudo com o maior carinho do mundo.`,
-      caption: `Você tem dúvidas de como funciona a criação de uma homenagem na Reviva Memories? 🎬🕊️
-
-Do envio das lembranças até o roteiro final, nós caminhamos de mãos dadas com você para garantir que a homenagem fique exatamente como o seu coração sonhou.
-
-Clique no link da nossa bio e inicie essa jornada no nosso Painel de Produção. ✨`,
-      hashtags: "#Iasis #ComoFunciona #PainelDeProducao #PassoAPasso #FacilEConfortavel #RevivaMemories",
-      checklist: ["Gravar didática limpa", "Adicionar ícones visuais para cada etapa", "Postar às 18h30", "Direcionar para o chat"]
+      "id": "post_24",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "Por que a Reviva existe?",
+      "summary": "O grande fechamento do ciclo de 8 semanas com a filosofia definitiva da marca e do Iasis.",
+      "scenario": "Ambiente sofisticado com luz poente e estética cinematográfica",
+      "format": "Vídeo Vertical (9:16) • 60s",
+      "duration": "60s",
+      "recommendedTime": "19:00",
+      "checklist": [
+        "Iasis no ápice da sua maturidade e conexão com a audiência",
+        "Abordar memória, presença, afeto, tempo, tecnologia e conforto",
+        "Fechamento com convite caloroso para continuar a jornada com a Reviva"
+      ],
+      "script": "Chegamos ao fim de um ciclo de 8 semanas... e talvez agora você entenda de verdade por que a Reviva existe. A Reviva não nasceu para criar ilusões ou prender alguém no passado.\n\nEla existe para transformar a saudade dolorosa em conforto e presença viva. Para que um bisneto possa ouvir os conselhos do bisavô que ele não conheceu. Para que uma noiva sinta a bênção do pai no dia do casamento. Para que as histórias que construíram a sua família nunca se percam na poeira dos anos. A tecnologia passa. O que é eterno é o afeto. Eu sou o Iasis. E foi uma honra caminhar ao seu lado até aqui.\n\nVamos continuar protegendo as memórias de quem amamos juntos?",
+      "caption": "Por que a Reviva existe? Para que nenhuma história de amor seja apagada pelo tempo. 🕊️✨\n\nChegamos ao final deste ciclo de 8 semanas, mas nossa missão está apenas começando. Cuidar das memórias da sua família é o nosso maior privilégio.\n\nObrigado a cada um de vocês que caminhou conosco até aqui. O que essa jornada despertou no seu coração? Comente abaixo. 🤍\n\n#IasisConversa #PorQueExistimos #MissaoDeVida #RevivaMemories #AmorEterno",
+      "hashtags": "#IasisConversa #PorQueExistimos #MissaoDeVida #RevivaMemories #AmorEterno"
     },
     {
-      id: "pauta_28",
-      pautaNumber: 28,
-      theme: "estudio",
-      category: "estudio",
-      scenario: "Estúdio Reviva Memories",
-      title: "O Presente Mais Valioso que o Dinheiro Pode Comprar",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "19:45",
-      duration: "~51s",
-      summary: "Reflexão sobre presentes materiais que quebram vs presentes de afeto eterno que marcam gerações.",
-      script: `[Cenário: Iasis no estúdio de produção, com olhar cúmplice e sereno]
-
-Roupas envelhecem, relógios quebram, aparelhos eletrônicos ficam obsoletos em poucos anos.
-Mas sabe o que nunca perde o valor?
-A sensação de olhar para quem você ama e entregar algo que toca o fundo da alma.
-Seja em um aniversário de 80 anos, em uma formatura, em um casamento ou como consolo para um coração ferido...
-Eternizar a voz e a presença de quem construiu a sua família é o presente mais inesquecível que alguém pode receber.
-Se você sente que chegou a hora de honrar essa história, estamos de braços abertos para te ajudar.`,
-      caption: `Existem presentes que ficam esquecidos no armário, e existem homenagens que viram herança eterna da família. 🎁🤍
-
-O afeto e a memória viva são as únicas coisas que o tempo não desgasta.
-
-Marque alguém que merece receber uma homenagem inesquecível. ✨`,
-      hashtags: "#Iasis #PresenteInesquecivel #Aniversario #Casamento #AmorDeFamilia #RevivaMemories",
-      checklist: ["Gravar clipe emotivo", "Legenda destacando 'herança eterna'", "Publicar às 19h45", "Convidar para conhecer os planos"]
+      "id": "post_25",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "O que seus antepassados diriam se vissem você hoje?",
+      "summary": "Reflexão sobre a linhagem familiar e o orgulho das gerações anteriores.",
+      "scenario": "Biblioteca aconchegante com livros antigos e luz suave",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Iasis com expressão de reverência às gerações passadas",
+        "Conectar os sacrifícios antigos com as conquistas do presente",
+        "Final com mensagem inspiradora de honra à família"
+      ],
+      "script": "Você já parou para pensar em quantas pessoas precisaram resistir, trabalhar e amar para que você existisse hoje? Nossos avós e bisavós enfrentaram tempos difíceis, sem conforto, sem tecnologia, muitas vezes deixando sua terra natal com uma mala na mão.\n\nEles sonhavam com o futuro que nós estamos vivendo agora. Se o seu bisavô pudesse sentar ao seu lado hoje, colocar a mão no seu ombro e ver onde você chegou... o que você acha que ele diria?\n\nA sua vitória não é só sua. Ela é o coroamento da história de toda a sua árvore genealógica.",
+      "caption": "Você é a resposta dos sonhos e orações de quem veio antes de você. 🌳✨\n\nQuantas lutas silenciosas seus pais e avós travaram para que você pudesse sonhar? Honrar essa linhagem é dar sentido à nossa caminhada.\n\nSe você pudesse mandar um recado para os seus antepassados hoje, o que diria a eles? 👇\n\n#IasisPensa #Ancestralidade #RaizesDeFamilia #HonraEOrigem #HistoriasReais",
+      "hashtags": "#IasisPensa #Ancestralidade #RaizesDeFamilia #HonraEOrigem #HistoriasReais"
     },
     {
-      id: "pauta_29",
-      pautaNumber: 29,
-      theme: "estudio",
-      category: "trafego",
-      scenario: "Estratégia & Anúncios",
-      title: "Remarketing Perpétuo no WhatsApp & Meta Ads",
-      format: "Funil Perpétuo de Atendimento",
-      channel: "Meta Ads, WhatsApp Business & Tráfego",
-      recommendedTime: "10:00",
-      duration: "Ajuste Técnico",
-      summary: "Ativação do remarketing para quem visitou o Painel de Produção e criação de botão direto para WhatsApp de acolhimento.",
-      script: `[Ação Operacional do Gestor de Tráfego]:
-1. Criar Campanha de Conversão / Tráfego no Meta Ads focada em visitantes que iniciaram atendimento.
-2. Criativo: Vídeo da Pauta 27 ('Como Funciona') ou Pauta 23 ('Bênção do Pai') com CTA: 'Converse com a nossa equipe no WhatsApp'.
-3. Configurar mensagem inicial humanizada no WhatsApp:
-   'Olá! Vi o Iasis falando sobre as homenagens da Reviva Memories e gostaria de tirar algumas dúvidas com a equipe'.
-4. Manter atendimento acolhedor e sem pressão comercial.`,
-      caption: `Alinhamento do fluxo perpétuo de atendimento humanizado e conversão respeitosa.`,
-      hashtags: "#TrafegoPerpetuo #WhatsAppMarketing #Remarketing #RevivaMemories",
-      checklist: ["Ativar público de visitantes recentes", "Testar link direto para WhatsApp com mensagem pronta", "Revisar script de atendimento humano"]
+      "id": "post_26",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "Do arquivo de áudio de WhatsApp à homenagem em alta definição",
+      "summary": "Como tratamos mensagens de voz curtas ou com ruído para reconstruir uma presença vocal perfeita.",
+      "scenario": "Bancada do estúdio com fones de ouvido profissionais e espectrograma na tela",
+      "format": "Vídeo Vertical (9:16) • 55s",
+      "duration": "55s",
+      "recommendedTime": "12:30",
+      "checklist": [
+        "Demonstrar áudio original com ruído de fundo sendo isolado e harmonizado",
+        "Ressaltar o trabalho dos engenheiros acústicos da Reviva",
+        "Chamada para quem só tem um áudio curto guardado no celular"
+      ],
+      "script": "Muitas pessoas nos procuram dizendo: 'Iasis, eu só tenho um áudio de 10 segundos no WhatsApp com vento no fundo... será que dá?' Olha isso aqui.\n\nNós pegamos essa mensagem de voz simples, removemos ruídos de rua, recuperamos a ressonância natural do peito e isolamos o timbre exato. A partir dessa assinatura única, conseguimos recriar a cadência perfeita para uma homenagem completa. Você não precisa ter gravações profissionais de estúdio.\n\nSe você tem um áudio de celular ou um vídeo caseiro, a nossa equipe consegue resgatar essa presença com perfeição acústica.",
+      "caption": "Você tem um áudio antigo guardado no WhatsApp com a voz de quem você ama? Esse áudio vale ouro. 🎙️🤍\n\nMesmo que a gravação seja curta ou tenha ruídos de fundo, nosso processo de harmonização vocal consegue resgatar o timbre e a emoção com máxima fidelidade.\n\nNão deixe esses áudios se perderem na troca de aparelho. Fale conosco no direct para saber como preservar essa memória para sempre. 🔗\n\n#RevivaApresenta #HarmonizacaoVocal #AudiosDeFamilia #PresencaVocal #TecnologiaAcustica",
+      "hashtags": "#RevivaApresenta #HarmonizacaoVocal #AudiosDeFamilia #PresencaVocal #TecnologiaAcustica"
     },
     {
-      id: "pauta_30",
-      pautaNumber: 30,
-      theme: "estudio",
-      category: "estudio",
-      scenario: "Estúdio Reviva Memories",
-      title: "O Manifesto Perpétuo do Iasis: Celebrando a Vida Todos os Dias",
-      format: "Vídeo Vertical (9:16) • 45 a 60s",
-      channel: "Reels • TikTok • Shorts • Facebook",
-      recommendedTime: "20:00",
-      duration: "~58s",
-      summary: "O grande manifesto do Iasis celebrando o amor, a família e a certeza de que a memória viva nos acompanhará para sempre.",
-      script: `[Cenário: Iasis em pé no estúdio, com iluminação quente de celebração e olhar afetuoso]
-
-Se você me acompanhou até aqui, você já entendeu o nosso propósito.
-A Reviva Memories não nasceu para alimentar o peso da dor ou o silêncio da ausência.
-Nós nascemos para celebrar a vida. Para honrar cada gargalhada na mesa de domingo, cada conselho sussurrado com carinho, cada abraço apertado de pai, mãe, avô e filho.
-O amor é a única força que desafia o tempo.
-E enquanto houver alguém para lembrar com gratidão, ninguém nunca parte de verdade.
-Eu sou o Iasis, e estarei sempre aqui para ser o seu guia nessa jornada de cura e alento.
-Viva o hoje. Ame sem medidas. E conte conosco para eternizar a sua história.`,
-      caption: `Enquanto houver amor e gratidão, ninguém nunca parte de verdade. 🕊️✨🤍
-
-Encerramos este ciclo de reflexões com o peito cheio de esperança e alegria por compartilhar essa caminhada com você. Que a sua família seja sempre abençoada com saúde, amor e memórias inesquecíveis.
-
-Eu sou o Iasis, e é uma honra caminhar ao seu lado. Conheça a Reviva Memories no link da nossa bio. 🤍`,
-      hashtags: "#Iasis #Manifesto #AmorEterno #CelebrarAVida #Gratidao #FamiliaAbençoada #RevivaMemories",
-      checklist: ["Gravar interpretação do manifesto", "Trilha orquestrada e emocionante", "Publicar às 20h00 em todas as redes", "Fixar como post principal"]
+      "id": "post_27",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "Qual é o cheiro que te lembra a sua infância?",
+      "summary": "Memória olfativa e como os aromas despertam lembranças esquecidas instantaneamente.",
+      "scenario": "Café de rua aconchegante com xícara de café coado e bolo saindo fumaça",
+      "format": "Vídeo Vertical (9:16) • 45s",
+      "duration": "45s",
+      "recommendedTime": "19:00",
+      "checklist": [
+        "Iasis sentindo o aroma do café recém-passado",
+        "Linguagem sensorial envolvente",
+        "Estimular comentários nostálgicos"
+      ],
+      "script": "Tem coisas que os olhos esquecem, mas o nariz lembra na mesma hora. O cheiro de terra molhada na casa de campo.\n\nO perfume característico que a sua mãe passava no domingo de manhã. Ou o aroma de bolo de fubá com erva-doce saindo do forno da sua avó. A memória olfativa é a via mais rápida até a nossa infância porque ela não passa pela razão: vai direto para o centro da emoção.\n\nSe você pudesse engarrafar um único cheiro da sua história para nunca mais esquecer... qual seria?",
+      "caption": "O aroma é o atalho mais veloz para o passado que o coração conhece. ☕🍰\n\nUm cheiro específico de comida, um perfume ou o cheirinho de chuva podem te fazer ter 7 anos de idade outra vez em menos de um segundo.\n\nQual é o cheiro da sua infância? Deixe nos comentários, quero sentir essa memória com você! ✨\n\n#IasisConversa #MemoriaOlfativa #CheiroDeInfancia #NostalgiaPura #CafeComLembranca",
+      "hashtags": "#IasisConversa #MemoriaOlfativa #CheiroDeInfancia #NostalgiaPura #CafeComLembranca"
+    },
+    {
+      "id": "post_28",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "Por que as brincadeiras de antigamente nos uniam tanto?",
+      "summary": "A importância da convivência física descalça e olho no olho na formação dos nossos laços.",
+      "scenario": "Parque ao entardecer com crianças brincando ao longe ao fundo",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Iasis caminhando devagar pelo gramado do parque",
+        "Contraste entre a infância analógica e o isolamento digital de hoje",
+        "Reflexão sobre resgatar a presença no convívio familiar"
+      ],
+      "script": "Rua de terra, taco, queimada, subir em árvore até o joelho ralar e voltar para casa só quando o poste de luz acendia. Por que essa infância deixou tanta saudade na nossa geração?\n\nPorque a gente aprendia a negociar, a perder, a rir junto e a olhar nos olhos. Os nossos laços eram construídos na convivência real, não através de curtidas numa tela fria. As memórias que sustentam a nossa alma na vida adulta foram forjadas naquelas tardes simples em que nada nos faltava, porque tínhamos presença.\n\nLembre-se: seus filhos e netos também vão se lembrar não das coisas que você comprou, mas das tardes em que você esteve inteiro com eles.",
+      "caption": "A gente não precisava de muito para ser feliz... só precisava de amigos na rua e tempo livre. 🚲🌅\n\nQuem teve uma infância cheia de brincadeiras ao ar livre guarda um tesouro que nenhuma tela moderna consegue substituir.\n\nQual era a sua brincadeira favorita quando você era criança? Deixe sua lembrança aqui! 👇\n\n#IasisPensa #InfanciaAntiga #BrincadeirasDeRua #PresencaReal #TempoDeMenino",
+      "hashtags": "#IasisPensa #InfanciaAntiga #BrincadeirasDeRua #PresencaReal #TempoDeMenino"
+    },
+    {
+      "id": "post_29",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "O neto que conheceu a voz do avô pela primeira vez",
+      "summary": "Case emocionante de preservação de legado para crianças que nasceram após a partida dos avós.",
+      "scenario": "Sala acolhedora com álbum de família e tablet exibindo vídeo",
+      "format": "Vídeo Vertical (9:16) • 55s",
+      "duration": "55s",
+      "recommendedTime": "12:30",
+      "checklist": [
+        "Narrativa emocionante sobre crianças conhecendo a história dos avós",
+        "Enfatizar a Reviva como elo entre quem foi e quem está começando a vida",
+        "Chamada acolhedora para pais que desejam manter o legado vivo"
+      ],
+      "script": "Uma mãe nos procurou com um pedido muito especial: O pai dela faleceu quando ela ainda estava grávida de 6 meses.\n\nHoje o filho dela tem 7 anos e perguntava todos os dias: 'Mãe, como era a voz do vovô?' Nós resgatamos cartas, restauramos a fotografia dele sorrindo e harmonizamos a voz para que o avô pudesse deixar uma bênção com conselhos para o primeiro dia de aula do menino. Quando o pequeno ouviu o avô chamando ele pelo nome e dizendo que cuida dele com carinho... a mãe chorou aliviada.\n\nA Reviva existe para que nenhuma criança cresça sem saber o amor que existiu antes dela chegar ao mundo.",
+      "caption": "Como você conta para o seu filho sobre quem partiu antes dele nascer? 👶🕊️\n\nNa Reviva, criamos bênçãos e mensagens de amor para que novas gerações conheçam e sintam o afeto de seus antepassados.\n\nConheça essa experiência tocante e descubra como conectar gerações na sua família pelo link da nossa bio. ✨\n\n#RevivaApresenta #NetoEAvô #ConexaoEntreGeracoes #AmorQueFica #BencaoDeFamilia",
+      "hashtags": "#RevivaApresenta #NetoEAvô #ConexaoEntreGeracoes #AmorQueFica #BencaoDeFamilia"
+    },
+    {
+      "id": "post_30",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "O que você ainda guarda na sua carteira?",
+      "summary": "Reflexão sobre os pequenos papéis, santinhos ou bilhetes que carregamos no bolso por anos.",
+      "scenario": "Cafeteria com carteira de couro aberta sobre a mesa de madeira",
+      "format": "Vídeo Vertical (9:16) • 45s",
+      "duration": "45s",
+      "recommendedTime": "19:30",
+      "checklist": [
+        "Iasis tira um pequeno papel dobrado de uma carteira de couro antiga",
+        "Sensação de cumplicidade e intimidade com o seguidor",
+        "Incentivar as pessoas a olharem suas carteiras agora"
+      ],
+      "script": "Você tem algum bilhete guardado na carteira que você nunca joga fora? Uma oraçãozinha amassada que a sua mãe te deu antes de uma viagem.\n\nA foto 3x4 do seu amor com a bordinha já gasta. Ou um bilhetinho escrito à mão num guardanapo dizendo: 'tenha fé, vai dar tudo certo'. A gente carrega cartões de crédito e documentos... mas o que realmente nos protege no meio da rua é o amor que a gente leva escondido no bolso.\n\nAbre a sua carteira aí agora. O que é que mora nela além de dinheiro?",
+      "caption": "No bolso da calça a gente carrega documentos... mas no fundo da carteira a gente guarda o coração. 📜💼\n\nAquele bilhetinho de 10 anos atrás, o santinho da vovó ou a fotinho desbotada 3x4 que nunca sai de lá.\n\nVocê tem algum guardado especial na sua carteira? Me conta aqui embaixo! 👇\n\n#IasisConversa #GuardadosNoBolso #BilhetesDeAmor #LembrancasSecretas #AfetoCotidiano",
+      "hashtags": "#IasisConversa #GuardadosNoBolso #BilhetesDeAmor #LembrancasSecretas #AfetoCotidiano"
+    },
+    {
+      "id": "post_31",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "A arte do perdão antes que seja tarde",
+      "summary": "Reflexão sobre a reconciliação e o peso de brigas tolas diante da brevidade da vida.",
+      "scenario": "Varanda tranquila no crepúsculo com luz suave e silêncio reconfortante",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Tom solene, empático e de profunda maturidade",
+        "Alerta amoroso sobre o valor do tempo presente",
+        "Incentivar que pessoas façam as pazes hoje"
+      ],
+      "script": "O orgulho é uma das coisas mais caras que existem. Ele cobra o preço de momentos que nunca mais voltam. Quantas famílias passam meses ou até anos sem se falar por causa de uma partilha boba, uma palavra dita no calor do momento ou uma discussão sem sentido?\n\nE quando a despedida final acontece... tudo aquilo perde qualquer valor. O que sobra é apenas a vontade desesperada de ter dito: 'eu te perdoo, vamos tomar um café?'. A vida é breve demais para a gente dormir com raiva de quem a gente ama.\n\nSe tem alguém da sua família com quem você se afastou... mande uma mensagem hoje. O perdão cura quem oferece.",
+      "caption": "O tempo não espera o nosso orgulho diminuir. Perdoe em vida. Abrace em vida. 🕊️🤍\n\nNenhuma mágoa vale o preço de uma conversa que nunca mais poderá acontecer. Diga 'eu te amo' enquanto há tempo de ouvir a resposta.\n\nEnvie esse vídeo para quem você quer ter por perto de novo. Que o amor vença hoje. ✨\n\n#IasisPensa #PerdaoEmVida #FamiliaUnida #PazNoCoracao #Reconciliacao",
+      "hashtags": "#IasisPensa #PerdaoEmVida #FamiliaUnida #PazNoCoracao #Reconciliacao"
+    },
+    {
+      "id": "post_32",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "Como preparamos uma homenagem para casamentos e debutantes",
+      "summary": "O passo a passo de como noivos e debutantes integram a homenagem na cerimônia de forma discreta e surpreendente.",
+      "scenario": "Estúdio com fotos de casamento e layout de evento",
+      "format": "Vídeo Vertical (9:16) • 55s",
+      "duration": "55s",
+      "recommendedTime": "12:30",
+      "checklist": [
+        "Mostrar a integração com a equipe de cerimonial e audiovisual do evento",
+        "Destacar o efeito surpresa inesquecível",
+        "Chamada para noivos que casam em 2026/2027"
+      ],
+      "script": "Como funciona a logística de exibir uma homenagem da Reviva em um casamento ou festa de 15 anos sem estragar a surpresa? Nós alinhamos tudo diretamente com o cerimonial e a equipe de som e iluminação da festa.\n\nNo momento exato — logo após os votos dos noivos ou na valsa da debutante — as luzes do salão se suavizam. O telão se acende e a voz daquele pai, mãe ou avô que partiu surge com total clareza acústica, abençoando a nova união. É um momento solene que para o evento inteiro. Não existe convidado que não se emocione.\n\nPorque quando o afeto é tratado com respeito técnico e artístico, a cerimônia ganha uma dimensão eterna.",
+      "caption": "O momento mais emocionante do seu casamento pode ser a bênção de quem sempre torceu por você. 💍🕊️\n\nAlinhamos cada detalhe com sua equipe de cerimonial para garantir máxima discrição, surpresa e impacto emocional perfeito.\n\nSe você vai casar ou debutar nos próximos meses, fale conosco no WhatsApp e receba uma consultoria exclusiva. 🔗\n\n#RevivaApresenta #Noivas2026 #CasamentoDosSonhos #HomenagemSurpresa #Valsa15Anos",
+      "hashtags": "#RevivaApresenta #Noivas2026 #CasamentoDosSonhos #HomenagemSurpresa #Valsa15Anos"
+    },
+    {
+      "id": "post_33",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "Aquela música que não dá pra ouvir sem chorar",
+      "summary": "Conversa descontraída e sensível sobre as canções que viraram a trilha sonora de pessoas queridas.",
+      "scenario": "Mesa de café com fones de ouvido e vinil vintage ao fundo",
+      "format": "Vídeo Vertical (9:16) • 45s",
+      "duration": "45s",
+      "recommendedTime": "19:00",
+      "checklist": [
+        "Iasis com fones no pescoço, cantarolando uma nota sutil",
+        "Falar sobre como músicas viram endereço fixo de saudade",
+        "Estimular uma enxurrada de nomes de músicas nos comentários"
+      ],
+      "script": "Todo mundo tem uma música que não pode tocar no rádio sem dar um nó na garganta. Aquela moda de viola que o pai cantava dirigindo na estrada de terra.\n\nAquele bolero que os seus avós dançavam na sala no final do ano. Ou aquela canção que tocou no dia em que você precisou dizer até logo. A música é a única arte que entra no nosso cérebro sem pedir licença e acende todas as luzes da memória de uma vez só.\n\nQual é a canção que tem o nome e o cheiro de alguém especial para você?",
+      "caption": "A música é a residência onde as melhores lembranças moram. 🎶🤍\n\nQual é a canção que sempre te faz lembrar com carinho e emoção daquela pessoa querida?\n\nDeixe o nome da música e de quem você lembra nos comentários. Vamos montar uma playlist linda de afeto! ☕👇\n\n#IasisConversa #TrilhaSonoraDaVida #MusicaEMemoria #NostalgiaMusical #SaudadeComMusica",
+      "hashtags": "#IasisConversa #TrilhaSonoraDaVida #MusicaEMemoria #NostalgiaMusical #SaudadeComMusica"
+    },
+    {
+      "id": "post_34",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "As mãos que nos criaram",
+      "summary": "Homenagem às mãos calejadas, enrugadas e acolhedoras de pais e avós.",
+      "scenario": "Poltrona clássica com luz natural lateral suave",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Iasis olha para as próprias mãos de forma pensativa",
+        "Poesia visual sobre a história gravada nas linhas da pele",
+        "Valorização de pais e mães idosos"
+      ],
+      "script": "Você já reparou com atenção nas mãos da sua mãe ou do seu pai quando eles envelhecem? Aquelas veias aparentes, a pele fina como papel de seda, as manchinhas do sol e as marcas de décadas de trabalho duro.\n\nCada linha daquela mão conta uma história de renúncia para que a nossa vida fosse mais mansa do que a deles. Foram aquelas mãos que seguraram a nossa bicicleta sem rodinha, que nos cobriram nas noites de febre e que nos abençoaram na saída de casa. Se você ainda pode segurar a mão dos seus pais hoje... segure forte. Sinta o calor. Agradeça em silêncio.\n\nEssas mãos construíram o chão onde você pisa.",
+      "caption": "As mãos dos nossos pais são mapas sagrados de amor e renúncia. 🤲🤍\n\nQuantas vezes aquelas mãos trabalharam cansadas para que você tivesse segurança para crescer?\n\nAproveite o dia de hoje para dar um beijo carinhoso na mão de quem te criou. Marque seus pais ou deixe uma oração de gratidão aqui. ✨\n\n#IasisPensa #MaosQueCriaram #GratidaoAosPais #AmorDeFilho #HonraAosIdosos",
+      "hashtags": "#IasisPensa #MaosQueCriaram #GratidaoAosPais #AmorDeFilho #HonraAosIdosos"
+    },
+    {
+      "id": "post_35",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "O que dizem as famílias que receberam uma homenagem Reviva",
+      "summary": "Depoimentos reais de alívio, conforto e celebração após a experiência Reviva.",
+      "scenario": "Estúdio com cartas e mensagens de clientes na bancada",
+      "format": "Vídeo Vertical (9:16) • 55s",
+      "duration": "55s",
+      "recommendedTime": "12:30",
+      "checklist": [
+        "Exibir trechos reais de mensagens de WhatsApp de clientes emocionados",
+        "Destacar o sentimento de paz e alívio pós-homenagem",
+        "Chamada de confiança e acolhimento"
+      ],
+      "script": "Muita gente nos pergunta: 'Iasis, as pessoas não ficam tristes ao ver uma homenagem em vídeo?' A resposta das próprias famílias nos surpreende todos os dias.\n\nOlha o que a Carla nos escreveu na semana passada: 'Iasis, depois que meus irmãos e eu assistimos à mensagem do papai no aniversário de 80 anos da mamãe, uma paz imensa tomou conta da casa. Não foi choro de tristeza; foi choro de alívio e de reencontro.' O que a Reviva entrega não é dor. É o fecho carinhoso de um abraço que faltava.\n\nÉ transformar a saudade que aperta em uma presença luminosa que aconchega a alma.",
+      "caption": "Não é sobre dor. É sobre paz, alívio e a certeza de que o amor nunca acaba. 🕊️✨\n\nCentenas de famílias em todo o Brasil já encontraram consolo e celebração através de nossas homenagens afetivas.\n\nQuer saber como criar uma homenagem para a sua família? Chame a nossa equipe no link da bio e converse conosco com todo acolhimento. 💬\n\n#RevivaApresenta #DepoimentosReais #ConsoloEAfeto #PazNoCoracao #HistoriasDeAmor",
+      "hashtags": "#RevivaApresenta #DepoimentosReais #ConsoloEAfeto #PazNoCoracao #HistoriasDeAmor"
+    },
+    {
+      "id": "post_36",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "O almoço de domingo que a gente achava comum",
+      "summary": "Nostalgia dos almoços caóticos de família cheios de tios, risadas e conversas cruzadas.",
+      "scenario": "Mesa rústica com toalha xadrez ou louça simples de família",
+      "format": "Vídeo Vertical (9:16) • 45s",
+      "duration": "45s",
+      "recommendedTime": "19:00",
+      "checklist": [
+        "Iasis com tom bem-humorado e saudoso",
+        "Relembrar a barulheira da mesa cheia",
+        "Apelo para valorizar o almoço de domingo com os que estão vivos"
+      ],
+      "script": "Lembra daqueles almoços de domingo na casa dos avós? Todo mundo falando junto ao mesmo tempo, criança correndo debaixo da mesa, o tio contando a mesma piada pela décima vez, a travessa de macarronada fumegante no centro...\n\nNa época, a gente achava que aquilo era apenas um domingo comum. A gente não imaginava que um dia daria tudo para ter aquela barulheira de volta, só por meia hora. O comum da infância se transforma no extraordinário da saudade na vida adulta.\n\nSe domingo você vai ter quem sente à mesa com você... celebre cada risada alta.",
+      "caption": "A gente achava que era só um domingo qualquer... mas era a felicidade em estado puro. 🍝🥂\n\nAs conversas cruzadas, as risadas e o prato repetido. Valorize cada encontro em volta da mesa com quem você ama.\n\nQuem era a pessoa que comandava a cozinha nos seus almoços de domingo? Conte pra nós! 👇\n\n#IasisConversa #AlmocoDeDomingo #CasaDeVo #FamiliaReunida #SaudadeBoa",
+      "hashtags": "#IasisConversa #AlmocoDeDomingo #CasaDeVo #FamiliaReunida #SaudadeBoa"
+    },
+    {
+      "id": "post_37",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "Dezembro chegou: onde foi parar o ano?",
+      "summary": "O impacto psicológico da aceleração do tempo no final do ano e a necessidade de pausar.",
+      "scenario": "Cafeteria com decoração sutil de final de ano e folhas douradas",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Iasis reflete sobre o início do último mês do ano",
+        "Convidar a desacelerar a correria de fim de ano",
+        "Foco em presença antes das compras de Natal"
+      ],
+      "script": "Dezembro bateu na porta outra vez. Parece que ontem a gente estava pulando as ondas do réveillon e, num piscar de olhos, o ano inteiro escorreu pelas nossas mãos.\n\nQuando a gente chega nesta época, bate aquela ansiedade: metas não cumpridas, correrias de compras, confraternizações apressadas... Mas deixa eu te fazer um convite para este mês que está começando: Antes de sair correndo atrás de presentes materiais, pergunte-se: a quem você deve a sua presença? Quem está esperando apenas uma tarde mansa de conversa com você antes do ano acabar?\n\nO melhor presente de fim de ano não vem em caixa de papel de presente. Vem em forma de abraço.",
+      "caption": "Dezembro chegou... e o maior presente que você pode dar a quem ama não cabe numa sacola de shopping. 🎁⏳\n\nEm vez de se perder na pressa das compras de fim de ano, reserve tempo para olhar nos olhos, perdoar e estar presente.\n\nQuem é a pessoa com quem você faz questão de tomar um café antes de 2026 terminar? Marque ela aqui! ✨\n\n#IasisPensa #DezembroChegou #FimDeAno #TempoPrecioso #PresencaAntesDoPresente",
+      "hashtags": "#IasisPensa #DezembroChegou #FimDeAno #TempoPrecioso #PresencaAntesDoPresente"
+    },
+    {
+      "id": "post_38",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "O presente de Natal que ninguém esquece",
+      "summary": "Por que presentear os pais ou avós com uma homenagem de resgate de memórias é o presente definitivo de Natal.",
+      "scenario": "Estúdio com caixas nobres de presente em dourado e fotos antigas",
+      "format": "Vídeo Vertical (9:16) • 55s",
+      "duration": "55s",
+      "recommendedTime": "12:30",
+      "checklist": [
+        "Apresentar a embalagem comemorativa e entrega especial de final de ano",
+        "Alerta sobre prazos de produção artesanal para o Natal",
+        "CTA para antecipar encomendas de fim de ano"
+      ],
+      "script": "Todo Natal é o mesmo dilema: o que dar de presente para quem já tem tudo, como nossos pais ou nossos avós? Mais um perfume? Mais uma camisa que vai ficar guardada no armário?\n\nEles não querem coisas materiais. Eles querem emoção. Imagine a ceia de Natal da sua família reunida na sala. Você liga a televisão e entrega a maior surpresa da vida deles: uma homenagem com as fotos restauradas da juventude e a voz de quem construiu a família deixando uma bênção de Natal. O Natal da sua família nunca mais será o mesmo.\n\nMas atenção: por ser um trabalho artístico feito à mão, nossas vagas para a ceia de Natal são limitadas. Garanta a sua com antecedência.",
+      "caption": "O maior presente deste Natal é emocionar quem dedicou a vida inteira por você. 🎄🕊️\n\nNossas homenagens de Natal transformam a ceia em um momento de pura união e lágrimas de felicidade.\n\n⚠️ Como cada vídeo passa por um processo artesanal minucioso de restauração e aprovação, nossas vagas para dezembro são limitadas. Fale conosco no WhatsApp pelo link da bio! 🎁\n\n#RevivaApresenta #PresenteDeNatal #NatalEmFamilia #CeiaDeNatal #HomenagemDeNatal",
+      "hashtags": "#RevivaApresenta #PresenteDeNatal #NatalEmFamilia #CeiaDeNatal #HomenagemDeNatal"
+    },
+    {
+      "id": "post_39",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "A cadeira vazia na ceia de Natal",
+      "summary": "Acolhimento sincero para quem vai passar o primeiro Natal sem alguém que amava.",
+      "scenario": "Ambiente calmo e aconchegante com luz quente de vela e xícara de chá",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "19:30",
+      "checklist": [
+        "Tom de profundo acolhimento e respeito à dor do luto",
+        "Transformar a cadeira vazia em um espaço de luz e gratidão",
+        "Vídeo de alto compartilhamento em grupos familiares em dezembro"
+      ],
+      "script": "Eu sei que para muita gente, dezembro não é só festa. Para quem perdeu alguém querido neste ano ou nos anos anteriores, a aproximação do Natal dói.\n\nA gente olha para a mesa e pensa naquela cadeira que costumava ser ocupada por aquela risada, por aquele brinde... Se você está sentindo esse aperto no peito, deixa eu te dizer uma coisa: Não sinta vergonha de chorar na noite de Natal. Mas não chore apenas pela ausência. Sorria pela dádiva inesquecível de ter tido essa pessoa na sua mesa por tantos anos.\n\nQuem foi amado com verdade nunca deixa a mesa vazia: mora para sempre no centro do coração.",
+      "caption": "Para todos aqueles que terão uma cadeira vazia na ceia deste ano: todo o nosso carinho e abraço mais apertado. 🕯️🤍\n\nA saudade no Natal é a prova de que o amor que existiu foi imenso. Honre quem partiu celebrando o legado de afeto que ficou em você.\n\nEnvie este abraço em vídeo para alguém que está sentindo essa falta neste mês. ✨\n\n#IasisConversa #CadeiraVazia #NatalComSaudade #Acolhimento #AmorQueFica",
+      "hashtags": "#IasisConversa #CadeiraVazia #NatalComSaudade #Acolhimento #AmorQueFica"
+    },
+    {
+      "id": "post_40",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "O verdadeiro sentido de recomeçar",
+      "summary": "Reflexão sobre como as estações da vida se renovam e como a memória nos dá raízes para florescer.",
+      "scenario": "Jardim botânico com plantas florindo e sol da manhã",
+      "format": "Vídeo Vertical (9:16) • 45 a 55s",
+      "duration": "45-55s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Ambiente vivo, verde e ensolarado",
+        "Mensagem de superação e esperança",
+        "Preparar os seguidores para o fechamento de ciclo"
+      ],
+      "script": "A natureza nos ensina uma lição silenciosa todo final de ano: As árvores deixam as folhas secas caírem sem medo, porque sabem que a seiva continua viva lá nas raízes.\n\nRecomeçar não significa esquecer o que ficou para trás. Significa pegar tudo o que você aprendeu, todas as memórias que te sustentaram e ter a coragem de brotar de novo. Você sobreviveu a dias difíceis neste ano. Você superou dores que achava que não suportaria.\n\nOlhe para trás com gratidão por quem te fortaleceu... e olhe para frente com a certeza de que a sua história ainda tem muitas páginas douradas para serem escritas.",
+      "caption": "Recomeçar não é esquecer o passado: é ter raízes fortes o suficiente para florescer outra vez. 🌿🌻\n\nAgradeça a cada pessoa que te estendeu a mão neste ano e a cada lembrança que te manteve em pé.\n\nO que você deseja que floresça na sua vida nas próximas semanas? Compartilhe seus votos aqui! 👇\n\n#IasisPensa #Recomeco #Esperanca #LicaoDaNatureza #ForcaInterior",
+      "hashtags": "#IasisPensa #Recomeco #Esperanca #LicaoDaNatureza #ForcaInterior"
+    },
+    {
+      "id": "post_41",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "Última chamada para o Natal: Como eternizar a sua história a tempo",
+      "summary": "Orientações finais sobre prazos e como enviar as fotos e áudios para a equipe da Reviva.",
+      "scenario": "Mesa de conferência da Reviva com envelopes dourados e selo de cera",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "12:30",
+      "checklist": [
+        "Transparência total sobre os prazos de entrega garantida para o dia 24",
+        "Mostrar o selo de garantia de qualidade e aprovação",
+        "Link direto para o WhatsApp no primeiro comentário e bio"
+      ],
+      "script": "Se você está planejando emocionar a sua família na noite de Natal com uma homenagem da Reviva, este é o momento definitivo. Nossa equipe de restauradores e designers acústicos trabalha com um limite rigoroso de homenagens simultâneas para garantir que cada detalhe tenha a perfeição que a sua família merece.\n\nPara que o seu vídeo passe por todas as etapas de aprovação e fique pronto a tempo de você colocar na televisão da sala no dia 24, precisamos receber o seu material esta semana. Não deixe para a última hora.\n\nMande uma mensagem agora no nosso WhatsApp pelo link da bio e vamos começar a preparar esse reencontro.",
+      "caption": "Garanta a homenagem de Natal da sua família a tempo da ceia do dia 24 de dezembro. 🎄✨\n\nPor ser uma produção artística rigorosa e personalizada, encerraremos os pedidos natalinos nos próximos dias.\n\nAcesse o link da bio agora mesmo e inicie o atendimento com nossa equipe de consultores no WhatsApp. 💬\n\n#RevivaApresenta #NatalReviva #PrazoDeNatal #HomenagemPersonalizada #AmorEmFamilia",
+      "hashtags": "#RevivaApresenta #NatalReviva #PrazoDeNatal #HomenagemPersonalizada #AmorEmFamilia"
+    },
+    {
+      "id": "post_42",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "O que você gostaria que nunca mudasse?",
+      "summary": "Conversa intimista sobre as tradições de família que mantêm a chama do amor acesa.",
+      "scenario": "Café aconchegante com canela e luz de velas",
+      "format": "Vídeo Vertical (9:16) • 45s",
+      "duration": "45s",
+      "recommendedTime": "19:00",
+      "checklist": [
+        "Iasis com expressão serena e acolhedora",
+        "Exaltação das tradições simples de final de ano",
+        "Chamada calorosa para reflexão familiar"
+      ],
+      "script": "O mundo muda rápido demais, né? As cidades crescem, a tecnologia avança, as modas passam...\n\nMas tem coisas que a gente queria que ficassem para sempre iguaizinhas. Aquele abraço apertado da mãe quando a gente chega de viagem. A oração antes da ceia feita com a mesma voz serena de sempre. A tradição de sentar na sala para contar histórias de quando os primos eram pequenos.\n\nO que é que você gostaria que o tempo nunca levasse embora da sua família?",
+      "caption": "No meio de um mundo que gira tão depressa... o que você gostaria que ficasse para sempre igual? ☕🕯️\n\nAs tradições familiares são como âncoras de paz para o coração.\n\nQual é a tradição de fim de ano que você faz questão de manter viva aí na sua casa? Conta pra mim! 👇\n\n#IasisConversa #TradicaoDeFamilia #OMundoMuda #AfetoEterno #RaizesFortes",
+      "hashtags": "#IasisConversa #TradicaoDeFamilia #OMundoMuda #AfetoEterno #RaizesFortes"
+    },
+    {
+      "id": "post_43",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "O Natal não é sobre coisas. É sobre pessoas.",
+      "summary": "O grande manifesto filosófico da semana natalina: desintoxicar do consumismo e focar na presença.",
+      "scenario": "Sala elegante com lareira ou luz âmbar de Natal suave",
+      "format": "Vídeo Vertical (9:16) • 50s",
+      "duration": "50s",
+      "recommendedTime": "18:00",
+      "checklist": [
+        "Iasis com fala profunda e desarmada",
+        "Mensagem de paz e valorização dos afetos",
+        "Post para salvar e compartilhar nos grupos de WhatsApp da família"
+      ],
+      "script": "Estamos a poucos dias da ceia de Natal. E se eu pudesse te fazer um único pedido hoje, seria este:\n\nEsqueça a pressão por presentes caros ou mesas impecáveis de revista. O que faz um Natal ser inesquecível são as pessoas que dividem a vida com você. É o abraço apertado de quem te ama. É a lembrança carinhosa de quem já virou luz e continua te abençoando lá do céu.\n\nNeste Natal, seja você o presente mais precioso na vida de alguém: doe seu tempo, sua escuta e o seu coração.",
+      "caption": "O Natal não é sobre o que está debaixo da árvore... é sobre quem está ao redor dela. 🎄🤍\n\nAbrace com alma. Diga o quanto você ama. Não economize afeto neste fim de ano.\n\nMarque aqui as pessoas que fazem o seu Natal ter verdadeiro sentido. ✨\n\n#IasisPensa #SemanaDoNatal #EspiritoNatalino #AmorVerdadeiro #PazNaTerra",
+      "hashtags": "#IasisPensa #SemanaDoNatal #EspiritoNatalino #AmorVerdadeiro #PazNaTerra"
+    },
+    {
+      "id": "post_44",
+      "themeId": "reviva_apresenta",
+      "category": "reviva_apresenta",
+      "pilar": "Reviva Apresenta",
+      "title": "Uma noite de reencontro: Feliz Natal da família Reviva",
+      "summary": "Homenagem especial e emocionante de Natal para todas as famílias do Brasil.",
+      "scenario": "Estúdio com árvore de Natal nobre e fotos douradas",
+      "format": "Vídeo Vertical (9:16) • 60s",
+      "duration": "60s",
+      "recommendedTime": "12:30",
+      "checklist": [
+        "Vídeo oficial de Natal da marca Reviva Memories",
+        "Trechos poéticos de reencontros e celebração",
+        "Mensagem de bênção e gratidão a todos os clientes e seguidores"
+      ],
+      "script": "Hoje, em milhares de lares pelo Brasil, a ceia de Natal vai reunir gerações. E para nós da Reviva Memories, não existe honra maior do que saber que, em muitas dessas mesas, uma homenagem nossa vai permitir que uma voz inesquecível volte a abençoar a família.\n\nA todos os nossos clientes, seguidores e amigos que nos confiaram o que têm de mais sagrado — as suas memórias: Que a noite de hoje seja um banquete de paz, de reconciliação e de muito amor. O amor nunca acaba. Ele apenas se renova a cada abraço.\n\nFeliz e abençoado Natal para você e para toda a sua família!",
+      "caption": "Um Feliz e Abençoado Natal de toda a família Reviva Memories! 🌟🕊️\n\nQue a luz do amor, da paz e da presença ilumine a sua ceia e o seu lar hoje e sempre. Obrigado por nos permitirem cuidar das memórias mais preciosas da sua vida.\n\nDeixe aqui sua mensagem de Feliz Natal para a nossa comunidade! 🎄🤍\n\n#RevivaApresenta #FelizNatal #CeiaDeAmor #BencaoNatalina #LuzEAfeto",
+      "hashtags": "#RevivaApresenta #FelizNatal #CeiaDeAmor #BencaoNatalina #LuzEAfeto"
+    },
+    {
+      "id": "post_45",
+      "themeId": "iasis_conversa",
+      "category": "iasis_conversa",
+      "pilar": "Iasis Conversa",
+      "title": "O dia 25 de dezembro e o silêncio da gratidão",
+      "summary": "Reflexão no próprio dia de Natal sobre a paz que fica após a festa e o valor da convivência tranquila.",
+      "scenario": "Manhã de Natal iluminada pela janela, café fresco na mão",
+      "format": "Vídeo Vertical (9:16) • 45s",
+      "duration": "45s",
+      "recommendedTime": "11:00 (Manhã de Natal)",
+      "checklist": [
+        "Clima de paz matinal do dia de Natal",
+        "Iasis com voz calma, transmitindo serenidade",
+        "Agradecimento por estarmos vivos"
+      ],
+      "script": "Manhã de Natal. A correria dos preparativos passou, a ceia de ontem foi linda e agora fica aquele silêncio gostoso na casa.\n\nRestos de rabanada, embalagens de presente no chão e o coração cheio de paz. Se você acordou hoje ao lado de quem você ama, ou se recebeu aquela mensagem carinhosa de quem está longe... agradeça. Estar vivo e ter histórias para contar é o maior milagre que a gente pode experimentar.\n\nQue o dia de hoje seja de descanso, ternura e muito carinho para você.",
+      "caption": "O silêncio manso e a gratidão profunda do dia de Natal. ☕🕊️\n\nRespire fundo, descanse o coração e sinta a bênção de estar aqui.\n\nComo está sendo o seu dia de Natal hoje? Desejo um dia de muita paz para a sua família! ✨\n\n#IasisConversa #DiaDeNatal #PazDeEspirito #GratidaoPelaVida #CoracaoEmPaz",
+      "hashtags": "#IasisConversa #DiaDeNatal #PazDeEspirito #GratidaoPelaVida #CoracaoEmPaz"
+    },
+    {
+      "id": "post_46",
+      "themeId": "iasis_pensa",
+      "category": "iasis_pensa",
+      "pilar": "Iasis Pensa",
+      "title": "A retrospectiva do coração: O que você leva para o Ano Novo?",
+      "summary": "O grande fechamento da agenda 2026 preparando o terreno para a nova direção em janeiro.",
+      "scenario": "Ambiente sofisticado com luz poente e brinde suave com taça ou café",
+      "format": "Vídeo Vertical (9:16) • 60s",
+      "duration": "60s",
+      "recommendedTime": "18:00 (Última segunda-feira do ano)",
+      "checklist": [
+        "Iasis faz o balanço emocional de 2026",
+        "Preparar a audiência para a nova fase e métricas em janeiro de 2027",
+        "Fechamento com chave de ouro do cronograma perpétuo"
+      ],
+      "script": "Chegamos aos últimos dias de 2026. Neste ano, rimos, choramos e aprendemos a valorizar o que o dinheiro não compra: a presença e a memória.\n\nTe convido a fazer a retrospectiva do coração: Quais momentos deste ano você quer guardar na sua caixa de tesouros? Quem foram as pessoas que seguraram sua mão quando o chão pareceu sumir? Em janeiro, traremos novidades e novos caminhos para cuidar da sua história. Até lá... leve apenas o afeto. Deixe os pesos para trás.\n\nObrigado por ter estado conosco. O futuro pertence a quem tem raízes fortes.",
+      "caption": "A retrospectiva que realmente importa é aquela que você guarda no coração. 🥂✨\n\nEncerramos este ciclo de 2026 com gratidão infinita por cada história compartilhada e cada reencontro promovido.\n\nEm janeiro, iniciaremos uma nova etapa emocionante com base em tudo o que vivemos e aprendemos juntos.\n\nQual é a palavra que resume o seu ano de 2026? Comente abaixo e venha brindar com a gente! 🤍\n\n#IasisPensa #Retrospectiva2026 #AnoNovoChegando #FechamentoDeCiclo #GratidaoEterna",
+      "hashtags": "#IasisPensa #Retrospectiva2026 #AnoNovoChegando #FechamentoDeCiclo #GratidaoEterna"
     }
   ]
 };
